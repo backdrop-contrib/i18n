@@ -13,39 +13,38 @@
  * 
  * Get language from path if exists and Initialize i18n system
  * 
- * Will be called *always* from bootstrap.inc
  */
 
 function i18n_init(){
-  global $i18n_langpath, $i18n_url;
+  global $i18n_langpath;
   
-  $path = isset($_GET['q']) ? $_GET['q'] : ''; //i18n_get_original_path();
+  $path = i18n_get_original_path();
+  $i18n_langpath = i18n_get_lang_prefix($path);
+  $lang = _i18n_get_lang();
   
-  // Define $i18n_url, just for cache use
-  if ($path == '' && variable_get('cache', 0) && variable_get('i18n_browser',0)) {
-     $i18n_url = '/' . _i18n_get_lang();
+  
+  if ($path == '') { // Main page
+    if( variable_get('cache',0) && $lang != i18n_default_language() ) {
+      // Redirect to main page in $lang
+      drupal_goto($lang);
+    } elseif (variable_get('i18n_frontpage',0)){
+      $_GET['q'] = i18n_frontpage();
+    } 
   } 
-  
-  if ($path == '' && variable_get('i18n_frontpage',0)) {
-    $_GET['q'] = i18n_frontpage();
+  elseif ($lang == $path) { // When path is only language code
+    $_GET['q'] =  variable_get('i18n_frontpage',0) ? i18n_frontpage() : variable_get('site_frontpage','node'); 
   }
-  elseif ($lang = i18n_get_lang_prefix($path)) {
-      $i18n_langpath = $lang;
-      if ($path == $i18n_langpath) {
-         // When path is only language code
-        $_GET['q'] =  variable_get('i18n_frontpage',0) ? i18n_frontpage() : variable_get('site_frontpage','node'); 
-      }else{ 
-        //search alias with and without lang and remove lang
-        $_GET['q'] = i18n_get_normal_path($path);
-      }
-  } // else { path will be translated later by common.inc}
+  elseif ($i18n_langpath) {
+    //search alias with and without lang and remove lang
+    $_GET['q'] = i18n_get_normal_path($path);
+  } 
 
   // Multi table, for backwards compatibility and experimentation
   if (variable_get('i18n_multi' , 0)) {
     i18n_set_db_prefix(_i18n_get_lang());
   }
-  
-  // This function is only defined when module is enabled
+
+  // This function are only defined when module is enabled
   // Otherwise, it messes up the module administration menu
 function i18n_url_rewrite($path, $mode ='outgoing') {
    if ($mode == 'outgoing' && !i18n_get_lang_prefix($path)) {
@@ -55,8 +54,29 @@ function i18n_url_rewrite($path, $mode ='outgoing') {
    }
 }  // End of i18n_url_rewrite  
 
+/**
+ * This one expects to be called first from common.inc
+ * When first called, calls _i18n_init();
+ */
+function i18n_get_lang() {
+  static $i18n_language;
+  //see if the language is already set.
+  if ($i18n_language) {
+    return $i18n_language;
+  } else {
+    _i18n_init();
+    return $i18n_language = _i18n_get_lang();
+  }
+}  // End of i18n_get_lang
+
 }  // End of i18n_init    
 
+/**
+ * Check whether we are in bootstrap mode
+ */  
+function i18n_is_bootstrap(){
+  return !function_exists('drupal_get_headers');
+}    
 
 /*
  * Second stage init, from common.inc
@@ -152,12 +172,14 @@ function i18n_menu($may_cache) {
         'callback' => 'i18n_translation_page',
         'access' => user_access('administer nodes'),
         'type' => MENU_CALLBACK);
+      /* Disabled term translations
       $items[] = array(
         'path' => 'admin/taxonomy/i18n', 
         'title' => t('translation'),
         'callback' => 'i18n_taxonomy_admin',
         'access' => user_access('administer taxonomy'),
         'type' => MENU_LOCAL_TASK);
+     */
   }
   else {
     if (arg(0) == 'node' && is_numeric(arg(1)) && variable_get('i18n_node_'.i18n_get_node_type(arg(1)), 0)) {
@@ -249,20 +271,7 @@ function i18n_block($op = 'list', $delta = 0) {
  * i18n api
  */
 
-/**
- * This one expects to be called first from common.inc
- * When first called, calls _i18n_init();
- */
-function i18n_get_lang() {
-  static $i18n_lang;
-  //see if the language is already set.
-  if ($i18n_lang) {
-    return $i18n_lang;
-  } else {
-    _i18n_init();
-    return $i18n_lang = _i18n_get_lang();
-  }
-}
+
 /**
  *	Gets language, checking in order:
  *
@@ -273,15 +282,14 @@ function i18n_get_lang() {
  */
 
 function _i18n_get_lang() {
+  global $user, $i18n_langpath;
   static $i18n_lang;
-
+  
   //see if the language is already set.
   if ($i18n_lang) {
     return $i18n_lang;
   }
 
-  global $user, $i18n_langpath;
-   
   $languages = i18n_supported_languages();
    
   if ($i18n_langpath && array_key_exists($i18n_langpath,$languages)) {
@@ -322,6 +330,13 @@ function i18n_supported_languages() {
 } 
 
 /**
+ * Returns default language
+ */
+function i18n_default_language(){
+  return key(i18n_supported_languages());
+}
+
+/**
  * Returns list of enabled languages from locale module
  *
  * * Some code borrowed from locale module
@@ -336,7 +351,10 @@ function i18n_locale_supported_languages() {
 }
 
 
-// To get the original path. Cannot use $_GET["q"] cause it may have been already changed
+/**
+ * To get the original path. 
+ * Cannot use $_GET["q"] cause it may have been already changed
+ */
 function i18n_get_original_path() {
   return isset($_REQUEST["q"]) ? trim($_REQUEST["q"],"/") : '';
 }

@@ -177,6 +177,7 @@ function i18n_taxonomy_form_term($edit = array()) {
   $languages = i18n_supported_languages();
   $selectlang = array_merge(array('' => ''), $languages);
   
+  /* Vocabulary translations disabled for now
   if ($trid && $translations=i18n_term_get_translations($tid)) {
     // Term has translations. Not all languages are valid
     $selectlang = array('' => '');
@@ -191,8 +192,19 @@ function i18n_taxonomy_form_term($edit = array()) {
     $header = array(t('Language'), t('translated term'));
     $output .= form_group(t('term translations'), theme('table', $header, $rows));
   }
- 
-  $output = form_select(t('Language'), 'language', $termlang, $selectlang) . $output;
+  */
+  $output = form_select(t('Language'), 'language', $termlang, $selectlang);
+  return $output;
+}
+
+function i18n_taxonomy_form_vocabulary($edit = array()) {
+  $tid = $edit['tid'];
+  $lang= $edit['language'];
+  $trid= $edit['trid'];
+  
+  $languages = i18n_supported_languages();
+  $selectlang = array_merge(array('' => ''), $languages);
+  $output = form_select(t('Language'), 'language', $lang, $selectlang);
   return $output;
 }
 
@@ -318,8 +330,16 @@ function i18n_taxonomy($op, $type, $edit) {
           drupal_set_message(t('Removed translation info from term'));
         }
         break;
-        
+      case 'form pre':
+        return i18n_taxonomy_form_term($edit);
+        break;  
       case 'delete':
+    }
+  } else {
+    switch ($op) {
+      case 'form pre':
+        return i18n_taxonomy_form_vocabulary($edit);
+        break;
     }
   }
 

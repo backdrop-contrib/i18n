@@ -1,30 +1,29 @@
 Index: taxonomy.module
 ===================================================================
-RCS file: /var/cvs/Drupal-i18n/modules/taxonomy.module,v
-retrieving revision 1.4
-diff -u -r1.4 taxonomy.module
---- taxonomy.module	3 Dec 2004 15:35:03 -0000	1.4
-+++ taxonomy.module	7 Dec 2004 13:46:48 -0000
-@@ -103,7 +103,7 @@
-     return $blocks;
+RCS file: /var/cvs/CookingTheNet/modules/taxonomy.module,v
+retrieving revision 1.7
+diff -u -r1.7 taxonomy.module
+--- taxonomy.module	22 Jan 2005 16:13:41 -0000	1.7
++++ taxonomy.module	24 Jan 2005 00:24:50 -0000
+@@ -122,6 +122,8 @@
    }
-   else if (user_access('access content')) {
--    $result = db_query("SELECT d.tid, d.name, MAX(n.created) AS updated, COUNT(*) AS count FROM {term_data} d INNER JOIN {term_node} USING (tid) INNER JOIN {node} n USING (nid) WHERE n.status = 1 GROUP BY d.tid, d.name ORDER BY updated DESC, d.name");
-+    $result = db_query("SELECT d.tid, d.name, MAX(n.created) AS updated, COUNT(*) AS count FROM {term_data} d INNER JOIN {term_node} USING (tid) INNER JOIN {node} n USING (nid) WHERE n.status = 1 ".taxonomy_i18n_where_sql('d')." GROUP BY d.tid, d.name ORDER BY updated DESC, d.name");
-     $items = array();
-     while ($category = db_fetch_object($result)) {
-       $items[] = l($category->name .' ('. $category->count .')', 'taxonomy/term/'. $category->tid) .'<br />'. t('%time ago', array('%time' => format_interval(time() - $category->updated)));
-@@ -199,6 +199,9 @@
+ 
+   $form .= form_textfield(t('Vocabulary name'), 'name', $edit['name'], 50, 64, t('The name for this vocabulary.  Example: "Topic".'), NULL, TRUE);
++  // Prepend extra vocabulary form elements.
++  $form .= implode('', module_invoke_all('taxonomy','form pre', 'vocabulary',$edit));
+   $form .= form_textarea(t('Description'), 'description', $edit['description'], 60, 5, t('Description of the vocabulary; can be used by modules.'));
+   $form .= form_textfield(t('Help text'), 'help', $edit['help'], 50, 255, t('Instructions to present to the user when choosing a term.'));
+   $form .= form_checkboxes(t('Types'), 'nodes', $edit['nodes'], $nodes, t('A list of node types you want to associate with this vocabulary.'), NULL, TRUE);
+@@ -208,6 +210,8 @@
    $vocabulary = taxonomy_get_vocabulary($vocabulary_id);
  
    $form = form_textfield(t('Term name'), 'name', $edit['name'], 50, 64, t('The name for this term.  Example: "Linux".'), NULL, TRUE);
-+   if( function_exists('i18n_taxonomy_form_term')){
-+    $form .= i18n_taxonomy_form_term($edit);
-+  }
++  // Prepend extra term form elements.
++  $form .= implode('', module_invoke_all('taxonomy','form pre', 'term',$edit));
    $form .= form_textarea(t('Description'), 'description', $edit['description'], 60, 5, t('A description of the term.'));
  
    if ($vocabulary->hierarchy) {
-@@ -237,8 +240,11 @@
+@@ -246,8 +250,11 @@
  }
  
  function taxonomy_save_term($edit) {
@@ -33,20 +32,20 @@ diff -u -r1.4 taxonomy.module
 +  }
    if ($edit['tid'] && $edit['name']) {
 -    $data = array('name' => $edit['name'], 'description' => $edit['description'], 'weight' => $edit['weight']);
-+    $data = array('name' => $edit['name'], 'description' => $edit['description'], 'weight' => $edit['weight'], 'language' => $edit['language'],'trid' => $edit['trid']);
++    $data = array('name' => $edit['name'], 'description' => $edit['description'], 'weight' => $edit['weight'], 'language' => $edit['language']);
  
      db_query('UPDATE {term_data} SET '. _taxonomy_prepare_update($data) .' WHERE tid = %d', $edit['tid']);
      module_invoke_all('taxonomy', 'update', 'term', $edit);
-@@ -249,7 +255,7 @@
+@@ -258,7 +265,7 @@
    }
    else {
      $edit['tid'] = db_next_id('{term_data}_tid');
 -    $data = array('tid' => $edit['tid'], 'name' => $edit['name'], 'description' => $edit['description'], 'vid' => $edit['vid'], 'weight' => $edit['weight']);
-+    $data = array('tid' => $edit['tid'], 'name' => $edit['name'], 'description' => $edit['description'], 'vid' => $edit['vid'], 'weight' => $edit['weight'], 'language' => $edit['language'],'trid' => $edit['trid']);
++    $data = array('tid' => $edit['tid'], 'name' => $edit['name'], 'description' => $edit['description'], 'vid' => $edit['vid'], 'weight' => $edit['weight'], 'language' => $edit['language']);
      db_query('INSERT INTO {term_data} '. _taxonomy_prepare_insert($data, 1) .' VALUES '. _taxonomy_prepare_insert($data, 2));
      module_invoke_all('taxonomy', 'insert', 'term', $edit);
      $message = t('Created new term %term.', array('%term' => '<em>'. $edit['name'] .'</em>'));
-@@ -456,7 +462,7 @@
+@@ -476,7 +483,7 @@
    static $terms;
  
    if (!isset($terms[$nid])) {
@@ -55,7 +54,7 @@ diff -u -r1.4 taxonomy.module
      $terms[$nid] = array();
      while ($term = db_fetch_object($result)) {
        $terms[$nid][$term->$key] = $term;
-@@ -584,7 +590,7 @@
+@@ -604,7 +611,7 @@
    if (!isset($children[$vid])) {
      $children[$vid] = array();
  
@@ -64,7 +63,7 @@ diff -u -r1.4 taxonomy.module
      while ($term = db_fetch_object($result)) {
        $children[$vid][$term->parent][] = $term->tid;
        $parents[$vid][$term->tid][] = $term->parent;
-@@ -1053,4 +1059,14 @@
+@@ -1067,4 +1074,14 @@
    return $term->tid;
  }
  

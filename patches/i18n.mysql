@@ -15,8 +15,12 @@ ALTER TABLE `node`
 ADD `language` char(2) NOT NULL default '';
 
 # Add language and trid fields to term_data
-ALTER TABLE `term_data` 
-ADD `language` char(2) NOT NULL default '',
-ADD `trid` int(11) NOT NULL default '0';
+ALTER TABLE `term_data`
+# ADD `trid` int(11) NOT NULL default '0',
+ADD `language` char(2) NOT NULL default '';
+
+# Add language to vocabulary
+ALTER TABLE `vocabulary`
+ADD `language` char(2) NOT NULL default '';
 
 

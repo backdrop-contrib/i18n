@@ -12,15 +12,19 @@
 /**
  * Implementation of hook_node_rewrite_sql()
  */ 
-function i18n_node_rewrite_sql($hint,$node_alias){
+function i18n_node_rewrite_sql($query,$node_alias){
   $result = array();
-  if ($hint & NODE_REWRITE_SQL_RELATED_LIST) {
+  // Check for some special cases, no hints anymore  
+  if ($query == '') {
+    // No query, search case
+    // $result['where'] = "$node_alias.language='".i18n_get_lang()."'";
+  } elseif (!strpos($query,'{node}')) {
+    // Node table is not included, join it
     $result['join'] = "INNER JOIN {node} USING(nid)";
-    $result['where'] = "{node}.language='".i18n_get_lang()."'";
-  } elseif ( $hint & NODE_REWRITE_SQL_SEARCH) {
-    
+    $result['where'] = "{node}.language ='".i18n_get_lang()."' or {node}.language = ''" ;
   } else {
-    $result['where'] = "$node_alias.language ='".i18n_get_lang()."'" ;
+    // Default case, simple where condition
+    $result['where'] = "$node_alias.language ='".i18n_get_lang()."' OR $node_alias.language = ''" ;
   }
   return $result;
 }

@@ -1,5 +1,12 @@
 4-5-0 to .....
 --------------
+23/01/2005
+- Reworked init system, module.inc patch not needed anymore
+- Implemented hook_node_query_sql, node.module patch not needed anymore
+- Using redirects from the main page depending on browser language
+- Removed translations from taxonomy terms
+- Added language to vocabularies
+
 04/01/2004
 - Now language icons are not displayed with teasers
 - Fixed http://drupal.org/node/15062 (Inconsistent i18n_front_page vs. i18n_frontpage)
