@@ -1,6 +1,8 @@
 README
 ======
 Warning: This is a beta version and all the combinations of the module settings have not been tested yet
+Warning: Some features are experimental
+Warning: DO READ THE INSTALL FILE
 
 This module provides support for internationalization of Drupal sites in various ways:
 
@@ -23,19 +25,23 @@ To have a language selector on your page, you can use the block provided or thes
  theme("i18n_links",$flags,$names,$delim1,$delim2) -> Check documentation in the code for different options
 
 About Multi-Language:
+=====================
   There are currently two options to build multi-language sites:
   
   1. With URL aliasing - using path module's Custom URLs and i18n's URL rewriting feature
+  ---------------------
   You have to create a Custom URL for each language version of a node:
     I.e. 'en/mypage', 'es/mypage' should be English and Spanish versions of the same page
   	The link to display this page will be only 'mypage'. The language code will be added automatically.
 
-  2. With duplicated tables [Only in HEAD CVS version of the module]
-    You can keep separated tables -the ones you choose- for each language. You have to create the tables manually and add them to $db_prefix. See INSTALL file.
+  2. [EXPERIMENTAL] With duplicated tables [Only in HEAD CVS version of the module]
+  ------------------------
+    You can keep separated tables -the ones you choose- for each language. You have to create the tables manually and add them to $db_prefix_i18n. See INSTALL file.
     * This feature uses db prefixing (An idea taken from Walkah's translate_node module) to keep separated tables for each language.
-    ** When using language dependent tables other than 'node', some manual synchronization may be needed. 
-  	*** Currently, the synchronization between languages is only automatic for the node table.
 
+	** When using language dependent tables other than 'node' or taxonomy tables, some manual synchronization may be needed. 
+
+	*** The automatic synchronization ACTUALLY DELETES NODES and TAXONOMY DATA. Take care.
 
 Jose A. Reyero, drupal at reyero dot net
 

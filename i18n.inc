@@ -45,9 +45,10 @@ function i18n_get_lang_prefix($path){
 	}
 }
 
-// This is just an experiment to keep tables in sync. Needs some patching to core.
+// This is just an experiment to keep tables in sync. 
+// Needs some patching to core.
 function i18n_db_sync($query){
-	global $languages,$locale;
+	global $languages,$i18n_lang;
 	global $i18n_db_sync,$db_prefix_i18n_sync;
 	if (preg_match("/^(insert into|delete from)[ ]+\{([\w]+)\}.*/i",$query,$matches) && $db_prefix_i18n_sync[$matches[2]]){
 		debug("SYNC:".$sql);
