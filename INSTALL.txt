@@ -7,11 +7,15 @@ Email: drupal at reyero dot net
 
 ********************************************************************
 INSTALLATION:
-0. Apply the patches provided with the module
+0. Apply the patches provided with the module:
 	bootstrap.inc patch is only required if you want language dependent variables -see below
+
 1. Create folder 'modules/i18n'
+
 2. Copy all the modules files, keeping directory structure, to the folder 'modules/i18n/'
-3. Configuration file -conf.php- and flags
+
+3. Configuration file -conf.php- and flags:
+
 3.1. To use url rewriting, this line should be added to your configuration file:
 
   include 'modules/i18n/i18n.inc'
@@ -28,7 +32,8 @@ INSTALLATION:
 
 <warning> This feature is experimental</warning>
 ------------------------------------------------
-
+<NEW,IMPORTANT> This may be dropped in upcoming versions, so it is discouraged</NEW,IMPORTANT>
+------------------------------------------------
 4.1. Modify $db_prefix and add $db_prefix_i18n in .conf file. This is a sample:
 	
 	$db_prefix=array (
@@ -50,6 +55,15 @@ INSTALLATION:
 4.2. Create table copys for each language: prefix_es_node, prefix_en_node, etc...
 
 4.3. [IMPORTANT] If you are updating an existing site, you have to manually synchronize the id's in the {sequences} table
+
+Same object ids should have the same value accross languages
+
+I.e.
+
+en_node_id = 5
+es_node_id = 5
+ru_node_id = 5
+
 
 4.4. [ADVICE] For language-dependent tables, you better define the supported languages in the config file.
 	* Otherwise, changing the locale languages can cause some language dependant tables to get out of sync 

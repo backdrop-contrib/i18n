@@ -1,5 +1,7 @@
 README.txt
 ==========
+Important Note: Using duplicated tables is discouraged as it might not be supported in upcoming versions
+==========
 Warning: This is a beta version and all the combinations of the module settings have not been tested yet
 Warning: Some features are experimental
 Warning: DO READ THE INSTALL FILE
@@ -36,7 +38,7 @@ About multilingual content:
     I.e. 'en/mypage', 'es/mypage' should be English and Spanish versions of the same page
   	The link to display this page will be only 'mypage'. The language code will be added automatically.
 
-  2. With duplicated tables [Only in HEAD CVS version of the module]
+  2. With duplicated tables [See 'Important note' at the beginning]
   ------------------------
     You can keep separated tables -the ones you choose- for each language. 
     You have to create the tables manually and add them to $db_prefix_i18n. See INSTALL file.
