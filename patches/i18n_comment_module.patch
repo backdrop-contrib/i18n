@@ -1,0 +1,16 @@
+Index: comment.module
+===================================================================
+RCS file: /var/cvs/CookingTheNet/modules/comment.module,v
+retrieving revision 1.3
+diff -u -r1.3 comment.module
+--- comment.module	4 Jan 2005 20:12:24 -0000	1.3
++++ comment.module	7 Jan 2005 16:59:39 -0000
+@@ -157,7 +157,7 @@
+     return $blocks;
+   }
+   else if ($op == 'view' && user_access('access comments')) {
+-    $result = db_query_range('SELECT * FROM {comments} WHERE status = 0 ORDER BY timestamp DESC', 0, 10);
++    $result = db_query_range(node_rewrite_sql('SELECT * FROM {comments} WHERE {comments}.status = 0 ORDER BY timestamp DESC',NODE_REWRITE_SQL_RELATED_LIST,'comment'), 0, 10);
+     $items = array();
+     while ($comment = db_fetch_object($result)) {
+       $items[] = l($comment->subject, 'node/'. $comment->nid, NULL, NULL, 'comment-'. $comment->cid) .'<br />'. t('%time ago', array('%time' => format_interval(time() - $comment->timestamp)));
