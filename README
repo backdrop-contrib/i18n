@@ -5,7 +5,8 @@ Warning: This is a beta version and all the combinations of the module settings 
 This module provides support for internationalization of Drupal sites in various ways:
 
     * Translation of the user interface for registered and anonymous users
-    * Multi-language for content, combined with url aliasing. For this feature to be used, you must enable it in the module configuration and then use url aliasing to keep pages in various languages. I.e. 'en/mypage', 'es/mypage' should be English and Spanish versions of the same page
+    * Basic multi-language using URL Aliasing, combined with url aliasing. See below.
+    * [EXPERIMENTAL, see INSTALL file] Advanced multi-language using duplicated tables. Selected tables will be made language dependent.
     * Detection of the brower language
     * Keeps the language settings accross consecutive requests, using a number of methods: URL rewriting, sessions, cookies
     * Provides a block for language selection and two theme functions: i18n_flags and i18n_links
@@ -20,6 +21,20 @@ To have a language selector on your page, you can use the block provided or thes
 
  theme("i18n_flags") -> Adds just a row with the flags
  theme("i18n_links",$flags,$names,$delim1,$delim2) -> Check documentation in the code for different options
+
+About Multi-Language:
+  There are currently two options to build multi-language sites:
+  
+  1. With URL aliasing - using path module's Custom URLs and i18n's URL rewriting feature
+  You have to create a Custom URL for each language version of a node:
+    I.e. 'en/mypage', 'es/mypage' should be English and Spanish versions of the same page
+  	The link to display this page will be only 'mypage'. The language code will be added automatically.
+
+  2. With duplicated tables [Only in HEAD CVS version of the module]
+    You can keep separated tables -the ones you choose- for each language. You have to create the tables manually and add them to $db_prefix. See INSTALL file.
+    * This feature uses db prefixing (An idea taken from Walkah's translate_node module) to keep separated tables for each language.
+    ** When using language dependent tables other than 'node', some manual synchronization may be needed. 
+  	*** Currently, the synchronization between languages is only automatic for the node table.
 
 
 Jose A. Reyero, drupal at reyero dot net

@@ -7,7 +7,7 @@
  */
 
 function conf_url_rewrite($path, $mode = 'incoming') {
-		if(variable_get('i18n_keep','')=='url'){
+		if(variable_get('i18n_keep','')=='url' || variable_get('i18n_content',0)){
 			 return i18n_url_rewrite($path,$mode);
 		} else {
 			return $path;
@@ -42,6 +42,24 @@ function i18n_get_lang_prefix($path){
 	$maybelang=$split[0];
 	if($languages[$maybelang]){
 		return $maybelang;
+	}
+}
+
+// This is just an experiment to keep tables in sync. Needs some patching to core.
+function i18n_db_sync($query){
+	global $languages,$locale;
+	global $i18n_db_sync,$db_prefix_i18n_sync;
+	if (preg_match("/^(insert into|delete from)[ ]+\{([\w]+)\}.*/i",$query,$matches) && $db_prefix_i18n_sync[$matches[2]]){
+		debug("SYNC:".$sql);
+		$i18n_db_sync=false;
+		foreach($languages as $lang => $desc){
+				i18n_set_db_prefix($lang);
+				$result[$lang]=_db_query(db_prefix($args));
+		}
+		i18n_set_db_prefix($locale);
+		$i18n_db_sync=true;
+	} elseif(preg_match("/^REPLACE INTO \{sequences\}.*/i",$sql)){
+	
 	}
 }
 ?>

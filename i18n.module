@@ -14,7 +14,7 @@
 
 function i18n_init(){
 	global $i18n_langpath;
-	
+
 	// Quick fix, check if called from bootstrap.inc
 	if(!function_exists("drupal_get_path_map")) return 0;
 	
@@ -23,21 +23,32 @@ function i18n_init(){
 	}else{
   	$lang= i18n_get_default_lang();
 	}
-	
-  if(variable_get("i18n_interface",0)) i18n_set_default_lang($lang);
   
   if(variable_get("i18n_content",0)){
-  	$original=i18n_get_original_path();
+  	i18n_set_db_prefix($lang);
+ 		$original=i18n_get_original_path();
   	if(!$i18n_langpath && $trpath=i18n_get_normal_path("$lang/$original")){
   		$_GET["q"]=$trpath;
   	}elseif(!$original || $i18n_langpath==$original){
 			$_GET["q"]=drupal_get_normal_path(i18n_front_page($lang));
   	}
   }
+  
+  if(variable_get("i18n_interface",0)) i18n_set_default_lang($lang);
+
 }
+
+function i18n_set_db_prefix($lang){
+	global $db_prefix,$i18n_db_prefix;
+	if(!$i18n_db_prefix) $i18n_db_prefix=$db_prefix;
+	$db_prefix=str_replace('**',$lang,$db_prefix);
+	//var_dump($db_prefix);
+}
+
 function i18n_front_page($lang){
 	return variable_get("i18n_front_page",0) ? $lang.'/'.variable_get('site_frontpage','node') : variable_get('site_frontpage','node');
 }
+
 function i18n_help($section = "admin/help#i18n") {
   switch ($section) {
   	case "admin/help#i18n":
@@ -65,6 +76,11 @@ function i18n_help($section = "admin/help#i18n") {
 function i18n_settings(){
 	$output .= form_radios(t("Interface translation"),"i18n_interface",variable_get("i18n_interface",0),array(t("Disabled"),t("Enabled")),t("If disabled, uses Drupal's default. If enabled, translates the interface to selected language"));
 	$output .= form_radios(t("Content translation"),"i18n_content",variable_get("i18n_content",0),array(t("Disabled"),t("Enabled")),t("If enabled, prepends language code to url and searches for translated content"));
+	$output .= form_group(t("Synchronize content")." <strong>EXPERIMENTAL FEATURE</strong>"
+		,form_checkbox(t("Nodes"),"i18n_sync_nodes",1,variable_get("i18n_sync_nodes",0))
+		.form_checkbox(t("Taxonomy"),"i18n_sync_taxonomy",1,variable_get("i18n_sync_taxonomy",0))
+		,t("Synchronize tables for different languages. When some element is created/removed, it will be created/removed for all languages with the same id")
+		);
 	$output .= form_select(t("Front page"),"i18n_front_page",variable_get("i18n_front_page",0),array(t("Default"),t("Language dependant")),t("If language dependant and <i>Content translation</i> is enabled, default front page will be prepended with language code, i.e. 'en/node'"));
 	$output .=form_radios(t("Keep Language"),"i18n_keep",variable_get("i18n_keep",'url'),
 	array(	""=>t("Disabled"),
@@ -73,7 +89,7 @@ function i18n_settings(){
 					"cookie" => t("Cookie")
 	),t("A language code independent of user's language will be kept accross requests using the selected method"));
 	$output .= form_radios(t("Detect browser language"),"i18n_browser",variable_get("i18n_browser",0),array(t("Disabled"),t("Enabled")));
-	$output .= form_textfield(t("Flags directory"),"i18n_flags",variable_get("i18n_flags","misc/flags/*.gif"),70,180,t("Path for flags. Asterisk '*' is a placeholder for language code. This is only needed when you want a language selector block"));
+	$output .= form_textfield(t("Flags directory"),"i18n_flags",variable_get("i18n_flags","modules/i18n/flags/*.gif"),70,180,t("Path for flags. Asterisk '*' is a placeholder for language code. This is only needed when you want a language selector block"));
 
 	return $output;
 }
@@ -243,7 +259,7 @@ function theme_i18n_flags(){
 }
 
 function _i18n_flag($lang,$attribs=array()){
-	if($path=variable_get("i18n_flags","misc/flags/*.gif")){
+	if($path=variable_get("i18n_flags","modules/i18n/flags/*.gif")){
 		$flag=str_replace("*",$lang,$path);
 		return "<img class=\"i18n\" src=\"$flag\"".drupal_attributes($attribs)." />";
 	}
@@ -271,5 +287,63 @@ function i18n_l($text, $lang , $url="",$attributes=array(),$query=NULL) {
 	$i18n_langpath=$tmp;	
 	return $result;
 }
+
+
+function i18n_nodeapi(&$node, $op, $arg = 0) {
+  global $languages, $i18n_lang;
+
+	if(variable_get('i18n_sync_nodes',0) && $db_prefix_i18n['node']){
+	  switch ($op) {
+	  case 'insert':
+	    $fields = node_invoke_nodeapi($node, "fields");
+	
+	    // Prepare the query:
+	    foreach ($node as $key => $value) {
+	      if (in_array($key, $fields)) {
+	        $k[] = check_query($key);
+	        $v[] = $value;
+	        $s[] = "'%s'";
+	      }
+	    }
+	
+	    $keysfmt = implode(", ", $s);
+	    // need to quote the placeholders for the values
+	    $valsfmt = "'". implode("', '", $s) ."'";
+	    
+	    // Insert copies for each language
+	    foreach ($languages as $lang => $desc) {
+	      if ($lang != $i18n_lang) {
+	        // fake the next id to keep sequences in step
+	        $node_table=i18n_get_table('node',$lang);
+	        db_next_id($node_table.'_nid');
+	        db_query("INSERT INTO $node_table (". implode(", ", $k) .") VALUES(". implode(", ", $s) .")", $v);
+	      }
+	    }
+	    break;
+	
+	  case 'delete':
+	    foreach ($languages as $lang => $desc) {
+	      if ($lang != $i18n_lang) {
+	      	$node_table=i18n_get_table('node',$lang);
+	        db_query("DELETE FROM $node_table WHERE nid='%s'", $node->nid);
+	      }
+	    }
+	  }
+	}
+}
+
+function i18n_get_table($table,$lang){
+	global $i18n_db_prefix;
+	if($db_prefix_i18n[$table]) {
+		return str_replace('**',$lang,$db_prefix_i18n[$table]).$table;
+	} elseif(is_array($db_prefix_i18n)){
+		return str_replace('**',$lang,$db_prefix_i18n['default']).$table;
+	} elseif(is_string($db_prefix_i18n)){
+		return str_replace('**',$lang,$db_prefix_i18n).$table;
+	} else {
+		return $table;
+	}
+}
+
 
 ?>
