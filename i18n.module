@@ -5,31 +5,28 @@
  * Internationalization (i18n) module
  *
  * @author Jose A. Reyero, 2004
- * 
+ *
  */
-
-// Include parts, may be conditional include in the future
-include_once 'modules/i18n/i18n_node.inc';
-include_once 'modules/i18n/i18n_taxonomy.inc';
-
-// Dirty, quick, but bullet-proof always working initialization, I hope :-) 
-
-_i18n_init();
 
 /**
  * Module initialization
  * 
  * Get language from path if exists and Initialize i18n system
  * 
- * Doesn't rely anymore in being called from common.inc or bootstrap.inc, just init when loaded
+ * Will be called *always* from bootstrap.inc
  */
-function _i18n_init() {
-  global $i18n_langpath;
 
-  $path = i18n_get_original_path();
+function i18n_init(){
+  global $i18n_langpath, $i18n_url;
+  
+  $path = isset($_GET['q']) ? $_GET['q'] : ''; //i18n_get_original_path();
+  
+  // Define $i18n_url, just for cache use
+  if ($path == '' && variable_get('cache', 0) && variable_get('i18n_browser',0)) {
+     $i18n_url = '/' . _i18n_get_lang();
+  } 
   
   if ($path == '' && variable_get('i18n_frontpage',0)) {
-    // Set i18n frontpage, which implements its own path translation
     $_GET['q'] = i18n_frontpage();
   }
   elseif ($lang = i18n_get_lang_prefix($path)) {
@@ -41,14 +38,35 @@ function _i18n_init() {
         //search alias with and without lang and remove lang
         $_GET['q'] = i18n_get_normal_path($path);
       }
-  } // else { path will be -or has been- translated by common.inc, let it be }
+  } // else { path will be translated later by common.inc}
 
   // Multi table, for backwards compatibility and experimentation
   if (variable_get('i18n_multi' , 0)) {
-    i18n_set_db_prefix(i18n_get_lang());
+    i18n_set_db_prefix(_i18n_get_lang());
   }
-}
+  
+  // This function is only defined when module is enabled
+  // Otherwise, it messes up the module administration menu
+function i18n_url_rewrite($path, $mode ='outgoing') {
+   if ($mode == 'outgoing' && !i18n_get_lang_prefix($path)) {
+      return i18n_get_lang() . '/'. $path;
+   } else {
+     return $path;
+   }
+}  // End of i18n_url_rewrite  
 
+}  // End of i18n_init    
+
+
+/*
+ * Second stage init, from common.inc
+ * Does some additional includes
+ */
+function _i18n_init() {
+  // Include parts, may be conditional include in the future
+  include_once 'modules/i18n/i18n_node.inc';
+  include_once 'modules/i18n/i18n_taxonomy.inc';  
+}
 /**
  *  Common module functions
  */
@@ -96,7 +114,8 @@ function i18n_settings() {
   $output .= form_radios(t('Browser language detection'), 'i18n_browser', variable_get('i18n_browser', 0), array(t('Disabled'), t('Enabled' )));
   $output .= form_select(t('Front page'), 'i18n_front_page', variable_get('i18n_front_page', 0), array(t('Default'), t('Language dependent')), t(" If 'language dependent' is selected, default front page will be prepended with language code, i.e. 'en/node'"));
 
-  $output .= form_textfield(t('Flags path'), 'i18n_flags', variable_get('i18n_flags', 'modules/i18n/flags/*.gif'), 70, 180, t("Path for flags. Asterisk '*' is a placeholder for language code. This is only needed when you want a language selector block"));
+  $output .= form_textfield(t('Language icons html tag'), 'i18n_flags', variable_get('i18n_flags', '<img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12"/>'), 70, 180, 
+    t('HTML tag for flags. Asterisk \'*\' is a placeholder for language code. It should be something like &lt;img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12"/&gt'));
 
   $output .= t('<h2>Multilingual content</h2>' );
   foreach (node_list() as $node) {
@@ -105,7 +124,7 @@ function i18n_settings() {
   $output .= form_group(t('Nodes' ), $subform, t('Select node types to be translated.' ));
   
   $output .= t('<h2>Advanced Features</h2>' );
-  $output .= t('<p>These are intended only for advanced users. Some changes to the database are required. Please, do read the INSTALL and README.txt files before enabling these options</p>' );
+  $output .= t('<p>These are intended only for advanced users. Some changes to the database are required. Please, do read the INSTALL.txt and README.txt files before enabling these options</p>' );
 
   // Advanced features
   // Language dependent tables
@@ -151,17 +170,6 @@ function i18n_menu($may_cache) {
         'access' => $access,
         'type' => $type);
     }
-    
-  // This function is only defined when module is enabled
-  // Otherwise, it messes up the module administration menu
-function i18n_url_rewrite($path, $mode ='outgoing') {
-   if ($mode == 'outgoing' && !i18n_get_lang_prefix($path)) {
-      return i18n_get_lang().'/'.$path;
-   } else {
-     return $path;
-   }
-}   // End of i18n_url_rewrite
-    
   }
 
   return $items;
@@ -214,7 +222,7 @@ function i18n_link($type, $node = NULL, $teaser = FALSE) {
     $languages = i18n_supported_languages();
     $translations = i18n_node_get_translations($node->nid);
     foreach ($translations as $lang => $trnode) {
-        $links[]= theme( 'i18n_link_name_flag', $lang, 'node/'. $trnode->nid);
+        $links[]= theme('i18n_link_name_flag', $lang, 'node/'. $trnode->nid);
      }
   }
   return $links;
@@ -236,18 +244,25 @@ function i18n_block($op = 'list', $delta = 0) {
   return $blocks;
 }
 
-function theme_i18n_link_name_flag($lang, $path, $attributes = array()) {
-  static $languages;
-  if (!isset($languages)) {
-    $languages = i18n_supported_languages();
-  }
-  return l(t($languages[$lang]). i18n_flag($lang) , $path, $attributes);
-}
 
 /**
  * i18n api
  */
 
+/**
+ * This one expects to be called first from common.inc
+ * When first called, calls _i18n_init();
+ */
+function i18n_get_lang() {
+  static $i18n_lang;
+  //see if the language is already set.
+  if ($i18n_lang) {
+    return $i18n_lang;
+  } else {
+    _i18n_init();
+    return $i18n_lang = _i18n_get_lang();
+  }
+}
 /**
  *	Gets language, checking in order:
  *
@@ -256,14 +271,17 @@ function theme_i18n_link_name_flag($lang, $path, $attributes = array()) {
  *	3. Browser language
  *	4. Default language
  */
-function i18n_get_lang() {
+
+function _i18n_get_lang() {
   static $i18n_lang;
+
   //see if the language is already set.
   if ($i18n_lang) {
     return $i18n_lang;
   }
 
-  global $i18n_langpath;  
+  global $user, $i18n_langpath;
+   
   $languages = i18n_supported_languages();
    
   if ($i18n_langpath && array_key_exists($i18n_langpath,$languages)) {
@@ -286,7 +304,7 @@ function i18n_get_lang() {
  * Get list of supported languages
  */
 function i18n_supported_languages() {
-
+  global $i18n_languages;  
   static $languages;
   if ($languages) {
     return $languages;
@@ -296,7 +314,6 @@ function i18n_supported_languages() {
     return $languages;
   } 
   elseif (is_array($i18n_languages)) {
-    global $i18n_languages;    
     return $languages = $i18n_languages;
   } 
   else {
@@ -373,6 +390,13 @@ function theme_i18n_flags() {
   return theme_i18n_links(1, 0);
 }
 
+function theme_i18n_link_name_flag($lang, $path, $attributes = array()) {
+  static $languages;
+  if (!isset($languages)) {
+    $languages = i18n_supported_languages();
+  }
+  return '<span class="i18n-link">'. l(t($languages[$lang]), $path, $attributes) . '&nbsp;' . l(i18n_flag($lang) , $path, $attributes) .'</span>';
+}
 
 
 /*
@@ -394,17 +418,23 @@ function i18n_l($text, $lang , $url = '' , $attributes = array(), $query = NULL)
 }
 
 function i18n_url($url, $lang, $query = NULL) {
-  return url($lang.'/'.$url, $query);
+  if ($url) {
+    return url($lang.'/'.$url, $query);
+  } else {
+    return url($lang,$query);
+  }
 }
 
 function i18n_flag($lang, $attribs = array()) {
-  if ($path = variable_get('i18n_flags', 'modules/i18n/flags/*.gif')) {
-    $flag=str_replace('*' , $lang, $path);
-    return "<img class=\"i18n\" src=\"$flag\" " . drupal_attributes($attribs) . '/>' ;
+  if ($path = variable_get('i18n_flags', '<img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12"/>')) {
+    $flag = str_replace('*' , $lang, $path);
+    if(!empty($attribs)){
+      $flag = str_replace('<','< '.drupal_attributes($attribs).' ',$flag);
+    }
+		return $flag;
   }
 }
 /* @} */
-
 
 
 /**
@@ -412,12 +442,13 @@ function i18n_flag($lang, $attribs = array()) {
  *
  * Requires a patch in bootstrap.inc
  */
-function i18n_variable(&$name) {
+function i18n_variable($name) {
   global $i18n_variables;
   if (is_array($i18n_variables) and in_array($name, $i18n_variables)) {
-    $name = i18n_get_lang().'_'.$name ;
+    return i18n_get_lang().'_'.$name ;
+  } else {
+    return $name;
   }
-  // if( is_array($i18n_variables) && array_key_exists($name, $i18n_variables) ) $name=i18n_get_lang().'_'.$name ;
 }
 
 /**
@@ -445,7 +476,7 @@ function i18n_set_db_prefix($lang) {
  * Language dependent front page
  */
 function i18n_frontpage() {
-  $path = i18n_get_lang().'/'.variable_get('site_frontpage','node');
+  $path = _i18n_get_lang().'/'.variable_get('site_frontpage','node');
   return i18n_get_normal_path($path);
 }
 

@@ -2,7 +2,7 @@ README.txt
 ==========
 
 ********************************************************************
-  This is the new i18n module.			                            
+  This is the new i18n module.
 ********************************************************************
 Current version of this module works with Drupal 4.5.1.
 May work also with 4.5.0, waiting for some feedback about this.

@@ -1,6 +1,13 @@
 4-5-0 to .....
 --------------
 
+07/12/2004
+- Fixed http://drupal.org/node/13982 (setting languages in config file fails)
+- Changed configurable path to language icons, to configurable html tag. Reconfiguration of the module needed.
+- Changed 'flags' to 'language icons', and the images to 16x12px png
+- Fixed http://drupal.org/node/13319 (some issues with cached pages)
+- Reworked initialization system. New patches for bootstrap.inc, module.inc
+
 30/11/2004
 
 - Updated to current DRUPAL-4-5 branch, won't work with 4.5.0 anymore

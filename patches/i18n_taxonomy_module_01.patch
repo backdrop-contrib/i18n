@@ -1,10 +1,10 @@
 Index: taxonomy.module
 ===================================================================
 RCS file: /var/cvs/Drupal-i18n/modules/taxonomy.module,v
-retrieving revision 1.3
-diff -u -r1.3 taxonomy.module
---- taxonomy.module	30 Nov 2004 12:00:14 -0000	1.3
-+++ taxonomy.module	1 Dec 2004 17:50:38 -0000
+retrieving revision 1.4
+diff -u -r1.4 taxonomy.module
+--- taxonomy.module	3 Dec 2004 15:35:03 -0000	1.4
++++ taxonomy.module	7 Dec 2004 13:46:48 -0000
 @@ -103,7 +103,7 @@
      return $blocks;
    }

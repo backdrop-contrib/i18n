@@ -1,0 +1,25 @@
+Index: module.inc
+===================================================================
+RCS file: /var/cvs/Drupal-i18n/includes/module.inc,v
+retrieving revision 1.3
+diff -u -r1.3 module.inc
+--- module.inc	2 Dec 2004 13:46:00 -0000	1.3
++++ module.inc	7 Dec 2004 13:50:37 -0000
+@@ -12,7 +12,7 @@
+  */
+ function module_init() {
+   module_load_all();
+-  module_invoke_all('init');
++
+ }
+ 
+ /**
+@@ -38,7 +38,7 @@
+  *   modules.
+  */
+ function module_list($refresh = FALSE, $bootstrap = FALSE) {
+-  static $list;
++  static $list = array();
+ 
+   if ($refresh) {
+     $list = array();
