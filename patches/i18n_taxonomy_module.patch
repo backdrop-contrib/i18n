@@ -1,18 +1,6 @@
---- taxonomy.module.1	2005-02-04 00:33:03.132104632 +0100
-+++ taxonomy.module	2005-02-04 00:32:32.700730904 +0100
-@@ -103,7 +103,10 @@ function taxonomy_block($op = 'list', $d
-     return $blocks;
-   }
-   else if ($op == 'view' && user_access('access content')) {
--    $result = db_query(db_rewrite_sql('SELECT d.tid, d.name, MAX(n.created) AS updated, COUNT(*) AS count FROM {term_data} d INNER JOIN {term_node} USING (tid) INNER JOIN {node} n USING (nid) WHERE n.status = 1 GROUP BY d.tid, d.name ORDER BY updated DESC, d.name'));
-+    $sql = 'SELECT t.tid, n.nid, t.name, MAX(n.created) AS updated, COUNT(*) AS count FROM {term_data} t INNER JOIN {term_node} tn ON t.tid = tn.tid INNER JOIN {node} n ON tn.nid = n.nid WHERE n.status = 1 GROUP BY t.tid, t.name ORDER BY updated DESC, t.name';
-+    $sql = db_rewrite_sql($sql);
-+    $sql = db_rewrite_sql($sql, 't', 'tid');
-+    $result = db_query($sql);
-     $items = array();
-     while ($category = db_fetch_object($result)) {
-       $items[] = l($category->name .' ('. $category->count .')', 'taxonomy/term/'. $category->tid) .'<br />'. t('%time ago', array('%time' => format_interval(time() - $category->updated)));
-@@ -122,6 +125,8 @@ function taxonomy_form_vocabulary($edit 
+--- taxonomy.module.orig	2005-03-18 10:00:01.000000000 +0100
++++ taxonomy.module	2005-03-21 21:18:20.000000000 +0100
+@@ -99,6 +99,8 @@ function taxonomy_form_vocabulary($edit 
    }
  
    $form .= form_textfield(t('Vocabulary name'), 'name', $edit['name'], 50, 64, t('The name for this vocabulary.  Example: "Topic".'), NULL, TRUE);
@@ -21,7 +9,7 @@
    $form .= form_textarea(t('Description'), 'description', $edit['description'], 60, 5, t('Description of the vocabulary; can be used by modules.'));
    $form .= form_textfield(t('Help text'), 'help', $edit['help'], 50, 255, t('Instructions to present to the user when choosing a term.'));
    $form .= form_checkboxes(t('Types'), 'nodes', $edit['nodes'], $nodes, t('A list of node types you want to associate with this vocabulary.'), NULL, TRUE);
-@@ -145,7 +150,7 @@ function taxonomy_save_vocabulary($edit)
+@@ -122,7 +124,7 @@ function taxonomy_save_vocabulary($edit)
      $edit['nodes'] = array();
    }
  
@@ -30,7 +18,7 @@
    if ($edit['vid'] && $edit['name']) {
      db_query('UPDATE {vocabulary} SET '. _taxonomy_prepare_update($data) .' WHERE vid = %d', $edit['vid']);
      db_query("DELETE FROM {vocabulary_node_types} WHERE vid = %d", $edit['vid']);
-@@ -208,6 +213,8 @@ function taxonomy_form_term($edit = arra
+@@ -190,6 +192,8 @@ function taxonomy_form_term($edit = arra
    $vocabulary = taxonomy_get_vocabulary($vocabulary_id);
  
    $form = form_textfield(t('Term name'), 'name', $edit['name'], 50, 64, t('The name for this term.  Example: "Linux".'), NULL, TRUE);
@@ -39,7 +27,7 @@
    $form .= form_textarea(t('Description'), 'description', $edit['description'], 60, 5, t('A description of the term.'));
  
    if ($vocabulary->hierarchy) {
-@@ -250,7 +257,7 @@ function taxonomy_form_term($edit = arra
+@@ -232,7 +236,7 @@ function taxonomy_form_term($edit = arra
  
  function taxonomy_save_term($edit) {
    if ($edit['tid'] && $edit['name']) {
@@ -48,20 +36,20 @@
  
      db_query('UPDATE {term_data} SET '. _taxonomy_prepare_update($data) .' WHERE tid = %d', $edit['tid']);
      module_invoke_all('taxonomy', 'update', 'term', $edit);
-@@ -431,10 +438,10 @@ function taxonomy_form_all($value = 0, $
+@@ -420,10 +424,10 @@ function taxonomy_form_all($value = 0, $
+  */
  function taxonomy_get_vocabularies($type = NULL) {
- 
    if ($type) {
--    $result = db_query("SELECT v.*, n.type FROM {vocabulary_node_types} n INNER JOIN {vocabulary} v ON v.vid = n.vid WHERE n.type = '%s' ORDER BY v.weight, v.name", $type);
-+    $result = db_query(db_rewrite_sql("SELECT v.vid, v.*, n.type FROM {vocabulary_node_types} n INNER JOIN {vocabulary} v ON v.vid = n.vid WHERE n.type = '%s' ORDER BY v.weight, v.name", 'v', 'vid'), $type);
+-    $result = db_query("SELECT v.*, n.type FROM {vocabulary} v LEFT JOIN {vocabulary_node_types} n ON v.vid = n.vid WHERE n.type = '%s' ORDER BY v.weight, v.name", $type);
++    $result = db_query(db_rewrite_sql("SELECT v.vid, v.*, n.type FROM {vocabulary} v LEFT JOIN {vocabulary_node_types} n ON v.vid = n.vid WHERE n.type = '%s' ORDER BY v.weight, v.name", 'v', 'vid'), $type);
    }
    else {
--    $result = db_query('SELECT v.*, n.type FROM {vocabulary_node_types} n INNER JOIN {vocabulary} v ON v.vid = n.vid ORDER BY v.weight, v.name');
-+    $result = db_query(db_rewrite_sql('SELECT v.vid, v.*, n.type FROM {vocabulary_node_types} n INNER JOIN {vocabulary} v ON v.vid = n.vid ORDER BY v.weight, v.name', 'v', 'vid'));
+-    $result = db_query('SELECT v.*, n.type FROM {vocabulary} v LEFT JOIN {vocabulary_node_types} n ON v.vid = n.vid ORDER BY v.weight, v.name');
++    $result = db_query(db_rewrite_sql('SELECT v.*, n.type FROM {vocabulary} v LEFT JOIN {vocabulary_node_types} n ON v.vid = n.vid ORDER BY v.weight, v.name', 'v', 'vid'));
    }
  
    $vocabularies = array();
-@@ -465,7 +472,7 @@ function taxonomy_node_form($type, $node
+@@ -454,7 +458,7 @@ function taxonomy_node_form($type, $node
      $terms = $node->taxonomy;
    }
  
@@ -70,7 +58,7 @@
    while ($vocabulary = db_fetch_object($c)) {
      $result[] = taxonomy_form($vocabulary->vid, $terms, $help, $name);
    }
-@@ -485,7 +492,7 @@ function taxonomy_node_has_term($nid, $t
+@@ -465,7 +469,7 @@ function taxonomy_node_form($type, $node
   * Find all terms associated to the given node, within one vocabulary.
   */
  function taxonomy_node_get_terms_by_vocabulary($nid, $vid, $key = 'tid') {
@@ -79,7 +67,7 @@
    $terms = array();
    while ($term = db_fetch_object($result)) {
      $terms[$term->$key] = $term;
-@@ -500,7 +507,7 @@ function taxonomy_node_get_terms($nid, $
+@@ -480,7 +484,7 @@ function taxonomy_node_get_terms($nid, $
    static $terms;
  
    if (!isset($terms[$nid])) {
@@ -88,7 +76,7 @@
      $terms[$nid] = array();
      while ($term = db_fetch_object($result)) {
        $terms[$nid][$term->$key] = $term;
-@@ -553,7 +560,7 @@ function taxonomy_get_related($tid, $key
+@@ -540,7 +544,7 @@ function taxonomy_get_related($tid, $key
   */
  function taxonomy_get_parents($tid, $key = 'tid') {
    if ($tid) {
@@ -97,7 +85,7 @@
      $parents = array();
      while ($parent = db_fetch_object($result)) {
        $parents[$parent->$key] = $parent;
-@@ -586,10 +593,10 @@ function taxonomy_get_parents_all($tid) 
+@@ -573,10 +577,10 @@ function taxonomy_get_parents_all($tid) 
   */
  function taxonomy_get_children($tid, $vid = 0, $key = 'tid') {
    if ($vid) {
@@ -110,7 +98,7 @@
    }
    $children = array();
    while ($term = db_fetch_object($result)) {
-@@ -628,7 +635,7 @@ function taxonomy_get_tree($vid, $parent
+@@ -615,7 +619,7 @@ function taxonomy_get_tree($vid, $parent
    if (!isset($children[$vid])) {
      $children[$vid] = array();
  
@@ -119,7 +107,7 @@
      while ($term = db_fetch_object($result)) {
        $children[$vid][$term->parent][] = $term->tid;
        $parents[$vid][$term->tid][] = $term->parent;
-@@ -730,7 +737,7 @@ function _taxonomy_term_children($tid) {
+@@ -717,7 +721,7 @@ function _taxonomy_term_children($tid) {
   *   An array of matching term objects.
   */
  function taxonomy_get_term_by_name($name) {
@@ -128,7 +116,17 @@
    $result = array();
    while ($term = db_fetch_object($db_result)) {
      $result[] = $term;
-@@ -932,7 +939,7 @@ function taxonomy_term_page($str_tids = 
+@@ -851,7 +855,9 @@ function taxonomy_select_nodes($tids = a
+       $sql_count = 'SELECT COUNT(n.nid) FROM {node} n '. $joins .' WHERE n.status = 1 ' . $wheres;
+     }
+     $sql = db_rewrite_sql($sql);
++    $sql = db_rewrite_sql($sql, 't', 'tid');
+     $sql_count = db_rewrite_sql($sql_count);
++    $sql_count = db_rewrite_sql($sql_count, 't', 'tid');
+     if ($pager) {
+       $result = pager_query($sql, variable_get('default_nodes_main', 10), 0, $sql_count);
+     }
+@@ -922,7 +928,7 @@ function taxonomy_term_page($str_tids = 
  
    if ($tids) {
      // Build title:

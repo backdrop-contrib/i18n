@@ -134,10 +134,10 @@ function i18n_settings() {
   
   // Basic settings
 
-  $output .= form_radios(t('Supported languages'), 'i18n_supported_langs' , variable_get('i18n_supported_langs', 'i18n'), 
+  $output .= form_radios(t('Supported languages'), 'i18n_supported_langs' , variable_get('i18n_supported_langs', 'locale'), 
     array(
-      'i18n'  => t('Defined in the configuration file ($i18n_languages)'), 
-      'locale' => t('Defined by the locale module')
+      'locale' => t('Defined by the locale module'),
+      'i18n'  => t('Defined in the configuration file (%i18n_languages)', array('%18n_languages' => $i18n_languages))
     ), t('Where to get the list of supported languages from' ));
   /* Disabled
   $output .= form_radios(t('Simple content translation"), "i18n_content", variable_get("i18n_content", 0), array(t("Disabled"), t("Enabled")), t(' If enabled, prepends language code to url and searches for translated content. <strong>Requires url aliasing with 'path' module.</strong>"));
@@ -183,7 +183,7 @@ function i18n_supported_languages() {
   if ($languages) {
     return $languages;
   }
-  elseif (variable_get('i18n_supported_langs', 'i18n') == 'locale') {
+  elseif (variable_get('i18n_supported_langs', 'locale') == 'locale') {
     $languages = i18n_locale_supported_languages();
     return $languages;
   } 
