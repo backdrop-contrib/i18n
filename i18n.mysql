@@ -15,7 +15,7 @@ CREATE TABLE `i18n_node` (
 
 CREATE TABLE `i18n_taxonomy_term` (
   `trid` int(10) unsigned NOT NULL default '0',
-  `tid` int(11) NOT NULL default '0'  
+  `tid` int(11) NOT NULL default '0',  
   PRIMARY KEY  (`trid`,`tid`)
 ) TYPE=MyISAM; 
 
