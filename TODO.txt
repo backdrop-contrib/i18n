@@ -1,0 +1,14 @@
+TODO:
+- [Maybe in a new module] Translation system, that keeps a list of nodes with translation status
+- List of compatible modules/node types.
+- List of tables to duplicate for every node type
+- Administration interfaz for table/node/taxonomy synchronization
+- Scripts to automate table duplication
+- Define and document i18n api, for other modules.
+- Usability improvements for the configuration interface
+
+IN DEVELOPMENT:
+- New option "Update for all languages" when updating a node.
+- New option "Create for all languages" when creating a node.
+
+Jose A. Reyero, drupal at reyero dot net

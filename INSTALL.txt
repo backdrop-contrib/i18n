@@ -1,0 +1,92 @@
+********************************************************************
+                     D R U P A L    M O D U L E                         
+********************************************************************
+Name: i18n module
+Author: Jose A. Reyero
+Email: drupal at reyero dot net
+
+********************************************************************
+INSTALLATION:
+0. Apply the patches provided with the module
+	common.inc patch is *required* for integration with the localization system and interface translation using i18n
+	bootstrap.inc patch is only required if you want language dependent variables -see below
+1. Create folder 'modules/i18n'
+2. Copy all the modules files, keeping directory structure, to the folder 'modules/i18n/'
+3. Configuration file -conf.php- and flags
+3.1. To use url rewriting, this line should be added to your configuration file:
+
+  include 'modules/i18n/i18n.inc'
+  
+3.2. If you don't want to rely on locale module for supported languages, you have to add them in the config file:
+
+  $i18n_languages = array("es" => "spanish", "en" => "english");
+
+3.3. Additional language flags should be placed in 'modules/i18n/flags
+
+  You can get more flag icons from http://www.clickfire.com/content/graphics/favicons/flags_icons.php
+  
+4. For content translation, this module can manage language dependent tables. You need to:
+
+<warning> This feature is experimental</warning>
+------------------------------------------------
+
+4.1. Modify $db_prefix and add $db_prefix_i18n in .conf file. This is a sample:
+	
+	$db_prefix=array (
+
+		'default' => 'prefix_', // The default prefix
+
+	);
+
+	$db_prefix_i18n = array (
+
+		// '**' will be replaced by language code at runtime.
+
+		'node'	=> 'prefix_**_'  
+		'vocabulary'	=> 'prefix_**_',
+		'term_synonim'=> 'prefix_**_',
+		'term_data' 	=> 'prefix_**_',
+	);
+	
+4.2. Create table copys for each language: prefix_es_node, prefix_en_node, etc...
+
+4.3. [IMPORTANT] If you are updating an existing site, you have to manually synchronize the id's in the {sequences} table
+
+4.4. [ADVICE] For language-dependent tables, you better define the supported languages in the config file.
+	* Otherwise, changing the locale languages can cause some language dependant tables to get out of sync 
+	
+*Any* table can be made language dependent. Just think about whether it makes sense. 
+
+Suggested tables to be made language dependent are:
+- For nodes:
+	node 
+	node_term 
+	*also related node tables for each node type
+- For taxonomy
+	vocabulary
+	term_data
+	term_hierarchy 
+	term_synonim
+- For comments
+	comments
+
+If you want to experiment with different tables, you may find this useful [Drupal ERD]: 
+
+  http://lists.drupal.org/pipermail/drupal-support/attachments/20030530/7a6fd04a/cdm1-0001.png
+
+5. For language dependent variables
+	* You have to apply the bootstrap.inc patch
+
+5.1. The list of variables to be made language dependent must be defined in the config file:
+
+	$i18n_variables = array(
+		'site_name',
+		'site_slogan',
+		'site_mission',
+	);
+	
+	You can add as many Drupal variables as you want to the array.
+	
+5.2. The variables added to the list must be redefined for the first time, as previous values are lost and they return to defaults.
+	
+Let me know about your experiments!

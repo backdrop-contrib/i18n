@@ -7,3 +7,8 @@ My website http://freelance.reyero.net
 * Flag icons from http://www.clickfire.com/content/graphics/favicons/flags_icons.php (thanx)
 
 ** Some code taken from Walkah's translate_node module, from the sandbox.
+
+CONTRIBUTORS
+------------
+Ber Kessels
+bartvb

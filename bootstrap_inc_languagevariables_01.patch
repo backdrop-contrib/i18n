@@ -1,0 +1,25 @@
+Index: bootstrap.inc
+===================================================================
+RCS file: /var/cvs/Drupal-dev/includes/bootstrap.inc,v
+retrieving revision 1.1
+diff -u -r1.1 bootstrap.inc
+--- includes/bootstrap.inc	21 Sep 2004 11:16:01 -0000	1.1
++++ includes/bootstrap.inc	24 Sep 2004 08:44:15 -0000
+@@ -60,7 +60,7 @@
+  */
+ function variable_get($name, $default) {
+   global $conf;
+-
++  if (function_exists('i18n_variable')) i18n_variable($name);
+   return isset($conf[$name]) ? $conf[$name] : $default;
+ }
+ 
+@@ -75,7 +75,7 @@
+  */
+ function variable_set($name, $value) {
+   global $conf;
+-
++  if (function_exists('i18n_variable')) i18n_variable($name);
+   db_query("DELETE FROM {variable} WHERE name = '%s'", $name);
+   db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", $name, serialize($value));
+ 

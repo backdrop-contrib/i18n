@@ -1,0 +1,31 @@
+4-4-0 to CVS
+------------
+
+- Added language dependent variables
+- Refined node and taxonomy synchronization
+- Rearranged configuration interface
+- Option to get supported languages from locale module
+- Replaced some global variables with functions.
+- Fixed an issue with outgoing links and url prefixing
+- Some integration with locale module
+- $languages changed to i18n_languages in the config file
+- Added patch for locale system to get the language from i18n
+- Partial rewriting and cleaning up of the code
+- Now, any two letter prefix in url will be taken as language
+- Fixed bug with url rewriting
+
+13/07/2004
+- Updated according to patches and description on http://drupal.org/node/view/8977
+
+06/04/2004
+- Changed options in conf file
+- Added taxonomy synchronization
+- Added node synchronization
+- Added *real* content translation with language-dependant tables
+- Repackaging: placed all the files under modules/i18n
+- Fix Call to undefined function: drupal_get_path_map()
+- Fixed small problem with drupal_goto
+
+4-4-0
+------------
+- Initial release
