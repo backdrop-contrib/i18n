@@ -1,5 +1,10 @@
 4-5-0 to .....
 --------------
+04/02/2005
+- Applied patch http://drupal.org/node/15966 (Switch to translated nodes and taxonomy listings)
+- Moved the file i18n.mysql and fixed bug
+- Cleaned up the patches (NK)
+
 02/02/2005
 - Term translations in a new table
 - Implemented db_rewrite_sql hook

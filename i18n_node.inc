@@ -215,6 +215,13 @@ function i18n_node_get_translations($nid, $getall = false) {
   return $items;
 }
 
+/* returns an url-part, pointing to the translated node, if exists */
+function i18n_node_l($nid, $lang) {
+  $sql = 'SELECT n.nid FROM {node} n INNER JOIN {i18n_node} a ON n.nid = a.nid INNER JOIN {i18n_node} b ON a.trid = b.trid AND b.nid =%d WHERE n.nid != %d AND n.language = \'%s\'';
+  $result = db_fetch_object(db_query($sql, $nid, $nid, $lang));
+  return $result->nid;
+}
+
 // snid = source nid
 function i18n_node_create_translation($nid, $lang, $snid) {
   $trid = db_result(db_query('SELECT trid FROM {i18n_node} WHERE nid=%d', $snid));

@@ -224,6 +224,31 @@ function i18n_taxonomy_form_vocabulary($edit = array()) {
   return $output;
 }
 
+/* Returns an url for the translated taxonomy-page, if exists */
+function i18n_taxonomy_l($str_tids, $lang) {
+  if (preg_match('/^([0-9]+[+ ])+[0-9]+$/', $str_tids)) {
+    $separator = '+';
+    // The '+' character in a query string may be parsed as ' '.
+    $tids = preg_split('/[+ ]/', $str_tids);
+  }
+  else if (preg_match('/^([0-9]+,)*[0-9]+$/', $str_tids)) {
+    $separator = ',';
+    $tids = explode(',', $str_tids);
+  }
+  else {
+    return;
+  }
+  
+  $translated_tids = array();
+  foreach ($tids as $tid) {
+    if ($translated_tid = i18n_term_get_translations($tid)) {
+      $translated_tids[] = $translated_tid[$lang]->tid;
+    }
+  }
+  
+  return implode($separator, $translated_tids);
+}
+
 function i18n_taxonomy_where_sql($table, $type, $param = '') {
   //debug("$table $type $param");
   switch ($type) {

@@ -207,11 +207,22 @@ function i18n_l($text, $lang , $url = '' , $attributes = array(), $query = NULL)
   if (!$url) {
     $url = i18n_get_original_path();
   }
-    // If url has lang_prefix, remove it
+  // If url has lang_prefix, remove it
   if (i18n_get_lang_prefix($url)) {
     $url = substr($url, 3);
   }
- // $result= l($text, $url, $attributes, $query);
+  //are we looking at a node?
+  if (preg_match("/^(node\/)([0-9]*)$/",$url,$matches)) {
+    if ($nid = i18n_node_l($matches[2], $lang)) {
+      $url = "node/$nid";
+    }
+  }
+  elseif (preg_match("/^(taxonomy\/term\/)([^\/]*)$/",$url,$matches)) {//or at a taxonomy-listing?
+    if ($str_tids = i18n_taxonomy_l($matches[2], $lang)) {
+      $url = "taxonomy/term/$str_tids";
+    }
+  }
+  
   return '<a href="'. i18n_url($url, $lang, $query) .'"'. drupal_attributes($attributes) .'>'. $text .'</a>';
 }
 
