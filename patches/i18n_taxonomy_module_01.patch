@@ -1,0 +1,83 @@
+Index: taxonomy.module
+===================================================================
+RCS file: /var/cvs/Drupal-i18n/modules/taxonomy.module,v
+retrieving revision 1.3
+diff -u -r1.3 taxonomy.module
+--- taxonomy.module	30 Nov 2004 12:00:14 -0000	1.3
++++ taxonomy.module	1 Dec 2004 17:50:38 -0000
+@@ -103,7 +103,7 @@
+     return $blocks;
+   }
+   else if (user_access('access content')) {
+-    $result = db_query("SELECT d.tid, d.name, MAX(n.created) AS updated, COUNT(*) AS count FROM {term_data} d INNER JOIN {term_node} USING (tid) INNER JOIN {node} n USING (nid) WHERE n.status = 1 GROUP BY d.tid, d.name ORDER BY updated DESC, d.name");
++    $result = db_query("SELECT d.tid, d.name, MAX(n.created) AS updated, COUNT(*) AS count FROM {term_data} d INNER JOIN {term_node} USING (tid) INNER JOIN {node} n USING (nid) WHERE n.status = 1 ".taxonomy_i18n_where_sql('d')." GROUP BY d.tid, d.name ORDER BY updated DESC, d.name");
+     $items = array();
+     while ($category = db_fetch_object($result)) {
+       $items[] = l($category->name .' ('. $category->count .')', 'taxonomy/term/'. $category->tid) .'<br />'. t('%time ago', array('%time' => format_interval(time() - $category->updated)));
+@@ -199,6 +199,9 @@
+   $vocabulary = taxonomy_get_vocabulary($vocabulary_id);
+ 
+   $form = form_textfield(t('Term name'), 'name', $edit['name'], 50, 64, t('The name for this term.  Example: "Linux".'), NULL, TRUE);
++   if( function_exists('i18n_taxonomy_form_term')){
++    $form .= i18n_taxonomy_form_term($edit);
++  }
+   $form .= form_textarea(t('Description'), 'description', $edit['description'], 60, 5, t('A description of the term.'));
+ 
+   if ($vocabulary->hierarchy) {
+@@ -237,8 +240,11 @@
+ }
+ 
+ function taxonomy_save_term($edit) {
++  if (function_exists('i18n_taxonomy_term_validate')){
++    i18n_taxonomy_term_validate($edit);
++  }
+   if ($edit['tid'] && $edit['name']) {
+-    $data = array('name' => $edit['name'], 'description' => $edit['description'], 'weight' => $edit['weight']);
++    $data = array('name' => $edit['name'], 'description' => $edit['description'], 'weight' => $edit['weight'], 'language' => $edit['language'],'trid' => $edit['trid']);
+ 
+     db_query('UPDATE {term_data} SET '. _taxonomy_prepare_update($data) .' WHERE tid = %d', $edit['tid']);
+     module_invoke_all('taxonomy', 'update', 'term', $edit);
+@@ -249,7 +255,7 @@
+   }
+   else {
+     $edit['tid'] = db_next_id('{term_data}_tid');
+-    $data = array('tid' => $edit['tid'], 'name' => $edit['name'], 'description' => $edit['description'], 'vid' => $edit['vid'], 'weight' => $edit['weight']);
++    $data = array('tid' => $edit['tid'], 'name' => $edit['name'], 'description' => $edit['description'], 'vid' => $edit['vid'], 'weight' => $edit['weight'], 'language' => $edit['language'],'trid' => $edit['trid']);
+     db_query('INSERT INTO {term_data} '. _taxonomy_prepare_insert($data, 1) .' VALUES '. _taxonomy_prepare_insert($data, 2));
+     module_invoke_all('taxonomy', 'insert', 'term', $edit);
+     $message = t('Created new term %term.', array('%term' => '<em>'. $edit['name'] .'</em>'));
+@@ -456,7 +462,7 @@
+   static $terms;
+ 
+   if (!isset($terms[$nid])) {
+-    $result = db_query('SELECT t.* FROM {term_data} t, {term_node} r WHERE r.tid = t.tid AND r.nid = %d ORDER BY weight, name', $nid);
++    $result = db_query('SELECT t.* FROM {term_data} t, {term_node} r WHERE r.tid = t.tid AND r.nid = %d '.taxonomy_i18n_where_sql('t','node',$nid).' ORDER BY weight, name', $nid);
+     $terms[$nid] = array();
+     while ($term = db_fetch_object($result)) {
+       $terms[$nid][$term->$key] = $term;
+@@ -584,7 +590,7 @@
+   if (!isset($children[$vid])) {
+     $children[$vid] = array();
+ 
+-    $result = db_query('SELECT t.*, parent FROM {term_data} t, {term_hierarchy} h WHERE t.tid = h.tid AND t.vid = %d ORDER BY weight, name', $vid);
++    $result = db_query('SELECT t.*, parent FROM {term_data} t, {term_hierarchy} h WHERE t.tid = h.tid AND t.vid = %d '.taxonomy_i18n_where_sql('t','guess').' ORDER BY weight, name', $vid);
+     while ($term = db_fetch_object($result)) {
+       $children[$vid][$term->parent][] = $term->tid;
+       $parents[$vid][$term->tid][] = $term->parent;
+@@ -1053,4 +1059,14 @@
+   return $term->tid;
+ }
+ 
+-?>
++/**
++ * i18n functions
++ */
++function taxonomy_i18n_where_sql($table='t',$type='',$param=''){
++  if(function_exists('i18n_taxonomy_where_sql')){
++    return i18n_taxonomy_where_sql($table,$type,$param);
++  } else {
++    return '';
++  }
++}
++?>
+\ No newline at end of file

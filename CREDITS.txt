@@ -1,8 +1,6 @@
 Drupal module created by Jose A. Reyero, <drupal at reyero dot net>
 
-Feel free to contact me about it!
-
-My website http://freelance.reyero.net
+My website http://freelance.reyero.net, it uses this module.
   
 * Flag icons from http://www.clickfire.com/content/graphics/favicons/flags_icons.php (thanx)
 
@@ -10,5 +8,7 @@ My website http://freelance.reyero.net
 
 CONTRIBUTORS
 ------------
-Ber Kessels
+Karoly Negyesi, lots of patches
+Rich Cowan, some documentation
+Ber Kessels, some patches
 bartvb

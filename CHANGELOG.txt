@@ -1,3 +1,22 @@
+4-5-0 to .....
+--------------
+
+30/11/2004
+
+- Updated to current DRUPAL-4-5 branch, won't work with 4.5.0 anymore
+- Cleaned the code as suggested by Dries
+- Renamed some database fields: 'lang' to 'language' in 'node' and 'taxonomy_term'
+
+23/11/2004 [Full rewrite]
+- Updated INSTALL.txt and README.txt
+- Basic translation interface for nodes and taxonomy terms
+- Simplified configuration, removed many options
+- Language code is now kept only in url
+- No need for include file anymore (patched common.inc::url)
+- Moving ahead from multi-table approach
+- Drop all the multi-table-synchronization logic
+- Simple database patches for 'node' and 'taxonomy_term' tables
+
 4-4-0 to 4-5-0
 --------------
 - Removed the common.inc patch 01, as it already got into the core

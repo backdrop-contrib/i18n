@@ -5,36 +5,71 @@ Name: i18n module
 Author: Jose A. Reyero
 Email: drupal at reyero dot net
 
-********************************************************************
+**************************************************************
+Current version of this module works with Drupal 4.5.1.
+May work also with 4.5.0, waiting for some feedback about this.
+**************************************************************
+
 INSTALLATION:
-0. Apply the patches provided with the module:
-	bootstrap.inc patch is only required if you want language dependent variables -see below
+============
 
-1. Create folder 'modules/i18n'
 
-2. Copy all the modules files, keeping directory structure, to the folder 'modules/i18n/'
+1. Create folder 'modules/i18n', and copy all the modules files, keeping directory structure, to this folder.
+2. Apply the patches to the Drupal core that are provided.  
+  	Required patches are for 'node.module', 'taxonomy.module', 'bootstrap.inc', and 'common.inc'.  
+  	** Patches for other modules will be available soon but they will be required only if you want that specific module to be 'language aware'
+  	
+  	Also, apply the database modifications from the SQL file 'i18n.mysql.'  
+  	All of these modifications are located in the "patches" folder.
 
-3. Configuration file -conf.php- and flags:
+Language Definition
+===================
+You can use the languages defined -and enabled- in 'locale' module or modify the Drupal configuration file 'includes/conf.php' to define the languages you want to use.  
+  For instance, for English and Spanish:
+	
+   $i18n_languages = array("es" => "spanish", "en" => "english");
 
-3.1. To use url rewriting, this line should be added to your configuration file:
+Add any flag icons beyond the four provided by placing them in 'modules/i18n/flags'.  
+  You can get more flag icons from: http://www.clickfire.com/content/graphics/favicons/flags_icons.php  
+* Yes, I know I could add a lot more to the module's tar file, but I want to keep the download as small as possible, so the current policy is including with the module only the ones I think will be more use, and the ones asked for by other module contributors.
 
-  include 'modules/i18n/i18n.inc'
+Language dependent variables
+============================
+  The list of variables to be made language dependent must be defined in the config file:
+
+  I.e.
   
-3.2. If you don't want to rely on locale module for supported languages, you have to add them in the config file:
-
-  $i18n_languages = array("es" => "spanish", "en" => "english");
-
-3.3. Additional language flags should be placed in 'modules/i18n/flags
-
-  You can get more flag icons from http://www.clickfire.com/content/graphics/favicons/flags_icons.php
+	$i18n_variables = array(
+		// Site configuration
+		'site_name',
+		'site_slogan',
+		'site_mission',
+		'site_footer',
+		'anonymous',
+		// Node help
+		'blog_help',
+		'story_help',
+		// User configuration
+		'user_registration_help',
+		'user_mail_welcome_subject',
+		'user_mail_welcome_body',
+		'user_mail_approval_subject',
+		'user_mail_approval_body',
+		'user_mail_pass_subject',
+		'user_mail_pass_body',
+		
+	);
+	
+	These are only the suggested ones, but you can add as many Drupal variables as you want to the array.
+	
+  The variables added to the list must be redefined for the first time for every language, as previous values are lost and they return to defaults.
+	
+Language dependent tables 
+=========================
+  [ADVANCED, NOT REQUIRED, just for some limited backwards compatibility and experimentation]
+  This module can manage language dependent tables, which means you can have different specific tables for each language, and the one for the current language will be selected at run time. 
   
-4. For content translation, this module can manage language dependent tables. You need to:
-
-<warning> This feature is experimental</warning>
-------------------------------------------------
-<NEW,IMPORTANT> This may be dropped in upcoming versions, so it is discouraged</NEW,IMPORTANT>
-------------------------------------------------
-4.1. Modify $db_prefix and add $db_prefix_i18n in .conf file. This is a sample:
+  You need to modify $db_prefix and add $db_prefix_i18n in .conf file. This is a sample:
 	
 	$db_prefix=array (
 
@@ -46,60 +81,24 @@ INSTALLATION:
 
 		// '**' will be replaced by language code at runtime.
 
-		'node'	=> 'prefix_**_'  
-		'vocabulary'	=> 'prefix_**_',
-		'term_synonim'=> 'prefix_**_',
-		'term_data' 	=> 'prefix_**_',
+		'table1'	=> 'prefix_**_'  
+		'table2'	=> 'prefix_**_',
 	);
 	
-4.2. Create table copys for each language: prefix_es_node, prefix_en_node, etc...
 
-4.3. [IMPORTANT] If you are updating an existing site, you have to manually synchronize the id's in the {sequences} table
-
-Same object ids should have the same value accross languages
-
-I.e.
-
-en_node_id = 5
-es_node_id = 5
-ru_node_id = 5
-
-
-4.4. [ADVICE] For language-dependent tables, you better define the supported languages in the config file.
-	* Otherwise, changing the locale languages can cause some language dependant tables to get out of sync 
-	
-*Any* table can be made language dependent. Just think about whether it makes sense. 
-
-Suggested tables to be made language dependent are:
-- For nodes:
-	node 
-	node_term 
-	*also related node tables for each node type
-- For taxonomy
-	vocabulary
-	term_data
-	term_hierarchy 
-	term_synonim
-- For comments
-	comments
 
 If you want to experiment with different tables, you may find this useful [Drupal ERD]: 
 
   http://lists.drupal.org/pipermail/drupal-support/attachments/20030530/7a6fd04a/cdm1-0001.png
 
-5. For language dependent variables
-	* You have to apply the bootstrap.inc patch
+Additional Support
+==================
+For support, please create a support request for this module's project: http://drupal.org/project/i18n
 
-5.1. The list of variables to be made language dependent must be defined in the config file:
+If you need professional support, contact me by e-mail: freelance at reyero dot net
 
-	$i18n_variables = array(
-		'site_name',
-		'site_slogan',
-		'site_mission',
-	);
-	
-	You can add as many Drupal variables as you want to the array.
-	
-5.2. The variables added to the list must be redefined for the first time, as previous values are lost and they return to defaults.
-	
-Let me know about your experiments!
+
+====================================================================
+Jose A. Reyero, drupal at reyero dot net, http://freelance.reyero.net
+
+Feedback is welcomed.
