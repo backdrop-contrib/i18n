@@ -16,17 +16,17 @@ INSTALLATION:
 
 1. Create folder 'modules/i18n', and copy all the modules files, keeping directory structure, to this folder.
 2. Apply the patches to the Drupal core that are provided.  
-  	Required patches are for 'node.module', 'taxonomy.module', 'bootstrap.inc', and 'common.inc'.  
-  	** Patches for other modules will be available soon but they will be required only if you want that specific module to be 'language aware'
-  	
-  	Also, apply the database modifications from the SQL file 'i18n.mysql.'  
-  	All of these modifications are located in the "patches" folder.
+      Required patches are for 'node.module', 'taxonomy.module', 'bootstrap.inc', and 'common.inc'.  
+      ** Patches for other modules will be available soon but they will be required only if you want that specific module to be 'language aware'
+      
+      Also, apply the database modifications from the SQL file 'i18n.mysql.'  
+      All of these modifications are located in the "patches" folder.
 
 Language Definition
 ===================
 You can use the languages defined -and enabled- in 'locale' module or modify the Drupal configuration file 'includes/conf.php' to define the languages you want to use.  
   For instance, for English and Spanish:
-	
+    
    $i18n_languages = array("es" => "spanish", "en" => "english");
 
 Add any flag icons beyond the four provided by placing them in 'modules/i18n/flags'.  
@@ -39,52 +39,52 @@ Language dependent variables
 
   I.e.
   
-	$i18n_variables = array(
-		// Site configuration
-		'site_name',
-		'site_slogan',
-		'site_mission',
-		'site_footer',
-		'anonymous',
-		// Node help
-		'blog_help',
-		'story_help',
-		// User configuration
-		'user_registration_help',
-		'user_mail_welcome_subject',
-		'user_mail_welcome_body',
-		'user_mail_approval_subject',
-		'user_mail_approval_body',
-		'user_mail_pass_subject',
-		'user_mail_pass_body',
-		
-	);
-	
-	These are only the suggested ones, but you can add as many Drupal variables as you want to the array.
-	
-  The variables added to the list must be redefined for the first time for every language, as previous values are lost and they return to defaults.
-	
+    $i18n_variables = array(
+        // Site configuration
+        'site_name',
+        'site_slogan',
+        'site_mission',
+        'site_footer',
+        'anonymous',
+        // Node help
+        'blog_help',
+        'story_help',
+        // User configuration
+        'user_registration_help',
+        'user_mail_welcome_subject',
+        'user_mail_welcome_body',
+        'user_mail_approval_subject',
+        'user_mail_approval_body',
+        'user_mail_pass_subject',
+        'user_mail_pass_body',
+        
+    );
+    
+  These are only the suggested ones, but you can add as many Drupal variables as you want to the array.
+    
+  You need to redefine these variables for the first time for every language, as previous values are lost and they return to defaults -they will be back if you disable i18n-. 
+    
 Language dependent tables 
 =========================
   [ADVANCED, NOT REQUIRED, just for some limited backwards compatibility and experimentation]
   This module can manage language dependent tables, which means you can have different specific tables for each language, and the one for the current language will be selected at run time. 
   
   You need to modify $db_prefix and add $db_prefix_i18n in .conf file. This is a sample:
-	
-	$db_prefix=array (
+    
+    $db_prefix=array (
 
-		'default' => 'prefix_', // The default prefix
+        'default' => 'prefix_', // The default prefix
 
-	);
+    );
 
-	$db_prefix_i18n = array (
+    $db_prefix_i18n = array (
 
-		// '**' will be replaced by language code at runtime.
+        // '**' will be replaced by language code at runtime.
 
-		'table1'	=> 'prefix_**_'  
-		'table2'	=> 'prefix_**_',
-	);
-	
+        'table1'    => 'prefix_**_'  
+        'table2'    => 'prefix_**_',
+    );
+    
 
 
 If you want to experiment with different tables, you may find this useful [Drupal ERD]: 
