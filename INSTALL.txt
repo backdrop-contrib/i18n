@@ -8,7 +8,6 @@ Email: drupal at reyero dot net
 ********************************************************************
 INSTALLATION:
 0. Apply the patches provided with the module
-	common.inc patch is *required* for integration with the localization system and interface translation using i18n
 	bootstrap.inc patch is only required if you want language dependent variables -see below
 1. Create folder 'modules/i18n'
 2. Copy all the modules files, keeping directory structure, to the folder 'modules/i18n/'
