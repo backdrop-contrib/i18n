@@ -7,10 +7,11 @@
 - Changed 'flags' to 'language icons', and the images to 16x12px png
 - Fixed http://drupal.org/node/13319 (some issues with cached pages)
 - Reworked initialization system. New patches for bootstrap.inc, module.inc
+- Updated to DRUPAL-4-5-1 maintenance release
 
 30/11/2004
 
-- Updated to current DRUPAL-4-5 branch, won't work with 4.5.0 anymore
+- Updated to current DRUPAL-4-5 branch
 - Cleaned the code as suggested by Dries
 - Renamed some database fields: 'lang' to 'language' in 'node' and 'taxonomy_term'
 

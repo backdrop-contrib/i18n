@@ -9,18 +9,23 @@ Email: drupal at reyero dot net
 Current version of this module works with Drupal 4.5.1.
 May work also with 4.5.0, waiting for some feedback about this.
 **************************************************************
+This is an 'advanced module', requires core and database patching and has some low level configuration options.
+Thus, it is only intended for Drupal advanced users and administrators.
+****************************************************************
 
 INSTALLATION:
 ============
 
 
 1. Create folder 'modules/i18n', and copy all the modules files, keeping directory structure, to this folder.
-2. Apply the patches to the Drupal core that are provided.  
-      Required patches are for 'node.module', 'taxonomy.module', 'bootstrap.inc', and 'common.inc'.  
-      ** Patches for other modules will be available soon but they will be required only if you want that specific module to be 'language aware'
-      
-      Also, apply the database modifications from the SQL file 'i18n.mysql.'  
-      All of these modifications are located in the "patches" folder.
+2. Apply the patches to the Drupal core that are provided.
+    
+    Required patches are for 'bootstrap.inc', 'module.inc', 'common.inc', 'node.module' and 'taxonomy.module'.  
+    ** Patches for other modules will be available soon but they will be required only if you want that specific module to be 'language aware'
+    ** All patches are against Drupal 4.5.1
+
+    Also, apply the database modifications from the SQL file 'i18n.mysql.'  
+    All of these modifications are located in the "patches" folder. After applying the patches, you can safely remove this folder.
 
 Language Definition
 ===================
@@ -29,13 +34,13 @@ You can use the languages defined -and enabled- in 'locale' module or modify the
     
    $i18n_languages = array("es" => "spanish", "en" => "english");
 
-Add any flag icons beyond the four provided by placing them in 'modules/i18n/flags'.  
+Add any flag icons beyond the ones provided by placing them in 'modules/i18n/flags'.  
   You can get more flag icons from: http://www.clickfire.com/content/graphics/favicons/flags_icons.php  
 * Yes, I know I could add a lot more to the module's tar file, but I want to keep the download as small as possible, so the current policy is including with the module only the ones I think will be more use, and the ones asked for by other module contributors.
 
 Language dependent variables
 ============================
-  The list of variables to be made language dependent must be defined in the config file:
+  The list of variables to be made language dependent must be defined in the configuration file (includes/conf.php):
 
   I.e.
   
@@ -91,12 +96,26 @@ If you want to experiment with different tables, you may find this useful [Drupa
 
   http://lists.drupal.org/pipermail/drupal-support/attachments/20030530/7a6fd04a/cdm1-0001.png
 
+POST-INSTALLATION/CONFIGURATION:
+============
+- Enable the module in administration > modules
+- Configure the module in administrations > settings > i18n
+- Check the node types to be made multilingual
+    A new field 'language' and a new tab 'translations' will be available when editing these node types
+- Enable the language selector block in administration > blocks
+
+- Set up language for existing nodes, editing them manually or directly updating in the database.
+  I.e. provided that all your existing nodes are in english:
+    UPDATE node SET language='en'
+
+- Set up language for existing taxonomy terms
+  Only terms in the node's language or terms without language will show up when editing a node
+
 Additional Support
 ==================
 For support, please create a support request for this module's project: http://drupal.org/project/i18n
 
 If you need professional support, contact me by e-mail: freelance at reyero dot net
-
 
 ====================================================================
 Jose A. Reyero, drupal at reyero dot net, http://freelance.reyero.net
