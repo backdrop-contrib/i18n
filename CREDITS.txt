@@ -12,3 +12,4 @@ Karoly Negyesi, lots of patches
 Rich Cowan, some documentation
 Ber Kessels, some patches
 bartvb
+Gabor Suveg, Hungarian flag

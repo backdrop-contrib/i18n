@@ -9,25 +9,42 @@
  * Multilingual Nodes support
  */
 
-/**
- * Implementation of hook_node_rewrite_sql()
- */ 
-function i18n_node_rewrite_sql($query,$node_alias){
-  $result = array();
-  // Check for some special cases, no hints anymore  
-  if ($query == '') {
-    // No query, search case
-    // $result['where'] = "$node_alias.language='".i18n_get_lang()."'";
-  } elseif (!strpos($query,'{node}')) {
-    // Node table is not included, join it
-    $result['join'] = "INNER JOIN {node} USING(nid)";
-    $result['where'] = "{node}.language ='".i18n_get_lang()."' or {node}.language = ''" ;
-  } else {
-    // Default case, simple where condition
-    $result['where'] = "$node_alias.language ='".i18n_get_lang()."' OR $node_alias.language = ''" ;
-  }
-  return $result;
+// translation/node/id/lang
+// translation/term/id
+
+function i18n_translation_page() {
+  $op = $_POST['op'] ? $_POST['op'] : arg(1);
+  $edit = $_POST['edit'];
+  
+  switch ($op) {
+    case 'node':
+      print theme('page', i18n_translation_add(arg(2), arg(3)));
+      break;
+      
+     case t('Preview'):
+      $edit = node_validate($edit);
+      print theme('page', node_preview($edit), t('Preview'));
+      break;
+      
+    case t('Submit'):
+      drupal_set_title(t('Submit'));
+      print theme('page', node_submit($edit));
+      break;
+      
+    case t('Delete'):
+      print theme('page', node_delete($edit), t('Delete'));
+      break;
+      
+    default:
+      // print theme('page', node_page_default(), '');
+  }      
 }
+
+function i18n_translation_add($nid, $lang) {
+  $type = i18n_get_node_type($nid);
+  return node_add($type);
+}
+
 /**
  * This is the callback for the tab 'translations' for nodes
  */

@@ -1,5 +1,12 @@
 4-5-0 to .....
 --------------
+02/02/2005
+- Term translations in a new table
+- Implemented db_rewrite_sql hook
+- Improved taxonomy forms
+- Fixed bug with update.php
+- Moved most of the hooks to i18n.inc, to fix some problems and speed up cached pages
+
 23/01/2005
 - Reworked init system, module.inc patch not needed anymore
 - Implemented hook_node_query_sql, node.module patch not needed anymore

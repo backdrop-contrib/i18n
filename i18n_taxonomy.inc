@@ -55,11 +55,15 @@ function i18n_taxonomy_overview() {
  
     $rows[] = array(array('data' => $vocabulary->name, 'colspan' =>  count($languages), 'align' => 'center'), 
         l(t('new translation'), 'admin/taxonomy/i18n/term/new/'.$vocabulary->vid));
-    
-    $tree = taxonomy_get_tree($vocabulary->vid);
-    if ($tree) {
+    // Get terms/translations for this vocab 
+    $result = db_query('SELECT t.*,i.trid FROM {term_data} t LEFT JOIN {i18n_taxonomy_term} i USING(tid) WHERE t.vid=%d',$vocabulary->vid);
+    $list = array();
+    while ($data = db_fetch_object($result)) {
+      $list[] = $data;
+    }
+    if (!empty($list)) {
       $data = array();
-       foreach ($tree as $term) {
+       foreach ($list as $term) {
         if ($term->language) {
            if ($term->trid) {
              if (!array_key_exists($term->trid, $data)) {
@@ -95,28 +99,31 @@ function i18n_taxonomy_overview() {
 function i18n_taxonomy_term_save($edit) {
   // debug($edit);
   $languages = i18n_supported_languages();
+  $translations = array();
   foreach ($languages as $lang => $name) {
     $tid = $edit[$lang]['tid'];
     $old = $edit[$lang]['old'];
-    if ($tid != $old) {
-      $translations[$tid] = ($tid ? true : false);
-      $translations[$old] = false;
+    if ($tid) {
+      $translations[] = $tid;
     }
   }
-  if (is_array($translations)) {
+  $trid = $edit['trid'];
+  // Remove old translations
+  if (is_numeric($trid)){
+    db_query('DELETE FROM {i18n_taxonomy_term} WHERE trid=%d',$trid);  
+  }
+  // Save new translations
+  if (!empty($translations)) {
     // Save translations
-    $trid = $edit['trid'];
     if ($trid =='new') {
       // New translation group
-      $trid = db_next_id('{term_data}_trid');
-    }
-    // Remove old
-    if (is_array($remove)) {
-      // Remove old translations
-    }
-    foreach ($translations as $tid => $new) {
-      $value = $new ? $trid : 'null';
-      db_query('UPDATE {term_data} SET trid=%d WHERE tid=%d', $value, $tid);
+      $trid = db_next_id('{i18n_taxonomy_term}_trid');
+    } 
+    foreach ($translations as $tid ) {
+      //$value = $new ? $trid : 'null';
+      //db_query('UPDATE {i18n_taxonomy_term} SET trid=%d WHERE tid=%d', $value, $tid);
+      db_query('INSERT INTO {i18n_taxonomy_term}(trid,tid) VALUES(%d,%d)',$trid,$tid);
+
     }
     drupal_set_message(t('Term translations have been updated'));
   }
@@ -172,13 +179,19 @@ function i18n_taxonomy_term_form($trid) {
 function i18n_taxonomy_form_term($edit = array()) {
   $tid = $edit['tid'];
   $termlang= $edit['language'];
-  $trid= $edit['trid'];
+  $vid = isset($edit['vid']) ? $edit['vid'] : arg(4);
+  // $trid= $edit['trid'];
   
   $languages = i18n_supported_languages();
   $selectlang = array_merge(array('' => ''), $languages);
-  
-  /* Vocabulary translations disabled for now
-  if ($trid && $translations=i18n_term_get_translations($tid)) {
+
+  $vocabulary = taxonomy_get_vocabulary($vid);
+  // If vocabulary has language, this should be the one for the term
+  if ($vocabulary->language) {
+    $edit['language'] = $vocabulary->language;
+    $output = form_item(t('Language'),$languages[$vocabulary->language],t('The vocabulary already has a language.'));
+  } 
+  elseif ($termlang && $translations=i18n_term_get_translations($tid)) {
     // Term has translations. Not all languages are valid
     $selectlang = array('' => '');
     foreach ($languages as $lang => $langname) {
@@ -189,11 +202,14 @@ function i18n_taxonomy_form_term($edit = array()) {
         $selectlang[$lang] = $langname;
       }
     }
+    $output = form_select(t('Language'), 'language', $termlang, $selectlang);
+
     $header = array(t('Language'), t('translated term'));
     $output .= form_group(t('term translations'), theme('table', $header, $rows));
+    
+  } else {
+    $output = form_select(t('Language'), 'language', $termlang, $selectlang);
   }
-  */
-  $output = form_select(t('Language'), 'language', $termlang, $selectlang);
   return $output;
 }
 
@@ -204,7 +220,7 @@ function i18n_taxonomy_form_vocabulary($edit = array()) {
   
   $languages = i18n_supported_languages();
   $selectlang = array_merge(array('' => ''), $languages);
-  $output = form_select(t('Language'), 'language', $lang, $selectlang);
+  $output = form_select(t('Language'), 'language', $lang, $selectlang, t('This language will be set for all terms in this vocabulary'));
   return $output;
 }
 
@@ -260,12 +276,12 @@ function i18n_array2list($data, $keyfield, $namefield = 'name') {
 
 // returns array lang > term
 function i18n_term_get_translations($tid, $getall = false) {
-  $sql = 'select a.* from {term_data} a, {term_data} b where a.trid = b.trid and b.tid=%d';
+  $sql = 'SELECT t.* FROM {term_data} t INNER JOIN {i18n_taxonomy_term} i USING(tid) INNER JOIN {i18n_taxonomy_term} i2 ON  i.trid = i2.trid WHERE i2.tid=%d';
   if ($getall) {
     $result = db_query($sql, $tid);
   }
   else {
-    $result = db_query($sql. ' and a.tid != %d', $tid);
+    $result = db_query($sql. ' AND t.tid != %d',$tid, $tid);
   }
   while ($data = db_fetch_object($result)) {
     $list[$data->language] = $data;
@@ -274,7 +290,7 @@ function i18n_term_get_translations($tid, $getall = false) {
 }
 
 function i18n_taxonomy_get_translations($trid) {
-  $result = db_query('SELECT * FROM {term_data} WHERE trid=%d',$trid);
+  $result = db_query('SELECT t.*,i.trid FROM {term_data} t JOIN {i18n_taxonomy_term} i USING(tid) WHERE i.trid=%d',$trid);
   $list = array();
   while ($data = db_fetch_object($result)) {
     $list[$data->language] = $data;
@@ -302,12 +318,12 @@ function i18n_db_get_objects($sql) {
 // returns array lang > term
 function i18n_vocabulary_get_terms($vid, $lang, $status = 'all') {
   if ($status=='translated') {
-    $andsql = ' AND trid > 0';
+    $andsql = ' AND i.trid > 0';
   }elseif ( $status =='untranslated' ) {
-    $andsql = ' AND (trid = 0 or trid is null)';
+    $andsql = ' AND (i.trid = 0 or i.trid is null)';
   }
 
-  $result = db_query("SELECT * FROM {term_data} WHERE vid=%d AND language='%s' " . $andsql, $vid, $lang);
+  $result = db_query("SELECT t.*, i.trid FROM {term_data} t LEFT JOIN {i18n_taxonomy_term} i USING(tid) WHERE t.vid=%d AND t.language='%s' " . $andsql, $vid, $lang);
   $list = array();
   while ($term = db_fetch_array($result)) {
      $list[] = $term;
@@ -320,29 +336,30 @@ function i18n_vocabulary_get_terms($vid, $lang, $status = 'all') {
  */
  // $op = insert, update, delete
 function i18n_taxonomy($op, $type, $edit) {
-  if ($type == 'term') {
-    switch ($op) {
-      case 'insert':
-      case 'update':      
-        if (!$edit['language'] && $edit['trid']) {
-          // Removed language, remove trid
-          db_query('UPDATE {term_data} SET trid=0 WHERE tid=%d', $edit['tid']);
-          drupal_set_message(t('Removed translation info from term'));
-        }
+  switch ("$type/$op") {
+    case 'term/insert':
+    case 'term/update':      
+	      if (!$edit['language']) {
+	        // Removed language, remove trid
+	        db_query('DELETE FROM {i18n_taxonomy_term} WHERE tid=%d', $edit['tid']);
+	        drupal_set_message(t('Removed translation info from term'));
+	      }
         break;
-      case 'form pre':
+    case 'term/form pre':
         return i18n_taxonomy_form_term($edit);
         break;  
-      case 'delete':
-    }
-  } else {
-    switch ($op) {
-      case 'form pre':
+    case 'term/delete':
+	      db_query('DELETE FROM {i18n_taxonomy_term} WHERE tid=%d', $edit['tid']);
+        break;
+    case 'vocabulary/form pre':
         return i18n_taxonomy_form_vocabulary($edit);
         break;
-    }
+    case 'vocabulary/update':
+        if (isset($edit['language'])) {
+          db_query("UPDATE {term_data} SET language='%s' WHERE vid='%d'",$edit['language'],$edit['vid']);
+        }
+        break;
   }
-
 } 
  
 ?>
