@@ -112,7 +112,7 @@ function i18n_settings() {
   $output .= form_radios(t('Simple content translation"), "i18n_content", variable_get("i18n_content", 0), array(t("Disabled"), t("Enabled")), t(' If enabled, prepends language code to url and searches for translated content. <strong>Requires url aliasing with 'path' module.</strong>"));
   */
   $output .= form_radios(t('Browser language detection'), 'i18n_browser', variable_get('i18n_browser', 0), array(t('Disabled'), t('Enabled' )));
-  $output .= form_select(t('Front page'), 'i18n_front_page', variable_get('i18n_front_page', 0), array(t('Default'), t('Language dependent')), t(" If 'language dependent' is selected, default front page will be prepended with language code, i.e. 'en/node'"));
+  $output .= form_select(t('Front page'), 'i18n_frontpage', variable_get('i18n_frontpage', 0), array(t('Default'), t('Language dependent')), t(" If 'language dependent' is selected, default front page will be prepended with language code, i.e. 'en/node'"));
 
   $output .= form_textfield(t('Language icons html tag'), 'i18n_flags', variable_get('i18n_flags', '<img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12"/>'), 70, 180, 
     t('HTML tag for flags. Asterisk \'*\' is a placeholder for language code. It should be something like &lt;img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12"/&gt'));
@@ -218,7 +218,7 @@ function i18n_translation_add($nid, $lang) {
 
 function i18n_link($type, $node = NULL, $teaser = FALSE) {
   $links = array();
-  if ($type == 'node' && variable_get('i18n_node_'.$node->type, 0)) {
+  if ($type == 'node' && !$teaser && variable_get('i18n_node_'.$node->type, 0)) {
     $languages = i18n_supported_languages();
     $translations = i18n_node_get_translations($node->nid);
     foreach ($translations as $lang => $trnode) {
@@ -347,7 +347,7 @@ function i18n_get_browser_lang() {
   $accept=explode(',',array_shift( explode(";",$_SERVER["HTTP_ACCEPT_LANGUAGE"])));
   foreach ($accept as $lang) {
     $lang=substr($lang,0,2);
-    if (array_key_exists($lang,$languages)) {
+    if ( !empty($lang) && array_key_exists($lang,$languages)) {
       return $lang;
     }
   }

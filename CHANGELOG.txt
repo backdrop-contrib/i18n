@@ -1,5 +1,10 @@
 4-5-0 to .....
 --------------
+04/01/2004
+- Now language icons are not displayed with teasers
+- Fixed http://drupal.org/node/15062 (Inconsistent i18n_front_page vs. i18n_frontpage)
+- Fixed http://drupal.org/node/14640 (Page not found)
+- Fixed http://drupal.org/node/14475 (all init hooks disabled by cvs patch)
 
 07/12/2004
 - Fixed http://drupal.org/node/13982 (setting languages in config file fails)
@@ -7,11 +12,10 @@
 - Changed 'flags' to 'language icons', and the images to 16x12px png
 - Fixed http://drupal.org/node/13319 (some issues with cached pages)
 - Reworked initialization system. New patches for bootstrap.inc, module.inc
-- Updated to DRUPAL-4-5-1 maintenance release
 
 30/11/2004
 
-- Updated to current DRUPAL-4-5 branch
+- Updated to current DRUPAL-4-5 branch, won't work with 4.5.0 anymore
 - Cleaned the code as suggested by Dries
 - Renamed some database fields: 'lang' to 'language' in 'node' and 'taxonomy_term'
 
