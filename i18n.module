@@ -1,0 +1,271 @@
+<?php
+// $Id$
+/**
+ * Internationalization (i18n) module
+ *
+ * @author Jose A. Reyero, 2004
+ */
+
+/**
+ *	Common module functions
+ */
+
+// This runs after user has ben initialized and path may be already translated
+function i18n_init(){
+	global $i18n_langpath;
+	
+	if($lang=i18n_get_lang()){
+		i18n_set_lang($lang);
+	}else{
+  	$lang= i18n_get_default_lang();
+	}
+	
+  if(variable_get("i18n_interface",0)) i18n_set_default_lang($lang);
+  
+  if(variable_get("i18n_content",0)){
+  	$original=i18n_get_original_path();
+  	if(!$i18n_langpath && $trpath=i18n_get_normal_path("$lang/$original")){
+  		drupal_goto($trpath);
+  	}elseif( $i18n_langpath==$original && variable_get("i18n_front_page",0)){
+  		// Original path is empty or only language code
+  		$i18n_langpath='';
+  		drupal_goto($lang.'/'.variable_get('site_frontpage','node'));
+  	}
+  }
+}
+
+function i18n_help($section = "admin/help#i18n") {
+  switch ($section) {
+  	case "admin/help#i18n":
+  		$output = t("
+  			<p>This module provides support for internationalization of Drupal sites in various ways:</p>
+  			<ul><li>Translation of the user interface for registered and anonymous users</li>
+  			<li>Multi-language for content, combined with url aliasing. For this feature to be used, you must enable it in the module configuration and then use url aliasing to keep pages in various languages. I.e. 'en/mypage', 'es/mypage' should be English and Spanish versions of the same page</li>
+  			<li>Detection of the brower language</li>
+  			<li>Keeps the language settings accross consecutive requests, using a number of methods: URL rewriting, sessions, cookies</li>
+  			<li>Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i></li></ul>
+  			<p>For url rewriting you need to have the file <b>i18n.inc</b> in the <i>includes</i> folder and add the following line to your configuration file:</p>
+  			<pre>
+  			include 'includes/i18n.inc';
+  			</pre>
+  			<p>You can try different settings to have only content translation, interface translation or both.</p>
+  			<p><small>Module developed by <a href=\"http://freelance.reyero.net\">freelance.reyero.net</a></small></p>");
+  		break;
+    case "admin/system/modules#description":
+      $output = t("Supports site internationalization (i18n).");
+      break;
+  }
+  return $output;
+}
+
+function i18n_settings(){
+	$output .= form_radios(t("Interface translation"),"i18n_interface",variable_get("i18n_interface",0),array(t("Disabled"),t("Enabled")),t("If disabled, uses Drupal's default. If enabled, translates the interface to selected language"));
+	$output .= form_radios(t("Content translation"),"i18n_content",variable_get("i18n_content",0),array(t("Disabled"),t("Enabled")),t("If enabled, prepends language code to url and searches for translated content"));
+	$output .= form_select(t("Front page"),"i18n_front_page",variable_get("i18n_front_page",0),array(t("Default"),t("Language dependant")),t("If language dependant and <i>Content translation</i> is enabled, default front page will be prepended with language code, i.e. 'en/node'"));
+	$output .=form_radios(t("Keep Language"),"i18n_keep",variable_get("i18n_keep",'url'),
+	array(	""=>t("Disabled"),
+					"url" => t("URL rewriting"),
+					"session" => t("Session"),
+					"cookie" => t("Cookie")
+	),t("A language code independent of user's language will be kept accross requests using the selected method"));
+	$output .= form_radios(t("Detect browser language"),"i18n_browser",variable_get("i18n_browser",0),array(t("Disabled"),t("Enabled")));
+	$output .= form_textfield(t("Flags directory"),"i18n_flags",variable_get("i18n_flags","misc/flags/*.gif"),70,180,t("Path for flags. Asterisk '*' is a placeholder for language code. This is only needed when you want a language selector block"));
+
+	return $output;
+}
+
+function i18n_block($op = 'list', $delta = 0) {
+  if ($op == 'list') {
+    $blocks[0]['info'] = t('Languages');
+  }
+  else {
+  	$blocks['subject']=t('Languages');
+  	$content = "<table><tr><td>";
+  	$content .=  theme("i18n_links",1,1,"</td><td>","</td></tr><tr><td>");
+  	$content .= "</td></tr></table>";
+    $blocks['content'] =$content;
+  }
+
+  return $blocks;
+}
+
+
+/**
+ * i18n api
+ */
+ 
+if(!function_exists("i18n_get_lang_prefix")){
+function i18n_get_lang_prefix($path){
+	global $languages;
+	$split=split("/",$path);
+	$maybelang=$split[0];
+	if($languages[$maybelang]){
+		return $maybelang;
+	}
+}
+}
+ 
+function i18n_get_lang(){
+	global $i18n_lang;
+	if($i18n_lang){
+		return $i18n_lang;
+	} elseif($lang=$_GET['i18n_lang']) {
+		return $i18n_lang=$lang;
+	} else {
+		switch(variable_get('i18n_keep','')){
+			case 'url': // URL
+				$lang= i18n_get_lang_prefix(i18n_get_original_path());
+				break;
+			case 'session': // Session
+				session_start();
+				$lang = $_SESSION['i18n_lang'];
+				break;
+			case 'cookie': // Cookie
+				$lang=$_COOKIE['i18n_lang'];
+				break;
+			default:
+				$lang=$_GET['i18n_lang'];
+		}
+	}
+	return $i18n_lang=$lang;
+}
+
+function i18n_set_lang($lang){
+	global $i18n_lang;
+	global $i18n_langpath;
+	$i18n_lang=$lang;
+	switch(variable_get('i18n_keep','')){
+		case 'url': // URL
+		case 'query': // Query string
+			$i18n_langpath=$lang;
+			break;
+		case 'session': // Session
+			session_start();
+			$_SESSION["i18n_lang"]=$lang;
+			break;
+		case 'cookie': // Cookie
+			setcookie('i18n_lang',$lang,NULL,'/');
+			break;
+	}
+}
+
+function i18n_get_default_lang(){
+	global $user;
+	global $languages;
+	if(!$lang=$user->language){
+  	if(variable_get('i18n_browser',0) && $lang=i18n_get_browser_lang()){
+  		i18n_set_default_lang($lang);
+  	} else {
+  		$lang=key($languages);
+  		reset($languages);
+  	}
+	}
+	return $lang;	
+}
+
+// Set language as default rearranging $languages array
+function i18n_set_default_lang($lang){
+	global $languages;
+	global $i18n_lang;
+	$i18n_lang=$lang;
+	if(variable_get("i18n_interface",0)){
+		$deflang=key($languages);
+		if($lang != $deflang){ 
+			// Reorder $languages to set $lang as the first element...
+			$languages=array_merge(array($lang => $languages[$lang]),$languages);
+		} else { //Language is the default
+				reset($languages);
+		}
+	}
+}
+
+// Function based on common.inc::drupal_get_normal_path, but returns nothing if mapping not found
+function i18n_get_normal_path($path) {
+  if (($map = drupal_get_path_map()) && isset($map[$path])) {
+    return $map[$path];
+  } 
+}
+
+// To get the original path. Cannot use $_GET["q"] cause it may have been already changed
+function i18n_get_original_path(){
+  $path=$_REQUEST["q"];
+	return trim($path,"/");
+}
+
+// Get language from browser settings, but only if it is in the $languages array
+function i18n_get_browser_lang(){
+	global $languages;
+	$accept=explode(",",array_shift( explode(";",$_SERVER["HTTP_ACCEPT_LANGUAGE"])));
+	foreach($accept as $lang){
+		$lang=substr($lang,0,2);
+		if($languages[$lang]) return $lang;
+	}
+}
+
+/**
+ *	Theme functions
+ */
+ 
+/**
+	* Returns language links with optional flags
+	*
+	* @param $flags an integer, 1 to use language flags
+	* @param $names an integer, 1 to use language names
+	* @param $delim1 delimiter to place between language name and flag
+	* @param $delim2 delimiter to place between different languages
+	*
+	* @return a string containing the @a links output.
+	*/
+	
+function theme_i18n_links($flags=1,$names=1,$delim1=" ",$delim2=" "){
+	global $languages;
+	global $i18n_lang;
+
+	foreach($languages as $lang => $langname){
+		$name= $names ? t($langname): ""; // Should be localized??
+		$flag= $flags ? _i18n_flag($lang) :"";
+		if($lang==$i18n_lang){
+			$links[] = "<strong>$name</strong>$delim1$flag";
+		}else {
+			$links[] = i18n_l($name.$delim1.$flag,$lang);
+		}
+	}
+	$output =implode($delim2,$links);
+	return $output;	
+}
+
+function theme_i18n_flags(){
+	return theme_i18n_links(1,0);
+}
+
+function _i18n_flag($lang,$attribs=array()){
+	if($path=variable_get("i18n_flags","misc/flags/*.gif")){
+		$flag=str_replace("*",$lang,$path);
+		return "<img src=\"$flag\"".drupal_attributes($attribs)." />";
+	}
+}
+
+// Creates links for different languages
+function i18n_l($text, $lang , $url="",$attributes=array(),$query=NULL) {
+	global $i18n_langpath;
+	// If !url get from original request
+	if(!$url) $url=i18n_get_original_path();
+		// If url has lang_prefix, remove it
+	if(i18n_get_lang_prefix($url)) $url=substr($url,3);
+	
+	if(variable_get('i18n_keep','')=='url'){
+		$url="$lang/$url";
+	} else {
+		if(variable_get('i18n_content',0)) $url="$lang/$url";
+		$query= $query ? $query.'&i18n_lang='.$lang : "i18n_lang=$lang";
+	}
+	// Save $i18n_langpath, and set to null to avoid url_rewriting
+	$tmp=$i18n_langpath;
+	$i18n_langpath="";
+	$result= l($text,$url,$attributes,$query);
+	// Restore $i18n_langpath
+	$i18n_langpath=$tmp;	
+	return $result;
+}
+
+?>

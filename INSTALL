@@ -1,0 +1,17 @@
+********************************************************************
+                     D R U P A L    M O D U L E                         
+********************************************************************
+Name: i18n module
+Author: Jose A. Reyero
+Email: drupal at reyero dot net
+
+********************************************************************
+INSTALLATION:
+1. Copy i18n.module to the modules folder
+2. Copy i18n.inc to the includes folder
+3. Copy the files in flags folder to misc/flags
+4. To use url rewriting, this line should be added to your configuration file:
+
+include 'includes/i18n.inc'
+
+No modification to the database is required

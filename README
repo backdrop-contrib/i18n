@@ -1,0 +1,27 @@
+README
+======
+Warning: This is a beta version and all the combinations of the module settings have not been tested yet
+
+This module provides support for internationalization of Drupal sites in various ways:
+
+    * Translation of the user interface for registered and anonymous users
+    * Multi-language for content, combined with url aliasing. For this feature to be used, you must enable it in the module configuration and then use url aliasing to keep pages in various languages. I.e. 'en/mypage', 'es/mypage' should be English and Spanish versions of the same page
+    * Detection of the brower language
+    * Keeps the language settings accross consecutive requests, using a number of methods: URL rewriting, sessions, cookies
+    * Provides a block for language selection and two theme functions: i18n_flags and i18n_links
+
+You can try different settings to have only content translation, interface translation or both. 
+
+For url rewriting you need to have the file i18n.inc in the includes folder and add the following line to your configuration file:
+
+  			include 'includes/i18n.inc';
+
+To have a language selector on your page, you can use the block provided or these theme functions:
+
+ theme("i18n_flags") -> Adds just a row with the flags
+ theme("i18n_links",$flags,$names,$delim1,$delim2) -> Check documentation in the code for different options
+
+
+Jose A. Reyero, drupal at reyero dot net
+
+Feedback will be welcomed!
