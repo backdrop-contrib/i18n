@@ -16,7 +16,7 @@ INSTALLATION:
 2. Apply the patches to the Drupal core that are provided.  
       Also, apply the database modifications from the SQL file 'i18n.mysql.'  
       All of these modifications are located in the "patches" folder.
-	  	
+	  ** Check for db updates in the patches folder	
 Language Definition
 ===================
 You can use the languages defined -and enabled- in 'locale' module or modify the Drupal configuration file 'includes/conf.php' to define the languages you want to use.  
@@ -63,6 +63,11 @@ Language dependent variables
   These are only the suggested ones, but you can add as many Drupal variables as you want to the array.
     
   You need to redefine these variables for the first time for every language, as previous values are lost and they return to defaults -they will be back if you disable i18n-. 
+
+To get more flags
+=================
+You can try this:
+http://www.google.com/search?q=awstats+icon+flags
     
 Language dependent tables 
 =========================

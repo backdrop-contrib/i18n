@@ -12,9 +12,10 @@ CREATE TABLE `i18n_node` (
 #
 # Table: 'i18n_taxonomy_term'
 #
+
 CREATE TABLE `i18n_taxonomy_term` (
   `trid` int(10) unsigned NOT NULL default '0',
-  `tid` int(11) NOT NULL default '0',  
+  `tid` int(11) NOT NULL default '0'  
   PRIMARY KEY  (`trid`,`tid`)
 ) TYPE=MyISAM; 
 
@@ -22,15 +23,15 @@ CREATE TABLE `i18n_taxonomy_term` (
 # Add language field to node table
 
 ALTER TABLE `node`
-ADD `language` char(2) NOT NULL default '';
+ADD `language` varchar(12) NOT NULL default '';
 
-# Add language and trid fields to term_data
+# Add language field to term_data
+
 ALTER TABLE `term_data`
-ADD `language` char(2) NOT NULL default '';
-#ADD `trid` int(11) NOT NULL default '0';
+ADD `language` varchar(12) NOT NULL default '';
+
 
 # Add language to vocabulary
+
 ALTER TABLE `vocabulary`
-ADD `language` char(2) NOT NULL default '';
-
-
+ADD `language` varchar(12) NOT NULL default '';

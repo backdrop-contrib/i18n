@@ -1,5 +1,16 @@
 4-5-0 to .....
 --------------
+26/03/2005
+- Added some logic in query rewriting functions to get all terms & vocabs when administering categories and the right ones when editing a node.
+- Reworked configuration options for flags. Now language appears in the alt text for icons. Accesibility++
+- Added support for long locale names (http://drupal.org/node/14814). Still needs some fallback mechanism.
+- Merging all the code in only one include file: i18n.inc
+- Not running anymore the language name through localization system: http://drupal.org/node/19179
+- Added & updated PostgreSQL schema
+- Changed block HTML from using tables to HTML list, for consistency with the rest of Drupal blocks
+- Added some contributed language flags
+- Some cleaning up, WIP, preparing for 4.6 release
+
 04/02/2005
 - Applied patch http://drupal.org/node/15966 (Switch to translated nodes and taxonomy listings)
 - Moved the file i18n.mysql and fixed bug

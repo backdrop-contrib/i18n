@@ -1,4 +1,4 @@
---- bootstrap.inc.1	2005-03-21 20:11:03.000000000 +0100
+--- bootstrap.inc	2005-03-21 20:11:03.000000000 +0100
 +++ bootstrap.inc	2005-03-21 20:14:26.000000000 +0100
 @@ -644,6 +644,154 @@ function drupal_get_messages() {
    return $messages;

@@ -109,14 +109,16 @@ function i18n_help($section = 'admin/help#i18n' ) {
   switch ($section) {
     case 'admin/help#i18n' :
       $output = t('
-      	<p><strong>To be rewritten</strong></p>
         <p>This module provides support for internationalization of Drupal sites:</p>
-        <ul><li>Translation of the user interface for anonymous users (combined with locale)</li>
-        <li>Multi-language for content. Adds a language field for nodes and taxonomy terms</li>
+        <ul>
+        <li>Translation of the user interface for anonymous users (combined with locale)</li>
+        <li>Multi-language for content. Adds a language field for nodes and taxonomy vocabularies and terms</li>
         <li>Basic translation management</li>
         <li>Browser language detection</li>
-        <li>Keeps the language setting accross consecutive requests, using URL rewriting</li>
-        <li>Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i></li></ul>
+        <li>Keeps the language setting accross consecutive requests using URL rewriting</li>
+        <li>Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i></li>
+        <li>Support for long locale names</li>
+        </ul>
         <p><small>Module developed by <a href="http://freelance.reyero.net">freelance.reyero.net</a></small></p>' );
       break;
   case 'admin/modules#description' :
@@ -131,23 +133,25 @@ function i18n_help($section = 'admin/help#i18n' ) {
  */
 function i18n_settings() {
   global $db_prefix_i18n;
-  
+  global $i18n_languages;
   // Basic settings
-
+  $config_languages = is_array($i18n_languages) ? implode(', ',$i18n_languages) : 'Not defined';
   $output .= form_radios(t('Supported languages'), 'i18n_supported_langs' , variable_get('i18n_supported_langs', 'locale'), 
     array(
       'locale' => t('Defined by the locale module'),
-      'i18n'  => t('Defined in the configuration file (%i18n_languages)', array('%18n_languages' => $i18n_languages))
+      'i18n'  => t('Defined in the configuration file (%config_languages)', array('%config_languages' => $config_languages))
     ), t('Where to get the list of supported languages from' ));
-  /* Disabled
-  $output .= form_radios(t('Simple content translation"), "i18n_content", variable_get("i18n_content", 0), array(t("Disabled"), t("Enabled")), t(' If enabled, prepends language code to url and searches for translated content. <strong>Requires url aliasing with 'path' module.</strong>"));
-  */
   $output .= form_radios(t('Browser language detection'), 'i18n_browser', variable_get('i18n_browser', 0), array(t('Disabled'), t('Enabled' )));
   $output .= form_select(t('Front page'), 'i18n_frontpage', variable_get('i18n_frontpage', 0), array(t('Default'), t('Language dependent')), t(" If 'language dependent' is selected, default front page will be prepended with language code, i.e. 'en/node'"));
-
-  $output .= form_textfield(t('Language icons html tag'), 'i18n_flags', variable_get('i18n_flags', '<img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12"/>'), 70, 180, 
+  /*
+  $output .= form_textfield(t('Language icons html tag'), 'i18n_flags', variable_get('i18n_flags', '<img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12" alt="Language Flag" />'), 70, 180, 
     t('HTML tag for flags. Asterisk \'*\' is a placeholder for language code. It should be something like &lt;img class="i18n-flag" src="modules/i18n/flags/*.png" width="16" height="12"/&gt'));
-
+  */
+  $output .= form_textfield(t('Language icons path'), 'i18n_flags_path', variable_get('i18n_flags_path', 'modules/i18n/flags/*.png'), 70, 180, 
+    t('Path for language icons, relative to Drupal installation. \'*\' is a placeholder for language code.'));
+  $output .= form_textfield(t('Language icons sixe'), 'i18n_flags_size', variable_get('i18n_flags_size', '16x12'), 10, 10, 
+    t('Image size for language icons, in the form "width x height".'));
+  
   $output .= t('<h2>Multilingual content</h2>' );
   foreach (node_list() as $node) {
     $subform.=form_checkbox(t($node), 'i18n_node_'.$node, 1, variable_get('i18n_node_'.$node, 0));
@@ -239,12 +243,23 @@ function i18n_get_browser_lang() {
 /**
  * Get language code from path.
  *
- * It doesn't check anymore for valid languages, so any two letter code at the beginning of the path will be taken as a lang code
+ * @param $path
+ * @param $trim true to remove language code from $path
  */
-function i18n_get_lang_prefix($path) {
+function i18n_get_lang_prefix(&$path, $trim = false) {
+  $maybelang = array_shift(explode('/',$path));
+  $languages = i18n_supported_languages();
+  if(array_key_exists($maybelang, $languages)){
+    if($trim) {
+      $path = trim(substr($path, strlen($maybelang)),'/');
+    }
+    return $maybelang;
+  }
+  /*
   if (preg_match("/^\w\w($|\/.*)/", $path)) {
     return substr($path, 0, 2);
   }
+  */
 }
 
 /**
@@ -273,9 +288,9 @@ function i18n_get_normal_path($path) {
   // First, check alias with lang
   if (($map = drupal_get_path_map()) && isset($map[$path])) {
     return $map[$path];
-  } elseif (i18n_get_lang_prefix($path)) {
+  } elseif ($lang = i18n_get_lang_prefix($path, true)) {
     // Check alias without lang
-    $path = trim(substr($path,3),'/');
+    //$path = trim(substr($path, strlen($lang)),'/');
     if( isset($map[$path])) {
       return $map[$path];
     } 

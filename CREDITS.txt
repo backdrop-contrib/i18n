@@ -1,16 +1,20 @@
 Drupal module created by Jose A. Reyero, <drupal at reyero dot net>
 
 My website http://freelance.reyero.net, it uses this module.
-  
-* Flag icons from http://www.clickfire.com/content/graphics/favicons/flags_icons.php (thanx)
 
 ** Some code taken from Walkah's translate_node module, from the sandbox.
 
+DEVELOPERS
+----------
+Jose A. Reyero
+Karoly Negyesi
+
 CONTRIBUTORS
 ------------
-Karoly Negyesi, lots of patches
-Rich Cowan, some documentation
-Ber Kessels, some patches
+Ber Kessels
 bartvb
-Gabor Suveg, Hungarian flag
-Jonathan Lane, PHPtemplate variables
+Rich Cowan
+Jonathan Lane
+Gabor Suveg
+Jens Herden
+Jarno Elonen

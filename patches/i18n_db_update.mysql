@@ -1,0 +1,10 @@
+
+# Update!. Support for long locale name
+ALTER TABLE node 
+CHANGE language language varchar(12) NOT NULL default '';
+
+ALTER TABLE vocabulary 
+CHANGE language language varchar(12) NOT NULL default '';
+
+ALTER TABLE term_data
+CHANGE language language varchar(12) NOT NULL default '';
