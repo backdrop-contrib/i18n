@@ -1,6 +1,6 @@
-4-4-0 to CVS
-------------
-
+4-4-0 to 4-5-0
+--------------
+- Removed the common.inc patch 01, as it already got into the core
 - Added language dependent variables
 - Refined node and taxonomy synchronization
 - Rearranged configuration interface
