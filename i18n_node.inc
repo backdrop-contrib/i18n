@@ -10,6 +10,21 @@
  */
 
 /**
+ * Implementation of hook_node_rewrite_sql()
+ */ 
+function i18n_node_rewrite_sql($hint,$node_alias){
+  $result = array();
+  if ($hint & NODE_REWRITE_SQL_RELATED_LIST) {
+    $result['join'] = "INNER JOIN {node} USING(nid)";
+    $result['where'] = "{node}.language='".i18n_get_lang()."'";
+  } elseif ( $hint & NODE_REWRITE_SQL_SEARCH) {
+    
+  } else {
+    $result['where'] = "$node_alias.language ='".i18n_get_lang()."'" ;
+  }
+  return $result;
+}
+/**
  * This is the callback for the tab 'translations' for nodes
  */
 function i18n_node_translation() {

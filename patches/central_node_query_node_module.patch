@@ -1,0 +1,195 @@
+Index: node.module
+===================================================================
+RCS file: /var/cvs/CookingTheNet/modules/node.module,v
+retrieving revision 1.3
+diff -u -r1.3 node.module
+--- node.module	4 Jan 2005 20:12:24 -0000	1.3
++++ node.module	7 Jan 2005 16:19:16 -0000
+@@ -7,6 +7,11 @@
+  */
+ 
+ define('NODE_NEW_LIMIT', time() - 30 * 24 * 60 * 60);
++define('NODE_REWRITE_SQL_SEARCH',0x01);
++define('NODE_REWRITE_SQL_LIST',0x02);
++define('NODE_REWRITE_SQL_ADMIN_LIST',0x04);
++define('NODE_REWRITE_SQL_BLOCK_LIST',0x08);
++define('NODE_REWRITE_SQL_RELATED_LIST',0x10);
+ 
+ /**
+  * Implementation of hook_help().
+@@ -578,7 +583,8 @@
+       variable_del('node_cron_last');
+       return;
+     case 'search':
+-      $find = do_search($keys, 'node', 'INNER JOIN {node} n ON n.nid = i.sid '. node_access_join_sql() .' INNER JOIN {users} u ON n.uid = u.uid', 'n.status = 1 AND '. node_access_where_sql());
++      list($join, $where) = _node_rewrite_sql(NODE_REWRITE_SQL_SEARCH);
++      $find = do_search($keys, 'node', 'INNER JOIN {node} n ON n.nid = i.sid '. $join .' INNER JOIN {users} u ON n.uid = u.uid', 'n.status = 1 AND '. $where);
+       $results = array();
+       foreach ($find as $item) {
+         $node = node_load(array('nid' => $item));
+@@ -1012,7 +1018,7 @@
+   global $base_url, $locale;
+ 
+   if (!$nodes) {
+-    $nodes = db_query_range('SELECT n.nid FROM {node} n '. node_access_join_sql() .' WHERE '. node_access_where_sql() .' AND n.promote = 1 AND n.status = 1 ORDER BY n.created DESC', 0, 15);
++    $nodes = db_query_range(node_rewrite_sql('SELECT n.nid FROM {node} n  WHERE n.promote = 1 AND n.status = 1 ORDER BY n.created DESC'), 0, 15);
+   }
+ 
+   while ($node = db_fetch_object($nodes)) {
+@@ -1463,7 +1469,7 @@
+  * Generate a listing of promoted nodes.
+  */
+ function node_page_default() {
+-  $result = pager_query('SELECT DISTINCT(n.nid), n.sticky, n.created FROM {node} n '. node_access_join_sql() .' WHERE n.promote = 1 AND n.status = 1 AND '. node_access_where_sql() .' ORDER BY n.sticky DESC, n.created DESC', variable_get('default_nodes_main', 10));
++  $result = pager_query(node_rewrite_sql('SELECT n.nid, n.sticky, n.created FROM {node} n WHERE n.promote = 1 AND n.status = 1 ORDER BY n.sticky DESC, n.created DESC'), variable_get('default_nodes_main', 10));
+ 
+   if (db_num_rows($result)) {
+     drupal_set_html_head('<link rel="alternate" type="application/rss+xml" title="RSS" href="'. url('node/feed', NULL, NULL, TRUE) .'" />');
+@@ -1706,6 +1712,21 @@
+   return FALSE;
+ }
+ 
++function node_access_grants_present() {
++  static $access_grants_present;
++
++  if (!isset($access_grants_present)) {
++    $access_grants_present = FALSE;
++    $list = module_list();
++    foreach ($list as $module) {
++      if (module_hook($module, 'access_grants')) {
++        $access_grants_present = TRUE;
++      }
++    }
++  }
++  return $access_grants_present;
++}
++
+ /**
+  * Generate an SQL join clause for use in fetching a node listing.
+  *
+@@ -1719,7 +1740,7 @@
+  *   An SQL join clause.
+  */
+ function node_access_join_sql($node_alias = 'n', $node_access_alias = 'na') {
+-  if (user_access('administer nodes')) {
++  if (!node_access_grants_present() || user_access('administer nodes')) {
+     return '';
+   }
+ 
+@@ -1740,7 +1761,7 @@
+  *   An SQL where clause.
+  */
+ function node_access_where_sql($op = 'view', $node_access_alias = 'na', $uid = NULL) {
+-  if (user_access('administer nodes')) {
++  if (!node_access_grants_present() || user_access('administer nodes')) {
+     // This number is being used in a SQL query as a boolean.
+     // It is "'1'" instead of "1" for database compatibility, as both
+     // PostgreSQL and MySQL treat it as boolean in this case.
+@@ -1790,4 +1811,105 @@
+  * @} End of "defgroup node_access".
+  */
+ 
+-?>
++/**
++ * Implementation of hook_node_rewrite_sql
++ */
++function node_node_rewrite_sql () {
++  $return['join'] = node_access_join_sql();
++  $return['where'] = node_access_where_sql();
++  $return['distinct'] = !empty($return['join']);
++  return $return;
++}
++
++/*
++ * Helper function for node_rewrite_sql.
++ *
++ * Collects JOIN and WHERE statements via hook_sql.
++ * Decides whether to select nid or DISTINCT(nid)
++ *
++ *  @param $hint
++ *    Some hint about the query, passed on to hook_sql handlers. Use NODE_REWRITE_SQL_* flags.
++ * @param $node_alias
++ *   If the node table has been given an SQL alias other than the default
++ *   "n", that must be passed here.
++ * @return
++ *   An associative array: join => join statements, where => where statements, nid_to_select => nid or DISTINCT(nid)
++ */
++function _node_rewrite_sql($hint = 0, $node_alias = 'n') {
++  static $called;
++
++  if ($called) { // semaphore. if a function in the process of hook_sql calls _node_rewrite_sql, it won't fall into an infinite loop.
++    return array('join'=>'', 'where'=>"'1'", 'nid_to_select' => $node_alias.'.nid');
++  }
++  $called = 1;
++  $where = array();
++  $join = array();
++  $distinct = FALSE;
++  foreach (module_list() as $module) {
++    $result = module_invoke($module, 'node_rewrite_sql', $hint, $node_alias);
++    if (is_array($result)) {
++      if (isset($result['where'])) {
++        $where[] = $result['where'];
++      }
++      if (isset($result['join'])) {
++        $join[] = $result['join'];
++      }
++      if (isset($result['distinct']) && $result['distinct']) {
++        $distinct = TRUE;
++      }
++    }
++    elseif (isset($result)) {
++      $where[] = $result;
++    }
++  }
++  $swhere = empty($where) ? '' : '('. implode(') AND (',$where).')';
++  $sjoin = empty($join) ? '' : implode(' ',$join);
++  $called = 0;
++  return array($sjoin, $swhere, $distinct ? 'DISTINCT('.$node_alias.'.nid)' : $node_alias.'.nid');
++}
++
++/*
++ * Rewrites node queries.
++ *
++ *  @param $query
++ *    query to be rewritten
++ *  @param $hint
++ *    Some hint about the query, passed on to hook_sql handlers. Use NODE_REWRITE_SQL_* flags.
++ * @param $node_alias
++ *   If the node table has been given an SQL alias other than the default
++ *   "n", that must be passed here.
++ * @return
++ *   The original query with JOIN and WHERE statements inserted from hook_node_rewrite_sql implementations. nid is rewritten if needed.
++ */
++function node_rewrite_sql($query, $hint = 0, $node_alias = 'n') {
++
++  list($join, $where,$nid_to_select) = _node_rewrite_sql($hint, $node_alias);
++
++  $query = preg_replace('/(SELECT.*)('.$node_alias.'\.)?nid(.*FROM)/AUs', '\1'. $nid_to_select .'\3', $query);
++
++  $query = preg_replace('/FROM[^[:upper:]]+/','\0 '.$join.' ', $query);
++  if (strpos($query, 'WHERE')) {
++    $replace = 'WHERE';
++    $add = 'AND';
++  }
++  elseif (strpos($query, 'GROUP')) {
++    $replace = 'GROUP';
++    $add = 'GROUP';
++  }
++  elseif (strpos($query, 'ORDER')) {
++    $replace = 'ORDER';
++    $add = 'ORDER';
++  }
++  elseif (strpos($query, 'LIMIT')) {
++    $replace = 'LIMIT';
++    $add = 'LIMIT';
++  }
++  else
++    $query .= 'WHERE '. $where;
++  if (isset($replace)) {
++    $query = str_replace($replace, 'WHERE  '.$where.' '.$add, $query);
++  }
++  return $query;
++}
++
++?>
+\ No newline at end of file
