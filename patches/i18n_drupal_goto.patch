@@ -1,16 +1,9 @@
-Index: includes/bootstrap.inc
-===================================================================
-RCS file: /var/cvs/CookingTheNet/includes/bootstrap.inc,v
-retrieving revision 1.4
-diff -u -r1.4 bootstrap.inc
---- includes/bootstrap.inc	13 Jan 2005 12:41:20 -0000	1.4
-+++ includes/bootstrap.inc	23 Jan 2005 13:08:17 -0000
-@@ -626,6 +632,134 @@
-   $_SESSION['messages'] = array();
- 
+--- bootstrap.inc.1	2005-02-03 15:42:39.000000000 +0100
++++ bootstrap.inc	2005-02-03 15:43:38.000000000 +0100
+@@ -628,6 +628,134 @@ function drupal_get_messages() {
    return $messages;
-+}
-+
+ }
+ 
 +/**
 + * Send the user to a different Drupal page.
 + *
@@ -137,24 +130,31 @@ diff -u -r1.4 bootstrap.inc
 +      }
 +    }
 +  }
- }
- 
++}
++
  unset($conf);
-Index: includes/common.inc
-===================================================================
-RCS file: /var/cvs/CookingTheNet/includes/common.inc,v
-retrieving revision 1.6
-diff -u -r1.6 common.inc
---- includes/common.inc	22 Jan 2005 16:20:31 -0000	1.6
-+++ includes/common.inc	23 Jan 2005 13:08:17 -0000
-@@ -116,52 +116,6 @@
-  */
+ $config = conf_init();
+ 
+--- common.inc.1	2005-02-03 15:42:33.000000000 +0100
++++ common.inc	2005-02-03 15:43:31.000000000 +0100
+@@ -134,71 +134,6 @@ function drupal_get_destination() {
+ }
  
  /**
 - * Send the user to a different Drupal page.
 - *
 - * This issues an on-site HTTP redirect. The function makes sure the redirected
 - * URL is formatted correctly.
+- *
+- * Usually the redirected URL is constructed from this function's input
+- * parameters.  However you may override that behavior by setting a
+- * <em>destination</em> in either the $_REQUEST-array (i.e. by using
+- * the query string of an URI) or the $_REQUEST['edit']-array (i.e. by
+- * using a hidden form field).  This is used to direct the user back to
+- * the proper page after completing a form.  For example, after editing
+- * a post on the 'admin/node'-page or after having logged on using the
+- * 'user login'-block in a sidebar.  The function drupal_get_destination()
+- * can be used to help set the destination URL.
 - *
 - * It is advised to use drupal_goto() instead of PHP's header(), because
 - * drupal_goto() will append the user's session ID to the URI when PHP is
@@ -169,8 +169,17 @@ diff -u -r1.6 common.inc
 - *   The query string component, if any.
 - * @param $fragment
 - *   The destination fragment identifier (named anchor).
+- *
+- * @see drupal_get_destination()
 - */
 -function drupal_goto($path = '', $query = NULL, $fragment = NULL) {
+-  if ($_REQUEST['destination']) {
+-    extract(parse_url($_REQUEST['destination']));
+-  }
+-  else if ($_REQUEST['edit']['destination']) {
+-    extract(parse_url($_REQUEST['edit']['destination']));
+-  }
+-
 -  // Translate &amp; to simply & in the absolute URL.
 -  $url = str_replace('&amp;', '&', url($path, $query, $fragment, TRUE));
 -
@@ -200,11 +209,10 @@ diff -u -r1.6 common.inc
   * Generates a 404 error if the request can not be handled.
   */
  function drupal_not_found() {
-@@ -1385,81 +1339,6 @@
-  * @} End of "defgroup form".
+@@ -1440,82 +1375,6 @@ function form_weight($title = NULL, $nam
   */
  
--/**
+ /**
 - * Generate an internal Drupal URL.
 - *
 - * @param $path
@@ -279,6 +287,8 @@ diff -u -r1.6 common.inc
 -    }
 -  }
 -}
- 
- /**
+-
+-/**
   * Format an attribute string to insert in a tag.
+  *
+  * @param $attributes

@@ -1,0 +1,25 @@
+--- bootstrap.inc.1	2005-02-03 23:41:07.148806096 +0100
++++ bootstrap.inc	2005-02-03 23:41:15.070601800 +0100
+@@ -152,6 +152,9 @@ function variable_init($conf = array()) 
+ function variable_get($name, $default) {
+   global $conf;
+ 
++  if (function_exists('i18n_variable')) {
++     $name = i18n_variable($name);
++  }
+   return isset($conf[$name]) ? $conf[$name] : $default;
+ }
+ 
+@@ -167,6 +170,12 @@ function variable_get($name, $default) {
+ function variable_set($name, $value) {
+   global $conf;
+ 
++  if (function_exists('i18n_variable')) {
++    $name = i18n_variable($name);
++  }
++  if (function_exists('i18n_variable')) {
++    $name = i18n_variable($name);
++  }
+   db_query("DELETE FROM {variable} WHERE name = '%s'", $name);
+   db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", $name, serialize($value));
+   cache_clear_all('variables');
