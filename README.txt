@@ -25,12 +25,12 @@ This module provides support for internationalization of Drupal sites:
 	  ** You can choose which node types to translate and a new 'language' field will show up when editing them
       ** Language can also be set for taxonomy terms
 	* Translation of the user interface for registered and anonymous users (with locale module and the languages block enabled)
-    * Detection of the brower language
+    * Detection of the browser language
     * Keeps the language settings accross consecutive requests using URL rewriting.
     * Provides a block for language selection and two theme functions: i18n_flags and i18n_links
     * Independent interface and content languages. 
 	  ** This means you can have the interface -menus, etc..- in english while viewing a node in spanish
-	  ** While some people doesn't like this, I consider it as an important feature which will be kept for future releases
+	  ** While some people don't like this, I consider it an important feature which will be kept for future releases
 
 To have a language selector on your page, you can use the block provided or these theme functions:
 
