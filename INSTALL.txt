@@ -53,6 +53,11 @@ Language dependent variables
         'user_mail_pass_subject',
         'user_mail_pass_body',
         
+        // These are for PHPtemplate
+    	'phptemplate_primary_links',
+    	'phptemplate_primary_links_more',
+    	'phptemplate_secondary_links',
+    	'phptemplate_secondary_links_more',        
     );
     
   These are only the suggested ones, but you can add as many Drupal variables as you want to the array.

@@ -13,3 +13,4 @@ Rich Cowan, some documentation
 Ber Kessels, some patches
 bartvb
 Gabor Suveg, Hungarian flag
+Jonathan Lane, PHPtemplate variables
