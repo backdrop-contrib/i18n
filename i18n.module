@@ -11,8 +11,12 @@
  */
 
 // This runs after user has ben initialized and path may be already translated
+
 function i18n_init(){
 	global $i18n_langpath;
+	
+	// Quick fix, check if called from bootstrap.inc
+	if(!function_exists("drupal_get_path_map")) return 0;
 	
 	if($lang=i18n_get_lang()){
 		i18n_set_lang($lang);
