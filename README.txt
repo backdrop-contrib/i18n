@@ -11,7 +11,7 @@ May work also with 4.5.0, waiting for some feedback about this.
 WARNING: It is not backwards compatible with the old i18n module [4.5.0] 
 WARNING: DO READ THE INSTALL FILE
 ********************************************************************
-NOTE: If you have been playing with the 'preview', better re-apply the database patches (fields renamed from 'lang' to 'language')
+NOTE: If you have been playing with the 'preview', database fields have been renamed:  from 'lang' to 'language' in 'node' and 'term_data' tables
 ********************************************************************
 
 This module implements multilingual support as outlined in http://drupal.org/node/11051
