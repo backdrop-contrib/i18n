@@ -1,5 +1,5 @@
-README
-======
+README.txt
+==========
 Warning: This is a beta version and all the combinations of the module settings have not been tested yet
 Warning: Some features are experimental
 Warning: DO READ THE INSTALL FILE
