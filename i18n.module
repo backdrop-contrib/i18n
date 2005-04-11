@@ -19,7 +19,7 @@ function i18n_init(){
   global $i18n_langpath;
   // Some functions only to be included when module is enabled
 
-  $path = i18n_get_original_path();
+  $path = _i18n_get_original_path();
   $i18n_langpath = i18n_get_lang_prefix($path);
   $lang = _i18n_get_lang();
   
@@ -45,58 +45,14 @@ function i18n_init(){
 
   // Multi table, for backwards compatibility and experimentation
   if (variable_get('i18n_multi' , 0)) {
-    i18n_set_db_prefix(_i18n_get_lang());
+    _i18n_set_db_prefix(_i18n_get_lang());
   }
 
   // If not in bootstrap, include hooks
-  if(!i18n_is_bootstrap()){
+  if(!_i18n_is_bootstrap()){
     include 'modules/i18n/i18n.inc';    
   }
-}  // End of i18n_init    
-
-
-/**
- * Check whether we are in bootstrap mode
- */  
-function i18n_is_bootstrap(){
-  return !function_exists('drupal_get_headers');
-}    
-
-/**
- *	Gets language, checking in order:
- *
- *	1. Path language
- *	2. User language
- *	3. Browser language
- *	4. Default language
- */
-
-function _i18n_get_lang() {
-  global $user, $i18n_langpath;
-  static $i18n_lang;
-  
-  //see if the language is already set.
-  if ($i18n_lang) {
-    return $i18n_lang;
-  }
-
-  $languages = i18n_supported_languages();
-   
-  if ($i18n_langpath && array_key_exists($i18n_langpath,$languages)) {
-    $i18n_lang = $i18n_langpath;
-  }
-  elseif ($user->uid && $user->language && array_key_exists($user->language,$languages)) {
-    $i18n_lang = $user->language;
-  }
-  elseif (variable_get("i18n_browser",0) && $lang=i18n_get_browser_lang()) {
-    $i18n_lang=$lang;
-  }
-  else {
-    $i18n_lang=key($languages);
-  }
-  
-  return $i18n_lang;
-}
+}   
 
 /**
  *  Common module functions
@@ -188,7 +144,7 @@ function i18n_supported_languages() {
     return $languages;
   }
   elseif (variable_get('i18n_supported_langs', 'locale') == 'locale') {
-    $languages = i18n_locale_supported_languages();
+    $languages = _i18n_locale_supported_languages();
     return $languages;
   } 
   elseif (is_array($i18n_languages)) {
@@ -204,28 +160,6 @@ function i18n_supported_languages() {
  */
 function i18n_default_language(){
   return key(i18n_supported_languages());
-}
-
-/**
- * Returns list of enabled languages from locale module
- *
- * * Some code borrowed from locale module
- */
-function i18n_locale_supported_languages() {
-  $enabled = array();
-  $result = db_query('SELECT locale, name FROM {locales_meta} WHERE enabled = 1 ORDER BY isdefault DESC, name ASC');
-  while ($row = db_fetch_object($result)) {
-    $enabled[$row->locale] = $row->name;
-  }
-  return $enabled;
-}
-
-/**
- * To get the original path. 
- * Cannot use $_GET["q"] cause it may have been already changed
- */
-function i18n_get_original_path() {
-  return isset($_REQUEST["q"]) ? trim($_REQUEST["q"],"/") : '';
 }
 
 // Get language from browser settings, but only if it is in the $i18n_languages array
@@ -263,16 +197,6 @@ function i18n_get_lang_prefix(&$path, $trim = false) {
 }
 
 /**
- * Sets db_prefix to given language
- */
-function i18n_set_db_prefix($lang) {
-  global $db_prefix, $db_prefix_i18n;
-  if (is_array($db_prefix_i18n)) {
-    $db_prefix = array_merge($db_prefix, str_replace('**', $lang, $db_prefix_i18n));
-  }
-}
-
-/**
  * Language dependent front page
  */
 function i18n_frontpage() {
@@ -299,5 +223,80 @@ function i18n_get_normal_path($path) {
   return $path;
 }
 
+/**
+ *	Gets language, checking in order:
+ *
+ *	1. Path language
+ *	2. User language
+ *	3. Browser language
+ *	4. Default language
+ */
+
+function _i18n_get_lang() {
+  global $user, $i18n_langpath;
+  static $i18n_lang;
+  
+  //see if the language is already set.
+  if ($i18n_lang) {
+    return $i18n_lang;
+  }
+
+  $languages = i18n_supported_languages();
+   
+  if ($i18n_langpath && array_key_exists($i18n_langpath,$languages)) {
+    $i18n_lang = $i18n_langpath;
+  }
+  elseif ($user->uid && $user->language && array_key_exists($user->language,$languages)) {
+    $i18n_lang = $user->language;
+  }
+  elseif (variable_get("i18n_browser",0) && $lang=i18n_get_browser_lang()) {
+    $i18n_lang=$lang;
+  }
+  else {
+    $i18n_lang=key($languages);
+  }
+  
+  return $i18n_lang;
+}
+
+/**
+ * Check whether we are in bootstrap mode
+ */  
+function _i18n_is_bootstrap(){
+  return !function_exists('drupal_get_headers');
+}    
+
+/**
+ * Sets db_prefix to given language
+ */
+function _i18n_set_db_prefix($lang) {
+  global $db_prefix, $db_prefix_i18n;
+  if (is_array($db_prefix_i18n)) {
+    $db_prefix = array_merge($db_prefix, str_replace('**', $lang, $db_prefix_i18n));
+  }
+}
+
+/**
+ * To get the original path. 
+ * Cannot use $_GET["q"] cause it may have been already changed
+ */
+function _i18n_get_original_path() {
+  return isset($_REQUEST["q"]) ? trim($_REQUEST["q"],"/") : '';
+}
+
+
+/**
+ * Returns list of enabled languages from locale module
+ *
+ * * Some code borrowed from locale module
+ */
+function _i18n_locale_supported_languages() {
+  $enabled = array();
+  $result = db_query('SELECT locale, name FROM {locales_meta} WHERE enabled = 1 ORDER BY isdefault DESC, name ASC');
+  while ($row = db_fetch_object($result)) {
+    $enabled[$row->locale] = $row->name;
+  }
+  return $enabled;
+}
 
 ?>

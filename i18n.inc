@@ -15,13 +15,18 @@
  * Implementation of hook_db_rewrite_sql()
  */
 function i18n_db_rewrite_sql($query, $primary_table, $primary_key){
-  $alias = $primary_key{0};
+  $alias = $primary_table;
+  //debug("$primary_table $primary_key $query");
   switch ($alias) {
     case 'n':
-      return i18n_db_node_rewrite($query, $primary_table, $primary_key);
-    case 't': case 'v':
-      return i18n_db_taxonomy_rewrite($query, $primary_table, $primary_key);
+      $result = i18n_db_node_rewrite($query, $primary_table, $primary_key);
+      break;
+    case 't':
+    case 'v':
+      $result = i18n_db_taxonomy_rewrite($query, $primary_table, $primary_key);
+      break;
   }
+  //if($result) debug($result);
   return $result;
 }
 
@@ -67,7 +72,7 @@ function i18n_db_taxonomy_rewrite($query, $primary_table, $primary_key){
   }
   
   if($lang) {
-    $alias = $primary_key{0};
+    $alias = $primary_table;
     $result['where'] = $alias .".language ='$lang' or ". $alias .".language = ''" ;
     return $result;
   }
@@ -108,8 +113,23 @@ function i18n_menu($may_cache) {
   }
 
   return $items;
-} // End of i18n_menu
- 
+}
+
+/**
+ * Language block
+ */
+function i18n_block($op = 'list', $delta = 0) {
+  if ($op == 'list') {
+    $blocks[0]['info'] = t('Languages');
+  }
+  else {
+    $blocks['subject'] = t('Languages');
+    $blocks['content'] = theme('item_list', i18n_get_links());
+  }
+
+  return $blocks;
+}
+
 /**
  * Implementation of hook_link().
  */
@@ -139,7 +159,11 @@ function i18n_variable($name) {
     return $name;
   }
 }
- 
+
+/**
+ * More i18n API
+ */
+
 /**
  * This one expects to be called first from common.inc
  * When first called, calls _i18n_init();
@@ -160,21 +184,6 @@ function i18n_get_lang() {
 function i18n_get_main_lang($lang = NULL){
   $lang = $lang ? $lang : i18n_get_lang();
   return substr($lang, 2);
-}
-
-/**
- * Language block
- */
-function i18n_block($op = 'list', $delta = 0) {
-  if ($op == 'list') {
-    $blocks[0]['info'] = t('Languages');
-  }
-  else {
-    $blocks['subject'] = t('Languages');
-    $blocks['content'] = theme('item_list', i18n_get_links());
-  }
-
-  return $blocks;
 }
 
 /**
@@ -213,7 +222,7 @@ function i18n_l($text, $lang , $url = '' , $attributes = array(), $query = NULL)
   global $i18n_langpath;
   // If !url get from original request
   if (!$url) {
-    $url = i18n_get_original_path();
+    $url = _i18n_get_original_path();
   }
   // If url has lang_prefix, remove it
   i18n_get_lang_prefix($url, true);
@@ -245,16 +254,13 @@ function i18n_flag($lang, $attribs = array()) {
   if ($path = variable_get('i18n_flags_path', 'modules/i18n/flags/*.png')) {
     $src = str_replace('*', $lang, $path);
     list($width, $height) = explode('x', variable_get('i18n_flags_size', '16x12'));
-    $html = "<img src=\"$src\" width=\"$width\" height=\"$height\" ".drupal_attributes($attribs)." />";
+		$attribs = array_merge(array('class' => 'i18n-flag', 'width' => $width, 'height' => $height, 'alt' => 'Language Icon'), $attribs);
+    $html = "<img src=\"$src\" ".drupal_attributes($attribs)." />";
     return $html;
   }
 }
 
 /**
- * Internationalization (i18n) module
- *
- * @author Jose A. Reyero, 2004
- * 
  * Multilingual Nodes support
  */
 
@@ -485,7 +491,7 @@ function i18n_get_node_type($nid) {
 }
 
 /**
- * Taxonomy functions
+ * Multilingual Taxonomy
  *
  */
  
@@ -802,7 +808,7 @@ function i18n_vocabulary_get_terms($vid, $lang, $status = 'all') {
 }
 /**
  * Taxonomy hook
- * $object parameter is an array, not an object !!
+ * $edit parameter is an array, not an object !!
  */
  // $op = insert, update, delete
 function i18n_taxonomy($op, $type, $edit) {
@@ -862,7 +868,7 @@ function theme_i18n_link_name_flag($lang, $path, $attributes = array()) {
   if (!isset($languages)) {
     $languages = i18n_supported_languages();
   }
-  return '<span class="i18n-link">'. l(t($languages[$lang]), $path, $attributes) . '&nbsp;' . l(i18n_flag($lang) , $path, $attributes) .'</span>';
+  return '<span class="i18n-link">'. l($languages[$lang], $path, $attributes, NULL, NULL, FALSE, TRUE) . '&nbsp;' . l(i18n_flag($lang) , $path, $attributes, NULL, NULL, FALSE, TRUE) .'</span>';
 }
 
 /* @} */

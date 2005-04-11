@@ -1,5 +1,15 @@
 4-5-0 to .....
 --------------
+11/04/2005
+- Fixed bug http://drupal.org/node/20305 (pgsql typo)
+- Updated generated links to latest changes in l()
+- Some code cleanup
+- Update script from 4.5 to CVS
+
+29/03/2005
+- Japanese flag
+- Updated contributors
+
 26/03/2005
 - Added some logic in query rewriting functions to get all terms & vocabs when administering categories and the right ones when editing a node.
 - Reworked configuration options for flags. Now language appears in the alt text for icons. Accesibility++

@@ -10,11 +10,17 @@ Jose A. Reyero
 Karoly Negyesi
 
 CONTRIBUTORS
+Code & Documentation
 ------------
 Ber Kessels
 bartvb
 Rich Cowan
 Jonathan Lane
+Marcin Konicki
+
+Flags
+-----
 Gabor Suveg
 Jens Herden
 Jarno Elonen
+Jim Tittsler
