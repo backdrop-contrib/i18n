@@ -1,9 +1,36 @@
---- bootstrap.inc	2005-03-21 20:11:03.000000000 +0100
-+++ bootstrap.inc	2005-03-21 20:14:26.000000000 +0100
-@@ -644,6 +644,154 @@ function drupal_get_messages() {
-   return $messages;
+Index: bootstrap.inc
+===================================================================
+RCS file: /var/cvs/mydrupal/includes/bootstrap.inc,v
+retrieving revision 1.4
+diff -u -r1.4 bootstrap.inc
+--- bootstrap.inc	16 Apr 2005 14:08:12 -0000	1.4
++++ bootstrap.inc	16 Apr 2005 16:04:29 -0000
+@@ -152,6 +152,9 @@
+ function variable_get($name, $default) {
+   global $conf;
+ 
++  if (function_exists('i18n_variable')) {
++     $name = i18n_variable($name);
++  }
+   return isset($conf[$name]) ? $conf[$name] : $default;
  }
  
+@@ -167,6 +170,9 @@
+ function variable_set($name, $value) {
+   global $conf;
+ 
++  if (function_exists('i18n_variable')) {
++    $name = i18n_variable($name);
++  }
+   db_query("DELETE FROM {variable} WHERE name = '%s'", $name);
+   db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", $name, serialize($value));
+   cache_clear_all('variables');
+@@ -634,6 +640,146 @@
+   $_SESSION['messages'] = array();
+ 
+   return $messages;
++}
++
 +/**
 + * Send the user to a different Drupal page.
 + *
@@ -44,8 +71,7 @@
 +    extract(parse_url($_REQUEST['edit']['destination']));
 +  }
 +
-+  // Translate &amp; to simply & in the absolute URL.
-+  $url = str_replace('&amp;', '&', url($path, $query, $fragment, TRUE));
++  $url = url($path, $query, $fragment, TRUE);
 +
 +  if (ini_get('session.use_trans_sid') && session_id() && !strstr($url, session_id())) {
 +    $sid = session_name() . '=' . session_id();
@@ -99,25 +125,18 @@
 +    $script = (strpos($_SERVER['SERVER_SOFTWARE'], 'Apache') === false) ? 'index.php' : '';
 +  }
 +
-+  if (function_exists('drupal_get_path_alias')) {
-+    $path = drupal_get_path_alias($path);
-+  }
-+
-+  if  (function_exists('i18n_url_rewrite')) {
-+    $path = i18n_url_rewrite($path);
-+  }
-+
++  $path = drupal_get_path_alias($path);
 +
 +  if (isset($fragment)) {
 +    $fragment = '#'. $fragment;
 +  }
 +
-+  $base = ($absolute ? $base_url . '/' : '');
++  $base = ($absolute ? $base_url .'/' : '');
 +
 +  if (variable_get('clean_url', '0') == '0') {
 +    if (isset($path)) {
 +      if (isset($query)) {
-+        return $base . $script .'?q='. $path .'&amp;'. $query . $fragment;
++        return $base . $script .'?q='. $path .'&'. $query . $fragment;
 +      }
 +      else {
 +        return $base . $script .'?q='. $path . $fragment;
@@ -150,14 +169,17 @@
 +      }
 +    }
 +  }
-+}
-+
- unset($conf);
- $config = conf_init();
+ }
  
---- common.inc.1	2005-03-21 20:11:12.000000000 +0100
-+++ common.inc	2005-03-21 20:14:30.000000000 +0100
-@@ -134,71 +134,6 @@ function drupal_get_destination() {
+ unset($conf);
+Index: common.inc
+===================================================================
+RCS file: /var/cvs/mydrupal/includes/common.inc,v
+retrieving revision 1.4
+diff -u -r1.4 common.inc
+--- common.inc	16 Apr 2005 14:08:13 -0000	1.4
++++ common.inc	16 Apr 2005 16:04:29 -0000
+@@ -134,70 +134,6 @@
  }
  
  /**
@@ -200,8 +222,7 @@
 -    extract(parse_url($_REQUEST['edit']['destination']));
 -  }
 -
--  // Translate &amp; to simply & in the absolute URL.
--  $url = str_replace('&amp;', '&', url($path, $query, $fragment, TRUE));
+-  $url = url($path, $query, $fragment, TRUE);
 -
 -  if (ini_get('session.use_trans_sid') && session_id() && !strstr($url, session_id())) {
 -    $sid = session_name() . '=' . session_id();
@@ -229,10 +250,12 @@
   * Generates a 404 error if the request can not be handled.
   */
  function drupal_not_found() {
-@@ -1441,82 +1376,6 @@ function form_weight($title = NULL, $nam
-  */
- 
+@@ -1427,82 +1363,6 @@
  /**
+  * @} End of "defgroup form".
+  */
+-
+-/**
 - * Generate an internal Drupal URL.
 - *
 - * @param $path
@@ -268,12 +291,12 @@
 -    $fragment = '#'. $fragment;
 -  }
 -
--  $base = ($absolute ? $base_url . '/' : '');
+-  $base = ($absolute ? $base_url .'/' : '');
 -
 -  if (variable_get('clean_url', '0') == '0') {
 -    if (isset($path)) {
 -      if (isset($query)) {
--        return $base . $script .'?q='. $path .'&amp;'. $query . $fragment;
+-        return $base . $script .'?q='. $path .'&'. $query . $fragment;
 -      }
 -      else {
 -        return $base . $script .'?q='. $path . $fragment;
@@ -307,8 +330,6 @@
 -    }
 -  }
 -}
--
--/**
+ 
+ /**
   * Format an attribute string to insert in a tag.
-  *
-  * @param $attributes

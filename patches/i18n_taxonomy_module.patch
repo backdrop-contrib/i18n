@@ -1,6 +1,11 @@
---- taxonomy.module.orig	2005-03-18 10:00:01.000000000 +0100
-+++ taxonomy.module	2005-03-21 21:18:20.000000000 +0100
-@@ -99,6 +99,8 @@ function taxonomy_form_vocabulary($edit 
+Index: taxonomy.module
+===================================================================
+RCS file: /var/cvs/mydrupal/modules/taxonomy.module,v
+retrieving revision 1.4
+diff -u -r1.4 taxonomy.module
+--- taxonomy.module	16 Apr 2005 14:08:14 -0000	1.4
++++ taxonomy.module	16 Apr 2005 16:22:04 -0000
+@@ -99,6 +99,8 @@
    }
  
    $form .= form_textfield(t('Vocabulary name'), 'name', $edit['name'], 50, 64, t('The name for this vocabulary.  Example: "Topic".'), NULL, TRUE);
@@ -9,16 +14,16 @@
    $form .= form_textarea(t('Description'), 'description', $edit['description'], 60, 5, t('Description of the vocabulary; can be used by modules.'));
    $form .= form_textfield(t('Help text'), 'help', $edit['help'], 50, 255, t('Instructions to present to the user when choosing a term.'));
    $form .= form_checkboxes(t('Types'), 'nodes', $edit['nodes'], $nodes, t('A list of node types you want to associate with this vocabulary.'), NULL, TRUE);
-@@ -122,7 +124,7 @@ function taxonomy_save_vocabulary($edit)
-     $edit['nodes'] = array();
-   }
+@@ -121,7 +123,7 @@
+   $edit['nodes'] = ($edit['nodes']) ? $edit['nodes'] : array();
+   $edit['weight'] = ($edit['weight']) ? $edit['weight'] : 0;
  
 -  $data = array('name' => $edit['name'], 'description' => $edit['description'], 'help' => $edit['help'], 'multiple' => $edit['multiple'], 'required' => $edit['required'], 'hierarchy' => $edit['hierarchy'], 'relations' => $edit['relations'], 'weight' => $edit['weight'],  'module' => isset($edit['module']) ? $edit['module'] : 'taxonomy');
 +  $data = array('name' => $edit['name'], 'description' => $edit['description'], 'help' => $edit['help'], 'multiple' => $edit['multiple'], 'required' => $edit['required'], 'hierarchy' => $edit['hierarchy'], 'relations' => $edit['relations'], 'weight' => $edit['weight'],  'module' => isset($edit['module']) ? $edit['module'] : 'taxonomy', 'language' => $edit['language']);
    if ($edit['vid'] && $edit['name']) {
      db_query('UPDATE {vocabulary} SET '. _taxonomy_prepare_update($data) .' WHERE vid = %d', $edit['vid']);
      db_query("DELETE FROM {vocabulary_node_types} WHERE vid = %d", $edit['vid']);
-@@ -190,6 +192,8 @@ function taxonomy_form_term($edit = arra
+@@ -189,6 +191,8 @@
    $vocabulary = taxonomy_get_vocabulary($vocabulary_id);
  
    $form = form_textfield(t('Term name'), 'name', $edit['name'], 50, 64, t('The name for this term.  Example: "Linux".'), NULL, TRUE);
@@ -27,7 +32,7 @@
    $form .= form_textarea(t('Description'), 'description', $edit['description'], 60, 5, t('A description of the term.'));
  
    if ($vocabulary->hierarchy) {
-@@ -232,7 +236,7 @@ function taxonomy_form_term($edit = arra
+@@ -231,7 +235,7 @@
  
  function taxonomy_save_term($edit) {
    if ($edit['tid'] && $edit['name']) {
@@ -36,7 +41,16 @@
  
      db_query('UPDATE {term_data} SET '. _taxonomy_prepare_update($data) .' WHERE tid = %d', $edit['tid']);
      module_invoke_all('taxonomy', 'update', 'term', $edit);
-@@ -420,10 +424,10 @@ function taxonomy_form_all($value = 0, $
+@@ -242,7 +246,7 @@
+   }
+   else {
+     $edit['tid'] = db_next_id('{term_data}_tid');
+-    $data = array('tid' => $edit['tid'], 'name' => $edit['name'], 'description' => $edit['description'], 'vid' => $edit['vid'], 'weight' => $edit['weight']);
++    $data = array('tid' => $edit['tid'], 'name' => $edit['name'], 'description' => $edit['description'], 'vid' => $edit['vid'], 'weight' => $edit['weight'], 'language' => $edit['language']);
+     db_query('INSERT INTO {term_data} '. _taxonomy_prepare_insert($data, 1) .' VALUES '. _taxonomy_prepare_insert($data, 2));
+     module_invoke_all('taxonomy', 'insert', 'term', $edit);
+     $message = t('Created new term %term.', array('%term' => theme('placeholder', $edit['name'])));
+@@ -417,10 +421,10 @@
   */
  function taxonomy_get_vocabularies($type = NULL) {
    if ($type) {
@@ -49,7 +63,7 @@
    }
  
    $vocabularies = array();
-@@ -454,7 +458,7 @@ function taxonomy_node_form($type, $node
+@@ -451,7 +455,7 @@
      $terms = $node->taxonomy;
    }
  
@@ -58,7 +72,7 @@
    while ($vocabulary = db_fetch_object($c)) {
      $result[] = taxonomy_form($vocabulary->vid, $terms, $help, $name);
    }
-@@ -465,7 +469,7 @@ function taxonomy_node_form($type, $node
+@@ -462,7 +466,7 @@
   * Find all terms associated to the given node, within one vocabulary.
   */
  function taxonomy_node_get_terms_by_vocabulary($nid, $vid, $key = 'tid') {
@@ -67,7 +81,7 @@
    $terms = array();
    while ($term = db_fetch_object($result)) {
      $terms[$term->$key] = $term;
-@@ -480,7 +484,7 @@ function taxonomy_node_get_terms($nid, $
+@@ -477,7 +481,7 @@
    static $terms;
  
    if (!isset($terms[$nid])) {
@@ -76,7 +90,7 @@
      $terms[$nid] = array();
      while ($term = db_fetch_object($result)) {
        $terms[$nid][$term->$key] = $term;
-@@ -540,7 +544,7 @@ function taxonomy_get_related($tid, $key
+@@ -537,7 +541,7 @@
   */
  function taxonomy_get_parents($tid, $key = 'tid') {
    if ($tid) {
@@ -85,7 +99,7 @@
      $parents = array();
      while ($parent = db_fetch_object($result)) {
        $parents[$parent->$key] = $parent;
-@@ -573,10 +577,10 @@ function taxonomy_get_parents_all($tid) 
+@@ -570,10 +574,10 @@
   */
  function taxonomy_get_children($tid, $vid = 0, $key = 'tid') {
    if ($vid) {
@@ -98,7 +112,7 @@
    }
    $children = array();
    while ($term = db_fetch_object($result)) {
-@@ -615,7 +619,7 @@ function taxonomy_get_tree($vid, $parent
+@@ -612,7 +616,7 @@
    if (!isset($children[$vid])) {
      $children[$vid] = array();
  
@@ -107,7 +121,7 @@
      while ($term = db_fetch_object($result)) {
        $children[$vid][$term->parent][] = $term->tid;
        $parents[$vid][$term->tid][] = $term->parent;
-@@ -717,7 +721,7 @@ function _taxonomy_term_children($tid) {
+@@ -716,7 +720,7 @@
   *   An array of matching term objects.
   */
  function taxonomy_get_term_by_name($name) {
@@ -116,17 +130,7 @@
    $result = array();
    while ($term = db_fetch_object($db_result)) {
      $result[] = $term;
-@@ -851,7 +855,9 @@ function taxonomy_select_nodes($tids = a
-       $sql_count = 'SELECT COUNT(n.nid) FROM {node} n '. $joins .' WHERE n.status = 1 ' . $wheres;
-     }
-     $sql = db_rewrite_sql($sql);
-+    $sql = db_rewrite_sql($sql, 't', 'tid');
-     $sql_count = db_rewrite_sql($sql_count);
-+    $sql_count = db_rewrite_sql($sql_count, 't', 'tid');
-     if ($pager) {
-       $result = pager_query($sql, variable_get('default_nodes_main', 10), 0, $sql_count);
-     }
-@@ -922,7 +928,7 @@ function taxonomy_term_page($str_tids = 
+@@ -921,7 +925,7 @@
  
    if ($tids) {
      // Build title:
