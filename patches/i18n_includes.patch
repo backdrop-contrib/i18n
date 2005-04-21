@@ -127,6 +127,10 @@ diff -u -r1.4 bootstrap.inc
 +
 +  $path = drupal_get_path_alias($path);
 +
++  if(function_exists('i18n_url_rewrite')){
++    $path = i18n_url_rewrite($path);
++  } 
++
 +  if (isset($fragment)) {
 +    $fragment = '#'. $fragment;
 +  }
