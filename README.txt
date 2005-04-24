@@ -2,16 +2,14 @@ README.txt
 ==========
 
 ********************************************************************
-  This version is under heavy development. 
-********************************************************************
-  It is intended for the upcoming Drupal 4.6
-  Patches are against Drupal CVS (HEAD)
+  This is i18n module, version 4.6, and works with Drupal 4.6.0
 ********************************************************************
 WARNING: It is not 100% backwards compatible with the old i18n module [4.5.x] 
 WARNING: DO READ THE INSTALL FILE
 ********************************************************************
 
 This module implements multilingual support as outlined in http://drupal.org/node/11051
+Some more info about this module will be available here: http://reyero.net/en/drupal/i18n
 
 It doesn't require anymore multiple language tables as previous versions
 
@@ -35,13 +33,12 @@ This module supports:
   - Multilingual taxonomy vocabularies and terms
   - Basic translation management for nodes and terms
 
-While this works fine when viewing the main page and managing single nodes, many modules generate node listings which are not yet language aware.
-This means you can have some blocks/pages listing nodes for all languages. 
-All this issues will be addressed step by step, module by module, but it will take time.
+When you navigate the site using multiple languages, the pages will just show terms and nodes for the chosen language plus the ones that haven't a definde language. 
+When editing a node, you must click on 'Preview' after changing language for the right vocabularies and terms to be shown.
 
-** If you are a module developer and you want to make your module 'language aware', which is quite simple, you can take a look at patched 'node.module' or drop me an e-mail if you need help.
+The multi language support is expected to work for all node types, and node listings in Drupal 4.6!!
 
-So far, I have not found incompatibilities with any module/node type. Please, let me know if you find any.
+So far, I have not found incompatibilities with any other module. Please, let me know if you find any.
 
 And yes, flexinode works with multiple languages :-)
 
@@ -55,10 +52,11 @@ Thus, you can define aliases with or without language codes in them
 The 'Front page: Language dependent' option means that when the request is for the front page '/', a language prefix will be added before doing the path translation, and then -> step 1 above
 This language code will be taken from browser if enabled 'Browser language detection, or will be the default otherwise.
 
-About Synchronization  [old i18n module style] :
-======================
-This is not required anymore, and probably the 'basic translation interface' will be enough
-However, I plan to implement some related options in the future, just to keep translations in sync
+To have aliases for a translated node/page, you have to define each of them. I.e.:
+  en/mycustompath -> node/34 (which is suppossed to be the english version)
+  es/mycustompath -> node/35 (which should be the spanish version)
+
+For outgoing URL's, the language code will be added authomatically.
 
 About language dependent variables:
 ======================
@@ -72,9 +70,9 @@ Language dependent tables are not needed anymore for multilingual content.
 This is kept for backwards compatibility, experimentation and may be some use in the future.
 * This can be used to have per-language data for modules not language-aware, like language statistics... you can experiment...
 
-Samples: Sites using this module - e-mail me to be listed here
+Sample sites, using this module - e-mail me to be listed here
 ==========================================================
-http://freelance.reyero.net, well, its mine, no merit :-)
+  http://www.reyero.net, well, its mine, no merit :-)
 
 Additional Support
 =================
@@ -84,6 +82,6 @@ For support, please create a support request for this module's project:
 If you need professional support, contact me by e-mail: freelance at reyero dot net
 
 ====================================================================
-Jose A. Reyero, drupal at reyero dot net, http://freelance.reyero.net
+Jose A. Reyero, drupal at reyero dot net, http://www.reyero.net
 
 Feedback is welcomed.

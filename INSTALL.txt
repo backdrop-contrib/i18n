@@ -5,18 +5,33 @@ Name: i18n module
 Author: Jose A. Reyero
 Email: drupal at reyero dot net
 
-**************************************************************
-This module works with Drupal HEAD -development branch-
-**************************************************************
+********************************************************************
+  This is i18n module, version 4.6, and works with Drupal 4.6.0
+********************************************************************
 
 INSTALLATION:
 ============
 
 1. Create folder 'modules/i18n', and copy all the modules files, keeping directory structure, to this folder.
-2. Apply the patches to the Drupal core that are provided.  
-      Also, apply the database modifications from the SQL file 'i18n.mysql.'  
-      All of these modifications are located in the "patches" folder.
-	  ** Check for db updates in the patches folder	
+2. Apply the patches to the Drupal core that are provided. Located in the 'patches' folder
+3. Apply the database modifications from the SQL file 'i18n.mysql.'  
+   ** There's an update script to update the i18n database tables from 4.5 to 4.6 version: 18n_db_update.mysql
+
+POST-INSTALLATION/CONFIGURATION:
+============
+- Enable the module in administration > modules
+- Configure the module in administrations > settings > i18n
+- Check the node types to be made multilingual
+    A new field 'language' and a new tab 'translations' will be available when editing these node types
+- Enable the language selector block in administration > blocks
+
+- Set up language for existing nodes, editing them manually or directly updating in the database.
+  I.e. provided that all your existing nodes are in english:
+    UPDATE node SET language='en'
+
+- Set up language for existing taxonomy terms
+  Only terms in the node's language or terms without language will show up when editing a node
+
 Language Definition
 ===================
 You can use the languages defined -and enabled- in 'locale' module or modify the Drupal configuration file 'includes/conf.php' to define the languages you want to use.  
@@ -24,7 +39,7 @@ You can use the languages defined -and enabled- in 'locale' module or modify the
     
    $i18n_languages = array("es" => "spanish", "en" => "english");
 
-Add any flag icons beyond the four provided by placing them in 'modules/i18n/flags'.  
+Add any flag icons beyond the ones provided by placing them in 'modules/i18n/flags'.  
   You can get more flag icons from: http://www.clickfire.com/content/graphics/favicons/flags_icons.php  
 * Yes, I know I could add a lot more to the module's tar file, but I want to keep the download as small as possible, so the current policy is including with the module only the ones I think will be more use, and the ones asked for by other module contributors.
 
@@ -52,7 +67,8 @@ Language dependent variables
         'user_mail_approval_body',
         'user_mail_pass_subject',
         'user_mail_pass_body',
-        
+        // Theme settings: primary and secondary links, logo, etc..
+		'theme_settings',
         // These are for PHPtemplate
     	'phptemplate_primary_links',
     	'phptemplate_primary_links_more',
@@ -66,8 +82,9 @@ Language dependent variables
 
 To get more flags
 =================
-You can try this:
-http://www.google.com/search?q=awstats+icon+flags
+Add any flag icons beyond the ones provided by placing them in 'modules/i18n/flags'.  
+You can try this to get new icons:
+  http://www.google.com/search?q=awstats+icon+flags
     
 Language dependent tables 
 =========================
@@ -91,11 +108,6 @@ Language dependent tables
     );
     
 
-
-If you want to experiment with different tables, you may find this useful [Drupal ERD]: 
-
-  http://lists.drupal.org/pipermail/drupal-support/attachments/20030530/7a6fd04a/cdm1-0001.png
-
 Additional Support
 ==================
 For support, please create a support request for this module's project: http://drupal.org/project/i18n
@@ -104,6 +116,6 @@ If you need professional support, contact me by e-mail: freelance at reyero dot 
 
 
 ====================================================================
-Jose A. Reyero, drupal at reyero dot net, http://freelance.reyero.net
+Jose A. Reyero, drupal at reyero dot net, http://www.reyero.net
 
 Feedback is welcomed.
