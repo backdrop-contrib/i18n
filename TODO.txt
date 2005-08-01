@@ -1,18 +1,11 @@
 TODO :
 - Improve documentation
-- Cached home page and browser language detection
 - Validate vocabulary terms for nodes when changing language
-- Take care of all the -core- blocks containing node listings
 - Switch language after user login
 - Permissions for translating
-- List of variables to be made language dependant
-- Fix inconsistency with locale's 'en-local' thing
-- Node feeds
 
 TO DO ??? -MAYBE :
-- Conditional include for i18_node.inc and i18n_taxonomy.inc 
-- Some node synchronization between translations
-- Option like 'interface follows content'
+- Split the module in two: i18n + translations
 - Option for 'mixed languages' in node/comment listings
 - Option for all languages in node listings for admin pages
 - Support for a prefix like 'xx' to get 'mixed languages' -check it's not an iso language code

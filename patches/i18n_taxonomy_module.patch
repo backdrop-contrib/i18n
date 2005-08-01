@@ -1,10 +1,7 @@
 Index: taxonomy.module
 ===================================================================
-RCS file: /var/cvs/mydrupal/modules/taxonomy.module,v
-retrieving revision 1.4
-diff -u -r1.4 taxonomy.module
---- taxonomy.module	16 Apr 2005 14:08:14 -0000	1.4
-+++ taxonomy.module	16 Apr 2005 16:22:04 -0000
+--- taxonomy.module	(revision 111)
++++ taxonomy.module	(working copy)
 @@ -99,6 +99,8 @@
    }
  

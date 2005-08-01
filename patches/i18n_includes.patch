@@ -1,10 +1,7 @@
 Index: bootstrap.inc
 ===================================================================
-RCS file: /var/cvs/mydrupal/includes/bootstrap.inc,v
-retrieving revision 1.4
-diff -u -r1.4 bootstrap.inc
---- bootstrap.inc	16 Apr 2005 14:08:12 -0000	1.4
-+++ bootstrap.inc	16 Apr 2005 16:04:29 -0000
+--- bootstrap.inc	(revision 111)
++++ bootstrap.inc	(working copy)
 @@ -152,6 +152,9 @@
  function variable_get($name, $default) {
    global $conf;
@@ -25,12 +22,10 @@ diff -u -r1.4 bootstrap.inc
    db_query("DELETE FROM {variable} WHERE name = '%s'", $name);
    db_query("INSERT INTO {variable} (name, value) VALUES ('%s', '%s')", $name, serialize($value));
    cache_clear_all('variables');
-@@ -634,6 +640,146 @@
-   $_SESSION['messages'] = array();
- 
+@@ -636,6 +642,150 @@
    return $messages;
-+}
-+
+ }
+ 
 +/**
 + * Send the user to a different Drupal page.
 + *
@@ -173,16 +168,15 @@ diff -u -r1.4 bootstrap.inc
 +      }
 +    }
 +  }
- }
- 
++}
++
  unset($conf);
+ $config = conf_init();
+ 
 Index: common.inc
 ===================================================================
-RCS file: /var/cvs/mydrupal/includes/common.inc,v
-retrieving revision 1.4
-diff -u -r1.4 common.inc
---- common.inc	16 Apr 2005 14:08:13 -0000	1.4
-+++ common.inc	16 Apr 2005 16:04:29 -0000
+--- common.inc	(revision 111)
++++ common.inc	(working copy)
 @@ -134,70 +134,6 @@
  }
  
@@ -254,12 +248,10 @@ diff -u -r1.4 common.inc
   * Generates a 404 error if the request can not be handled.
   */
  function drupal_not_found() {
-@@ -1427,82 +1363,6 @@
- /**
-  * @} End of "defgroup form".
+@@ -1429,82 +1365,6 @@
   */
--
--/**
+ 
+ /**
 - * Generate an internal Drupal URL.
 - *
 - * @param $path
@@ -334,6 +326,8 @@ diff -u -r1.4 common.inc
 -    }
 -  }
 -}
- 
- /**
+-
+-/**
   * Format an attribute string to insert in a tag.
+  *
+  * @param $attributes

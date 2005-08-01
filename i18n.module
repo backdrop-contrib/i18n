@@ -75,7 +75,7 @@ function i18n_help($section = 'admin/help#i18n' ) {
         <li>Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i></li>
         <li>Support for long locale names</li>
         </ul>
-        <p><small>Module developed by <a href="http://freelance.reyero.net">freelance.reyero.net</a></small></p>' );
+        <p><small>Module developed by Jose A. Reyero, <a href="http://www.reyero.net">www.reyero.net</a></small></p>' );
       break;
   case 'admin/modules#description' :
     $output = t('Enables multilingual content. <b>Requires locale module for interface translation</b>' );

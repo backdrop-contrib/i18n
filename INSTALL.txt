@@ -6,7 +6,7 @@ Author: Jose A. Reyero
 Email: drupal at reyero dot net
 
 ********************************************************************
-  This is i18n module, version 4.6, and works with Drupal 4.6.0
+  This is i18n module, version 4.6, and works with Drupal 4.6.x
 ********************************************************************
 
 INSTALLATION:
@@ -16,6 +16,10 @@ INSTALLATION:
 2. Apply the patches to the Drupal core that are provided. Located in the 'patches' folder
 3. Apply the database modifications from the SQL file 'i18n.mysql.'  
    ** There's an update script to update the i18n database tables from 4.5 to 4.6 version: 18n_db_update.mysql
+
+In case you don't know how to apply the patches, patched files are available in my sandbox
+
+http://cvs.drupal.org/viewcvs/drupal/contributions/sandbox/jareyero/modules/i18n/
 
 POST-INSTALLATION/CONFIGURATION:
 ============
@@ -37,7 +41,9 @@ Language Definition
 You can use the languages defined -and enabled- in 'locale' module or modify the Drupal configuration file 'includes/conf.php' to define the languages you want to use.  
   For instance, for English and Spanish:
     
-   $i18n_languages = array("es" => "spanish", "en" => "english");
+   $i18n_languages = array("es" => "espa&ntilde;ol", "en" => "english");
+
+* You have to define languages using the native name, also in the locale module. This is the name that will show up in the block.
 
 Add any flag icons beyond the ones provided by placing them in 'modules/i18n/flags'.  
   You can get more flag icons from: http://www.clickfire.com/content/graphics/favicons/flags_icons.php  

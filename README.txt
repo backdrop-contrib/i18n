@@ -2,7 +2,7 @@ README.txt
 ==========
 
 ********************************************************************
-  This is i18n module, version 4.6, and works with Drupal 4.6.0
+  This is i18n module, version 4.6, and works with Drupal 4.6.x
 ********************************************************************
 WARNING: It is not 100% backwards compatible with the old i18n module [4.5.x] 
 WARNING: DO READ THE INSTALL FILE
@@ -25,7 +25,7 @@ To have a language selector on your page, you can use the block provided or thes
  theme("i18n_flags") -> Adds just a row with the flags
  theme("i18n_links",$flags,$names,$delim1,$delim2) -> Check documentation in the code for different options
 
-About multilingual content:
+Multilingual content:
 =====================
 Multilingual content means providing content translated to different languages or language specific content, which is not the same as interface translation. Interface translation is done through Drupal's localization system. 
 This module supports:
@@ -42,6 +42,13 @@ So far, I have not found incompatibilities with any other module. Please, let me
 
 And yes, flexinode works with multiple languages :-)
 
+Taxonomy translation:
+====================
+You can create vocabularies and terms with or without language. 
+- If you set language for a vocabulary/term, that term will just show up for pages in that language
+- If you set language for a vocabulary, all the terms in that vocabulary will be assigned that language.
+- When editing nodes, if you change the language for a node, you have to click on 'Preview' to have the right vocabularies/terms for that language. Otherwise, the language/taxonomy data for that node could be inconsistent.
+  
 About URL aliasing with language codes -requires path module
 ====================================
 Incoming URL's are now translated following these steps:
@@ -70,9 +77,13 @@ Language dependent tables are not needed anymore for multilingual content.
 This is kept for backwards compatibility, experimentation and may be some use in the future.
 * This can be used to have per-language data for modules not language-aware, like language statistics... you can experiment...
 
+Known problems, compatibility
+=============================
+- Taxonomy patch not compatible with taxonomy_access patch. See http://drupal.org/node/22834
+
 Sample sites, using this module - e-mail me to be listed here
 ==========================================================
-  http://www.reyero.net, well, its mine, no merit :-)
+  http://www.reyero.net
 
 Additional Support
 =================
