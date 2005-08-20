@@ -129,7 +129,7 @@ function i18n_block($op = 'list', $delta = 0) {
   if ($op == 'list') {
     $blocks[0]['info'] = t('Languages');
   }
-  else {
+  elseif($op == 'view') {
     $blocks['subject'] = t('Languages');
     $blocks['content'] = theme('item_list', i18n_get_links());
   }
@@ -150,21 +150,6 @@ function i18n_link($type, $node = NULL, $teaser = FALSE) {
      }
   }
   return $links;
-}
-
-/**
- * Manage language dependent variables
- *
- * Requires a patch in bootstrap.inc
- */
-
-function i18n_variable($name) {
-  global $i18n_variables;
-  if (is_array($i18n_variables) and in_array($name, $i18n_variables)) {
-    return _i18n_get_lang().'_'.$name ;
-  } else {
-    return $name;
-  }
 }
 
 /**
@@ -212,13 +197,10 @@ function i18n_get_links($flags = 1, $names = 1, $separator = ' ') {
 /**
  * Hook for rewriting URLs
  */
-function i18n_url_rewrite($path, $mode ='outgoing') {
-   if ($mode == 'outgoing' && !i18n_get_lang_prefix($path) ){
-     return $path ? i18n_get_lang() . '/'. $path : i18n_get_lang();
-   } else {
-     return $path;
+function i18n_url_rewrite(&$path, $query, $fragment , $absolute ) {
+   if (!i18n_get_lang_prefix($path) ){
+     $path = $path ? i18n_get_lang() . '/'. $path : i18n_get_lang();
    }
-
 }  // End of i18n_url_rewrite
 
 /**
@@ -821,8 +803,10 @@ function i18n_vocabulary_get_terms($vid, $lang, $status = 'all') {
 function i18n_taxonomy($op, $type, $edit) {
   switch ("$type/$op") {
     case 'term/insert':
-    case 'term/update':      
-	      if (!$edit['language']) {
+    case 'term/update':
+        $language = isset($edit['language']) ? $edit['language'] : '';
+        db_query("UPDATE {term_data} SET language='%s' WHERE tid=%d", $language, $edit['tid']);    
+        if (!$language) {
 	        // Removed language, remove trid
 	        db_query('DELETE FROM {i18n_taxonomy_term} WHERE tid=%d', $edit['tid']);
 	        drupal_set_message(t('Removed translation info from term'));
@@ -837,14 +821,77 @@ function i18n_taxonomy($op, $type, $edit) {
     case 'vocabulary/form pre':
         return i18n_taxonomy_form_vocabulary($edit);
         break;
+    case 'vocabulary/insert':    
     case 'vocabulary/update':
-        if (isset($edit['language'])) {
+        $language = isset($edit['language']) ? $edit['language'] : '';
+        db_query("UPDATE {vocabulary} SET language='%s' WHERE vid=%d", $language, $edit['vid']);    
+        if ($language && $op == 'update') {
           db_query("UPDATE {term_data} SET language='%s' WHERE vid='%d'",$edit['language'],$edit['vid']);
+          drupal_set_message(t('Reset language for all terms.'));
         }
         break;
   }
 } 
- 
+
+/**
+ * Init multilingual variables
+ */
+function i18n_variable_init(){
+  global $conf;
+  global $i18n_conf;
+  $lang = _i18n_get_lang();
+  $i18n_variables = isset($conf['i18n_variables']) ? $conf['i18n_variables'] : NULL;
+  if($i18n_variables){
+    $i18n_conf = array();
+    $variables = _i18n_variable_init();
+    foreach($i18n_variables as $name){
+      $i18n_conf[$name] = isset($variables[$name]) ? $variables[$name] : (isset($conf[$name]) ? $conf[$name] : '');
+      // drupal_set_message("init $lang var $name = ".$i18n_conf[$name]);
+    }
+    $conf = array_merge($conf, $i18n_conf);
+  }
+}
+
+function i18n_exit(){
+  _i18n_variable_exit();
+}
+
+function _i18n_variable_init(){  
+  $lang = _i18n_get_lang();
+  $variables = array();
+  if ($cached = cache_get('variables:'.$lang)) {
+    $variables = unserialize($cached->data);
+  }
+  else {
+    $result = db_query("SELECT * FROM {i18n_variable} WHERE language='%s'", $lang);
+    while ($variable = db_fetch_object($result)) {
+      $variables[$variable->name] = unserialize($variable->value);
+    }
+    cache_set('variables:'.$lang, serialize($variables));
+  }
+
+  return $variables;    
+
+}
+
+function _i18n_variable_exit(){
+  global $i18n_conf;
+  global $conf;
+  $lang = _i18n_get_lang();
+  if($i18n_conf){
+    $variables = array_diff_assoc($i18n_conf, $conf);
+    if($variables){
+      var_dump($variables);      
+      foreach($variables as $name => $value){
+        drupal_set_message("updated $name = $value");
+        $i18n_conf[$name] = $conf[$name];
+        db_query("DELETE FROM {i18n_variable} WHERE name='%s' AND language='%s'", $name, $lang );
+        db_query("INSERT INTO {i18n_variable} (language, name, value) VALUES('%s', '%s', '%s')", $lang, $name, serialize($conf[$name]));
+      }
+      cache_set('variables:'.$lang, serialize($i18n_conf));
+    }
+  }
+}
 /**
  * @name Theme functions
  * @{

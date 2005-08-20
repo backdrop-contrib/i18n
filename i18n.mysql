@@ -1,6 +1,6 @@
-# 
-# Table: 'i18n_node'
-#
+-- 
+-- Table: 'i18n_node'
+--
 
 CREATE TABLE `i18n_node` (
   `trid` int(10) unsigned NOT NULL default '0',
@@ -9,9 +9,9 @@ CREATE TABLE `i18n_node` (
   PRIMARY KEY  (`trid`,`nid`)
 ) TYPE=MyISAM; 
 
-#
-# Table: 'i18n_taxonomy_term'
-#
+--
+-- Table: 'i18n_taxonomy_term'
+--
 
 CREATE TABLE `i18n_taxonomy_term` (
   `trid` int(10) unsigned NOT NULL default '0',
@@ -19,6 +19,16 @@ CREATE TABLE `i18n_taxonomy_term` (
   PRIMARY KEY  (`trid`,`tid`)
 ) TYPE=MyISAM; 
 
+--
+-- Table structure for table 'i18n_variable'
+--
+
+CREATE TABLE i18n_variable (
+  name varchar(48) NOT NULL default '',
+  language varchar(12) NOT NULL default '',
+  value longtext NOT NULL,
+  PRIMARY KEY (name, language)
+) TYPE=MyISAM;
 
 # Add language field to node table
 

@@ -30,7 +30,7 @@ function i18n_init(){
     }
     if( variable_get('cache',0) && $lang != i18n_default_language() ) {
       // Redirect to main page in $lang
-      drupal_goto($lang);
+      _i18n_goto($lang);
     } elseif (variable_get('i18n_frontpage',0)){
       $_GET['q'] = i18n_frontpage();
     } 
@@ -50,7 +50,8 @@ function i18n_init(){
 
   // If not in bootstrap, include hooks
   if(!_i18n_is_bootstrap()){
-    include 'modules/i18n/i18n.inc';    
+    include 'modules/i18n/i18n.inc';
+    i18n_variable_init();    
   }
 }   
 
@@ -209,15 +210,14 @@ function i18n_frontpage() {
  * Also removes language from path
  */
 function i18n_get_normal_path($path) {
-  // First, check alias with lang
-  if (($map = drupal_get_path_map()) && isset($map[$path])) {
-    return $map[$path];
-  } elseif ($lang = i18n_get_lang_prefix($path, true)) {
-    // Check alias without lang
-    //$path = trim(substr($path, strlen($lang)),'/');
-    if( isset($map[$path])) {
-      return $map[$path];
-    } 
+  // First, check alias with lang, then without
+  if ($path != ($alias = drupal_lookup_path('alias', $path))) {
+    return $alias;
+  } elseif(i18n_get_lang_prefix($path, TRUE)){
+    $alias = drupal_lookup_path('alias', $path);
+    if( $alias && $path != $alias) {
+      return $alias;
+    }
   } 
   // We only get here when no alias is defined, with or without lang
   return $path;
@@ -297,6 +297,16 @@ function _i18n_locale_supported_languages() {
     $enabled[$row->locale] = $row->name;
   }
   return $enabled;
+}
+
+/**
+ * Emulates drupal_goto, it may not be loaded yet
+ */
+function _i18n_goto($lang){
+  if(!function_exists('drupal_goto')){
+    require_once './includes/common.inc';    
+  }
+  drupal_goto($lang);
 }
 
 ?>

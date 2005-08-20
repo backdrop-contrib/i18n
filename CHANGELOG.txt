@@ -1,3 +1,8 @@
+4-6-0 to ....
+20/08/2005
+- Updated for HEAD
+- Simplified patches
+
 13/06/2005
 - Fixed some minor bugs
 - Created HOWTO.txt for misc documentation
