@@ -2,9 +2,10 @@ README.txt
 ==========
 
 ********************************************************************
-  This is i18n module, version 4.6, and works with Drupal 4.6.x
+  This is i18n module, version cvs, and works -kind of- with Drupal 4.7.x
 ********************************************************************
-WARNING: It is not 100% backwards compatible with the old i18n module [4.5.x] 
+WARNING: It is not 100% backwards compatible with the old i18n module [4.5.x]
+WARNING: Module is being updated for Drupal 4.7 so it is *unstable* 
 WARNING: DO READ THE INSTALL FILE
 ********************************************************************
 
@@ -83,6 +84,11 @@ Known problems, compatibility
 
 Sample sites, using this module - e-mail me to be listed here
 ==========================================================
+  http://ctac.ca
+  http://grasshopperarts.com
+  http://funkycode.com
+  http://www.newoceans.nl
+  http://www.arcolatino.org  
   http://www.reyero.net
 
 Additional Support

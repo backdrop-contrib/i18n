@@ -24,7 +24,7 @@ function i18n_init(){
   $path = _i18n_get_original_path();
   $i18n_langpath = i18n_get_lang_prefix($path);
   $lang = _i18n_get_lang();
-  
+
   if ($path == '') { // Main page
     // Check for update script
     if (isset($_GET['op'])) {
@@ -52,7 +52,7 @@ function i18n_init(){
 
   // If not in bootstrap, include hooks
   if(!_i18n_is_bootstrap()){
-    include 'modules/i18n/i18n.inc';
+    include drupal_get_path('module', 'i18n').'/i18n.inc';
     i18n_variable_init();    
   }
 }   
@@ -118,7 +118,7 @@ function i18n_settings() {
   $form['icons']['i18n_icon_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Language icons path'),
-    '#default_value' => variable_get('i18n_icon_path', 'modules/i18n/flags/*.png'),
+    '#default_value' => variable_get('i18n_icon_path', drupal_get_path('module', 'i18n').'/flags/*.png'),
     '#size' => 70,
     '#maxlength' => 180,
     '#description' => t('Path for language icons, relative to Drupal installation. \'*\' is a placeholder for language code.'),
@@ -231,10 +231,11 @@ function i18n_frontpage() {
  */
 function i18n_get_normal_path($path) {
   // First, check alias with lang, then without
-  if ($path != ($alias = drupal_lookup_path('alias', $path))) {
+  if ($alias = drupal_lookup_path('source', $path)) {
     return $alias;
   } elseif(i18n_get_lang_prefix($path, TRUE)){
-    $alias = drupal_lookup_path('alias', $path);
+    $alias = drupal_lookup_path('source', $path);
+    return $alias ? $alias : $path;
     if( $alias && $path != $alias) {
       return $alias;
     }
