@@ -17,7 +17,8 @@
 
 /**
  * Implementation of hook_init
- */ 
+ */
+
 function i18n_init(){
   global $i18n_langpath;
 
@@ -27,7 +28,7 @@ function i18n_init(){
 
   if ($path == '') { // Main page
     // Check for update script
-    if (isset($_GET['op'])) {
+    if (function_exists('update_sql') || isset($_GET['op'])) {
       return ;
     }
     if( variable_get('cache',0) && $lang != i18n_default_language() ) {
@@ -45,8 +46,9 @@ function i18n_init(){
     $_GET['q'] = i18n_get_normal_path($path);
   } 
 
-  // Multi table, for backwards compatibility and experimentation
-  if (variable_get('i18n_multi' , 0)) {
+  // Multi tables, for backwards compatibility and experimentation
+  global $db_prefix_i18n;
+  if (is_array($db_prefix_i18n)) {
     _i18n_set_db_prefix(_i18n_get_lang());
   }
 
@@ -178,7 +180,8 @@ function i18n_supported_languages() {
  * Returns default language
  */
 function i18n_default_language(){
-  return key(i18n_supported_languages());
+  $languages = i18n_supported_languages(); 
+  return key($languages);  
 }
 
 /**
@@ -186,7 +189,8 @@ function i18n_default_language(){
  */
 function i18n_get_browser_lang() {
   $languages = i18n_supported_languages();
-  $accept=explode(',',array_shift( explode(";",$_SERVER["HTTP_ACCEPT_LANGUAGE"])));
+  $exploded_server = explode(";",$_SERVER["HTTP_ACCEPT_LANGUAGE"]);
+  $accept=explode(',',array_shift($exploded_server));
   foreach ($accept as $lang) {
     $lang=substr($lang,0,2);
     if ( !empty($lang) && array_key_exists($lang,$languages)) {
@@ -202,7 +206,8 @@ function i18n_get_browser_lang() {
  * @param $trim true to remove language code from $path
  */
 function i18n_get_lang_prefix(&$path, $trim = FALSE) {
-  $maybelang = array_shift(explode('/',$path));
+  $exploded_path = explode('/', $path);
+  $maybelang = array_shift($exploded_path);
   $languages = i18n_supported_languages();
   if(array_key_exists($maybelang, $languages)){
     if($trim) {
@@ -210,11 +215,6 @@ function i18n_get_lang_prefix(&$path, $trim = FALSE) {
     }
     return $maybelang;
   }
-  /*
-  if (preg_match("/^\w\w($|\/.*)/", $path)) {
-    return substr($path, 0, 2);
-  }
-  */
 }
 
 /**

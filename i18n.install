@@ -1,0 +1,21 @@
+<?php
+/**
+ * Set language field in its own table
+ * Do not drop node.language now, just in case
+ */
+
+function i18n_update_1() {
+  $items = array();
+  $items[] = update_sql("ALTER TABLE {i18n_node} ADD language VARCHAR(12)");
+  $items[] = update_sql("UPDATE {i18n_node} i INNER JOIN {node} n ON i.nid = n.nid SET i.language = n.language ");
+  $items[] = update_sql("INSERT INTO {i18n_node}(nid,language) SELECT n.nid, n.language FROM {node} n WHERE n.language != '' AND n.nid NOT IN (SELECT nid FROM {i18n_node})");
+  return $items;
+}
+
+function i18n_update_2() {
+  $items = array();
+  $items[] = update_sql("ALTER TABLE {term_data} ADD trid int(10) unsigned NOT NULL default '0'");
+  $items[] = update_sql("UPDATE {term_data} t INNER JOIN {i18n_taxonomy_term} i ON i.tid = t.tid SET t.trid = i.trid");
+  return $items;
+}
+?>
