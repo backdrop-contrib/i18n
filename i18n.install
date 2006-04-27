@@ -2,6 +2,7 @@
 /**
  * Set language field in its own table
  * Do not drop node.language now, just in case
+ * TO-DO: Drop old tables, fields
  */
 
 function i18n_update_1() {
@@ -16,6 +17,13 @@ function i18n_update_2() {
   $items = array();
   $items[] = update_sql("ALTER TABLE {term_data} ADD trid int(10) unsigned NOT NULL default '0'");
   $items[] = update_sql("UPDATE {term_data} t INNER JOIN {i18n_taxonomy_term} i ON i.tid = t.tid SET t.trid = i.trid");
+  return $items;
+}
+
+function i18n_update_3(){
+  $items[] = array();
+  $items[] = update_sql("ALTER TABLE {i18n_node} MODIFY COLUMN trid INTEGER UNSIGNED NOT NULL default '0', DROP PRIMARY KEY, ADD PRIMARY KEY(nid)");
+  $items[] = update_sql("ALTER TABLE {term_data} MODIFY COLUMN trid INTEGER UNSIGNED NOT NULL default '0', DROP PRIMARY KEY, ADD PRIMARY KEY(tid)");
   return $items;
 }
 ?>

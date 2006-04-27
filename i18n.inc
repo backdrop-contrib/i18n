@@ -55,9 +55,10 @@ function i18n_db_rewrite_sql($query, $primary_table, $primary_key){
 
 function i18n_db_node_rewrite($query, $primary_table, $primary_key){
   $alias = $primary_table;
-  // When loading specific nodes, language conditions shouldn't apply  
-  if (preg_match("/WHERE.* $alias.nid\s*=/", $query)) return;
-
+  // When loading specific nodes, language conditions shouldn't apply
+  // TO-DO: Refine this regexp  
+  if (preg_match("/WHERE.*$alias.nid\s*=\s*(\d|%d)/", $query)) return;
+  //drupal_set_message($query);
   $mode = i18n_selection_mode();
   if($mode == 'off') return;
   
@@ -158,7 +159,7 @@ function i18n_form_alter($form_id, &$form) {
       if(isset($form['vid'])) {
         $vocabulary = taxonomy_get_vocabulary($form['vid']['#value']);
       } 
-	  $form['language'] = _i18n_language_select(isset($vocabulary) ? $vocabulary->language : i18n_get_lang(),t('This language will be set for all terms in this vocabulary')); 
+      $form['language'] = _i18n_language_select(isset($vocabulary) ? $vocabulary->language : i18n_get_lang(),t('This language will be set for all terms in this vocabulary')); 
       break;
       
     case 'taxonomy_form_term': // Taxonomy term
@@ -184,7 +185,7 @@ function i18n_form_alter($form_id, &$form) {
       $form['i18n'] = array('#type' => 'fieldset', '#title' => t('Language'), '#collapsible' => TRUE, '#collapsed' => FALSE, '#weight' => -4);
 
       // Language field
-      if(variable_get('i18n_node_'.$form['type']['#value'], 0) && !isset($form['language'])) {
+      if(variable_get('i18n_node_'.$form['type']['#value'], 0) && !isset($form['i18n']['language'])) {
         // Language will default to current only when creating a node
         $language = isset($form['#node']->language) ? $form['#node']->language : (arg(1)=='add' ? i18n_get_lang() : '');
         $form['i18n']['language'] = _i18n_language_select($language, t('If you change the Language, you must click on <i>Preview</i> to get the right Categories &amp; Terms for that language.'), -4);

@@ -43,11 +43,11 @@ function translation_menu($may_cache) {
 
   if ($may_cache) {
       $items[] = array(
-        'path' => 'translation',
+        'path' => 'admin/node/translation',
         'title' => t('translation'),
-        'callback' => 'translation_page',
+        'callback' => 'translation_node_admin',
         'access' => user_access('administer nodes'),
-        'type' => MENU_CALLBACK);
+        'type' => MENU_LOCAL_TASK);
   }
   else {
     if (arg(0) == 'node' && is_numeric(arg(1)) && variable_get('i18n_node_'.translation_get_node_type(arg(1)), 0)) {
@@ -124,160 +124,172 @@ function translation_block($op = 'list', $delta = 0) {
  * Implementation of hook_form_alter
  */
 function translation_form_alter($form_id, &$form) {
+  //drupal_set_message("translation_form_alter form_id=$form_id ");
   // Node edit form
 	if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && variable_get('i18n_node_'.$form['type']['#value'], 0)){
-        $node = $form['#node'];
-        $languages = i18n_supported_languages();
-        if ($node->nid && $node->translation) {
-			    foreach(array_keys($node->translation) as $lang) {
-		        unset($form['i18n']['language']['#options'][$lang]);
-			    }
-        }
-        elseif (arg(0) == 'translation') {
-          // We are translating a node
-          $translation_nid = arg(2);
-          $node->language = arg(3);
-          $form = form_hidden('i18n_translation_nid', $node->i18n_translation_nid ? $node->i18n_translation_nid : $translation_nid);
-          // Load the node to be translated  
-          $trans = node_load(array('nid' => $translation_nid));
-          foreach ($trans as $field=>$value) {
-            if ($field != 'nid' && empty($node->$field)) {
-              $node->$field = $value;
-            }
-          }          
-          $translations = translation_node_get_translations($snid, true);
+    $node = $form['#node'];
+    $languages = i18n_supported_languages();
+    if ($node->nid && $node->translation) {
+      $translations = $node->translation;
+    }
+    elseif (arg(3) == 'translation' && user_access('translate nodes')) {
+      // We are translating a node: node/add/type/translation/nid/lang
+      $translation_nid = arg(4);
+      $language = arg(5);
+      // Load the node to be translated and populate fields
+      $trans = node_load($translation_nid);
+      translation_node_populate_fields($trans, $form, $node);      
+      $form['i18n']['translation_nid'] = array('#type' => 'hidden', '#value' => $translation_nid);
+      $form['i18n']['language']['#default_value'] = $language;
 
-          if (!$translations) {
-            $translations[$trans->language]= $trans;
-          }
-        }
-
-        if ($node->translation) {
-          foreach ($languages as $lang => $langname) {
-            if ($trans = $node->translation[$lang]) {
-              $rows[] = array($langname, l($trans->title, 'node/'.$trans->nid.'/edit'));
-            }
-            else {
-              $langselect[$lang]= $langname;
-            }
-          }
-        }
-        else {
-          $langselect = $languages;
-        }
-
-        $langselect = array_merge(array('' => ''), $langselect);
-        //$form .= form_select(t('Language'), 'language', $node->language ? $node->language : i18n_get_lang(), $langselect, t('If you change the Language, you must click on <i>Preview</i> to get the right Categories &amp; Terms for that language.'));
-        if ($rows) {
-           $form['i18n']['#title'] = t('Language and translations');
-           $header = array(t('Language'), t('Title'));
-           $form['i18n']['translations'] = array(
-            '#type' => 'markup',
-            '#value' => theme('table', $header, $rows)
-           );
-        }
-    
-        //return $form;
+      if($trans->trid){
+        $form['i18n']['trid'] = array('#type' => 'hidden', '#value' => $trans->trid);
+      }
+      //print "<pre>"; var_dump($form); print "</pre>";          
+      $translations = $trans->translation;
+      $translations[$trans->language] = $trans;
+    }
+    //$form .= form_select(t('Language'), 'language', $node->language ? $node->language : i18n_get_lang(), $langselect, t('If you change the Language, you must click on <i>Preview</i> to get the right Categories &amp; Terms for that language.'));
+    if ($translations) {
+      // Unset invalid languages
+      foreach(array_keys($translations) as $lang) {
+          unset($form['i18n']['language']['#options'][$lang]);
+      }
+      // Add translation list
+      $form['i18n']['#title'] = t('Language and translations');
+      $form['i18n']['translations'] = array(
+        '#type' => 'markup',
+        '#value' => theme('translation_node_list', $translations, FALSE)
+      );
+    }
   }    
 }
 
+function translation_node_populate_fields($source, &$form, &$node){
+    foreach(element_children($form) as $key) {
+      if($key != 'nid' && $key != 'vid' && isset($source->$key) && !isset($node->$key)) {
+        $node->$key = $form[$key]['#default_value'] = $source->$key;
+        drupal_set_message("populated $key");
+      } elseif(!isset($form[$key]['#tree'])) {
+        translation_node_populate_fields($source, $form[$key], $node);
+      }
+    }
+}
 /**
  * Multilingual Nodes support
  */
 
-// translation/node/id/lang
-// translation/term/id
-
-function translation_page() {
-  $op = $_POST['op'] ? $_POST['op'] : arg(1);
-  $edit = $_POST['edit'];
-  
-  switch ($op) {
-    case 'node':
-      print theme('page', translation_add(arg(2), arg(3)));
-      break;
-      
-    case t('Preview'):
-      $edit = node_validate($edit);
-      print theme('page', node_preview($edit), t('Preview'));
-      break;
-      
-    case t('Submit'):
-      if ($nid = node_submit($edit)) {
-        if (node_access('view', $edit)) {
-          drupal_goto('node/'. $nid);
-        }
-        else if (db_result(db_query('SELECT nid FROM {node} WHERE nid = %d', arg(1)))) {
-          drupal_access_denied();
-        }
-        else {
-          drupal_goto();
-        }
-      }
-      else {
-        drupal_set_title(t('Submit'));
-        print theme('page', node_preview($edit));
-      }
-      break;
-    
-    case t('Delete'):
-      print theme('page', node_delete($edit), t('Delete'));
-      break;
-      
-    default:
-      // print theme('page', node_page_default(), '');
-  }      
-}
-
-function translation_add($nid, $lang) {
-  $type = translation_get_node_type($nid);
-  return node_add($type);
-}
-
 /**
- * This is the callback for the tab 'translations' for nodes
+ * This is the callback for the tab 'translation' for nodes
  */
 function translation_node_page() {
-  $op = $_POST['op'];
+  $args = func_get_args();
+  $op = isset($_POST['op']) ? $_POST['op'] : $args[0];
   $edit = $_POST['edit'];
+  $nid = arg(1);
+  $node = node_load($nid);
+  drupal_set_title($node->title);
+  $output = '';
 
-  if (empty($op)) {
-    $op = arg(2);
-  }
-  
-  switch ($op) {
-    case 'translation':
-      $output = translation_node_translation_status(arg(1));
+  switch($op){
+    case 'select':
+      $output .= translation_node_overview($node);
+      $output .= translation_node_form($node, $args[1]);
       break;
+    case t('Save'):
+      $output .= translation_node_form($node, $args[1]);
+      break;
+    case 'remove':
+    case t('Remove'):
+      db_query("UPDATE {i18n_node} SET trid = NULL WHERE nid=%d", $node->nid);
+      drupal_set_message("The node has been removed from the translation set");
+      drupal_goto("node/$node->nid/translation");
+    default:
+      $output .= translation_node_overview($node);
   }
   print theme('page', $output);  
 }
 
-function translation_node_translation_status($nid) {
-  $languages = i18n_supported_languages();
-  $translations = translation_node_get_translations($nid, true);
-  if (!$translations) {
-    $node = node_load(array('nid' => $nid));
-    $translations[$node->language]= $node;
-  }
-  foreach ($languages as $lang => $name) {
-    if (array_key_exists($lang, $translations)) {
-      $node = $translations[$lang];
-      $rows[] = array($name, l($node->title, 'node/'.$node->nid), l(t('edit'), 'node/'.$node->nid.'/edit'));
-      if ($node->nid == $nid) {
-        drupal_set_title(t('Translations of ').$node->title);
-      }
+function translation_node_overview($node) {
+	  $languages = i18n_supported_languages();
+	  unset($languages[$node->language]);
+	  $output = t('<h2>Current translations</h2>');
+	  $header = array(t('Language'), t('Title'), t('Options'));
+	  foreach($languages as $lang => $langname){
+	    $options = array();
+	    if(isset($node->translation[$lang])){
+	      $trnode = $node->translation[$lang];
+	      $title = l($trnode->title, 'node/'.$trnode->nid);
+	    } else {
+	      $title = t('Not translated');
+	      $options[] = l(t('create translation'), "node/add/$node->type/translation/$node->nid/$lang");
+	    }
+	    $options[] = l(t('select node'), "node/$node->nid/translation/select/$lang");
+	    $rows[] = array($langname, $title, implode(" | ", $options));
+	  }
+	  $output .= theme('table', $header, $rows);
+    if($node->trid){
+      $form['submit'] = array('#type' => 'submit', '#value' => t('Remove'), '#suffix' => t('Remove node from this translation set'));
+      $output .= drupal_get_form(NULL, $form);
     }
-    else {
-      $rows[] = array($name, t('Not translated'), l(t('create translation'), 'translation/node/'.$nid.'/'.$lang));
-  }
-  }
-  $header = array(t('Language'), t('Title'), t('Actions'));
-  $output .= t('<h2>Translation Status</h2>') .'<br />';
-  $output .= theme('table', $header, $rows);
   return $output;
 }
 
+function translation_node_form($node, $lang){
+	$form['node'] = array('#type' => 'value', '#value' =>$node);
+  $form['language'] = array('#type' => 'hidden', '#value' => $lang);
+  $form['source_nid'] = array('#type' => 'hidden', '#value' => $node->nid);
+  $form['trid'] = array('#type' => 'hidden', '#value' => $node->trid);
+  $languages = i18n_supported_languages();
+
+  // Disable i18n rewrite. Order by trid to show first nodes with no translation
+  i18n_selection_mode('off');
+  $result = pager_query(db_rewrite_sql("SELECT n.nid, n.title FROM {node} n INNER JOIN {i18n_node} i ON n.nid = i.nid WHERE i.language = '%s' ORDER BY i.trid"), 40, 0, NULL, $lang);
+  i18n_selection_mode('user');
+  while($trnode = db_fetch_object($result)){
+    $list[$trnode->nid] = l($trnode->title, "node/$trnode->nid") ;
+  }
+  if($list){
+    $form['nodes']['nid'] = array(
+    	'#type' => 'radios', '#title' => t('Select translation for %language', array('%language' => $languages[$lang])), 
+    	'#default_value' => isset($node->translation[$lang]) ? $node->translation[$lang]->nid : '',
+    	'#options' => $list);
+    $form['pager'] = array('#value' => theme('pager'));
+    $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
+    return drupal_get_form('translation_node_form', $form);
+  } else {
+    return t("<p>No nodes available in %language</p>",  array('%language' => $languages[$lang]) );
+  }
+  
+  
+}
+
+function translation_node_form_submit($form_id, $form_values){
+  $op = $_POST['op'];
+  $source_nid = $form_values['source_nid'];
+  $language = $form_values['language'];
+  $nid = $form_values['nid'];
+  if( $source_nid && $language && $nid ) {
+   if($trid = $form_values['trid']){
+      // Delete old translations
+      db_query("UPDATE {i18n_node} SET trid = 0 WHERE trid = %d AND language = '%s'", $trid, $language);
+    } else {
+      $trid = db_next_id('{i18n_node}_trid');
+    }
+    db_query("UPDATE {i18n_node} SET trid = %d WHERE nid=%d OR nid=%d", $trid, $source_nid, $nid); 
+    drupal_set_message(t('The translation has been saved'));
+  
+  } 
+}
+
+function theme_translation_node_list($list){
+  $header = array(t('Language'), t('Title'));
+  $languages = i18n_supported_languages();
+  foreach($list as $lang => $node){
+    $rows[] = array($languages[$lang], l($node->title, 'node/'.$node->nid) );
+  }
+  return theme('table', $header, $rows);
+}
 /**
  * Hook nodeapi
  * 
@@ -290,16 +302,12 @@ function translation_nodeapi(&$node, $op, $arg = 0) {
         $node->translation = translation_node_get_translations(array('nid' =>$node->nid), FALSE);
         break;
       case 'insert':
-        if ( arg(0) == 'translation' ) {
-          translation_node_create_translation($node->nid, $node->language, $node->i18n_translation_nid);
+        if($node->translation_nid && !$node->trid){
+          // Update both nodes
+          $node->trid = db_next_id('{i18n_node}_trid');
+          db_query("UPDATE {i18n_node} SET trid = %d WHERE nid=%d OR nid=%d", $node->trid, $node->nid, $node->translation_nid);
         }
         break;
-      /*
-      case 'delete':
-        db_query('DELETE FROM {i18n_node} WHERE nid=%d', $node->nid);
-        break;
-      */
-        
     }
   }
 }
@@ -313,14 +321,11 @@ function translation_taxonomy($op, $type, $edit = NULL) {
   switch ("$type/$op") {
     case 'term/insert':
     case 'term/update':
-        if (!$edit['language']) {
+        if (!$edit['language'] && $edit['trid']) {
 	        // Removed language, remove trid
-	        db_query('DELETE FROM {i18n_taxonomy_term} WHERE tid=%d', $edit['tid']);
+	        db_query('UPDATE {term_data} SET trid=0 WHERE tid=%d', $edit['tid']);
 	        if(db_affected_rows()) drupal_set_message(t('Removed translation information from term'));
 	      }
-        break;
-    case 'term/delete':  
-	      db_query('DELETE FROM {i18n_taxonomy_term} WHERE tid=%d', $edit['tid']);
         break;
   }
 } 
@@ -328,80 +333,35 @@ function translation_taxonomy($op, $type, $edit = NULL) {
  * Implementation of hook_link().
  */
 function translation_link($type, $node = NULL, $teaser = FALSE) {
+  $languages = i18n_supported_languages();
   $links = array();
-  if ($type == 'node' && !$teaser && variable_get('i18n_node_'.$node->type, 0) && $node->translation) {
+  if ($type == 'node' && variable_get('i18n_translation_node_links', 0) > ($teaser ? 1 : 0) && $node->translation) {
     foreach ($node->translation as $lang => $trnode) {
-        $links[]= theme('translation_link', $languages[$lang] , 'node/'.$trnode->nid, $lang);
+        $baselang = variable_get('i18n_translation_links', 0) ? $lang : i18n_get_lang();
+        $links[]= theme('translation_link', $languages[$lang] , $baselang.'/node/'.$trnode->nid, $lang);
      }
   }
   return $links;
 }
 
-function theme_translation_link($text, $target, $lang, $separator='&nbsp;') {
-  // Interface language independent from content ?
-  $target = variable_get('i18n_translation_links', 0) ? $lang.'/'.$target : $target;
-  return theme('i18n_link', $text, $target, $lang, $separator);
-}
 /**
- * Other functions
+ * Returns a list for terms for vocabulary, language
  */
-
-/**
- * Adds language and translation fields to term edition form
- * 
- * This is a hook for taxonomy module
- */
-
-
-function translation_taxonomy_form_term($edit = array()) {
-  $tid = $edit['tid'];
-  $termlang= $edit['language'];
-  $vid = isset($edit['vid']) ? $edit['vid'] : arg(4);
-  // $trid= $edit['trid'];
-  
-  $languages = i18n_supported_languages();
-  $selectlang = array_merge(array('' => ''), $languages);
-
-  $vocabulary = taxonomy_get_vocabulary($vid);
-  // If vocabulary has language, this should be the one for the term
-  if ($vocabulary->language) {
-    $edit['language'] = $vocabulary->language;
-    $output = form_item(t('Language'),$languages[$vocabulary->language],t('The vocabulary already has a language.'));
-  } 
-  elseif ($termlang && $translations=translation_term_get_translations($tid)) {
-    // Term has translations. Not all languages are valid
-    $selectlang = array('' => '');
-    foreach ($languages as $lang => $langname) {
-      if ($trans = $translations[$lang]) {
-        $rows[] = array($langname, l($trans->name, 'admin/taxonomy/edit/term/'.$trans->tid));  
-      }
-      else {
-        $selectlang[$lang] = $langname;
-      }
-    }
-    $output = form_select(t('Language'), 'language', $termlang, $selectlang);
-
-    $header = array(t('Language'), t('translated term'));
-    $output .= form_group(t('term translations'), theme('table', $header, $rows));
-    
-  } else {
-    $output = form_select(t('Language'), 'language', $termlang, $selectlang);
-  }
-  return $output;
-}
-
-// returns array lang > term
 function translation_vocabulary_get_terms($vid, $lang, $status = 'all') {
-  if ($status=='translated') {
-    $andsql = ' AND i.trid > 0';
-  }elseif ( $status =='untranslated' ) {
-    $andsql = ' AND (i.trid = 0 or i.trid is null)';
+  switch($status){
+    case 'translated':
+      $andsql = ' AND trid > 0';
+      break;
+    case 'untranslated':
+      $andsql = ' AND trid = 0';
+      break;
+    default:
+      $andsql = '';
   }
-
-  $result = db_query("SELECT t.*, i.trid FROM {term_data} t LEFT JOIN {i18n_taxonomy_term} i USING(tid) WHERE t.vid=%d AND t.language='%s' " . $andsql, $vid, $lang);
+  $result = db_query("SELECT * FROM {term_data} WHERE vid=%d AND language='%s' $andsql", $vid, $lang);
   $list = array();
-  while ($term = db_fetch_array($result)) {
-     $list[] = $term;
+  while ($term = db_fetch_object($result)) {
+     $list[$term->tid] = $term->name;
   }
   return $list;  
 }
@@ -421,24 +381,18 @@ function translation_node_get_translations($params, $getall = TRUE) {
     $conds[] = "n.nid != %d";
     $values[] = $params['nid'];
   }
+  $conds[] = "b.trid != 0";
   $sql = 'SELECT n.nid, n.title, n.status, a.language FROM {node} n INNER JOIN {i18n_node} a ON n.nid = a.nid INNER JOIN {i18n_node} b ON a.trid = b.trid WHERE '. implode(' AND ', $conds);
-  $result = db_query($sql, $values);
-  
+
+  i18n_selection_mode('off');
+  $result = db_query(db_rewrite_sql($sql), $values);
+  i18n_selection_mode('user');
+    
   $items = array();
   while ($node = db_fetch_object($result)) {
     $items[$node->language] = $node;
   }
   return $items;
-}
-
-// snid = source nid
-function translation_node_create_translation($nid, $lang, $snid) {
-  $trid = db_result(db_query('SELECT trid FROM {i18n_node} WHERE nid=%d', $snid));
-  if (!$trid) {
-    $trid = db_next_id('{i18n_node}_trid');
-    db_query('INSERT INTO {i18n_node} (trid, nid) VALUES (%d, %d)', $trid, $snid);
-  }
-  db_query('INSERT INTO {i18n_node}(trid, nid) VALUES (%d, %d)', $trid, $nid);
 }
 
 function translation_get_node_type($nid) {
@@ -497,14 +451,14 @@ function translation_taxonomy_overview($vid) {
   $types = array();
 	// Get terms/translations for this vocab 
 	$result = db_query('SELECT * FROM {term_data} t WHERE vid=%d',$vocabulary->vid);
-	$list = array();
+	$terms = array();
 	while ($term = db_fetch_object($result)) {
 	  if($term->trid && $term->language) {
-	    $data[$term->trid][$term->language] = $term;
+	    $terms[$term->trid][$term->language] = $term;
 	  }
 	}
 	// Reorder data for rows and languages
-  foreach ($data as $trid => $terms) {
+  foreach ($terms as $trid => $terms) {
     $thisrow = array();
     foreach ($languages as $lang => $name) {
       if (array_key_exists($lang, $terms)) {
@@ -536,7 +490,7 @@ function translation_taxonomy_form($vid, $trid = NULL, $edit = array()) {
   // List of terms for languages
   foreach ($languages as $lang => $langname) {
     $current = isset($translations[$lang]) ? $translations[$lang]->tid : '';
-    $list = translation_array2list(translation_vocabulary_get_terms($vid, $lang, 'all'), 'tid', 'name');
+    $list = translation_vocabulary_get_terms($vid, $lang, 'all');
     $list[''] = '--';
     $form[$lang] = array('#type' => 'fieldset', '#tree' => TRUE);
     $form[$lang]['tid'] = array(
@@ -566,7 +520,7 @@ function translation_taxonomy_submit($form_id, $form_values) {
     }
   }
   if(count($translations)) {
-    $trid = is_numeric($trid) ? $trid : db_next_id('{i18n_taxonomy_term}_trid');
+    $trid = is_numeric($trid) ? $trid : db_next_id('{term_data}_trid');
     db_query('UPDATE {term_data} SET trid=%d WHERE tid IN(%s)', $trid, implode(',',$translations));
   }
   drupal_set_message(t('Term translations have been updated'));
@@ -597,62 +551,13 @@ function translation_term_get_translations($params, $getall = TRUE) {
     $conds[] = "t.tid != %d";
     $values[] = $params['tid'];
   }  
-  $sql = 'SELECT t.* FROM {term_data} t INNER JOIN {term_data} i ON t.tid = i.tid WHERE '. implode(' AND ', $conds);;
+  $sql = 'SELECT t.* FROM {term_data} t INNER JOIN {term_data} i ON t.trid = i.trid WHERE '. implode(' AND ', $conds);;
   $result = db_query($sql, $values);
   $items = array();
   while ($data = db_fetch_object($result)) {
     $items[$data->language] = $data;
   }
   return $items;  
-}
-
-function translation_taxonomy_get_translations($trid) {
-  $result = db_query('SELECT * FROM {term_data} t WHERE trid=%d',$trid);
-  $list = array();
-  while ($data = db_fetch_object($result)) {
-    $list[$data->language] = $data;
-  }
-  return $list;     
-}
-
-function translation_node_available_langs($node) {
-  $languages = i18n_supported_languages();
-  if ($node->nid) {
-    $usedlangs = translation_node_get_translations($node->nid);
-  }
-  elseif ($node->i18n_translation_nid) {
-    $usedlangs = translation_node_get_translations($node->i18n_translation_nid, true);
-  }
-  else {
-    return $languages;
-  }
-  
-  foreach ($languages as $lang=>$name) {
-    if (!array_key_exists($lang, $usedlangs)) {
-       $newlangs[$lang] = $name;
-    }
-  }
-   
-  return $newlangs;
-    
-}
-
-function translation_db_get_arrays($sql) {
-  $result = db_query($sql);
-  $list = array();
-  while ($data = db_fetch_array($result)) {
-    $list[] = $data;
-  }
-  return $list;  
-}
-
-function translation_db_get_objects($sql) {
-  $result = db_query($sql);
-  $list = array();
-  while ($data = db_fetch_object($result)) {
-    $list[] = $data;
-  }
-  return $list;    
 }
 
 /**
@@ -733,7 +638,7 @@ function translation_url_taxonomy($str_tids, $lang) {
   }
   $translated_tids = array();
   foreach ($tids as $tid) {
-    if ($translated_tid = translation_term_get_translations($tid)) {
+    if ($translated_tid = translation_term_get_translations(array('tid' =>$tid))) {
       $translated_tids[] = $translated_tid[$lang]->tid;
     }
   }
@@ -752,6 +657,20 @@ function translation_get_links($path = '', $names = 1) {
     $links[]= theme('i18n_link', $name, "$lang/$url" , $lang);
   }
   return $links;  
+}
+
+/**
+ * Themeable functions
+ */
+function theme_translation_node_link($node, $lang, $baselang){
+  $languages = i18n_supported_languages();
+  return theme('i18n_link', $languages[$lang], "$baselang/node/$node->nid", $lang);
+}
+
+function theme_translation_link($text, $target, $lang, $separator='&nbsp;') {
+  // Interface language independent from content ?
+  $target = variable_get('i18n_translation_links', 0) ? "$lang/$target" : $target;
+  return theme('i18n_link', $text, $target, $lang, $separator);
 }
 
 ?>

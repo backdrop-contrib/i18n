@@ -3,21 +3,24 @@
 --
 
 CREATE TABLE `i18n_node` (
+  `nid` int(11) unsigned NOT NULL ,
   `trid` int(10) unsigned NOT NULL default '0',
-  `nid` int(11) NOT NULL default '0',  
+  `language` VARCHAR(12) NOT NULL default '',  
   `status` smallint(6) NOT NULL default '0',
-  PRIMARY KEY  (`trid`,`nid`)
-) TYPE=MyISAM; 
+  PRIMARY KEY  (`nid`)
+); 
 
---
--- Table: 'i18n_taxonomy_term'
---
+# Add language field to term_data
 
-CREATE TABLE `i18n_taxonomy_term` (
-  `trid` int(10) unsigned NOT NULL default '0',
-  `tid` int(11) NOT NULL default '0',  
-  PRIMARY KEY  (`trid`,`tid`)
-) TYPE=MyISAM; 
+ALTER TABLE `term_data`
+  ADD `language` varchar(12) NOT NULL default '';
+ALTER TABLE `term_data`
+  ADD `trid` int(10) unsigned NOT NULL default '0';
+  
+# Add language to vocabulary
+
+ALTER TABLE `vocabulary`
+ADD `language` varchar(12) NOT NULL default '';
 
 --
 -- Table structure for table 'i18n_variable'
@@ -28,20 +31,4 @@ CREATE TABLE i18n_variable (
   language varchar(12) NOT NULL default '',
   value longtext NOT NULL,
   PRIMARY KEY (name, language)
-) TYPE=MyISAM;
-
-# Add language field to node table
-
-ALTER TABLE `node`
-ADD `language` varchar(12) NOT NULL default '';
-
-# Add language field to term_data
-
-ALTER TABLE `term_data`
-ADD `language` varchar(12) NOT NULL default '';
-
-
-# Add language to vocabulary
-
-ALTER TABLE `vocabulary`
-ADD `language` varchar(12) NOT NULL default '';
+);
