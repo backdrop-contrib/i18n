@@ -282,14 +282,6 @@ function translation_node_form_submit($form_id, $form_values){
   } 
 }
 
-function theme_translation_node_list($list){
-  $header = array(t('Language'), t('Title'));
-  $languages = i18n_supported_languages();
-  foreach($list as $lang => $node){
-    $rows[] = array($languages[$lang], l($node->title, 'node/'.$node->nid) );
-  }
-  return theme('table', $header, $rows);
-}
 /**
  * Hook nodeapi
  * 
@@ -337,8 +329,8 @@ function translation_link($type, $node = NULL, $teaser = FALSE) {
   $links = array();
   if ($type == 'node' && variable_get('i18n_translation_node_links', 0) > ($teaser ? 1 : 0) && $node->translation) {
     foreach ($node->translation as $lang => $trnode) {
-        $baselang = variable_get('i18n_translation_links', 0) ? $lang : i18n_get_lang();
-        $links[]= theme('translation_link', $languages[$lang] , $baselang.'/node/'.$trnode->nid, $lang);
+        $baselang = variable_get('i18n_translation_links', 0) ? i18n_get_lang() : $lang;
+        $links[]= theme('translation_node_link', $trnode , $lang, $baselang);
      }
   }
   return $links;
@@ -560,34 +552,6 @@ function translation_term_get_translations($params, $getall = TRUE) {
   return $items;  
 }
 
-/**
- * Links for different languages
- */
-
-function translation_l($text, $lang , $url = '' , $attributes = array(), $query = NULL) {
-  global $i18n_langpath;
-  // If !url get from original request
-  if (!$url) {
-    $url = _i18n_get_original_path();
-  }
-  // If url has lang_prefix, remove it
-  i18n_get_lang_prefix($url, true);
-  // are we looking at a node?
-  if (preg_match("/^(node\/)([0-9]*)$/",$url,$matches)) {
-    if ($nid = translation_node_l($matches[2], $lang)) {
-      $url = "node/$nid";
-    }
-  }
-  // or a taxonomy term
-  elseif (preg_match("/^(taxonomy\/term\/)([^\/]*)$/",$url,$matches)) {//or at a taxonomy-listing?
-    if ($str_tids = translation_taxonomy_l($matches[2], $lang)) {
-      $url = "taxonomy/term/$str_tids";
-    }
-  }
-  
-  return '<a href="'. i18n_url($url, $lang, $query) .'"'. drupal_attributes($attributes) .'>'. $text .'</a>';
-}
-
 function translation_url($url, $lang) {
   global $i18n_langpath;
   // If !url get from original request
@@ -598,13 +562,13 @@ function translation_url($url, $lang) {
   i18n_get_lang_prefix($url, true);
   // are we looking at a node?
   if (preg_match("/^(node\/)([0-9]*)$/",$url,$matches)) {
-    if ($nid = translation_url_node($matches[2], $lang)) {
+    if ($nid = translation_node_nid($matches[2], $lang)) {
       $url = "node/$nid";
     }
   }
   // or a taxonomy term
   elseif (preg_match("/^(taxonomy\/term\/)([^\/]*)$/",$url,$matches)) {//or at a taxonomy-listing?
-    if ($str_tids = translation_url_taxonomy($matches[2], $lang)) {
+    if ($str_tids = translation_taxonomy_tids($matches[2], $lang)) {
       $url = "taxonomy/term/$str_tids";
     }
   }
@@ -615,15 +579,14 @@ function translation_url($url, $lang) {
 /**
  *  Returns an url-part, pointing to the translated node, if exists 
  */
-function translation_url_node($nid, $lang) {
-  $sql = 'SELECT n.nid FROM {node} n INNER JOIN {i18n_node} a ON n.nid = a.nid INNER JOIN {i18n_node} b ON a.trid = b.trid AND b.nid =%d WHERE n.nid != %d AND n.language = \'%s\'';
-  $result = db_fetch_object(db_query($sql, $nid, $nid, $lang));
-  return $result->nid;
+function translation_node_nid($nid, $lang) {
+  $sql = 'SELECT n.nid FROM {i18n_node} n INNER JOIN {i18n_node} a ON n.nid = a.nid INNER JOIN {i18n_node} b ON a.trid = b.trid AND b.nid =%d WHERE n.nid != %d AND n.language = \'%s\'';
+  return db_result(db_query($sql, $nid, $nid, $lang));
 }
 /**
  *  Returns an url for the translated taxonomy-page, if exists 
  */
-function translation_url_taxonomy($str_tids, $lang) {
+function translation_taxonomy_tids($str_tids, $lang) {
   if (preg_match('/^([0-9]+[+ ])+[0-9]+$/', $str_tids)) {
     $separator = '+';
     // The '+' character in a query string may be parsed as ' '.
@@ -647,7 +610,7 @@ function translation_url_taxonomy($str_tids, $lang) {
 /**
  * function translation_get_links
  * 
- * Returns an array of links for all languages, with or without names/flags
+ * Returns an array of links for all languages, with or without names
  */
 function translation_get_links($path = '', $names = 1) {
   $current = i18n_get_lang();
@@ -662,15 +625,27 @@ function translation_get_links($path = '', $names = 1) {
 /**
  * Themeable functions
  */
-function theme_translation_node_link($node, $lang, $baselang){
-  $languages = i18n_supported_languages();
-  return theme('i18n_link', $languages[$lang], "$baselang/node/$node->nid", $lang);
+function theme_translation_node_link($node, $lang, $baselang = NULL, $title = FALSE){
+  $baselang = $baselang ? $baselang : $lang;
+  if($title){
+    $name = $node->title;
+  } else {
+    $languages = i18n_supported_languages();
+    $name = $languages[$lang];
+  }
+  return theme('i18n_link', $name, "$baselang/node/$node->nid", $lang);
 }
 
 function theme_translation_link($text, $target, $lang, $separator='&nbsp;') {
-  // Interface language independent from content ?
-  $target = variable_get('i18n_translation_links', 0) ? "$lang/$target" : $target;
   return theme('i18n_link', $text, $target, $lang, $separator);
 }
 
+function theme_translation_node_list($list){
+  $header = array(t('Language'), t('Title'));
+  $languages = i18n_supported_languages();
+  foreach($list as $lang => $node){
+    $rows[] = array($languages[$lang], l($node->title, 'node/'.$node->nid) );
+  }
+  return theme('table', $header, $rows);
+}
 ?>

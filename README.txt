@@ -2,19 +2,25 @@ README.txt
 ==========
 
 ********************************************************************
-  This is i18n module, version cvs, and works -kind of- with Drupal 4.7.x
+  This is i18n package, cvs version , and works with Drupal HEAD
 ********************************************************************
-WARNING: It is not 100% backwards compatible with the old i18n module [4.5.x]
-WARNING: Module is being updated for Drupal 4.7 so it is *unstable* 
+WARNING: It is not 100% backwards compatible with the old i18n module [4.5.x] 
 WARNING: DO READ THE INSTALL FILE
 ********************************************************************
-
+This is not a single module anymore but a collection of modules providing complementary features
+  i18n --> basic module which will add language to nodes, vocabularies and terms
+  translation --> module to add translation relationships
+  
+********************************************************************
 This module implements multilingual support as outlined in http://drupal.org/node/11051
-Some more info about this module will be available here: http://reyero.net/en/drupal/i18n
+Some more info about this module will be available here: 
+    http://www.developmentseed.org/blog/internationalization
+	http://reyero.net/en/drupal/i18n
+ 
 
 It doesn't require anymore multiple language tables as previous versions
 
-This module provides support for internationalization of Drupal sites:
+This module provides support for multilingual Drupal sites:
     * Multilingual content, some basic translation interface, and links between translated versions
     * Translation of the user interface for registered and anonymous users (with locale)
     * Detection of the brower language
@@ -67,7 +73,7 @@ To have aliases for a translated node/page, you have to define each of them. I.e
 For outgoing URL's, the language code will be added authomatically.
 
 About language dependent variables:
-======================
+==================================
 Some site-wide variables, like 'site_name', 'site_slogan', user e-mail contents... have language dependent content.
 Since I don't like the solution of runing them through the localization system, because this means when you change the 'master' text, you have to re-translate it for every language, I've added this new feature which makes possible to have a list of variables -defined in the config file- which will be kept separated for each language.
 This part is an add-on, and you can use it or not.
@@ -84,12 +90,12 @@ Known problems, compatibility
 
 Sample sites, using this module - e-mail me to be listed here
 ==========================================================
-  http://ctac.ca
-  http://grasshopperarts.com
-  http://funkycode.com
-  http://www.newoceans.nl
-  http://www.arcolatino.org  
   http://www.reyero.net
+  http://www.para.ro
+  http://www.ctac.ca
+  http://grasshopperarts.com/
+  http://funkycode.com/
+  http://www.newoceans.nl/
 
 Additional Support
 =================

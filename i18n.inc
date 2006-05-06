@@ -380,7 +380,6 @@ function _i18n_variable_exit(){
   if($i18n_conf){
     $variables = array_diff_assoc($i18n_conf, $conf);
     if($variables){
-      var_dump($variables);      
       foreach($variables as $name => $value){
         drupal_set_message("updated $name = $value");
         $i18n_conf[$name] = $conf[$name];
