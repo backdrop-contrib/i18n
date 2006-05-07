@@ -21,10 +21,10 @@ POST-INSTALLATION/CONFIGURATION:
 	i18n module
 	translation module
 - Configure the modules in 
-	administration > settings > i18n
-	administration > settings > translation
-- Check the node types to be made multilingual
-	administration > settings > content types
+	administer > settings > i18n
+	administer > settings > translation
+- Enable multilingual support for each content type you want to translate
+	administer > settings > content types
     A new field 'language' and a new tab 'translations' will be available when editing these node types
 - There are now two language blocks
 	- A simple language switcher provided by i18n.module

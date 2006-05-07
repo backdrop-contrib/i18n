@@ -24,6 +24,7 @@ if(!function_exists('custom_url_rewrite')) {
 }  
 
 function i18n_url_rewrite($type, $path, $original){
+  //drupal_set_message("type=$type path=$path original=$original");
   if ($type == 'alias' && !i18n_get_lang_prefix($path) ){
     return $path ? i18n_get_lang() . '/'. $path : i18n_get_lang();
   } else {
@@ -286,11 +287,10 @@ function i18n_get_lang() {
 
 // Note: do not call url() anymore, it will be called from l()
 function i18n_url($url, $lang) {
-  // Strip prefix if default language
-  if ($url) {
-    return $lang.'/'.$url;
-  } else {
+  if (!$url || $url == variable_get('site_frontpage', 'node')) {
     return $lang;
+  } else {
+    return $lang.'/'.$url;
   }
 }
 
@@ -328,7 +328,7 @@ function i18n_block($op = 'list', $delta = 0) {
 /**
  * Function i18n_get_links
  * 
- * Returns an array of urls for all languages, with or without names/flags
+ * Returns an array of links for all languages, with or without names/flags
  */
 function i18n_get_links($path = '') {
   foreach(i18n_supported_languages() as $lang => $name){
@@ -412,7 +412,7 @@ function theme_i18n_language_icon($lang){
   if ($path = variable_get('i18n_icon_path', drupal_get_path('module', 'i18n').'/flags/*.png')) {
     $languages = i18n_supported_languages();
     $src = base_path().str_replace('*', $lang, $path);
-    list($width, $height) = explode('x', variable_get('i18n_flags_size', '16x12'));
+    list($width, $height) = explode('x', variable_get('i18n_icon_size', '16x12'));
     $attribs = array('class' => 'i18n-icon', 'width' => $width, 'height' => $height, 'alt' => $languages[$lang]);
     return "<img src=\"$src\" ".drupal_attributes($attribs)." />";
   }  
