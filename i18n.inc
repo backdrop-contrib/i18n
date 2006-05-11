@@ -285,12 +285,18 @@ function i18n_get_lang() {
   }
 }
 
-// Note: do not call url() anymore, it will be called from l()
-function i18n_url($url, $lang) {
-  if (!$url || $url == variable_get('site_frontpage', 'node')) {
+/**
+ * Produces i18n paths
+ * If path is empty or site frontpage, path = 'lang'
+ * Search for alias before adding language
+ */
+function i18n_path($path, $lang) {
+  if (!$path || $path == variable_get('site_frontpage', 'node')) {
     return $lang;
+  } elseif($alias = drupal_lookup_path('alias', $path) ) {
+    return $lang.'/'.$alias;
   } else {
-    return $lang.'/'.$url;
+    return $lang.'/'.$path;
   }
 }
 
@@ -332,7 +338,7 @@ function i18n_block($op = 'list', $delta = 0) {
  */
 function i18n_get_links($path = '') {
   foreach(i18n_supported_languages() as $lang => $name){
-    $links[$lang]= theme('i18n_link', $name, i18n_url($path, $lang), $lang);
+    $links[$lang]= theme('i18n_link', $name, i18n_path($path, $lang), $lang);
   }
   return $links;  
 }

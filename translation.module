@@ -617,7 +617,7 @@ function translation_get_links($path = '', $names = 1) {
   foreach(i18n_supported_languages() as $lang => $name){
     $url = translation_url($path, $lang);
     $name = $names ? $name: '' ; // Should be localized??
-    $links[]= theme('i18n_link', $name, "$lang/$url" , $lang);
+    $links[]= theme('i18n_link', $name, i18n_path($url, $lang) , $lang);
   }
   return $links;  
 }
@@ -633,7 +633,7 @@ function theme_translation_node_link($node, $lang, $baselang = NULL, $title = FA
     $languages = i18n_supported_languages();
     $name = $languages[$lang];
   }
-  return theme('i18n_link', $name, "$baselang/node/$node->nid", $lang);
+  return theme('i18n_link', $name, i18n_path('node/'.$node->nid, $baselang), $lang);
 }
 
 function theme_translation_link($text, $target, $lang, $separator='&nbsp;') {
