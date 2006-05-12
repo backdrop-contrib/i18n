@@ -37,14 +37,6 @@ function i18nblocks_menu($may_cache) {
   }
   return $items;
 } 
-/**
- * Implementation of hook_settings()
- */
-function i18nblocks_settings(){
-  $output = '';
-  $output .= form_textfield(t('Number of metablocks'), 'i18nblocks_number', variable_get('i18nblocks_number', 1), 4, 4);
-  return $output;
-}
 
 /**
  * Implementation of hook_block()

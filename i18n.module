@@ -18,13 +18,17 @@
 /**
  * Implementation of hook_init
  */
-
 function i18n_init(){
   global $i18n_langpath;
 
   $path = _i18n_get_original_path();
   $i18n_langpath = i18n_get_lang_prefix($path);
   $lang = _i18n_get_lang();
+  // Multi tables, for backwards compatibility and experimentation
+  global $db_prefix_i18n;
+  if (is_array($db_prefix_i18n)) {
+    _i18n_set_db_prefix($lang);
+  }
   if ($path == '') { // Main page
     // Check for update or cron scripts to disable rewriting and redirection
     if(preg_match('|/(?!index\.php)\w+\.php|', request_uri())){
@@ -35,21 +39,13 @@ function i18n_init(){
     } elseif (variable_get('i18n_frontpage',0)){
       $_GET['q'] = i18n_frontpage();
     } 
-  } 
-  elseif ($lang == $path) { // When path is only language code
+  } elseif ($lang == $path) { // When path is only language code
     $_GET['q'] =  variable_get('i18n_frontpage',0) ? i18n_frontpage() : variable_get('site_frontpage','node'); 
   }
   elseif ($i18n_langpath) {
-    //search alias with and without lang and remove lang
+    //search alias with and without lang and remove lang.
     $_GET['q'] = i18n_get_normal_path($path);
   } 
-  
-  // Multi tables, for backwards compatibility and experimentation
-  global $db_prefix_i18n;
-  if (is_array($db_prefix_i18n)) {
-    _i18n_set_db_prefix(_i18n_get_lang());
-  }
-
   // If not in bootstrap, include hooks
   if(!_i18n_is_bootstrap()){
     include drupal_get_path('module', 'i18n').'/i18n.inc';
@@ -226,13 +222,18 @@ function i18n_frontpage() {
  */
 function i18n_get_normal_path($path) {
   // First, check alias with lang, then without
-  if ($alias = drupal_lookup_path('source', $path)) {
+  if(_i18n_is_bootstrap()){ 
+    // If in bootstrap, cache hit, only remove prefix
+    i18n_get_lang_prefix($path, TRUE);
+    return $path;
+  } if ($alias = drupal_lookup_path('source', $path)) {
     return $alias;
   } elseif(i18n_get_lang_prefix($path, TRUE)){
-    $alias = drupal_lookup_path('source', $path);
-    return $alias ? $alias : $path;
-    if( $alias && $path != $alias) {
+    if($alias = drupal_lookup_path('source', $path)){
+      i18n_get_lang_prefix($alias, TRUE);
       return $alias;
+    } else {
+      return $path;
     }
   } 
   // We only get here when no alias is defined, with or without lang
