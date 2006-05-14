@@ -24,11 +24,12 @@ function i18n_init(){
   $path = _i18n_get_original_path();
   $i18n_langpath = i18n_get_lang_prefix($path);
   $lang = _i18n_get_lang();
+  
+  // Init selection mode
+  i18n_selection_mode(variable_get('i18n_selection_mode', 'simple'));
   // Multi tables, for backwards compatibility and experimentation
-  global $db_prefix_i18n;
-  if (is_array($db_prefix_i18n)) {
-    _i18n_set_db_prefix($lang);
-  }
+  _i18n_set_db_prefix($lang);
+
   if ($path == '') { // Main page
     // Check for update or cron scripts to disable rewriting and redirection
     if(preg_match('|/(?!index\.php)\w+\.php|', request_uri())){
@@ -36,16 +37,16 @@ function i18n_init(){
     } elseif( variable_get('cache',0) && $lang != i18n_default_language() ) {
       // Redirect to main page in $lang
       _i18n_goto($lang);
-    } elseif (variable_get('i18n_frontpage',0)){
-      $_GET['q'] = i18n_frontpage();
+    } else {
+      $_GET['q'] = i18n_frontpage($lang);
     } 
   } elseif ($lang == $path) { // When path is only language code
-    $_GET['q'] =  variable_get('i18n_frontpage',0) ? i18n_frontpage() : variable_get('site_frontpage','node'); 
+    $_GET['q'] = i18n_frontpage($lang); 
   }
   elseif ($i18n_langpath) {
     //search alias with and without lang and remove lang.
     $_GET['q'] = i18n_get_normal_path($path);
-  } 
+  }
   // If not in bootstrap, include hooks
   if(!_i18n_is_bootstrap()){
     include drupal_get_path('module', 'i18n').'/i18n.inc';
@@ -76,6 +77,29 @@ function i18n_help($section = 'admin/help#i18n' ) {
   }
 }
 
+/**
+ * Implementation of hook_menu().
+ * Modify rewriting conditions when viewing specific nodes
+ */
+function i18n_menu($may_cache) {
+  $items = array();
+  if (!$may_cache) {
+    if (arg(0) == 'node') {
+      if(isset($_POST['edit']['language']) && $_POST['edit']['language']) {
+        $language = $_POST['edit']['language'];
+      } elseif( is_numeric(arg(1)) && $node = node_load(arg(1)) ) {
+        // Node language when loading specific nodes
+        $language = $node->language;
+      }
+      if($language) i18n_selection_mode('node', db_escape_string($language));
+    } elseif(arg(0) == 'admin') {
+      // No restrictions for administration pages
+      i18n_selection_mode('off');
+    }
+  }
+
+  return $items;
+}
 /**
  * Implementation of hook_settings().
  * 
@@ -176,7 +200,7 @@ function i18n_default_language(){
 }
 
 /**
- * Get language from browser settings, but only if it is in the $i18n_languages array
+ * Get language from browser settings, but only if it is a valid language
  */
 function i18n_get_browser_lang() {
   $languages = i18n_supported_languages();
@@ -184,7 +208,7 @@ function i18n_get_browser_lang() {
   $accept=explode(',',array_shift($exploded_server));
   foreach ($accept as $lang) {
     $lang=substr($lang,0,2);
-    if ( !empty($lang) && array_key_exists($lang,$languages)) {
+    if ( !empty($lang) && array_key_exists($lang, $languages)) {
       return $lang;
     }
   }
@@ -194,7 +218,7 @@ function i18n_get_browser_lang() {
  * Get language code from path.
  *
  * @param $path
- * @param $trim true to remove language code from $path
+ * @param $trim = TRUE to remove language code from $path
  */
 function i18n_get_lang_prefix(&$path, $trim = FALSE) {
   $exploded_path = explode('/', $path);
@@ -210,10 +234,11 @@ function i18n_get_lang_prefix(&$path, $trim = FALSE) {
 
 /**
  * Language dependent front page
+ * This function will search for aliases like 'en/home', 'es/home'...
  */
-function i18n_frontpage() {
-  $path = _i18n_get_lang().'/'.variable_get('site_frontpage','node');
-  return i18n_get_normal_path($path);
+function i18n_frontpage($lang = NULL) {
+  $lang = $lang ? $lang : _i18n_get_lang();
+  return i18n_get_normal_path($lang.'/'.variable_get('site_frontpage','node'));
 }
 
 /**
@@ -221,23 +246,22 @@ function i18n_frontpage() {
  * Also removes language from path
  */
 function i18n_get_normal_path($path) {
-  // First, check alias with lang, then without
-  if(_i18n_is_bootstrap()){ 
-    // If in bootstrap, cache hit, only remove prefix
-    i18n_get_lang_prefix($path, TRUE);
-    return $path;
-  } if ($alias = drupal_lookup_path('source', $path)) {
+  $prefix = i18n_get_lang_prefix($path, TRUE);
+  if(!$prefix || _i18n_is_bootstrap()){
+    // If bootstrap, drupal_lookup_path is not defined
+    return $path; 
+  } // First, check alias with lang
+  elseif($alias = drupal_lookup_path('source', $prefix.'/'.$path)){
+    i18n_get_lang_prefix($alias, TRUE); // In case alias has language
     return $alias;
-  } elseif(i18n_get_lang_prefix($path, TRUE)){
-    if($alias = drupal_lookup_path('source', $path)){
-      i18n_get_lang_prefix($alias, TRUE);
-      return $alias;
-    } else {
-      return $path;
-    }
+  } // Check alias without lang
+  elseif($alias = drupal_lookup_path('source', $path)){
+    i18n_get_lang_prefix($alias, TRUE);
+    return $alias;
   } 
-  // We only get here when no alias is defined, with or without lang
-  return $path;
+  else {
+    return $path;
+  }
 }
 
 /**
@@ -252,14 +276,12 @@ function i18n_get_normal_path($path) {
 function _i18n_get_lang() {
   global $user, $i18n_langpath;
   static $i18n_lang;
-  
-  //see if the language is already set.
+  // Check whether the language is already set.
   if ($i18n_lang) {
     return $i18n_lang;
   }
-
+  // Language not set, find one
   $languages = i18n_supported_languages();
-   
   if ($i18n_langpath && array_key_exists($i18n_langpath,$languages)) {
     $i18n_lang = $i18n_langpath;
   }
@@ -332,6 +354,7 @@ function _i18n_goto($lang){
 
 /**
  * i18n_selection_mode
+ * 
  * Allows several modes for query rewriting and to change them programatically
  * 	off = No language conditions inserted
  * 	simple = Only current language and no language
@@ -339,16 +362,27 @@ function _i18n_goto($lang){
  *  strict = Only current language
  *  default = Only default language
  *  user = User defined, in the module's settings page
+ *  params = Gets the stored params
+ *  reset = Returns to previous
+ *  custom = add custom where clause, like "%alias.language = 'en'"
  */
-function i18n_selection_mode($mode=NULL){
-  static $current;
-  if($mode) {
-    $current = ($mode == 'user') ? variable_get('i18n_selection_mode', 'simple') : $mode;
-  } elseif($current) {
-    return $current;
+function i18n_selection_mode($mode= NULL, $params= NULL){
+  static $current_mode = 'simple';
+  static $current_value = '';
+  static $store = array();
+  
+  if(!$mode) {
+    return $current_mode;
+  } elseif($mode == 'params'){
+    return $current_value;
+  } elseif($mode == 'reset'){
+    list($current_mode, $current_value) = array_pop($store);
+    //drupal_set_message("i18n mode reset mode=$current_mode value=$current_value");
   } else {
-    return $current = variable_get('i18n_selection_mode', 'simple');
-  }
+    array_push($store, array($current_mode, $current_value));
+    $current_mode = $mode;
+    $current_value = $params;
+  } 
 }
 
 function _i18n_selection_mode(){
@@ -357,8 +391,7 @@ function _i18n_selection_mode(){
     'mixed' => t('Only current and default languages and no language'),
     'default' => t('Only default language and no language'),    
     'strict' => t('Only current language'),
-    'off' => t('All content. No language conditions apply'),
-    
+    'off' => t('All content. No language conditions apply'),    
   );
 }
 ?>

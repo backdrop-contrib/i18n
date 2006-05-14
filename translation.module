@@ -70,6 +70,10 @@ function translation_menu($may_cache) {
         'type' => MENU_LOCAL_TASK);
       
     }
+    // Change rewrite conditions when translating nodenode/add/type/translation/22/es
+    if( arg(0) == 'node' && arg(1) == 'add' && arg(3) == 'translation' && ($lang = arg(5)) && array_key_exists($lang, i18n_supported_languages()) ) {
+      i18n_selection_mode('translation', db_escape_string($lang));
+    }
   }
 
   return $items;
@@ -138,10 +142,9 @@ function translation_form_alter($form_id, &$form) {
       $language = arg(5);
       // Load the node to be translated and populate fields
       $trans = node_load($translation_nid);
-      translation_node_populate_fields($trans, $form, $node);      
       $form['i18n']['translation_nid'] = array('#type' => 'hidden', '#value' => $translation_nid);
       $form['i18n']['language']['#default_value'] = $language;
-
+      translation_node_populate_fields($trans, $form, $node);      
       if($trans->trid){
         $form['i18n']['trid'] = array('#type' => 'hidden', '#value' => $trans->trid);
       }
@@ -165,15 +168,33 @@ function translation_form_alter($form_id, &$form) {
   }    
 }
 
-function translation_node_populate_fields($source, &$form, &$node){
-    foreach(element_children($form) as $key) {
-      if($key != 'nid' && $key != 'vid' && isset($source->$key) && !isset($node->$key)) {
+function translation_node_populate_fields($source, &$form, &$node, $level = 0){
+  $fields = array();
+	foreach(element_children($form) as $key) {
+	  if($key == 'nid' || $key == 'vid' || $key == 'i18n'){
+      continue;
+    } elseif(isset($source->$key) && !isset($node->$key)) {
+      if($level == 0 && $key == 'parent' && is_numeric($source->parent)) { // Translate book outline
+        $lang = $form['i18n']['language']['#default_value'];
+      	$trans = translation_node_get_translations(array('nid' => $source->parent));
+        if(isset($trans[$lang])) {
+         $form['parent']['#default_value'] = $trans[$lang]->nid;
+        }
+      } else {
         $node->$key = $form[$key]['#default_value'] = $source->$key;
-        drupal_set_message("populated $key");
-      } elseif(!isset($form[$key]['#tree'])) {
-        translation_node_populate_fields($source, $form[$key], $node);
+        $fields[] = $key;
       }
+	  } elseif(!isset($form[$key]['#tree'])) {
+	    translation_node_populate_fields($source, $form[$key], $node, $level +1);
+	  }
+	}
+  if($level = 0) {
+    if($source->type == 'book' && $source->parent){
+      
     }
+  }
+  // For debugging
+  // if($fields) drupal_set_message("Populated fields ($level): ". implode(', ', $fields));
 }
 /**
  * Multilingual Nodes support
@@ -245,7 +266,7 @@ function translation_node_form($node, $lang){
   // Disable i18n rewrite. Order by trid to show first nodes with no translation
   i18n_selection_mode('off');
   $result = pager_query(db_rewrite_sql("SELECT n.nid, n.title FROM {node} n INNER JOIN {i18n_node} i ON n.nid = i.nid WHERE i.language = '%s' ORDER BY i.trid"), 40, 0, NULL, $lang);
-  i18n_selection_mode('user');
+  i18n_selection_mode('reset');
   while($trnode = db_fetch_object($result)){
     $list[$trnode->nid] = l($trnode->title, "node/$trnode->nid") ;
   }
@@ -378,7 +399,7 @@ function translation_node_get_translations($params, $getall = TRUE) {
 
   i18n_selection_mode('off');
   $result = db_query(db_rewrite_sql($sql), $values);
-  i18n_selection_mode('user');
+  i18n_selection_mode('reset');
     
   $items = array();
   while ($node = db_fetch_object($result)) {
