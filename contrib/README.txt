@@ -12,7 +12,7 @@ i18nblocks module
 Provides language dependant blocks. 
 You can define meta-blocs that will show up a different block depending on language.
 
-i18nmenu module [Not yet updated for 4.7]
+i18nmenu module
 ---------------
 Translates menu items.
 Runs all admin editable menu item names through localization.

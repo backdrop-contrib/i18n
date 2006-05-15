@@ -76,16 +76,16 @@ function i18n_db_taxonomy_rewrite($query, $primary_table, $primary_key, $mode){
 function i18n_db_rewrite_where($alias, $mode){
   switch($mode){
     case 'simple':
-      return "$alias.language ='".i18n_get_lang()."' OR $alias.language =''" ;
+      return "$alias.language ='".i18n_get_lang()."' OR $alias.language ='' OR $alias.language IS NULL" ;
     case 'mixed':
-      return "$alias.language ='".i18n_get_lang()."' OR $alias.language ='".i18n_default_language()."' OR $alias.language =''" ;
+      return "$alias.language ='".i18n_get_lang()."' OR $alias.language ='".i18n_default_language()."' OR $alias.language ='' OR $alias.language IS NULL" ;
     case 'strict':
       return "$alias.language ='".i18n_get_lang()."'" ;
     case 'node':
     case 'translation':
-      return "$alias.language ='".i18n_selection_mode('params')."' OR $alias.language =''" ;
+      return "$alias.language ='".i18n_selection_mode('params')."' OR $alias.language ='' OR $alias.language IS NULL" ;
     case 'default':
-      return "$alias.language ='".i18n_default_language()."' OR $alias.language =''" ;
+      return "$alias.language ='".i18n_default_language()."' OR $alias.language ='' OR $alias.language IS NULL" ;
     case 'custom':
       return str_replace('%alias',$alias, i18n_selection_mode('params'));
   }  
