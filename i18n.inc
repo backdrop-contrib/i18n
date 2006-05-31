@@ -358,15 +358,19 @@ function _i18n_variable_init(){
 function _i18n_variable_exit(){
   global $i18n_conf;
   global $conf;
-  $lang = _i18n_get_lang();
   if($i18n_conf){
-    $variables = array_diff_assoc($i18n_conf, $conf);
-    if($variables){
-      foreach($variables as $name => $value){
+    $lang = _i18n_get_lang();
+    $refresh = FALSE;
+    // Rewritten because array_diff_assoc may fail with array variables
+    foreach($i18n_conf as $name => $value){
+      if($value != $conf[$name]) {
+        $refresh = TRUE;
         $i18n_conf[$name] = $conf[$name];
         db_query("DELETE FROM {i18n_variable} WHERE name='%s' AND language='%s'", $name, $lang );
         db_query("INSERT INTO {i18n_variable} (language, name, value) VALUES('%s', '%s', '%s')", $lang, $name, serialize($conf[$name]));
       }
+    }
+    if($refresh) {
       cache_set('variables:'.$lang, serialize($i18n_conf));
     }
   }
