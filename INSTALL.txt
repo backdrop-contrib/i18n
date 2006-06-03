@@ -6,7 +6,11 @@ Author: Jose A. Reyero
 Email: drupal at reyero dot net
 
 ********************************************************************
-  This is i18n module, version 4.6, and works with Drupal 4.6.x
+  This is the development version of i18n module, and works with Drupal 4.7.x
+********************************************************************
+
+********************************************************************
+Updated documentation will be kept on-line at http://drupal.org/node/31631
 ********************************************************************
 
 INSTALLATION:
@@ -30,10 +34,7 @@ POST-INSTALLATION/CONFIGURATION:
 	- A simple language switcher provided by i18n.module
 	- A translation block provided by translation.module
 
-- Set up language for existing nodes, editing them manually or directly updating in the database.
-  I.e. provided that all your existing nodes are in english:
-    INSERT INTO I18n_node(nid, trid, language) SELECT n.nid, 0, 'en' FROM node
-
+- Set up language for existing nodes, editing them manually.
 - Set up language for existing taxonomy terms
   Only terms in the node's language or terms without language will show up when editing a node
 

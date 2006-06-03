@@ -45,10 +45,16 @@ function i18n_install() {
       db_query("ALTER TABLE {term_data} ALTER COLUMN language SET NOT NULL");
       db_query("ALTER TABLE {term_data} ALTER COLUMN language SET DEFAULT ''");
 
+      db_query("ALTER TABLE {term_data} ADD trid integer");
+      db_query("UPDATE {term_data} SET trid='0'");
+      db_query("ALTER TABLE {term_data} ALTER COLUMN trid SET NOT NULL");
+      db_query("ALTER TABLE {term_data} ALTER COLUMN trid SET DEFAULT '0'");
+            
       db_query("ALTER TABLE {vocabulary} ADD language varchar(12)");
       db_query("UPDATE {vocabulary} SET language=''");
-      db_query("ALTER TABLE {term_data} ALTER COLUMN language SET NOT NULL");
-      db_query("ALTER TABLE {term_data} ALTER COLUMN language SET DEFAULT ''"); 
+      db_query("ALTER TABLE {vocabulary} ALTER COLUMN language SET NOT NULL");
+      db_query("ALTER TABLE {vocabulary} ALTER COLUMN language SET DEFAULT ''");      
+      
       // Sequences
       db_query("CREATE SEQUENCE {i18n_node}_trid_seq INCREMENT 1 START 1");
       db_query("CREATE SEQUENCE {term_data}_trid_seq INCREMENT 1 START 1");

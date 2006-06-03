@@ -42,12 +42,14 @@ function translation_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
+    /*
       $items[] = array(
         'path' => 'admin/node/translation',
         'title' => t('translation'),
         'callback' => 'translation_node_admin',
         'access' => user_access('administer nodes'),
         'type' => MENU_LOCAL_TASK);
+        */
   }
   else {
     if (arg(0) == 'node' && is_numeric(arg(1)) && variable_get('i18n_node_'.translation_get_node_type(arg(1)), 0)) {
