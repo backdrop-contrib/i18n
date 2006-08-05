@@ -14,7 +14,8 @@
 /**
  * Implementation of conf_url_rewrite
  * 
- * This is a conditional definition, just in case it is defined somewhere else
+ * This is a conditional definition, just in case it is defined somewhere else.
+ * If so, path rewriting won't work properly but at least it won't break Drupal
  */
 
 if(!function_exists('custom_url_rewrite')) {
@@ -238,57 +239,6 @@ function i18n_taxonomy($op, $type, $edit = NULL) {
 }
 
 /**
- * More i18n API
- */
-
-/**
- * This one expects to be called first from common.inc
- */
-function i18n_get_lang() {
-  static $i18n_language;
-  //see if the language is already set.
-  if ($i18n_language) {
-    return $i18n_language;
-  } else {
-    return $i18n_language = _i18n_get_lang();
-  }
-}
-
-/**
- * Produces i18n paths, with language prefix
- * If path is empty or site frontpage, path = 'lang'
- * Check for frontpage and search for alias before adding language
- */
-function i18n_path($path, $lang) {
-  if (!$path || $path == i18n_frontpage($lang)) {
-    return $lang;
-  } elseif($alias = drupal_lookup_path('alias', $path)) {
-	  if($prefix = i18n_get_lang_prefix($alias)) {
-      // This alias will be valid only if it has the same language
-	    return ($prefix == $lang) ? $alias : $lang.'/'.$path;
-	  } else { // Alias without language prefix
-	    return $lang.'/'.$alias;
-	  }
-  } else { // Alias for language path will be searched later
-    return $lang.'/'.$path;  
-  } 
-}
-
-function i18n_node_get_lang($nid, $default = '') {
-  $lang = db_result(db_query('SELECT language FROM {i18n_node} WHERE nid=%d',$nid));
-  return $lang ? $lang : $default ;
-}
-
-/**
- * Returns main language, two letter code
- */
-function i18n_get_main_lang($lang = NULL){
-  $lang = $lang ? $lang : i18n_get_lang();
-  return substr($lang, 2);
-}
-
-
-/**
  * Language block
  * 
  * This is a simple language switcher which knows nothing about translations
@@ -303,22 +253,6 @@ function i18n_block($op = 'list', $delta = 0) {
   }
   return $blocks;
 }
-
-/**
- * Function i18n_get_links
- * 
- * Returns an array of links for all languages, with or without names/flags
- */
-function i18n_get_links($path = '') {
-  if($path == i18n_frontpage()) {
-    $path = '';
-  }
-  foreach(i18n_supported_languages() as $lang => $name){
-    $links[$lang]= theme('i18n_link', $name, i18n_path($path, $lang), $lang);
-  }
-  return $links;  
-}
-
 
 /**
  * Multilingual variables 
@@ -374,35 +308,5 @@ function _i18n_variable_exit(){
       cache_set('variables:'.$lang, serialize($i18n_conf));
     }
   }
-}
- 
-/**
- * @name Themeable functions
- * @{
- */
-  
-/**
- * Produces a language link with the right flag
- */
-function theme_i18n_link($text, $target, $lang, $separator='&nbsp;'){
-  $output = '<span class="i18n-link">';
-  $attributes = ($lang == i18n_get_lang()) ? array('class' => 'active') : NULL;
-  $output .= l(theme('i18n_language_icon', $lang), $target, $attributes, NULL, NULL, FALSE, TRUE);
-  $output .= $separator;
-  $output .= l($text, $target, $attributes, NULL, NULL, FALSE, TRUE);
-  $output .= '</span>';
-  return $output;
-}
- 
-function theme_i18n_language_icon($lang){
-  if ($path = variable_get('i18n_icon_path', drupal_get_path('module', 'i18n').'/flags/*.png')) {
-    $languages = i18n_supported_languages();
-    $src = base_path().str_replace('*', $lang, $path);
-    list($width, $height) = explode('x', variable_get('i18n_icon_size', '16x12'));
-    $attribs = array('class' => 'i18n-icon', 'width' => $width, 'height' => $height, 'alt' => $languages[$lang]);
-    return "<img src=\"$src\" ".drupal_attributes($attribs)." />";
-  }  
-}
-
-/* @} */
+} 
 ?>

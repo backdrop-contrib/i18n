@@ -603,7 +603,7 @@ function translation_url($url, $lang) {
  *  Returns an url-part, pointing to the translated node, if exists 
  */
 function translation_node_nid($nid, $lang) {
-  $sql = 'SELECT n.nid FROM {i18n_node} n INNER JOIN {i18n_node} a ON n.nid = a.nid INNER JOIN {i18n_node} b ON a.trid = b.trid AND b.nid =%d WHERE n.nid != %d AND n.language = \'%s\'';
+  $sql = 'SELECT n.nid FROM {i18n_node} n INNER JOIN {i18n_node} a ON n.nid = a.nid INNER JOIN {i18n_node} b ON a.trid = b.trid AND b.nid =%d WHERE n.nid != %d AND n.language = \'%s\' AND a.trid != 0';
   return db_result(db_query($sql, $nid, $nid, $lang));
 }
 /**
