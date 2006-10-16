@@ -44,6 +44,7 @@ function i18n_db_rewrite_sql($query, $primary_table, $primary_key){
   
   switch ($primary_table) {
     case 'n':
+    case 'node':
       // Node queries
       return i18n_db_node_rewrite($query, $primary_table, $primary_key, $mode);
     case 't':

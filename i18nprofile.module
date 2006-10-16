@@ -64,6 +64,8 @@ function i18nprofile_form_alter($form_id, &$form) {
   if($form_id == 'user_edit' && $category = $form['_category']['#value']) {
     //drupal_set_message("DEBUG:i18nprofile_form_alter, form_id=$form_id, category=$category");
     i18nprofile_form_translate($form_id, $form, $category);
+  } elseif($form_id == 'user_register') {
+    i18nprofile_form_translate_all($form_id, $form);
   }
 }
 
@@ -103,7 +105,7 @@ function i18nprofile_view_profile($user) {
   return $fields;
 }
 /**
- * Translate field forms for a given category
+ * Translate form fields for a given category
  */
 function i18nprofile_form_translate($form_id, &$form, $category){
   // Translate category fieldset
@@ -124,7 +126,19 @@ function i18nprofile_form_translate($form_id, &$form, $category){
     }
   }
 }
-
+/**
+ * Translate form fields for all categories
+ * 
+ * This is useful when we don't know which categories we have, like in the user register form
+ */
+function i18nprofile_form_translate_all($form_id, &$form) {
+  $categories = profile_categories();
+  foreach($categories as $category) {
+    if(isset($form[$category['name']])) {
+      i18nprofile_form_translate($form_id, $form, $category['name']);
+    }
+  }
+}
 /**
  * Menu callback: profile translations
  */
@@ -372,6 +386,7 @@ function i18nprofile_fields($category){
   $language = i18n_get_lang();
   if(!isset($_fields[$category])) {
     $_fields[$category] = array();
+    // Some special categories
     $result = db_query("SELECT p.name, t.* FROM {profile_fields} p INNER JOIN {i18n_profile_fields} t ON p.fid = t.fid WHERE LOWER(p.category) = LOWER('%s') AND t.language='%s'", $category, $language);
     while($field = db_fetch_object($result)) {
       $_fields[$category][$field->name] = $field;
