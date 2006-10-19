@@ -1,0 +1,310 @@
+# Hebrew translation of דרופל ישראל
+# Copyright (c) 2006 לבבי <amnon@levavie.com>
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2006-09-25 07:46-0400\n"
+"PO-Revision-Date: 2006-09-25 07:46-0400\n"
+"Last-Translator: לבבי <amnon@levavie.com>\n"
+"Language-Team: Hebrew <amnon@levavie.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: i18n.module:54
+msgid "\n        <p>This module provides support for internationalization of Drupal sites in various ways:</p>\n        <ul><li>Translation of the user interface for registered and anonymous users</li>\n        <li>Multi-language for content, combined with url aliasing. For this feature to be used, you must enable it in the module configuration and then use url aliasing to keep pages in various languages. I.e. 'en/mypage', 'es/mypage' should be English and Spanish versions of the same page</li>\n        <li>Detection of the brower language</li>\n        <li>Keeps the language settings accross consecutive requests, using a number of methods: URL rewriting, sessions, cookies</li>\n        <li>Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i></li></ul>\n        <p>For url rewriting you need to have the file <b>i18n.inc</b> in the <i>includes</i> folder and add the following line to your configuration file:</p>\n        <pre>\n        include 'includes/i18n.inc';\n        </pre>\n        <p>You can try different settings to have only content translation, interface translation or both.</p>\n        <p><small>Module developed by <a href=\"http://freelance.reyero.net\">freelance.reyero.net</a></small></p>"
+msgstr ""
+
+#: i18n.module:69
+msgid "Supports site internationalization (i18n)."
+msgstr "תומך באתרים רב לשוניים (i18n)."
+
+#: i18n.module:87
+msgid "edit %language"
+msgstr "ערוך %language"
+
+#: i18n.module:97
+msgid "Interface translation"
+msgstr "תרגום ממשק"
+
+#: i18n.module:97;98;106;111
+msgid "Disabled"
+msgstr "מבוטל"
+
+#: i18n.module:97;98;111
+msgid "Enabled"
+msgstr "מאופשר"
+
+#: i18n.module:97
+msgid "If disabled, uses Drupal's default. If enabled, translates the interface to selected language"
+msgstr ""
+
+#: i18n.module:98
+msgid "Content translation"
+msgstr "תרגום תוכן"
+
+#: i18n.module:98
+msgid "If enabled, prepends language code to url and searches for translated content"
+msgstr ""
+
+#: i18n.module:99
+msgid "Synchronize content"
+msgstr "שילוב תוכן"
+
+#: i18n.module:100
+msgid "Nodes"
+msgstr ""
+
+#: i18n.module:101
+msgid "Taxonomy"
+msgstr ""
+
+#: i18n.module:102
+msgid "Synchronize tables for different languages. When some element is created/removed, it will be created/removed for all languages with the same id"
+msgstr ""
+
+#: i18n.module:104
+msgid "Front page"
+msgstr "עמוד ראשי"
+
+#: i18n.module:104
+msgid "Default"
+msgstr "ברירת מחדל"
+
+#: i18n.module:104
+msgid "Language dependant"
+msgstr "תלוי שפה"
+
+#: i18n.module:104
+msgid "If language dependant and <i>Content translation</i> is enabled, default front page will be prepended with language code, i.e. 'en/node'"
+msgstr ""
+
+#: i18n.module:105
+msgid "Keep Language"
+msgstr "שמור שפה"
+
+#: i18n.module:107
+msgid "URL rewriting"
+msgstr ""
+
+#: i18n.module:108
+msgid "Session"
+msgstr ""
+
+#: i18n.module:109
+msgid "Cookie"
+msgstr "עוגייה"
+
+#: i18n.module:110
+msgid "A language code independent of user's language will be kept accross requests using the selected method"
+msgstr ""
+
+#: i18n.module:111
+msgid "Detect browser language"
+msgstr "זיהוי שפת הדפדפן"
+
+#: i18n.module:112
+msgid "Flags directory"
+msgstr "ספריית דגלים"
+
+#: i18n.module:112
+msgid "Path for flags. Asterisk '*' is a placeholder for language code. This is only needed when you want a language selector block"
+msgstr ""
+
+#: i18n.module:119;122
+msgid "Languages"
+msgstr "שפות"
+
+#: i18n.module:0
+msgid "i18n"
+msgstr "אתר רב לשוני"
+
+#: i18n.inc:140 i18n.module:140
+msgid "Disabled"
+msgstr "מבוטל"
+
+#: i18n.inc:140 i18n.module:140
+msgid "Enabled"
+msgstr "מאופשר"
+
+#: i18n.inc:149;208 translation.module:240;667
+msgid "Language"
+msgstr "שפה"
+
+#: i18n.inc:251 translation.module:122
+msgid "Languages"
+msgstr "שפות"
+
+#: translation.module:222;281;436;520 contrib/i18nblocks.module:109
+msgid "Save"
+msgstr "שמור"
+
+#: i18n.inc:123
+msgid "This language will be set for all terms in this vocabulary"
+msgstr "זו השפה שתוגדר עבור כל הנושאים במילון זה"
+
+#: i18n.inc:138
+msgid "Multilingual support"
+msgstr "תמיכה רב לשונית"
+
+#: i18n.inc:141
+msgid "Enables language field and multilingual support for this content type."
+msgstr "איפשור שדה השפה והתמיכה הרב לשונית עבור סוג תוכן זה."
+
+#: i18n.inc:152
+msgid "If you change the Language, you must click on <i>Preview</i> to get the right Categories &amp; Terms for that language."
+msgstr "לאחר שינוי השפה, יש ללחוץ על <i>תצוגה מקדימה</i> כדי להציג את הסיווגים והנושאים המתאימים עבור השפה."
+
+#: i18n.inc:235
+msgid "Reset language for all terms."
+msgstr "איתחול השפה עבור כל הנושאים."
+
+#: i18n.inc:248
+msgid "Language switcher"
+msgstr "החלפת שפה"
+
+#: contrib/i18nmenu.module:43
+msgid "\n        <p>This module provides support for translatable custom menu items:</p>\n        <ul>\n        <li>Create menus as usual, with names in English. If the menu is already created, no changes are needeed</li>\n        <li>Show the menu in some block</li>\n        <li>Switch language to some non english one -while viewing the block-, so the <i>locales</i> table is populated with the new strings</li>\n        <li>Use the localization system to translate menu item strings</li>\n        </ul>"
+msgstr ""
+
+#: contrib/i18nmenu.module:52
+msgid "Supports translatable custom menu items. <b>Requires i18n and locale module</b>"
+msgstr "תומך בתפריטים הניתנים לתרגום. <b>דורש את הרכיבים i18n ו-locale</b>."
+
+#: contrib/i18nmenu.module:0
+msgid "i18nmenu"
+msgstr "תפריטים בריבוי שפות"
+
+#: translation.module:19
+msgid "\r\n        <p>This module is part of i18n package and provides support for translation relationships.</p>\r\n        <p>The objects you can define translation relationships for are:</p>\r\n        <ul>\r\n        <li>Nodes</li>\r\n        <li>Taxonomy Terms</li>\r\n        </ul>\r\n        <p><small>Module developed by Jose A. Reyero, <a href=\"http://www.reyero.net\">www.reyero.net</a></small></p>"
+msgstr ""
+
+#: translation.module:29
+msgid "Manages translations between nodes and taxonomy terms. <b>Requires i18n module</b>"
+msgstr "ניהול תרגומים של פריטי תוכן ונושאים במילונים. <b>דורש את רכיב i18n</b>."
+
+#: translation.module:32
+msgid "<h2>Translations</h2>"
+msgstr "<h2>תרגומים</h2>"
+
+#: translation.module:33
+msgid "<strong>translate nodes</strong> <p>This one, combined with create content permissions, will allow to create node translation</p>"
+msgstr ""
+
+#: translation.module:60;69;0
+msgid "translation"
+msgstr "תרגום"
+
+#: translation.module:97
+msgid "Language Management"
+msgstr "ניהול שפות"
+
+#: translation.module:99
+msgid "Interface language depends on content."
+msgstr "שפת הממשק תלויה בתוכן"
+
+#: translation.module:99
+msgid "Interface language is independent"
+msgstr "שפת הממשק אינה תלויה בתוכך"
+
+#: translation.module:100;107
+msgid "How interface language and content language are managed."
+msgstr "איך לנהל את שפת הממשק ושפת התוכן"
+
+#: translation.module:104
+msgid "Links to node translations"
+msgstr "קישורים לתרגומים של פריטי תוכן"
+
+#: translation.module:106
+msgid "None."
+msgstr "ללא"
+
+#: translation.module:106
+msgid "Main page only"
+msgstr "בעמוד הפירוט בלבד"
+
+#: translation.module:106
+msgid "Teaser and Main page"
+msgstr "בתקציר ובעמוד הפירוט"
+
+#: translation.module:119
+msgid "Translations"
+msgstr "תרגומים"
+
+#: translation.module:164
+msgid "Language and translations"
+msgstr "שפה ותרגומים"
+
+#: translation.module:226;255
+msgid "Remove"
+msgstr "הסר"
+
+#: translation.module:239
+msgid "<h2>Current translations</h2>"
+msgstr "<h2>תרגומים נוכחיים</h2>"
+
+#: translation.module:240;667
+msgid "Title"
+msgstr "כותרת"
+
+#: translation.module:240
+msgid "Options"
+msgstr "אפשרויות"
+
+#: translation.module:247
+msgid "Not translated"
+msgstr "לא תורגם"
+
+#: translation.module:248
+msgid "create translation"
+msgstr "צור תרגום"
+
+#: translation.module:250
+msgid "select node"
+msgstr "בחר פריט תוכן"
+
+#: translation.module:255
+msgid "Remove node from this translation set"
+msgstr "הסר את פריט התוכן מקבוצת תרגום זו"
+
+#: translation.module:277
+msgid "Select translation for %language"
+msgstr "בחר תרגום ל%language"
+
+#: translation.module:284
+msgid "<p>No nodes available in %language</p>"
+msgstr "<p>אין פריטי תוכן זמינים ב%language</p>"
+
+#: translation.module:303
+msgid "The translation has been saved"
+msgstr "התרגום נשמר"
+
+#: translation.module:342
+msgid "Removed translation information from term"
+msgstr "הוסר המידע על התרגום מנושא זה"
+
+#: translation.module:438
+msgid "Edit term translations"
+msgstr "ערוך את התרגומים של הנושא"
+
+#: translation.module:441;442
+msgid "Submit"
+msgstr "הגש"
+
+#: translation.module:464
+msgid "Operations"
+msgstr "פעולות"
+
+#: translation.module:486
+msgid "edit"
+msgstr "ערוך"
+
+#: translation.module:490
+msgid "new translation"
+msgstr "תרגום חדש"
+
+#: translation.module:541
+msgid "Term translations have been updated"
+msgstr "תרגום הנושא עודכן"
+
