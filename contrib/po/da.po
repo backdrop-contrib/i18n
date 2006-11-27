@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Danish translation of Drupal (i18nblocks.module and i18nmenu.module) $Id$\n"
 "POT-Creation-Date: 2006-10-04 12:02+0200\n"
-"PO-Revision-Date: 2006-10-17 15:18+0100\n"
-"Last-Translator: Thierry Guegan <thierry_guegan_dhaliwal@yahoo.ca>\n"
+"PO-Revision-Date: 2006-10-04 20:51+0100\n"
+"Last-Translator: Morten Wulff <wulff@ratatosk.net>\n"
 "Language-Team: Danish <dansk@dansk-gruppen.dk>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -20,23 +20,27 @@ msgid ""
 "        <p>These are not real blocks, but metablocks that group together a number of normal blocks and display the right one depending on language</p>\n"
 "        <p>In the block administration pages you will find a new tab for creating \"Multilingual blocks\". Set them up as usual (region, visibility, etc...) and then click on configuration, to define which one of the other blocks will be shown for each language.</p>\n"
 "        "
-msgstr "        "
+msgstr ""
+"<h2>Dette module understøtter flersprogede blokke</h2>\n"
+"        <p>Disse er ikke rigtige blokke men meta-blokke, der samler et antal normale blokke og viser den korrekte afhængigt af det aktive sprog</p>\n"
+"        <p>Under blokadministrationen finder du et nyt faneblad til oprettelse af \"Flersprogede blokke\". Konfigurer dem som sædvanligt (region, synlighed, osv.) og klik derefter på indstillinger' for at bestemme hvilke andre blokke, der skal vises for hvert sprog.</p>\n"
+"        "
 
 #: i18nblocks.module:21
 msgid "<p>These are not real blocks, but metablocks that group together a number of normal blocks and display the right one depending on language</p>"
-msgstr ""
+msgstr "<p>Disse er ikke rigtige blokke men meta-blokke, der samler et antal normale blokke og viser den korrekte afhængigt af det aktive sprog</p>"
 
 #: i18nblocks.module:23
 msgid "Manages multilingual meta-blocks. <b>Requires i18n and locale module</b>"
-msgstr "Gestion de meta-blocs multilingue. <strong>Nécessite les modules i18n et locale</strong>"
+msgstr "Håndterer flersproglige metablokke. <strong>Kræver modulerne i18n og locale</strong>"
 
 #: i18nblocks.module:33
 msgid "add multilingual block"
-msgstr "ajouter bloc multilingue"
+msgstr "tilføj flersproglig blok"
 
 #: i18nblocks.module:49;85
 msgid "Multilingual block %number"
-msgstr "Bloc multilingue %number"
+msgstr "Flersproglig blok %number"
 
 #: i18nblocks.module:75
 msgid " -- "
@@ -44,23 +48,23 @@ msgstr " -- "
 
 #: i18nblocks.module:84
 msgid "Block description"
-msgstr "Description du bloc"
+msgstr "Blokbeskrivelse"
 
 #: i18nblocks.module:89
 msgid "Select the block to be displayed for each language"
-msgstr "Sélectionner le bloc à afficher dans chaque langue"
+msgstr "Vælg hvilken blok der skal vises for hvert sprog"
 
 #: i18nblocks.module:105
 msgid "Multilingual block "
-msgstr "Bloc multilingue"
+msgstr "Flersproglig blok"
 
 #: i18nblocks.module:109
 msgid "Save"
-msgstr "Enregistrer"
+msgstr "Gem"
 
 #: i18nblocks.module:119
 msgid "The new multilingual block has been created."
-msgstr "Le nouveau bloc multilingue a été crée."
+msgstr "Flersproglig blok oprettet."
 
 #: i18nblocks.module:0
 msgid "i18nblocks"
@@ -78,17 +82,17 @@ msgid ""
 "        </ul>"
 msgstr ""
 "\n"
-"        <p>Ce module permet la traduction d'élements de menu personnalisés:</p>\n"
+"        <p>Dette modul giver mulighed for at oversætte menupunkter:</p>\n"
 "        <ul>\n"
-"        <li>Créer les menus comme habituellement en Anglais. Si le menu est déjà crée, aucuns changement ne sont nécessaires</li>\n"
-"        <li>Afficher le menu dans le même bloc</li>\n"
-"        <li>Changer la langue pour une langue différente de l'anglais - tout en visualisant le bloc-, afin que la table <i>locale</i> soit complétée avec les nouvelles chaines de caractères</li>\n"
-"        <li>Utiliser le système de localisation pour traduire les chaines de caractères correspondantes aux élements de menus</li>\n"
+"        <li>Opret menuer som sædvanligt, med navne på Dansk. Hvis menuen allerede findes skal der ikke ændres noget</li>\n"
+"        <li>Vis menuen i en blok</li>\n"
+"        <li>Skift til et andet sprog end dansk mens blokken vises, så de nye strenge tilføjes til <em>locales</em>-tabellen</li>\n"
+"        <li>Brug lokaliseringssystemet til at oversætte menupunkterne</li>\n"
 "        </ul>"
 
 #: i18nmenu.module:52
 msgid "Supports translatable custom menu items. <b>Requires i18n and locale module</b>"
-msgstr "Permet la traduction d'éléments de menus personnalisés. <strong>Nécessite les modules i18n et locale</strong>"
+msgstr "Understøtter oversættelse af menupunkter. <strong>Kræver modulerne i18n og locale</strong>"
 
 #: i18nmenu.module:0
 msgid "i18nmenu"

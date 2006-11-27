@@ -94,6 +94,7 @@ function i18nprofile_view_profile($user) {
       $item = array('title' => $title,
         'value' => $value,
         'class' => $field->name,
+        'weight' => $field->weight,
       );
       if($category = $translation[check_plain($field->category)]) {
         $fields[$category][] = $item;
@@ -189,17 +190,25 @@ function i18nprofile_category_form_submit($form_id, $form_values) {
   }
   
   variable_set('i18nprofile_'.$lang, $translation);
-  return 'admin/settings/profile/translation';
+  //return 'admin/settings/profile/translation';
 }
 
 /**
  * Overview profile translations
  */
-function i18nprofile_translation_overview(){
+function i18nprofile_translation_overview($lang_curr='en') {
   $path = 'admin/settings/profile/translation';
   // Get languages and remove english from the list
   $languages = i18n_supported_languages();
-  unset($languages['en']);
+  if($lang_curr=='en') {
+    unset($languages['en']);
+  } else {
+     foreach($languages as $key => $name) {
+       if($key<>$lang_curr) unset($languages[$key]);
+     }
+  }
+  
+  $destination = drupal_get_destination();
   
   // Categories
   $output .= '<h2>'.t('Categories')."</h2>\n";
@@ -213,9 +222,9 @@ function i18nprofile_translation_overview(){
     $cat = $category['name'];
     foreach($languages as $key => $name) {
       if(isset($translations[$key][$cat])) {
-        $row[] = l($translations[$key][$cat], "$path/category/$key");
+        $row[] = l($translations[$key][$cat], "$path/category/$key", array(), $destination);
       } else {
-        $row[] = '-- '.l(t('add'), "$path/category/$key");
+        $row[] = '-- '.l(t('add'), "$path/category/$key", array(), $destination);
       }
     }
     $rows[] = $row;
@@ -238,9 +247,9 @@ function i18nprofile_translation_overview(){
     $row = array($field->name, $field->category, check_plain($field->title));
     foreach($languages as $key => $name) {
       if(isset($translations[$field->fid][$key])) {
-        $row[] = l($translations[$field->fid][$key], "$path/field/$field->fid/$key");
+        $row[] = l($translations[$field->fid][$key], "$path/field/$field->fid/$key", array(), $destination);
       } else {
-        $row[] = '-- '. l(t('add'), "$path/field/$field->fid/$key");
+        $row[] = '-- '. l(t('add'), "$path/field/$field->fid/$key", array(), $destination);
       } 
     } 
     $rows[]= $row;
@@ -348,11 +357,11 @@ function i18nprofile_field_form_submit($form_id, $form_values){
   else {
     db_query("UPDATE {i18n_profile_fields} SET title = '%s', explanation = '%s', options = '%s', page = '%s' WHERE fid = %d AND language = '%s'", $values['title'], $values['explanation'], $values['options'], $values['page'], $values['fid'], $values['language']);
 
-    drupal_set_message(t('The field translation has been updated.'));
+    drupal_set_message(t('The profile field translation has been updated.'));
   }
   cache_clear_all();
 
-  return 'admin/settings/profile/translation';  
+  // return 'admin/settings/profile/translation';  
 }
 
 /**

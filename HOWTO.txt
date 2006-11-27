@@ -1,48 +1,7 @@
 HOWTO.txt
 ==========
-This is a compilation of questions and answers about how to get specific features working with Drupal and i18n and also some general questions about the module.
- 
-+ How to patch the Drupal core with i18n patches
-------------------------------------------------
-   For a UNIX based server environment:
-   - from the command line change into the "includes" directory
-   - type patch -p0 -u < ../modules/i18n/patches/i18n_includes.patch
-   - change directory to the modules directory
-   - type patch -p0 -u < ./i18n/patches/i18n_taxonomy_module.patch
-See http://drupal.org/diffandpatch for more info
 
-+ How to get a different front page for each language
------------------------------------------------------
-  1. In administer > settings > i18n, set "Front page" to "Language dependent"
-  2. In administer > settings, check the value of "Default front page". We'll assume "node" as it is the default
-  3. Using the path module, create as many url aliases as different languages you have, pointing to the right front pages. I.e.
-    en/node --> node/1 (english front page)
-    es/node --> node/2 (spanish front page)
-    ja/node --> node/3 ....
-  4. Done, go to the site front page and switch languages
-
-+ How can I get traslated terms working?
-----------------------------------------
-  To use the term translation feature:
-  - Create a vocabulary WITHOUT language
-  - Add to that vocabulary terms with different languages
-  - Go to the translation tab in categories administration and define translations between the terms of one vocabulary
-  Example:
-  - Create the vocabulary 'Colors' without language
-  - Create the following terms with their language:
-    - Red [English]
-    - Rojo [Spanish]
-  - Go to the 'translations' tab and click on 'new translation' for the 'Colors' vocabulary
-    - Select 'Red' for English
-    - Select 'Rojo' for Spanish
-    - Submit translation
-    
-+ Is there any documentation online?
-------------------------------------
-  Kind of, I try to put together some writings about this module, but it is more about the design and implementation than a user manual.
-  Check http://www.reyero.net/en/drupal/i18n
-
-Feel free to commit your changes to this document. Contributions are welcome.
+See online documentation at http://drupal.org/node/67817
 
 ====================================================================
-Jose A. Reyero, drupal at reyero dot net, http://www.reyero.net
+Jose A. Reyero, http://www.reyero.net

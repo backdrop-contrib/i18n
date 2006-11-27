@@ -27,5 +27,11 @@ function i18nprofile_install() {
       break;
   }
 }
- 
+
+/**
+ * Update table to utf-8
+ */
+function i18nprofile_update_1() {
+  return _system_update_utf8(array('i18n_profile_fields'));
+}
 ?>

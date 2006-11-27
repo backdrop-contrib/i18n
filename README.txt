@@ -6,7 +6,7 @@ This is i18n package, development version , and works with Drupal 4.7
 ********************************************************************
 WARNING: DO READ THE INSTALL FILE
 ********************************************************************
-Updated documentation will be kept on-line at http://drupal.org/node/31631
+Updated documentation will be kept on-line at http://drupal.org/node/67817
 ********************************************************************
 
 This is not a single module anymore but a collection of modules providing complementary features

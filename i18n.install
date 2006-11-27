@@ -41,6 +41,12 @@ function i18n_install() {
         status smallint NOT NULL default '0',
         PRIMARY KEY  (nid)
       )");
+      db_query("CREATE TABLE {i18n_variable} (
+        name varchar(48) NOT NULL default '',
+        language varchar(12) NOT NULL default '',
+        value text NOT NULL,
+        PRIMARY KEY (name, language)
+      )");
       db_query("ALTER TABLE {term_data} ADD language varchar(12)");
       db_query("UPDATE {term_data} SET language=''");
       db_query("ALTER TABLE {term_data} ALTER COLUMN language SET NOT NULL");
@@ -69,7 +75,7 @@ function i18n_update_1() {
   $items = array();
   $items[] = update_sql("ALTER TABLE {i18n_node} ADD language VARCHAR(12)");
   $items[] = update_sql("UPDATE {i18n_node} i INNER JOIN {node} n ON i.nid = n.nid SET i.language = n.language ");
-  $items[] = update_sql("INSERT INTO {i18n_node}(nid,language) SELECT n.nid, n.language FROM {node} n WHERE n.language != '' AND n.nid NOT IN (SELECT nid FROM {i18n_node})");
+  $items[] = update_sql("INSERT INTO {i18n_node}(nid,language) SELECT n.nid, n.language FROM {node} n LEFT JOIN {i18n_node} i ON n.nid = i.nid WHERE n.language != '' AND i.nid IS NULL");
   return $items;
 }
 
@@ -81,7 +87,7 @@ function i18n_update_2() {
 }
 
 function i18n_update_3(){
-  $items[] = array();
+  $items = array();
   $items[] = update_sql("ALTER TABLE {i18n_node} MODIFY COLUMN trid INTEGER UNSIGNED NOT NULL default '0', DROP PRIMARY KEY, ADD PRIMARY KEY(nid)");
   $items[] = update_sql("ALTER TABLE {term_data} MODIFY COLUMN trid INTEGER UNSIGNED NOT NULL default '0', DROP PRIMARY KEY, ADD PRIMARY KEY(tid)");
   return $items;
