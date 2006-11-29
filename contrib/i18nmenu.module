@@ -26,7 +26,7 @@ function i18nmenu_translate_all(){
   global $user;
   global $locale;
   $cid = "menu:$user->uid:$locale";
-  cache_clear_all($cid);
+  cache_clear_all($cid, 'cache_menu');
   // Translate all user defined meny items
   foreach($_menu['items'] as $mid => $item) {
     if($item['type'] & MENU_CREATED_BY_ADMIN) {
@@ -34,7 +34,7 @@ function i18nmenu_translate_all(){
     }
   }
   // Update cache
-  cache_set($cid, serialize($_menu), time() + (60 * 60 * 24));
+  cache_set($cid, 'cache_menu', serialize($_menu), time() + (60 * 60 * 24));
 }
 
 function i18nmenu_help($section = 'admin/help#i18nmenu' ) {
@@ -48,10 +48,7 @@ function i18nmenu_help($section = 'admin/help#i18nmenu' ) {
         <li>Switch language to some non english one -while viewing the block-, so the <i>locales</i> table is populated with the new strings</li>
         <li>Use the localization system to translate menu item strings</li>
         </ul>' );
-  case 'admin/modules#description' :
-    return t('Supports translatable custom menu items. <b>Requires i18n and locale module</b>' );
   }
   return $output;
 }
 
-?>

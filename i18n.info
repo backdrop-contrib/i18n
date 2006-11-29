@@ -1,0 +1,5 @@
+name = Internationalization
+description = Enables multilingual content.
+dependencies = locale
+package = Multilanguage - i18n
+version = 5.0 dev

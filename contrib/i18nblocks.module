@@ -17,10 +17,8 @@ function i18nblocks_help($section = 'admin/help#i18nblocks' ) {
         <p>These are not real blocks, but metablocks that group together a number of normal blocks and display the right one depending on language</p>
         <p>In the block administration pages you will find a new tab for creating "Multilingual blocks". Set them up as usual (region, visibility, etc...) and then click on configuration, to define which one of the other blocks will be shown for each language.</p>
         ' );
-    case 'admin/block/i18n':
+    case 'admin/build/block/i18n':
       return t('<p>These are not real blocks, but metablocks that group together a number of normal blocks and display the right one depending on language</p>');
-    case 'admin/modules#description' :
-      return t('Manages multilingual meta-blocks. <b>Requires i18n and locale module</b>' );
   }
 }
 
@@ -30,7 +28,7 @@ function i18nblocks_help($section = 'admin/help#i18nblocks' ) {
 function i18nblocks_menu($may_cache) {
   $items = array();
   if($may_cache){
-    $items[] = array('path' => 'admin/block/i18n', 'title' => t('add multilingual block'),
+    $items[] = array('path' => 'admin/build/block/i18n', 'title' => t('add multilingual block'),
       'access' => user_access('administer blocks'),
       'callback' => 'i18nblocks_add',
       'type' => MENU_LOCAL_TASK);    
@@ -82,7 +80,7 @@ function i18nblocks_form($i18nblock){
     }
   }
   $form['name'] = array('#type' => 'textfield', '#title' => t('Block description'),
-    '#default_value' => isset($i18nblock['name']) ? $i18nblock['name'] : t('Multilingual block %number', array('%number' => $i)),
+    '#default_value' => !is_array($i18nblock['name']) ? $i18nblock['name'] : t('Multilingual block !number', array('!number' => variable_get('i18nblocks_number', 0) +1)),
     '#size' => 40,
     '#maxlength' => 40
   );
@@ -95,6 +93,10 @@ function i18nblocks_form($i18nblock){
 	    '#options' => $blocklist
 		);
   }
+  $form['submit'] = array(
+  	'#type' => 'submit',
+  	'#value' => t('Save'),
+  );
   return $form;
 }
 /**
@@ -104,10 +106,6 @@ function i18nblocks_add(){
   $delta = variable_get('i18nblocks_number', 0) +1;
   $block['name'] = t('Multilingual block ').$delta;
   $form = i18nblocks_form($block);
-  $form['submit'] = array(
-  	'#type' => 'submit',
-  	'#value' => t('Save'),
-  );
   $output = drupal_get_form('i18nblocks_form', $form);
   print theme('page', $output);
 }
@@ -117,7 +115,7 @@ function i18nblocks_form_submit($form_id, $form_values){
   variable_set('i18nblocks_number', $delta);
   i18nblocks_save($form_values, $delta);
   drupal_set_message(t('The new multilingual block has been created.'));
-  drupal_goto('admin/block');
+  drupal_goto('admin/build/block');
 }
 /**
  * Db layer: for now it stores each block as a variable
@@ -135,4 +133,3 @@ function i18nblocks_save($edit, $delta){
   }
   variable_set('i18nblocks_'.$delta, $block);
 }
-?>

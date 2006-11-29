@@ -32,9 +32,6 @@ function translation_help($section = 'admin/help#translation' ) {
         </ul>
         <p><small>Module developed by Jose A. Reyero, <a href="http://www.reyero.net">www.reyero.net</a></small></p>' );
       break;
-    case 'admin/modules#description' :
-      $output = t('Manages translations between nodes and taxonomy terms. <b>Requires i18n module</b>' );
-      break;
     case 'admin/access#translation':
       $output = t('<h2>Translations</h2>');
       $output = t('<strong>translate nodes</strong> <p>This one, combined with create content permissions, will allow to create node translation</p>');
@@ -49,12 +46,15 @@ function translation_menu($may_cache) {
   $items = array();
 
   if ($may_cache) {
-      $items[] = array(
-        'path' => 'admin/node/translation',
-        'title' => t('translation'),
-        'callback' => 'translation_node_admin',
-        'access' => user_access('translate nodes'),
-        'type' => MENU_LOCAL_TASK);
+    $items[] = array(
+      'path' => 'admin/content/translation',
+      'title' => t('Translations'),
+      'description' => t("Manage content translations."),
+      'callback' => 'translation_node_admin',
+      'position' => 'left',
+      'access' => user_access('translate nodes'));
+    $items[] = array('path' => 'admin/content/translation/overview', 'title' => t('List'),
+      'type' => MENU_DEFAULT_LOCAL_TASK, 'weight' => -10);
   }
   else {
     if (arg(0) == 'node' && is_numeric(arg(1)) && variable_get('i18n_node_'.translation_get_node_type(arg(1)), 0)) {
@@ -62,16 +62,16 @@ function translation_menu($may_cache) {
       $type = MENU_LOCAL_TASK;      
       $items[] = array(
         'path' => 'node/'. arg(1) .'/translation', 
-        'title' => t('translation'),
+        'title' => t('Translation'),
         'callback' => 'translation_node_page',
         'access' => $access,
         'type' => $type,
         'weight' => 3);
     }
-    if(arg(0) == 'admin' && arg(1) == 'taxonomy' && is_numeric(arg(2)) ) {
+    if(arg(0) == 'admin' && arg(1) == 'content' && arg(2) == 'taxonomy' && is_numeric(arg(3)) ) {
       $items[] = array(
-        'path' => 'admin/taxonomy/'.arg(2).'/translation', 
-        'title' => t('translation'),
+        'path' => 'admin/content/taxonomy/'.arg(3).'/translation', 
+        'title' => t('Translation'),
         'callback' => 'translation_taxonomy_admin',
         'access' => user_access('administer taxonomy'),
         'type' => MENU_LOCAL_TASK);
@@ -97,6 +97,13 @@ function translation_perm(){
  * Implementation of hook_settings
  */
 function translation_settings(){
+  return drupal_get_form('translation_settings_form');
+}
+
+/**
+ * Form builder function
+ */
+function translation_settings_form() {
   $form['i18n_translation_links'] = array(
     '#type' => 'radios',
     '#title' => t('Language Management'),
@@ -317,23 +324,41 @@ function translation_node_page() {
 }
 
 /**
+ * Form builder function
+ */
+function translation_node_form($node, $lang, $list){
+  $form['node'] = array('#type' => 'value', '#value' =>$node);
+  $form['language'] = array('#type' => 'hidden', '#value' => $lang);
+  $form['source_nid'] = array('#type' => 'hidden', '#value' => $node->nid);
+  $form['trid'] = array('#type' => 'hidden', '#value' => $node->trid);
+  $languages = i18n_supported_languages();
+
+  $form['nodes']['nid'] = array(
+   '#type' => 'radios', '#title' => t('Select translation for %language', array('%language' => $languages[$lang])), 
+       '#default_value' => isset($node->translation[$lang]) ? $node->translation[$lang]->nid : '',
+       '#options' => $list);
+  $form['pager'] = array('#value' => theme('pager'));
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
+  return $form;
+}
+
+/**
  * Menu callback: administration page for node translations
  */
 function translation_node_admin() {
   $output = '';
   $defaults = array('translation_language' => i18n_get_lang(), 'source_status' => TRANSLATION_STATUS_SOURCE);
-	$output .=  translation_node_admin_form($defaults);
+	$output .=  drupal_get_form('translation_node_admin', $defaults);
   return $output;
 } 
 
 /**
- * Administrative form for node translations
+ * Form builder. Administrative form for node translations
  */
 function translation_node_admin_form($defaults = array()) {
-	$output = '';
   // Filters
-  $output .= node_filter_form();
-  $output .= translation_filter_form($defaults);
+  $form['node_filter'] = node_filter_form();
+  $form['translation_filter'] = translation_filter_form($defaults);
   
   // First, translation filter because it may need parameters for join conditions
   $filter = translation_build_filter_query();
@@ -398,8 +423,7 @@ function translation_node_admin_form($defaults = array()) {
   $form['nodes'] = array('#type' => 'checkboxes', '#options' => $nodes);
   */
   $form['pager'] = array('#value' => theme('pager', NULL, 50, 0));
-  $output .= drupal_get_form('translation_admin_nodes', $form);
-  return $output; 
+  return $form; 
 }
 
 
@@ -464,7 +488,7 @@ function translation_filter_form($defaults = array()) {
   if (count($session)) {
     $form['filters']['buttons']['reset'] = array('#type' => 'submit', '#value' => t('Reset'));
   }
-  return drupal_get_form('translation_filter_form', $form);
+  return $form;
 }
 
 function theme_translation_filter_form($form) {
@@ -551,22 +575,20 @@ function translation_node_overview($node) {
 	  }
 	  $output .= theme('table', $header, $rows);
     if($node->trid){
-      $form['submit'] = array('#type' => 'submit', '#value' => t('Remove'), '#suffix' => t('Remove node from this translation set'));
-      $output .= drupal_get_form(NULL, $form);
+      $output .= drupal_get_form('translation_node_overview_form', $form);
     }
   return $output;
+}
+function translation_node_overview_form($node) {
+      $form['submit'] = array('#type' => 'submit', '#value' => t('Remove'), '#suffix' => t('Remove node from this translation set'));
+  return $form;
 }
 
 /**
  * Form to select a translation from existing nodes
  */
-function translation_node_form($node, $lang){
-	$form['node'] = array('#type' => 'value', '#value' =>$node);
-  $form['language'] = array('#type' => 'hidden', '#value' => $lang);
-  $form['source_nid'] = array('#type' => 'hidden', '#value' => $node->nid);
-  $form['trid'] = array('#type' => 'hidden', '#value' => $node->trid);
+function translation_node_select($node, $lang) {
   $languages = i18n_supported_languages();
-
   // Disable i18n rewrite. Order by trid to show first nodes with no translation
   i18n_selection_mode('off');
   $result = pager_query(db_rewrite_sql("SELECT n.nid, n.title FROM {node} n INNER JOIN {i18n_node} i ON n.nid = i.nid WHERE i.language = '%s' ORDER BY i.trid"), 40, 0, NULL, $lang);
@@ -575,13 +597,7 @@ function translation_node_form($node, $lang){
     $list[$trnode->nid] = l($trnode->title, "node/$trnode->nid") ;
   }
   if($list){
-    $form['nodes']['nid'] = array(
-    	'#type' => 'radios', '#title' => t('Select translation for %language', array('%language' => $languages[$lang])), 
-    	'#default_value' => isset($node->translation[$lang]) ? $node->translation[$lang]->nid : '',
-    	'#options' => $list);
-    $form['pager'] = array('#value' => theme('pager'));
-    $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
-    return drupal_get_form('translation_node_form', $form);
+    return drupal_get_form('translation_node_form', $node, $lang, $list);
   } else {
     return t("<p>No nodes available in %language</p>",  array('%language' => $languages[$lang]) );
   }  
@@ -613,18 +629,22 @@ function translation_node_form_submit($form_id, $form_values){
  * $edit parameter is an array, not an object !!
  */
  // $op = insert, update, delete
-function translation_taxonomy($op, $type, $edit = NULL) {
-  switch ("$type/$op") {
-    case 'term/insert':
-    case 'term/update':
+function translation_taxonomy($op, $type = NULL, $edit = NULL) {
+  if (!is_array($op)) {
+    switch ("$type/$op") {
+      case 'term/insert':
+      case 'term/update':
         if (!$edit['language'] && $edit['trid']) {
-	        // Removed language, remove trid
-	        db_query('UPDATE {term_data} SET trid=0 WHERE tid=%d', $edit['tid']);
-	        if(db_affected_rows()) drupal_set_message(t('Removed translation information from term'));
-	      }
+          // Removed language, remove trid
+          db_query('UPDATE {term_data} SET trid=0 WHERE tid=%d', $edit['tid']);
+          if(db_affected_rows()) drupal_set_message(t('Removed translation information from term'));
+        }
         break;
+    }
+  } else {
+    return $op;
   }
-} 
+}
 /**
  * Implementation of hook_link().
  */
@@ -718,15 +738,15 @@ function translation_get_node_type($nid) {
  */
 
 function translation_taxonomy_admin() {
-  $vid = arg(2);
-  $op = $_POST['op'] ? $_POST['op'] : arg(4);
+  $vid = arg(3);
+  $op = $_POST['op'] ? $_POST['op'] : arg(5);
   $edit = $_POST['edit'];
 
   switch ($op) {
     case t('Save'):    
     case 'edit':
       drupal_set_title(t('Edit term translations'));
-      $output = translation_taxonomy_form($vid, arg(5), $edit);
+      $output = translation_taxonomy_form($vid, arg(6), $edit);
       break;
     case t('Submit'):
       drupal_set_title(t('Submit'));
@@ -772,11 +792,11 @@ function translation_taxonomy_overview($vid) {
         $thisrow[] = '--';
        }
     }
-    $thisrow[] = l(t('edit'), "admin/taxonomy/$vid/translation/edit/$trid");
+    $thisrow[] = l(t('edit'), "admin/content/taxonomy/$vid/translation/edit/$trid");
     $rows[] = $thisrow;
   }
   $output .= theme('table', $header, $rows);
-  $output .= l(t('new translation'), "admin/taxonomy/$vid/translation/edit/new");
+  $output .= l(t('new translation'), "admin/content/taxonomy/$vid/translation/edit/new");
   return $output;
 }
 
@@ -994,4 +1014,3 @@ function theme_translation_node_list($list){
   }
   return theme('table', $header, $rows);
 }
-?>

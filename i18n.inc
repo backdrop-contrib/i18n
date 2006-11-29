@@ -108,7 +108,7 @@ function i18n_exit(){
  *       - translation module may reduce language selection options in case there already exist translations
  */
 function i18n_form_alter($form_id, &$form) {
-  //drupal_set_message("i18n_form_alter form_id=$form_id ");
+  // drupal_set_message("i18n_form_alter form_id=$form_id ");
   switch($form_id){
     case 'taxonomy_overview_vocabularies':
       $vocabularies = taxonomy_get_vocabularies();
@@ -133,19 +133,20 @@ function i18n_form_alter($form_id, &$form) {
       
     default:
 	    // Content type settings
-		  if (isset($form['type']) && $form['type']['#value'] .'_node_settings' == $form_id) {
-		    $form['workflow']['i18n_node_'. $form['type']['#value']] = array(
+		  if ($form_id == 'node_type_form') {
+        $node_type = $form['old_type']['#value'];
+		    $form['workflow']['i18n_node'] = array(
 		      '#type' => 'radios',
 		      '#title' => t('Multilingual support'),
-		      '#default_value' => variable_get('i18n_node_'. $form['type']['#value'], 0),
+		      '#default_value' => variable_get('i18n_node_'.$node_type, 0),
 		      '#options' => array(t('Disabled'), t('Enabled')),
 		      '#description' => t('Enables language field and multilingual support for this content type.'),
 		    );
-		  }
+      }
 	    // Node edit form
-		  if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id){
+		  if ($form_id == 'page_node_form') {
 	      // Language field
-	      if(variable_get('i18n_node_'.$form['type']['#value'], 0) && !isset($form['i18n']['language'])) {
+	      if(variable_get('i18n_node_page', 0) && !isset($form['i18n']['language'])) {
           // Language field
           $form['i18n'] = array('#type' => 'fieldset', '#title' => t('Language'), '#collapsible' => TRUE, '#collapsed' => FALSE, '#weight' => -4);
           // Language will default to current only when creating a node
@@ -283,7 +284,7 @@ function _i18n_variable_init(){
     while ($variable = db_fetch_object($result)) {
       $variables[$variable->name] = unserialize($variable->value);
     }
-    cache_set('variables:'.$lang, serialize($variables));
+    cache_set('variables:'.$lang, 'cache', serialize($variables));
   }
 
   return $variables;    
@@ -306,8 +307,7 @@ function _i18n_variable_exit(){
       }
     }
     if($refresh) {
-      cache_set('variables:'.$lang, serialize($i18n_conf));
+      cache_set('variables:'.$lang, 'cache', serialize($i18n_conf));
     }
   }
 } 
-?>
