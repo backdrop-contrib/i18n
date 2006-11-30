@@ -2,7 +2,7 @@ README.txt
 ==========
 
 ********************************************************************
-This is i18n package, development version , and works with Drupal 4.7
+This is i18n package, development version , and works with Drupal 5.x
 ********************************************************************
 WARNING: DO READ THE INSTALL FILE
 ********************************************************************

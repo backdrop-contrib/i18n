@@ -47,10 +47,17 @@ function translation_menu($may_cache) {
 
   if ($may_cache) {
     $items[] = array(
+      'path' => 'admin/settings/i18n/translation',
+      'title' => t('Translation'),
+      'callback' => 'translation_admin_settings',
+      'access' => user_access('administer site configuration'),
+      'type' => MENU_LOCAL_TASK,
+    );
+    $items[] = array(
       'path' => 'admin/content/translation',
       'title' => t('Translations'),
       'description' => t("Manage content translations."),
-      'callback' => 'translation_node_admin',
+      'callback' => 'translation_admin_content',
       'position' => 'left',
       'access' => user_access('translate nodes'));
     $items[] = array('path' => 'admin/content/translation/overview', 'title' => t('List'),
@@ -77,8 +84,13 @@ function translation_menu($may_cache) {
         'type' => MENU_LOCAL_TASK);
       
     }
-    // Change rewrite conditions when translating node
-    if( arg(0) == 'node' && arg(1) == 'add' && isset($_GET['translation'])  && isset($_GET['language']) && ($lang = $_GET['language']) && array_key_exists($lang, i18n_supported_languages()) ) {
+    // Special redirections and rewrite conditions
+    if( arg(0) == 'node' && arg(1) == 'add' && isset($_GET['translation']) && ($source_nid = $_GET['translation'])  && isset($_GET['language']) && ($lang = $_GET['language']) && array_key_exists($lang, i18n_supported_languages()) ) {
+      // Special redirection for product types
+      if (arg(2) == 'product' && !arg(3) && is_numeric($source_nid) && $ptype = db_result(db_query("SELECT ptype FROM {ec_product} WHERE nid = %d", $source_nid))) {
+        drupal_goto(url("node/add/product/$ptype", "translation=$source_nid&language=$lang", NULL, TRUE));
+      }
+      // Change rewrite conditions when translating node
       i18n_selection_mode('translation', db_escape_string($lang));
     }
   }
@@ -96,7 +108,7 @@ function translation_perm(){
 /**
  * Implementation of hook_settings
  */
-function translation_settings(){
+function translation_admin_settings(){
   return drupal_get_form('translation_settings_form');
 }
 
@@ -125,10 +137,11 @@ function translation_settings_form() {
     '#options' => array(t('Disabled'), t('Enabled')),
     '#description' => t("If enabled some worklow will be provided for content translation."),
   );  
-  return $form;  
+  return system_settings_form($form);  
 }
+
 /**
- * Implementation of hook_blok().
+ * Implementation of hook_block().
  * 
  * This is a simple language switcher which knows nothing about translations
  */
@@ -345,7 +358,7 @@ function translation_node_form($node, $lang, $list){
 /**
  * Menu callback: administration page for node translations
  */
-function translation_node_admin() {
+function translation_admin_content() {
   $output = '';
   $defaults = array('translation_language' => i18n_get_lang(), 'source_status' => TRANSLATION_STATUS_SOURCE);
 	$output .=  drupal_get_form('translation_node_admin', $defaults);
@@ -355,7 +368,7 @@ function translation_node_admin() {
 /**
  * Form builder. Administrative form for node translations
  */
-function translation_node_admin_form($defaults = array()) {
+function translation_node_admin($defaults = array()) {
   // Filters
   $form['node_filter'] = node_filter_form();
   $form['translation_filter'] = translation_filter_form($defaults);
@@ -403,7 +416,7 @@ function translation_node_admin_form($defaults = array()) {
     $nodes[$node->nid] = '';
     $form['language'][$node->nid] = array('#value' => $languages[$node->language]);
     $form['title'][$node->nid] = array('#value' => l($node->title, 'node/'. $node->nid) .' '. theme('mark', node_mark($node->nid, $node->changed)));
-    $form['name'][$node->nid] =  array('#value' => node_get_name($node));
+    $form['name'][$node->nid] =  array('#value' => node_get_types('name', $node));
     $form['username'][$node->nid] = array('#value' => theme('username', $node));
     $form['status'][$node->nid] =  array('#value' =>  ($node->status ? t('published') : t('not published')));
     if ($node->translation_nid) {
@@ -555,11 +568,13 @@ function theme_translation_admin_nodes($form) {
 }
 
 function translation_node_overview($node) {
-	  $languages = i18n_supported_languages();
-	  unset($languages[$node->language]);
-	  $output = t('<h2>Current translations</h2>');
-	  $header = array(t('Language'), t('Title'), t('Status'), t('Options'));
-	  foreach($languages as $lang => $langname){
+  $languages = i18n_supported_languages();
+  unset($languages[$node->language]);
+  $output = t('<h2>Current translations</h2>');
+  $header = array(t('Language'), t('Title'), t('Status'), t('Options'));
+  // Special links for product nodes
+  $createlink = $node->type == 'product' ? "node/add/$node->type/$node->ptype" : "node/add/$node->type";
+  foreach($languages as $lang => $langname){
 	    $options = array();
 	    if(isset($node->translation[$lang])){
 	      $trnode = $node->translation[$lang];
@@ -567,12 +582,12 @@ function translation_node_overview($node) {
         $status = $trnode->status ? t('Published') : t('Not published');
 	    } else {
 	      $title = t('Not translated');
-	      $options[] = l(t('create translation'), "node/add/$node->type", array(), "translation=$node->nid&language=$lang");
+	      $options[] = l(t('create translation'), $createlink, array(), "translation=$node->nid&language=$lang");
 	      $status = '--';
       }
 	    $options[] = l(t('select node'), "node/$node->nid/translation/select/$lang");
 	    $rows[] = array($langname, $title, $status, implode(" | ", $options));
-	  }
+	}
 	  $output .= theme('table', $header, $rows);
     if($node->trid){
       $output .= drupal_get_form('translation_node_overview_form', $form);
