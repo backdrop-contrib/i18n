@@ -5,7 +5,6 @@
  * Do not drop node.language now, just in case
  * TO-DO: Drop old tables, fields
  */
-
 function i18n_install() {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
@@ -65,12 +64,12 @@ function i18n_install() {
       // Sequences
       db_query("CREATE SEQUENCE {i18n_node}_trid_seq INCREMENT 1 START 1");
       db_query("CREATE SEQUENCE {term_data}_trid_seq INCREMENT 1 START 1");
-  }
-  // Set schema version so 4.6 updates don't run after this ??
-  db_query("UPDATE {system} SET schema_version = 4 WHERE name='i18n' AND type='module'");
-  
+  } 
 }
- 
+
+/**
+ *  Drupal 4.7 updates 
+ **/ 
 function i18n_update_1() {
   $items = array();
   $items[] = update_sql("ALTER TABLE {i18n_node} ADD language VARCHAR(12)");

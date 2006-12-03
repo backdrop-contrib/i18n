@@ -28,7 +28,7 @@ function i18nblocks_help($section = 'admin/help#i18nblocks' ) {
 function i18nblocks_menu($may_cache) {
   $items = array();
   if($may_cache){
-    $items[] = array('path' => 'admin/build/block/i18n', 'title' => t('add multilingual block'),
+    $items[] = array('path' => 'admin/build/block/i18n', 'title' => t('Add multilingual block'),
       'access' => user_access('administer blocks'),
       'callback' => 'i18nblocks_add',
       'type' => MENU_LOCAL_TASK);    
@@ -99,6 +99,7 @@ function i18nblocks_form($i18nblock){
   );
   return $form;
 }
+
 /**
  * Add a new metablock and go to settings page
  */

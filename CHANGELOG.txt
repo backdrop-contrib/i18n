@@ -1,4 +1,16 @@
-4-6-0 to ....
+4-7-4 to ....
+--------------
+- Added support for RTL languages
+- Added native names for languages
+- Cleaned up multilingual variable management
+
+4-6-0 to 4-7-4
+--------------
+30/11/2005
+- Added basic workflow support for translations
+- Lost of bug fixes
+- Content administration tab for translations
+
 20/08/2005
 - Updated for HEAD
 - Simplified patches

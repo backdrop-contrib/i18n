@@ -23,14 +23,14 @@ define('TRANSLATION_STATUS_UPDATED', 4);
 function translation_help($section = 'admin/help#translation' ) {
   switch ($section) {
     case 'admin/help#translation' :
-      $output = t('
-        <p>This module is part of i18n package and provides support for translation relationships.</p>
-        <p>The objects you can define translation relationships for are:</p>
-        <ul>
-        <li>Nodes</li>
-        <li>Taxonomy Terms</li>
-        </ul>
-        <p><small>Module developed by Jose A. Reyero, <a href="http://www.reyero.net">www.reyero.net</a></small></p>' );
+      $output = '<p>'.t('This module is part of i18n package and provides support for translation relationships.').'</p>';
+      $output = '<p>'.t('The objects you can define translation relationships for are:').'</p>';
+      $output .= '<ul>';
+      $output .= '<li>'.t('Nodes.').'</li>';
+      $output .= '<li>'.t('Taxonomy Terms').'</li>';
+      $output .= '</ul>';
+      $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/31631')) .'</p>';
+      return $output;
       break;
     case 'admin/access#translation':
       $output = t('<h2>Translations</h2>');
@@ -49,7 +49,8 @@ function translation_menu($may_cache) {
     $items[] = array(
       'path' => 'admin/settings/i18n/translation',
       'title' => t('Translation'),
-      'callback' => 'translation_admin_settings',
+      'callback' => 'drupal_get_form',
+      'callback arguments' => array('translation_admin_settings'),
       'access' => user_access('administer site configuration'),
       'type' => MENU_LOCAL_TASK,
     );
@@ -106,29 +107,22 @@ function translation_perm(){
 }
 
 /**
- * Implementation of hook_settings
+ * Form builder function: settings form
  */
 function translation_admin_settings(){
-  return drupal_get_form('translation_settings_form');
-}
-
-/**
- * Form builder function
- */
-function translation_settings_form() {
   $form['i18n_translation_links'] = array(
     '#type' => 'radios',
     '#title' => t('Language Management'),
     '#default_value' => variable_get('i18n_translation_links', 0),
     '#options' => array(t('Interface language depends on content.'), t('Interface language is independent')),
-    '#description' => t("How interface language and content language are managed."),
+    '#description' => t("Whether the whole page should switch language when clicking on a node translation or not."),
   );
   $form['i18n_translation_node_links'] = array(
     '#type' => 'radios',
     '#title' => t('Links to node translations'),
     '#default_value' => variable_get('i18n_translation_node_links', 0),
     '#options' => array(t('None.'), t('Main page only'), t('Teaser and Main page')),
-    '#description' => t("How interface language and content language are managed."),
+    '#description' => t("Links from nodes to translated versions."),
   );
   $form['i18n_translation_workflow'] = array(
     '#type' => 'radios',
@@ -361,18 +355,19 @@ function translation_node_form($node, $lang, $list){
 function translation_admin_content() {
   $output = '';
   $defaults = array('translation_language' => i18n_get_lang(), 'source_status' => TRANSLATION_STATUS_SOURCE);
-	$output .=  drupal_get_form('translation_node_admin', $defaults);
+  // Filter forms
+  $output .= drupal_get_form('node_filter_form');
+  $output .= drupal_get_form('translation_filter_form', $defaults);
+  // Node listing depending on previous forms
+  $output .= drupal_get_form('translation_admin_nodes');
+
   return $output;
 } 
 
 /**
  * Form builder. Administrative form for node translations
  */
-function translation_node_admin($defaults = array()) {
-  // Filters
-  $form['node_filter'] = node_filter_form();
-  $form['translation_filter'] = translation_filter_form($defaults);
-  
+function translation_admin_nodes() {
   // First, translation filter because it may need parameters for join conditions
   $filter = translation_build_filter_query();
   $where = $filter['where'];
@@ -389,11 +384,6 @@ function translation_node_admin($defaults = array()) {
 
   $join .= $filter['join'];
   
-  // Select only source nodes
-  /*
-  $params[] = TRANSLATION_STATUS_SOURCE;
-  $where[] = "i.status = %d";
-  */
   $sql = "SELECT n.nid, n.type, n.title, n.status, u.name, u.uid, i.language, i2.nid AS translation_nid, i2.status AS translation_status ".
     "FROM {node} n INNER JOIN {users} u ON n.uid = u.uid INNER JOIN {i18n_node} i ON n.nid = i.nid ".
     "LEFT JOIN {i18n_node} i2 ON i.trid = i2.trid AND 0 != i2.trid AND i.language != i2.language $join".
@@ -509,7 +499,7 @@ function theme_translation_filter_form($form) {
   $form['filters']['source_status']['#suffix'] = '</td><td>';
   $form['filters']['buttons']['#prefix'] = '</td><td>';
   $form['filters']['buttons']['#suffix'] = '</td></tr></table>';
-  return form_render($form);
+  return drupal_render($form);
 }
 /**
  * Builds translation admin filters
@@ -538,17 +528,17 @@ function theme_translation_admin_nodes($form) {
   // Overview table:
   $header = array(t('Language'), t('Title'), t('Type'), t('Author'), t('Status'), t('Translation status'), t('Operations'));
 
-  $output .= form_render($form['options']);
+  $output .= drupal_render($form['options']);
   if (isset($form['title']) && is_array($form['title'])) {
     foreach (element_children($form['title']) as $key) {
       $row = array();
-      $row[] = form_render($form['language'][$key]);
-      $row[] = form_render($form['title'][$key]);
-      $row[] = form_render($form['name'][$key]);
-      $row[] = form_render($form['username'][$key]);
-      $row[] = form_render($form['status'][$key]);
-      $row[] = form_render($form['translation_status'][$key]);
-      $row[] = form_render($form['operations'][$key]);
+      $row[] = drupal_render($form['language'][$key]);
+      $row[] = drupal_render($form['title'][$key]);
+      $row[] = drupal_render($form['name'][$key]);
+      $row[] = drupal_render($form['username'][$key]);
+      $row[] = drupal_render($form['status'][$key]);
+      $row[] = drupal_render($form['translation_status'][$key]);
+      $row[] = drupal_render($form['operations'][$key]);
       $rows[] = $row;
     }
 
@@ -559,10 +549,10 @@ function theme_translation_admin_nodes($form) {
 
   $output .= theme('table', $header, $rows);
   if ($form['pager']['#value']) {
-    $output .= form_render($form['pager']);
+    $output .= drupal_render($form['pager']);
   }
 
-  $output .= form_render($form);
+  $output .= drupal_render($form);
 
   return $output;
 }
@@ -671,7 +661,7 @@ function translation_link($type, $node = NULL, $teaser = FALSE) {
       // Add node link if published
       if($trnode->status) {
         $baselang = variable_get('i18n_translation_links', 0) ? i18n_get_lang() : $lang;
-        $links[]= theme('translation_node_link', $trnode , $lang, $baselang);
+        $links['translation-'.$lang]= theme('translation_node_link', $trnode , $lang, $baselang);
       }
     }
   }
@@ -945,6 +935,7 @@ function translation_node_nid($nid, $lang) {
   $sql = 'SELECT n.nid FROM {i18n_node} n INNER JOIN {i18n_node} a ON n.nid = a.nid INNER JOIN {i18n_node} b ON a.trid = b.trid AND b.nid =%d WHERE n.nid != %d AND n.language = \'%s\' AND a.trid != 0';
   return db_result(db_query($sql, $nid, $nid, $lang));
 }
+
 /**
  *  Returns an url for the translated taxonomy-page, if exists 
  */
@@ -999,16 +990,22 @@ function _translation_status(){
 
 /**
  * Theme a link to node translation
+ * 
+ * Since Drupal 5, returns array instead of html
  */
 function theme_translation_node_link($node, $lang, $baselang = NULL, $title = FALSE){
   $baselang = $baselang ? $baselang : $lang;
+  
   if($title){
     $name = $node->title;
   } else {
     $languages = i18n_supported_languages();
     $name = $languages[$lang];
   }
-  return theme('i18n_link', $name, i18n_path('node/'.$node->nid, $baselang), $lang);
+  return array(
+   'title' => $name,
+   'href' => i18n_path('node/'.$node->nid, $baselang)
+   );
 }
 
 /**
