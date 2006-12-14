@@ -300,8 +300,7 @@ function translation_node_populate_fields($source, &$form, &$node, $level = 0){
  */
 function translation_node_page() {
   $args = func_get_args();
-  $op = isset($_POST['op']) ? $_POST['op'] : $args[0];
-  $edit = $_POST['edit'];
+  $op = $args[0];
   $nid = arg(1);
   $node = node_load($nid);
   // If node has no language, just warning message. Function returns here
@@ -314,10 +313,7 @@ function translation_node_page() {
   switch($op){
     case 'select':
       $output .= translation_node_overview($node);
-      $output .= translation_node_form($node, $args[1]);
-      break;
-    case t('Save'):
-      $output .= translation_node_form($node, $args[1]);
+      $output .= translation_node_select($node, $args[1]);
       break;
     case 'remove':
     case t('Remove'):
@@ -521,6 +517,7 @@ function translation_filter_form_submit($form_id, $form_values) {
   }
 
 }
+
 /**
  * Theme node administration overview.
  */
@@ -557,35 +554,43 @@ function theme_translation_admin_nodes($form) {
   return $output;
 }
 
+/**
+ * Shows overview of current translations plus remove button
+ */
 function translation_node_overview($node) {
   $languages = i18n_supported_languages();
   unset($languages[$node->language]);
-  $output = t('<h2>Current translations</h2>');
+  // $output = t('<h2>Current translations</h2>');
   $header = array(t('Language'), t('Title'), t('Status'), t('Options'));
   // Special links for product nodes
   $createlink = $node->type == 'product' ? "node/add/$node->type/$node->ptype" : "node/add/$node->type";
   foreach($languages as $lang => $langname){
-	    $options = array();
-	    if(isset($node->translation[$lang])){
-	      $trnode = $node->translation[$lang];
-	      $title = l($trnode->title, 'node/'.$trnode->nid);
-        $status = $trnode->status ? t('Published') : t('Not published');
-	    } else {
-	      $title = t('Not translated');
-	      $options[] = l(t('create translation'), $createlink, array(), "translation=$node->nid&language=$lang");
-	      $status = '--';
-      }
-	    $options[] = l(t('select node'), "node/$node->nid/translation/select/$lang");
-	    $rows[] = array($langname, $title, $status, implode(" | ", $options));
-	}
-	  $output .= theme('table', $header, $rows);
-    if($node->trid){
-      $output .= drupal_get_form('translation_node_overview_form', $form);
+	$options = array();
+	if(isset($node->translation[$lang])){
+	  $trnode = $node->translation[$lang];
+	  $title = l($trnode->title, 'node/'.$trnode->nid);
+      $status = $trnode->status ? t('Published') : t('Not published');
+	} else {
+	  $title = t('Not translated');
+	  $options[] = l(t('create translation'), $createlink, array(), "translation=$node->nid&language=$lang");
+	  $status = '--';
     }
-  return $output;
+	$options[] = l(t('select node'), "node/$node->nid/translation/select/$lang");
+	$rows[] = array($langname, $title, $status, implode(" | ", $options));
+  }
+  $output .= theme('table', $header, $rows);
+  if($node->trid){
+    $output .= drupal_get_form('translation_node_remove', $node);
+  }
+  return theme('box', t('Current translations'), $output);
 }
-function translation_node_overview_form($node) {
-      $form['submit'] = array('#type' => 'submit', '#value' => t('Remove'), '#suffix' => t('Remove node from this translation set'));
+
+/**
+ * Form to remove node from translation set
+ */
+function translation_node_remove($node) {
+  $form['submit'] = array('#type' => 'submit', '#value' => t('Remove'), '#suffix' => t('Remove node from this translation set'));
+  $form['#action'] = url('node/'.$node->nid.'/translation/remove');
   return $form;
 }
 

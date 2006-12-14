@@ -16,7 +16,7 @@
 function i18nprofile_help($section = 'admin/help#i18nmenu' ) {
   switch ($section) {
   case 'admin/modules#description' :
-    return t('Supports translation for profile module fields. <b>Requires i18n, locale and profile module</b>' );
+    return t('Supports translation for profile module field names and descriptions.' );
   }
 }
 
@@ -28,11 +28,11 @@ function i18nprofile_menu($may_cache) {
   $items = array();
 
   if($may_cache) {
-     $items[] = array('path' => 'admin/settings/profile/default',
+     $items[] = array('path' => 'admin/user/profile/default',
       'title' => t('profile'),
       'type' => MENU_DEFAULT_LOCAL_TASK,
       'callback' => 'i18nprofile_translation');
-     $items[] = array('path' => 'admin/settings/profile/translation',
+     $items[] = array('path' => 'admin/user/profile/translation',
       'title' => t('translation'),
       'type' => MENU_LOCAL_TASK,
       'callback' => 'i18nprofile_translation');
@@ -47,7 +47,7 @@ function i18nprofile_menu($may_cache) {
 function i18nprofile_user($type, &$edit, &$user, $category = NULL) {
   switch ($type) {
     case 'view':
-      return i18nprofile_view_profile($user);
+      // return i18nprofile_view_profile($user);
       break;
     case 'categories':
       return i18nprofile_categories();
@@ -55,6 +55,34 @@ function i18nprofile_user($type, &$edit, &$user, $category = NULL) {
     case 'form':
       break;
   }
+}
+
+/**
+ * Implementation of hook_profile_alter()
+ */
+function i18nprofile_profile_alter($account, &$fields) {
+  // var_dump($fields['Personal information']);
+  // Remove translated categories
+  $categories = i18nprofile_categories(TRUE);
+  foreach($categories as $category => $translation) {
+    // Translate field titles and names
+    $i18nfields = i18nprofile_fields($category);
+    foreach($i18nfields as $name => $field){
+      if(isset($fields[$category][$name])) {
+        if($field->title) {
+          $fields[$category][$name]['title'] = $field->title;
+        }
+        if($field->type == 'selection'  && $options = unserialize($field->options)) {
+          $value = $fields[$category][$name]['value'];
+          $fields[$category][$name]['value'] = isset($options[$value]) ? $options[$value] : $value;
+        }
+      }
+    }
+    if($translation && $category != $translation) {
+      $fields[$translation] = $fields[$category];
+      unset($fields[$category]);
+    }
+  }  
 }
 
 /**
@@ -80,10 +108,10 @@ function i18nprofile_view_profile($user) {
 
   // Show private fields to administrators and people viewing their own account.
   if (user_access('administer users') || $GLOBALS['user']->uid == $user->uid) {
-    $result = db_query("SELECT p.*, t.title AS translation_title FROM {profile_fields} p LEFT JOIN {i18n_profile_fields} t ON p.fid = t.fid AND t.language = '%s' WHERE p.visibility != %d ORDER BY p.category, p.weight", $language, PROFILE_HIDDEN);
+    $result = db_query("SELECT p.*, t.title AS translation_title, t.options AS translation_options FROM {profile_fields} p LEFT JOIN {i18n_profile_fields} t ON p.fid = t.fid AND t.language = '%s' WHERE p.visibility != %d ORDER BY p.category, p.weight", $language, PROFILE_HIDDEN);
   }
   else {
-    $result = db_query("SELECT p.*, t.title AS translation_title FROM {profile_fields} p LEFT JOIN {i18n_profile_fields} t ON p.fid = t.fid AND t.language = '%s' WHERE visibility != %d AND visibility != %d ORDER BY category, weight", $language, PROFILE_PRIVATE, PROFILE_HIDDEN);
+    $result = db_query("SELECT p.*, t.title AS translation_title, t.options AS translation_options FROM {profile_fields} p LEFT JOIN {i18n_profile_fields} t ON p.fid = t.fid AND t.language = '%s' WHERE visibility != %d AND visibility != %d ORDER BY category, weight", $language, PROFILE_PRIVATE, PROFILE_HIDDEN);
   }
   $translation = i18nprofile_categories(TRUE);
   while ($field = db_fetch_object($result)) {
@@ -91,6 +119,10 @@ function i18nprofile_view_profile($user) {
       $description = ($field->visibility == PROFILE_PRIVATE) ? t('The content of this field is private and only visible to yourself.') : '';
       $title = $field->translation_title ? $field->translation_title : $field->title;
       $title = ($field->type != 'checkbox') ? check_plain($title) : NULL;
+
+      if ($field->type == 'selection' && $options = unserialize($field->translation_options)) {
+        $value = isset($options[$value]) ? $options[$value] : $value;
+      }
       $item = array('title' => $title,
         'value' => $value,
         'class' => $field->name,
@@ -124,9 +156,13 @@ function i18nprofile_form_translate($form_id, &$form, $category){
       if($field->explanation) {
         $form[$category][$name]['#description'] = $field->explanation;
       }
+      if($form[$category][$name]['#type'] == 'select'  && $options = unserialize($field->options)) {
+        $form[$category][$name]['#options'] = $options;
+      }
     }
   }
 }
+
 /**
  * Translate form fields for all categories
  * 
@@ -145,9 +181,9 @@ function i18nprofile_form_translate_all($form_id, &$form) {
  */
 function i18nprofile_translation($type = NULL, $id = NULL, $language = NULL) {
    if($type == 'field' && $id && $language && $field = db_fetch_object(db_query("SELECT * FROM {profile_fields} WHERE fid='%d'", $id))) {
-     return i18nprofile_translation_field($field, $language);
+     return drupal_get_form('i18nprofile_translation_field', $field, $language);
    } elseif($type == 'category' && $id) {
-     return i18nprofile_translation_category($id);
+     return drupal_get_form('i18nprofile_translation_category', $id);
    } else {
      return i18nprofile_translation_overview();
    }
@@ -173,12 +209,12 @@ function i18nprofile_translation_category($lang) {
     );
   }
   $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
-  return drupal_get_form('i18nprofile_category_form', $form);
+  return $form;
 }
 /**
  * Processs category translations
  */
-function i18nprofile_category_form_submit($form_id, $form_values) {
+function i18nprofile_translation_category_submit($form_id, $form_values) {
   $lang = $form_values['language'];
   $data = $form_values['translation'];
   $translation = array();
@@ -197,7 +233,7 @@ function i18nprofile_category_form_submit($form_id, $form_values) {
  * Overview profile translations
  */
 function i18nprofile_translation_overview($lang_curr='en') {
-  $path = 'admin/settings/profile/translation';
+  $path = 'admin/user/profile/translation';
   // Get languages and remove english from the list
   $languages = i18n_supported_languages();
   if($lang_curr=='en') {
@@ -315,21 +351,28 @@ function i18nprofile_translation_field($field, $language) {
     '#description' => t('An optional explanation to go with the new field. The explanation will be shown to the user.'),
   );
   if ($field->type == 'selection') {
-    $form['translation']['options'] = array('#type' => 'textarea',
+    $form['translation']['options'] = array('#type' => 'fieldset',
+      '#tree' => TRUE,
       '#title' => t('Selection options'),
-      '#default_value' => $translation->options,
-      '#description' => t('A list of all options. Put each option on a separate line. Example options are "red", "blue", "green", etc.'),
+      '#description' => t('A list of all options. You need to update this translation when you change the options in the original language.'),
     );
+    $options = unserialize($translation->options);
+    $lines = split("[,\n\r]", $field->options);
+    foreach ($lines as $line) {
+      if ($line = trim($line)) {
+        $form['translation']['options'][$line] = array('#type' => 'textfield', '#title' =>$line, '#default_value' => $options[$line]);
+      }
+    }
   }
 
-  if ($type == 'selection' || $type == 'list' || $type == 'textfield') {
+  if ($field->type == 'selection' || $field->type == 'list' || $field->type == 'textfield') {
     $form['translation']['page'] = array('#type' => 'textfield',
       '#title' => t('Page title'),
       '#default_value' => $translation->page,
       '#description' => t('To enable browsing this field by value, enter a title for the resulting page. The word <code>%value</code> will be substituted with the corresponding value. An example page title is "People whose favorite color is %value". This is only applicable for a public field.'),
     );
   }
-  else if ($type == 'checkbox') {
+  else if ($field->type == 'checkbox') {
     $form['translation']['page'] = array('#type' => 'textfield',
       '#title' => t('Page title'),
       '#default_value' => $translation->page,
@@ -340,16 +383,17 @@ function i18nprofile_translation_field($field, $language) {
   $form['submit'] = array('#type' => 'submit',
     '#value' => t('Save field'),
   );
-  return drupal_get_form('i18nprofile_field_form', $form);
+  return $form;
 
 }
 
 /**
  * Save profile field translation
  */
-function i18nprofile_field_form_submit($form_id, $form_values){
+function i18nprofile_translation_field_submit($form_id, $form_values){
   $field = $form_values['source'];
   $values = $form_values['translation'];
+  $values['options'] = ($values['options'] && $field->type == 'selection') ? serialize($values['options']) : '';
   if (!isset($form_values['current'])) {
     db_query("INSERT INTO {i18n_profile_fields} (fid, language, title,  explanation, options, page) VALUES (%d, '%s', '%s', '%s', '%s', '%s')", $field->fid, $values['language'], $values['title'], $values['explanation'], $values['options'], $values['page']);
     drupal_set_message(t('The field translation has been created.'));
@@ -374,7 +418,7 @@ function i18nprofile_field_form_submit($form_id, $form_values){
  */
 function i18nprofile_categories($getraw = FALSE) {
   $language = i18n_get_lang();
-  if($translation = variable_get('i18nprofile_'.$language, '')) {
+  if($translation = variable_get('i18nprofile_'.$language, 0)) {
     if($getraw) {
       return $translation;
     }
@@ -383,7 +427,7 @@ function i18nprofile_categories($getraw = FALSE) {
     }
     return $categories;
   } else {
-    return;
+    return array();
   }
 }
 
@@ -396,7 +440,7 @@ function i18nprofile_fields($category){
   if(!isset($_fields[$category])) {
     $_fields[$category] = array();
     // Some special categories
-    $result = db_query("SELECT p.name, t.* FROM {profile_fields} p INNER JOIN {i18n_profile_fields} t ON p.fid = t.fid WHERE LOWER(p.category) = LOWER('%s') AND t.language='%s'", $category, $language);
+    $result = db_query("SELECT p.name, p.type, t.* FROM {profile_fields} p INNER JOIN {i18n_profile_fields} t ON p.fid = t.fid WHERE LOWER(p.category) = LOWER('%s') AND t.language='%s'", $category, $language);
     while($field = db_fetch_object($result)) {
       $_fields[$category][$field->name] = $field;
     }

@@ -17,10 +17,12 @@
 /**
  * This one expects to be called first from common.inc
  */
-function i18n_get_lang() {
+function i18n_get_lang($setlanguage = NULL) {
   static $i18n_language;
   //see if the language is already set.
-  if ($i18n_language) {
+  if ($setlanguage) {
+    $i18n_language = $setlanguage;
+  } elseif ($i18n_language) {
     return $i18n_language;
   } else {
     _i18n_init();
@@ -93,7 +95,6 @@ function i18n_init(){
   }  
 }
 
-
 /**
  * Implementation of hook_help().
  */
@@ -111,6 +112,9 @@ function i18n_help($section = 'admin/help#i18n' ) {
       $output .= '<li>'.t('Support for long locale names').'</li>';
       $output .= '</ul>';
       $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/31631')) .'</p>';
+      return $output;
+    case 'admin/settings/i18n':
+      $output .= '<p>'.t('To enable multilingual support for specific content types go to !configure_content_types.', array('!configure_content_types' => l(t('configure content types'), 'admin/content/types'), )).'</p>';
       return $output;
   }
 }
@@ -318,7 +322,7 @@ function i18n_languages($key = 'active') {
   static $languages;
   if (!$languages) {
     if($languages = variable_get('i18n_languages', 0)) {
-      foreach($languages['name'] as $code=> $name) {
+      foreach($languages['name'] as $code => $name) {
         if($languages['enabled'][$code]) {
           $languages['active'][$code] = $languages['native'][$code];
         }
@@ -338,14 +342,14 @@ function i18n_languages($key = 'active') {
  */
 function i18n_get_browser_lang() {
   $languages = i18n_supported_languages();
-  $exploded_server = explode(";",$_SERVER["HTTP_ACCEPT_LANGUAGE"]);
-  $accept=explode(',',array_shift($exploded_server));
+  $exploded_server = explode(";", $_SERVER["HTTP_ACCEPT_LANGUAGE"]);
+  $accept=explode(',', array_shift($exploded_server));
   foreach ($accept as $lang) {
     if(empty($lang)) {
       continue;
     } elseif (array_key_exists($lang, $languages)) {
       return $lang;
-    } elseif (array_key_exists(substr($lang,0,2), $languages)) {
+    } elseif (array_key_exists(substr($lang, 0, 2), $languages)) {
       return $lang;
     }
   }
@@ -717,7 +721,7 @@ function i18n_db_rewrite_where($alias, $mode){
  * Implementation of hook_exit
  */
 function i18n_exit(){
-  //_i18n_variable_exit();
+  _i18n_variable_exit();
 }
 
 /**
@@ -890,6 +894,23 @@ function i18n_variable_form_submit($form_id, $form_values) {
 }
 
 /**
+ * Initialization of multilingual variables 
+ */
+function i18n_variable_init(){
+  global $conf;
+  global $i18n_conf;
+  $lang = _i18n_get_lang();
+  if($i18n_variables = variable_get('i18n_variables', '')){
+    $i18n_conf = array();
+    $variables = _i18n_variable_init();
+    foreach($i18n_variables as $name){
+      $i18n_conf[$name] = isset($variables[$name]) ? $variables[$name] : (isset($conf[$name]) ? $conf[$name] : '');
+    }
+    $conf = array_merge($conf, $i18n_conf);
+  }
+}
+
+/**
  * Set a persistent language dependent variable.
  *
  * @param $name
@@ -899,7 +920,7 @@ function i18n_variable_form_submit($form_id, $form_values) {
  *   of serialization as necessary.
  */
 function i18n_variable_set($name, $value, $language) {
-  global $conf;
+  global $conf, $i18n_conf;
 
   db_lock_table('i18n_variable');
   db_query("DELETE FROM {i18n_variable} WHERE name = '%s' AND language='%s'", $name, $language);
@@ -909,6 +930,7 @@ function i18n_variable_set($name, $value, $language) {
   cache_clear_all('variables:'.$language, 'cache');
 
   $conf[$name] = $value;
+  $i18n_conf[$name] = $value;
 }
 
 /**
@@ -918,12 +940,13 @@ function i18n_variable_set($name, $value, $language) {
  *   The name of the variable to undefine.
  */
 function i18n_variable_del($name, $language) {
-  global $conf;
+  global $conf, $i18n_conf;
 
   db_query("DELETE FROM {i18n_variable} WHERE name = '%s' AND language='%s'", $name, $language);
   cache_clear_all('variables:'.$language, 'cache');
 
   unset($conf[$name]);
+  unset($i18n_conf[$name]);
 }
 
 /**
@@ -938,23 +961,6 @@ function _i18n_language_select($value ='', $description ='', $weight = -20){
       '#description' => $description,
       '#weight' => $weight,
   );
-}
-
-/**
- * Multilingual variables 
- */
-function i18n_variable_init(){
-  global $conf;
-  global $i18n_conf;
-  $lang = _i18n_get_lang();
-  if($i18n_variables = variable_get('i18n_variables', '')){
-    $i18n_conf = array();
-    $variables = _i18n_variable_init();
-    foreach($i18n_variables as $name){
-      $i18n_conf[$name] = isset($variables[$name]) ? $variables[$name] : (isset($conf[$name]) ? $conf[$name] : '');
-    }
-    $conf = array_merge($conf, $i18n_conf);
-  }
 }
 
 function _i18n_variable_init(){  
@@ -975,6 +981,9 @@ function _i18n_variable_init(){
 
 }
 
+/**
+ * Save multilingual variables that may have been changed by other methods than settings pages
+ */
 function _i18n_variable_exit(){
   global $i18n_conf;
   global $conf;
