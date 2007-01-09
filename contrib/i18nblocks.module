@@ -52,7 +52,6 @@ function i18nblocks_block($op = 'list', $delta = 0, $edit = array()) {
       $meta = i18nblocks_load($delta);
       $module = $meta[$language]['module'];
       $gamma = $meta[$language]['delta'];
-    	//drupal_set_message("i18n-block lang=$language delta=$delta module=$module gamma=$gamma ");
       $block = module_invoke($module, 'block', 'view', $gamma);
 
       return $block;
@@ -66,6 +65,21 @@ function i18nblocks_block($op = 'list', $delta = 0, $edit = array()) {
   }
 }
 
+/**
+ * Implementation of block form_alter().
+ * 
+ * Remove block title for multilingual blocks.
+ */
+function i18nblocks_form_alter($form_id, &$form) {
+  if ($form_id == 'block_admin_configure' && isset($form['block_settings']['i18nblocks'])) {
+    unset($form['block_settings']['title']);
+    $form['block_settings']['title'] = array('#type' => 'value', '#value' => '');
+  }
+}
+
+/**
+ * Form for multilingual blocks
+ */
 function i18nblocks_form($i18nblock){
   $languages = i18n_supported_languages();
   $modules = array_intersect(module_list(), module_implements('block'));
@@ -73,10 +87,11 @@ function i18nblocks_form($i18nblock){
   $blocklist = array('' => t(' -- '));      
   foreach (module_implements('block') as $module) {
     if($module != 'i18nblocks') { // Avoid this module's blocks, could be funny :-)
-      $module_blocks = module_invoke($module, 'block', 'list');
-      foreach($module_blocks as $delta => $block) {
-        $blocklist[$module.'_'.$delta] = $block['info']."($module)";
-      };
+      if (is_array($module_blocks = module_invoke($module, 'block', 'list'))) {
+        foreach($module_blocks as $delta => $block) {
+          $blocklist[$module.':'.$delta] = $block['info']."($module)";
+        };
+      }
     }
   }
   $form['name'] = array('#type' => 'textfield', '#title' => t('Block description'),
@@ -89,7 +104,7 @@ function i18nblocks_form($i18nblock){
   foreach($languages as $lang => $langname){
 	  $form['i18nblocks'][$lang] = array( '#type' => 'select',
       '#title' => $langname,
-      '#default_value' => isset($i18nblock[$lang]) ? $i18nblock[$lang]['module'] .'_'. $i18nblock[$lang]['delta'] : '',
+      '#default_value' => isset($i18nblock[$lang]) ? $i18nblock[$lang]['module'] .':'. $i18nblock[$lang]['delta'] : '',
 	    '#options' => $blocklist
 		);
   }
@@ -128,7 +143,7 @@ function i18nblocks_load($delta){
 function i18nblocks_save($edit, $delta){
   $block = array('name' => $edit['name']);
   foreach($edit['i18nblocks'] as $lang => $path){
-    list($module, $gamma) = explode('_',$path);
+    list($module, $gamma) = explode(':', $path);
     $block[$lang]['module'] = $module;
     $block[$lang]['delta'] = $gamma;
   }

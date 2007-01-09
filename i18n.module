@@ -49,7 +49,8 @@ function i18n_block($op = 'list', $delta = 0) {
   }
   elseif($op == 'view') {
     $blocks['subject'] = t('Languages');
-    $blocks['content'] = theme('item_list', i18n_get_links($_GET['q']));
+    $query = drupal_query_string_encode($_GET, array('q'));
+    $blocks['content'] = theme('item_list', i18n_get_links($_GET['q'], empty($query) ? NULL : $query));
   }
   return $blocks;
 }
@@ -221,7 +222,7 @@ function i18n_admin_settings() {
   // Check languages
   $languages = variable_get('i18n_languages', array());
   if (!count($languages) || ! count($languages['active']) > 1 ) {
-    drupal_set_message(t('No languages enabled. Visit the %locale_admin page to set up your languages.', array('%locale_admin' => l(t('Manage languages'), 'admin/settings/locale/'))), 'error');
+    drupal_set_message(t('No languages enabled. Visit the !locale_admin page to set up your languages.', array('%locale_admin' => l(t('Manage languages'), 'admin/settings/locale/'))), 'error');
   }
   $form['i18n_browser'] = array(
     '#type' => 'radios',
@@ -317,6 +318,13 @@ function i18n_language_property($code, $property = 'native') {
 
 /**
  * Get locale languages plus i18n language settings
+ * 
+ * @param $key
+ *   Data to be returned, defaults to 'active'
+ *   'active' => array of enabled languages with native name
+ *   'enabled' => array of enabled languages with english name
+ *   'name' => all languages defined in locale module with english name
+ *   'site_default' => code of default site language
  */
 function i18n_languages($key = 'active') {
   static $languages;
@@ -448,12 +456,12 @@ function i18n_get_main_lang($lang = NULL){
  * 
  * Returns an array of links for all languages, with or without names/flags
  */
-function i18n_get_links($path = '') {
+function i18n_get_links($path = '', $query = NULL) {
   if($path == i18n_frontpage()) {
     $path = '';
   }
   foreach(i18n_supported_languages() as $lang => $name){
-    $links[$lang]= theme('i18n_link', $name, i18n_path($path, $lang), $lang);
+    $links[$lang]= theme('i18n_link', $name, i18n_path($path, $lang), $lang, $query);
   }
   return $links;  
 }
@@ -597,12 +605,12 @@ function _i18n_selection_mode(){
 /**
  * Produces a language link with the right flag
  */
-function theme_i18n_link($text, $target, $lang, $separator='&nbsp;'){
+function theme_i18n_link($text, $target, $lang, $query= NULL, $fragment = NULL){
   $output = '<span class="i18n-link">';
   $attributes = ($lang == i18n_get_lang()) ? array('class' => 'active') : NULL;
-  $output .= l(theme('i18n_language_icon', $lang), $target, $attributes, NULL, NULL, FALSE, TRUE);
-  $output .= $separator;
-  $output .= l($text, $target, $attributes, NULL, NULL, FALSE, TRUE);
+  $output .= l(theme('i18n_language_icon', $lang), $target, $attributes, $query, $fragment, FALSE, TRUE);
+  $output .= "&nbsp;";
+  $output .= l($text, $target, $attributes, $query, $fragment, FALSE, TRUE);
   $output .= '</span>';
   return $output;
 }
@@ -674,7 +682,6 @@ function i18n_db_rewrite_sql($query, $primary_table, $primary_key){
  */
 function i18n_db_node_rewrite($query, $primary_table, $primary_key, $mode){
   // When loading specific nodes, language conditions shouldn't apply
-  // TO-DO: Refine this regexp  
   if (preg_match("/WHERE.*\s$primary_table.nid\s*=\s*(\d|%d)/", $query)) return;
   
   $result['join'] = "LEFT JOIN {i18n_node} i18n ON $primary_table.nid = i18n.nid";
@@ -688,8 +695,9 @@ function i18n_db_node_rewrite($query, $primary_table, $primary_key, $mode){
  */
 function i18n_db_taxonomy_rewrite($query, $primary_table, $primary_key, $mode){
   // When loading specific terms, vocabs, language conditions shouldn't apply
-  // TO-DO: Refine this regexp  
   if (preg_match("/WHERE.* $primary_table\.tid\s*(=\s*\d|IN)/", $query)) return;
+  // Taxonomy for specific node
+  if (preg_match("/WHERE r\.nid = \%d/", $query)) return;
   
   $result['where'] = i18n_db_rewrite_where($primary_table, $mode);
  
@@ -1003,4 +1011,4 @@ function _i18n_variable_exit(){
       cache_set('variables:'.$lang, 'cache', serialize($i18n_conf));
     }
   }
-} 
+}

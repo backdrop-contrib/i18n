@@ -145,7 +145,8 @@ function translation_block($op = 'list', $delta = 0) {
   }
   elseif($op == 'view') {
     $blocks['subject'] = t('Languages');
-    $blocks['content'] = theme('item_list', translation_get_links($_GET['q']));
+    $query = drupal_query_string_encode($_GET, array('q'));
+    $blocks['content'] = theme('item_list', translation_get_links($_GET['q'], empty($query) ? NULL : $query));
   }
 
   return $blocks;
@@ -155,8 +156,9 @@ function translation_block($op = 'list', $delta = 0) {
  * Implementation of hook_form_alter().
  */
 function translation_form_alter($form_id, &$form) {
+  //drupal_set_message('translation_form_alter');
   // Node edit form
-	if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && variable_get('i18n_node_'.$form['type']['#value'], 0)){
+  if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && variable_get('i18n_node_'.$form['type']['#value'], 0)) {
     $node = $form['#node'];
     $languages = i18n_supported_languages();
     // Translation workflow, default
@@ -171,6 +173,9 @@ function translation_form_alter($form_id, &$form) {
       $trans = node_load($translation_nid);
       $form['i18n']['translation_nid'] = array('#type' => 'hidden', '#value' => $translation_nid);
       $form['i18n']['language']['#default_value'] = $language;
+      // Do not allow language change
+      $form['i18n']['language']['#disabled'] = TRUE;
+      $form['i18n']['language']['#description'] = t('Language cannot be changed while creating a translation.');
       translation_node_populate_fields($trans, $form, $node);      
       if($trans->trid){
         $form['i18n']['trid'] = array('#type' => 'hidden', '#value' => $trans->trid);
@@ -217,7 +222,7 @@ function translation_form_alter($form_id, &$form) {
         '#theme' => 'upload_form_current',
         '#description' => t('You can remove the files for this translation or keep the original files and translate the description.')
         );
-    	foreach($trans->files as $key => $file) {
+      foreach($trans->files as $key => $file) {
         $description = file_create_url((strpos($file->fid, 'upload') === false ? $file->filepath : file_create_filename($file->filename, file_create_path())));
         $description = "<small>". check_plain($description) ."</small>";
         $form['i18n']['translation_files'][$key]['description'] = array('#type' => 'textfield', '#default_value' => (strlen($file->description)) ? $file->description : $file->filename, '#maxlength' => 256, '#description' => $description );
@@ -225,7 +230,20 @@ function translation_form_alter($form_id, &$form) {
         $form['i18n']['translation_files'][$key]['remove'] = array('#type' => 'checkbox', '#default_value' => 0);
         $form['i18n']['translation_files'][$key]['list'] = array('#type' => 'checkbox',  '#default_value' => $file->list);
         $form['i18n']['translation_files'][$key]['fid'] = array('#type' => 'value',  '#value' => $file->fid);
-    	}
+      }
+    }
+    // Translate taxonomy terms
+    // TO-DO: take care of module order. Default ordering is filename so it depends on install which is too bad!!
+    if(isset($trans->taxonomy) && is_array($trans->taxonomy)) {
+      // Set translated taxonomy terms
+      $form['#node']->taxonomy = array();
+      foreach ($trans->taxonomy as $tid => $term) {
+        $translated_terms = translation_term_get_translations(array('tid' =>$tid));
+        if ($translated_terms && $newterm = $translated_terms[$language]) {
+          $form['#node']->taxonomy[$newterm->tid] = $newterm;
+          //drupal_set_message("DEBUG: Translated term $tid to ". $newterm->tid);
+        }
+      }        
     }
   }    
 }
@@ -268,27 +286,27 @@ function translation_nodeapi(&$node, $op, $arg = 0) {
  */
 function translation_node_populate_fields($source, &$form, &$node, $level = 0){
   $fields = array();
-	foreach(element_children($form) as $key) {
-	  if($key == 'nid' || $key == 'vid' || $key == 'i18n'){
+  $language = $form['i18n']['language']['#default_value'];  
+  foreach(element_children($form) as $key) {
+    if($key == 'nid' || $key == 'vid' || $key == 'i18n'){
       continue;
     } elseif(isset($source->$key) && !isset($node->$key)) {
       if($level == 0 && $key == 'parent' && is_numeric($source->parent)) {
         // Translate book outline
-        $lang = $form['i18n']['language']['#default_value'];
       	$trans = translation_node_get_translations(array('nid' => $source->parent));
-        if(isset($trans[$lang])) {
-         $form['parent']['#default_value'] = $trans[$lang]->nid;
+        if(isset($trans[$language])) {
+         $form['parent']['#default_value'] = $trans[$language]->nid;
         }
       } else {
         $node->$key = $form[$key]['#default_value'] = $source->$key;
         $fields[] = $key;
       }
-	  } elseif(!isset($form[$key]['#tree'])) {
-	    translation_node_populate_fields($source, $form[$key], $node, $level +1);
-	  }
-	}
+    } elseif(!isset($form[$key]['#tree'])) {
+      translation_node_populate_fields($source, $form[$key], $node, $level +1);
+    }
+  }
   // For debugging
-  // if($fields) drupal_set_message("Populated fields ($level): ". implode(', ', $fields));
+  //if($fields) drupal_set_message("Populated fields ($level): ". implode(', ', $fields));
 }
 
 /**
@@ -971,12 +989,11 @@ function translation_taxonomy_tids($str_tids, $lang) {
  * 
  * Returns an array of links for all languages, with or without names
  */
-function translation_get_links($path = '', $names = 1) {
+function translation_get_links($path = '', $query = NULL) {
   $current = i18n_get_lang();
   foreach(i18n_supported_languages() as $lang => $name){
     $url = translation_url($path, $lang);
-    $name = $names ? $name: '' ; // Should be localized??
-    $links[]= theme('i18n_link', $name, i18n_path($url, $lang) , $lang);
+    $links[]= theme('i18n_link', $name, i18n_path($url, $lang) , $lang, $query);
   }
   return $links;  
 }
