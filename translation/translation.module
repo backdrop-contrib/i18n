@@ -156,7 +156,7 @@ function translation_block($op = 'list', $delta = 0) {
  * Implementation of hook_form_alter().
  */
 function translation_form_alter($form_id, &$form) {
-  //drupal_set_message('translation_form_alter');
+  // drupal_set_message('translation_form_alter');
   // Node edit form
   if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && variable_get('i18n_node_'.$form['type']['#value'], 0)) {
     $node = $form['#node'];
@@ -242,6 +242,11 @@ function translation_form_alter($form_id, &$form) {
         if ($translated_terms && $newterm = $translated_terms[$language]) {
           $form['#node']->taxonomy[$newterm->tid] = $newterm;
           //drupal_set_message("DEBUG: Translated term $tid to ". $newterm->tid);
+        }
+        // Run again taxonomy_form_alter ?
+        if(isset($form['taxonomy'])) {
+          unset($form['taxonomy']);
+          taxonomy_form_alter($form_id, $form);
         }
       }        
     }

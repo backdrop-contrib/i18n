@@ -75,7 +75,7 @@ function i18n_init(){
     // Check for update or cron scripts to disable rewriting and redirection
     if(preg_match('|/(?!index\.php)\w+\.php|', request_uri())){
       i18n_selection_mode('off');
-    } elseif( variable_get('cache',0) && $lang != i18n_default_language() ) {
+    } elseif( variable_get('cache', 0) && $lang != i18n_default_language() ) {
       // Redirect to main page in $lang
       _i18n_goto($lang);
     } else {
@@ -358,7 +358,7 @@ function i18n_get_browser_lang() {
     } elseif (array_key_exists($lang, $languages)) {
       return $lang;
     } elseif (array_key_exists(substr($lang, 0, 2), $languages)) {
-      return $lang;
+      return substr($lang, 0, 2);
     }
   }
 }
