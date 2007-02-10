@@ -16,10 +16,8 @@ Updated documentation will be kept on-line at http://drupal.org/node/67817
 INSTALLATION:
 ============
 
-1. Create folder 'modules/i18n', and copy all the modules files, keeping directory structure, to this folder.
-
+1. Create folder 'sites/all/modules/i18n' and copy all the modules files, keeping directory structure, to this folder.
 2. If updating, run the update.php script following the standard procedure for Drupal updates.
-3. If updating, run the update.php script following the standard procedure for Drupal updates.
 
 POST-INSTALLATION/CONFIGURATION:
 ============
@@ -31,9 +29,14 @@ POST-INSTALLATION/CONFIGURATION:
 - Configure the modules in 
 	Administer > Site Configuration > Multilingual system
 
+  You might get an error message about languages not being enabled yet.
+  Visit the suggested page (Manage Languages) and enable the languages you need.
+  In case you find out they're already enabled, just press the button "save configuration".
+
 - Enable multilingual support for each content type you want to translate
-	administer > settings > content types
-    A new field 'language' and a new tab 'translations' will be available when editing these node types
+    administer > content management > content types > edit (for each type separately)
+
+  A new field 'language' and a new tab 'translations' will be available when editing these node types
 
 - There are now two language blocks
 	- A simple language switcher provided by i18n.module
@@ -53,7 +56,7 @@ Modify the Drupal configuration file '../settings.php' to define the languages y
     
    $conf['i18n_languages'] = array(
    		'site_default' => 'en', // Default language
-   		'name' => array('es' => "Spanish", 'en => 'English'),  // English names for languages
+   		'name' => array('es' => "Spanish", 'en' => 'English'),  // English names for languages
    		'native' => array('es' => "Espa&ntilde;ol", 'en' => 'English'), // Native names
    		'enabled' => array('es' => TRUE, 'en' => TRUE), // Languages enabled
    		// 'rtl' => array('es' => TRUE), // This only if Spanish were an RTL language, which is not
