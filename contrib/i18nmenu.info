@@ -2,4 +2,3 @@ name = i18n - menu
 description = Supports translatable custom menu items.
 dependencies = i18n
 package = Multilanguage - i18n
-version = 5.0 dev

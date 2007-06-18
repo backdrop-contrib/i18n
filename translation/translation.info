@@ -2,4 +2,3 @@ name = Translation
 description = Manages translations between nodes and taxonomy terms.
 dependencies = i18n
 package = Multilanguage - i18n
-version = 5.0 dev

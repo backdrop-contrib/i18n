@@ -2,4 +2,3 @@ name = i18n - profile
 description = Enables multilingual profile fields.
 dependencies = i18n profile
 package = Multilanguage - i18n
-version = 5.0 dev
