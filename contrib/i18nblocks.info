@@ -2,4 +2,4 @@ name = i18n - blocks
 description = Enables multilingual blocks.
 dependencies = i18n
 package = Multilanguage - i18n
-version = 5.0 dev
+
