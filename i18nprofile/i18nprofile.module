@@ -170,9 +170,11 @@ function i18nprofile_form_translate($form_id, &$form, $category){
  */
 function i18nprofile_form_translate_all($form_id, &$form) {
   $categories = profile_categories();
-  foreach($categories as $category) {
-    if(isset($form[$category['name']])) {
-      i18nprofile_form_translate($form_id, $form, $category['name']);
+  if(is_array($categories)) {
+    foreach($categories as $category) {
+      if(isset($form[$category['name']])) {
+        i18nprofile_form_translate($form_id, $form, $category['name']);
+      }
     }
   }
 }
