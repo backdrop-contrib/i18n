@@ -2,4 +2,5 @@ name = Internationalization
 description = Enables multilingual content.
 dependencies = locale
 package = Multilanguage - i18n
-
+version = VERSION
+core = 6.x
