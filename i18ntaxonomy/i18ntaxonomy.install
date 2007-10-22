@@ -1,0 +1,43 @@
+<?php
+// $Id$
+/**
+ * Set language field in its own table
+ * Do not drop node.language now, just in case
+ * TO-DO: Drop old tables, fields
+ */
+function i18n_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      db_query("ALTER TABLE {term_data}
+        ADD language varchar(12) NOT NULL default '',
+        ADD trid int(10) unsigned NOT NULL default '0'
+      ");
+      db_query("ALTER TABLE {vocabulary}
+        ADD language varchar(12) NOT NULL default ''
+      ");
+      break;
+   
+    case 'pgsql':
+
+      db_query("ALTER TABLE {term_data} ADD language varchar(12)");
+      db_query("UPDATE {term_data} SET language=''");
+      db_query("ALTER TABLE {term_data} ALTER COLUMN language SET NOT NULL");
+      db_query("ALTER TABLE {term_data} ALTER COLUMN language SET DEFAULT ''");
+
+      db_query("ALTER TABLE {term_data} ADD trid integer");
+      db_query("UPDATE {term_data} SET trid='0'");
+      db_query("ALTER TABLE {term_data} ALTER COLUMN trid SET NOT NULL");
+      db_query("ALTER TABLE {term_data} ALTER COLUMN trid SET DEFAULT '0'");
+            
+      db_query("ALTER TABLE {vocabulary} ADD language varchar(12)");
+      db_query("UPDATE {vocabulary} SET language=''");
+      db_query("ALTER TABLE {vocabulary} ALTER COLUMN language SET NOT NULL");
+      db_query("ALTER TABLE {vocabulary} ALTER COLUMN language SET DEFAULT ''");
+           
+      // Sequences
+      db_query("CREATE SEQUENCE {term_data}_trid_seq INCREMENT 1 START 1");
+      
+  }
+  // Set module weight for it to run after core modules
+}
