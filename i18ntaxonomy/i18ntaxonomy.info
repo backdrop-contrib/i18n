@@ -1,6 +1,8 @@
 name = Multilingual taxonomy
 description = Enables multilingual taxonomy.
-dependencies = i18n taxonomy 
+dependencies[] = i18n
+dependencies[] = taxonomy
+dependencies[] = i18nstrings
 package = Multilanguage - i18n
 version = VERSION
 core = 6.x

@@ -9,15 +9,6 @@ function i18n_install() {
   switch ($GLOBALS['db_type']) {
     case 'mysql':
     case 'mysqli':
-      /**
-      db_query("CREATE TABLE {i18n_node} (
-        nid int(11) unsigned NOT NULL ,
-        trid int(10) unsigned NOT NULL default '0',
-        language VARCHAR(12) NOT NULL default '',  
-        status smallint(6) NOT NULL default '0',
-        PRIMARY KEY (nid) 
-      ) ");
-      */
       db_query("CREATE TABLE {i18n_variable} (
         name varchar(48) NOT NULL default '',
         language varchar(12) NOT NULL default '',
@@ -27,15 +18,6 @@ function i18n_install() {
       break;
    
     case 'pgsql':
-      /*
-      db_query("CREATE TABLE {i18n_node} (
-        nid integer NOT NULL default '0', 
-        trid integer NOT NULL default '0',
-        language varchar(12) NOT NULL default '',
-        status smallint NOT NULL default '0',
-        PRIMARY KEY  (nid)
-      )");
-      */
       db_query("CREATE TABLE {i18n_variable} (
         name varchar(48) NOT NULL default '',
         language varchar(12) NOT NULL default '',
