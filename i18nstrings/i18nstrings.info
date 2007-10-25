@@ -1,6 +1,6 @@
 name = Strings
 description = Translatable strings.
-dependencies = locale
+dependencies[] = locale
 package = Multilanguage - i18n
 version = VERSION
 core = 6.x

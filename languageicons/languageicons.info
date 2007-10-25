@@ -1,6 +1,6 @@
 name = Language Icons
 description = Adds icons to language links.
-dependencies = locale
+dependencies[] = locale
 package = Multilanguage - i18n
 version = VERSION
 core = 6.x

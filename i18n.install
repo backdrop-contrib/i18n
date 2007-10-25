@@ -1,30 +1,46 @@
 <?php
 // $Id$
 /**
+ * Implementation of hook_schema().
+ */
+function i18n_schema() {
+  // NOTE: {variable} needs to be created before all other tables, as
+  // some database drivers, e.g. Oracle and DB2, will require variable_get()
+  // and variable_set() for overcoming some database specific limitations.
+  $schema['i18n_variable'] = array(
+    'description' => t('Multilingual variables.'),
+    'fields' => array(
+      'name' => array(
+        'description' => t('The name of the variable.'),
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => ''),
+      'language' => array(
+        'description' => t('The language of the variable.'),
+        'type' => 'varchar',
+        'length' => 12,
+        'not null' => TRUE,
+        'default' => ''),
+      'value' => array(
+        'description' => t('The value of the variable.'),
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'big'),
+      ),
+    'primary key' => array('name', 'language'),
+    );
+  return $schema;
+}
+
+/**
  * Set language field in its own table
  * Do not drop node.language now, just in case
  * TO-DO: Drop old tables, fields
  */
 function i18n_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      db_query("CREATE TABLE {i18n_variable} (
-        name varchar(48) NOT NULL default '',
-        language varchar(12) NOT NULL default '',
-        value longtext NOT NULL,
-        PRIMARY KEY (name, language)
-      ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
-      break;
-   
-    case 'pgsql':
-      db_query("CREATE TABLE {i18n_variable} (
-        name varchar(48) NOT NULL default '',
-        language varchar(12) NOT NULL default '',
-        value text NOT NULL,
-        PRIMARY KEY (name, language)
-      )");
-  }
+  // Create database tables
+  drupal_install_schema('i18n');
   // Set module weight for it to run after core modules
   db_query("UPDATE {system} SET weight = -10 WHERE name = 'i18n' AND type = 'module'");
 }
