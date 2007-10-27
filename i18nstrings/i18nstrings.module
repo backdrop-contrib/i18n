@@ -17,7 +17,8 @@ function tt($context, $string, $langcode = NULL, $update = FALSE) {
   $langcode = $langcode ? $langcode : $language->language;
   
   // If language is default, just return
-  if (!$update && language_default('language') == $langcode) {
+  if (language_default('language') == $langcode) {
+    if ($update) i18nstrings_update_string($context, $string);
     return $string;
   } else {
     return i18nstrings_tt($context, $string, $langcode, $update);
@@ -31,7 +32,7 @@ function i18nstrings_tt($context, $string, $langcode, $update = FALSE, $create =
   $context = i18nstrings_context($context);
   
   if ($update) {
-    return i18nstrings_update_string($context, $string);
+    i18nstrings_update_string($context, $string);
   }
   
   $translation = i18nstrings_get_string($context, $langcode);
@@ -66,9 +67,9 @@ function i18nstrings_to($context, &$object, $properties = array(), $langcode = N
  */
 function i18nstrings_update_string($context, $string) {
   if ($string) {
-    i18nstrings_add_string($context, $string);
+    return i18nstrings_add_string($context, $string);
   } else {
-    i18nstrings_remove_string($context);
+    return i18nstrings_remove_string($context);
   }
 }
 
@@ -162,6 +163,7 @@ function i18nstrings_remove_string($context, $string = NULL) {
     db_query("DELETE FROM {i18n_strings} WHERE lid = %d", $source->lid);    
     db_query("DELETE FROM {locales_source} WHERE lid = %d", $source->lid);
     cache_clear_all('locale:'.$context->textgroup.':', 'cache', TRUE);
+    return SAVED_DELETED;
   }  
 }
 

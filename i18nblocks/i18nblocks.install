@@ -1,45 +1,89 @@
 <?php
 // $Id$
 
+// @ TODO Update scripts
 /**
  * Implementation of hook_install().
  */
 function i18nblocks_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      db_query("CREATE TABLE {i18n_blocks} (
-  `delta` varchar(32) NOT NULL default '0',
-  `info` varchar(64) NOT NULL default '',
-  `type` varchar(64) NOT NULL default '',
-  `param` int(10) NOT NULL default '0',
-  PRIMARY KEY  (`delta`)
-) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
+  // Create database tables
+  drupal_install_schema('i18nblocks');
+  // We dont need to change module weight
+  //db_query("UPDATE {system} SET weight = 20 WHERE name = 'i18nblocks' AND type = 'module'");
+}
 
-      db_query("CREATE TABLE {i18n_blocks_i18n} (
-  `bid` int(10) NOT NULL auto_increment,
-  `language` varchar(12) NOT NULL default '',
-  `module` varchar(64) NOT NULL default '',
-  `delta` varchar(32) NOT NULL default '0',
-  PRIMARY KEY  (`bid`,`language`)
-) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
-      break;
-    case 'pgsql':
-      db_query("CREATE TABLE {i18n_blocks} (
- delta varchar(32) NOT NULL DEFAULT '0',
- info varchar(64) NOT NULL DEFAULT '',
- type varchar(64) NOT NULL DEFAULT '',
- param int4 NOT NULL DEFAULT 0,
- PRIMARY KEY (delta))");
-      db_query("CREATE TABLE {i18n_blocks_i18n} (
- bid serial4 NOT NULL,
- language varchar(12) NOT NULL DEFAULT '',
- module varchar(64) NOT NULL DEFAULT '',
- delta varchar(32) NOT NULL DEFAULT '0',
- PRIMARY KEY (bid,language))");
-      break;
-  }
-  db_query("UPDATE {system} SET weight = 20 WHERE name = 'i18nblocks' AND type = 'module'");
+/**
+ * Implementation of hook_uninstall()
+ */
+function i18nblocks_uninstall() {
+  drupal_uninstall_schema('i18nblocks');
+}
+/**
+ * Implementation of hook_schema().
+ */
+function i18nblocks_schema() {
+  $schema['i18n_blocks'] = array(
+    'description' => t('Special i18n translatable blocks'),
+    'fields' => array(
+      'i18ndelta' => array(
+        'description' => t('The i18n block identifier.'),
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE),
+     'module' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => t("The block's origin module, from {blocks}.module."),
+      ),
+      'delta'  => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => t("The block's unique delta within module, from {blocks}.delta."),
+      ),
+      'info' => array(
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE,
+        'default' => '',
+        'description' => t('Block description.'),
+      ),
+    ),
+    'primary key' => array(
+      'i18ndelta',
+    ),
+  );
+  $schema['i18n_blocks_language'] = array(
+    'description' => t('Language data for blocks'),
+    'fields' => array(
+     'module' => array(
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => t("The block's origin module, from {blocks}.module."),
+      ),
+      'delta'  => array(
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+        'description' => t("The block's unique delta within module, from {blocks}.delta."),
+      ),
+      'language' => array(
+        'type' => 'varchar',
+        'length' => 12,
+        'description' => t("Block language"),
+        'not null' => TRUE,
+        'default' => '',
+      ),
+    ),
+    'primary key' => array(
+      'module', 'delta',
+    ),
+    
+  );
+
+  return $schema; 
 }
 
 /**
@@ -78,10 +122,3 @@ function i18nblocks_update_1() {
   return $ret;
 }
 
-/**
- * Implementation of hook_uninstall().
- */
-function i18nblocks_uninstall() {
-  db_query('DROP TABLE {i18n_blocks}');
-  db_query('DROP TABLE {i18n_blocks_i18n}');  
-}
