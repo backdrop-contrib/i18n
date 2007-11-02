@@ -5,6 +5,8 @@
  * Internationalization (i18n) submodule: Multilingual meta-blocks
  * 
  * @author Jose A. Reyero, 2005
+ * 
+ * @ TODO Add strings on block update
  */
 
 // Tag for localizable block, cannot be any language
@@ -232,11 +234,11 @@ function i18nblocks_get_block($delta, $language){
     // Override the default title
     if ($meta->title) {
       // Check plain here to allow module generated titles to keep any markup.
-      $block['subject'] = $meta->title == '<none>' ? '' : check_plain(tt("blocks:block:$delta:title", $meta->title, $language, TRUE));
+      $block['subject'] = $meta->title == '<none>' ? '' : check_plain(tt("blocks:block:$delta:title", $meta->title, $language));
     } elseif (!empty($block['subject'])) {
-      $block['subject'] = tt("blocks:block:$delta:title", $block['subject'], $language, TRUE);
+      $block['subject'] = tt("blocks:block:$delta:title", $block['subject'], $language);
     }
-    $block['content'] = tt("blocks:block:$delta:content", $block['content'], $language, TRUE);
+    $block['content'] = tt("blocks:block:$delta:content", $block['content'], $language);
     return $block;
   }
 }

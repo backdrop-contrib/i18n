@@ -1,4 +1,7 @@
-name = i18n - profile
+name = Profile - i18n
 description = Enables multilingual profile fields.
-dependencies = i18n profile
+dependencies[] = i18n
+dependencies[] = profile
 package = Multilanguage - i18n
+version = VERSION
+core = 6.x

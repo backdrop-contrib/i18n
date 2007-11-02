@@ -34,4 +34,13 @@ function i18nprofile_install() {
 function i18nprofile_update_1() {
   return _system_update_utf8(array('i18n_profile_fields'));
 }
-?>
+
+// Drupal 6 updates
+
+/**
+ * Drop old table and fields
+ */
+function i18nprofile_update_2() {
+  // @ TODO Move fields into strings translations
+  // @ TODO Drop old i18n_profile_fields table
+}
