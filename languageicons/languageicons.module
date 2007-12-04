@@ -138,8 +138,11 @@ function theme_languageicons_icon($language, $title = NULL){
   if ($path = variable_get('i18n_icon_path', drupal_get_path('module', 'i18n').'/flags/*.png')) {
     $src = base_path().str_replace('*', $language->language, $path);
     $title = $title ? $title : $language->native;
-    list($width, $height) = explode('x', variable_get('i18n_icon_size', '16x12'));
-    $attribs = array('class' => 'language-icon', 'width' => $width, 'height' => $height, 'alt' => $title);
+    $attribs = array('class' => 'language-icon', 'alt' => $title);
+    if ($size = variable_get('i18n_icon_size', '16x12')) {
+      list($width, $height) = explode('x', $size);
+      $attribs += array('width' => $width, 'height' => $height);
+    }
     return "<img src=\"$src\" ".drupal_attributes($attribs)." />";
   }
 }
