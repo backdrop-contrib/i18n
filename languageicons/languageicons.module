@@ -70,11 +70,8 @@ function languageicons_menu() {
  * Adds language icons to normal translation links.
  */
 function languageicons_translation_link_alter(&$links, $path) {
-  foreach ($links as $langcode => $link) {
-    if ($icon = theme('languageicons_icon', $link['language'], $link['title'])) {
-      $links[$langcode]['title'] = theme('languageicons_place', $link['title'], $icon );
-      $links[$langcode]['html'] = TRUE;
-    }
+  foreach (array_keys($links) as $langcode) {
+    languageicons_link_add($links[$langcode]);
   }
 }
 
@@ -88,11 +85,24 @@ function languageicons_link_alter(&$links, $node) {
     $languages = language_list();
     foreach ($translations as $langcode => $translation) {
       $index = 'node_translation_'.$langcode;
-      if (!empty($links[$index]) && $icon = theme('languageicons_icon', $languages[$langcode], $links[$index]['title'])) {
-        $links[$index]['title'] = theme('languageicons_place', $links[$index]['title'], $icon);
-        $links[$index]['html'] = TRUE;
+      if (!empty($links[$index])) {
+        languageicons_link_add($links[$index]);
       }
     }
+  }
+}
+
+/**
+ * Add language icon to link
+ * 
+ * The language icon may be a different language as the destination page, can be passed in 'language_icon'
+ */
+function languageicons_link_add(&$link, $title = NULL) {
+  $language = isset($link['language_icon']) ? $link['language_icon'] : $link['language'];
+  $title = $title ? $title : $link['title'];
+  if ($icon = theme('languageicons_icon', $language, $title)) {
+    $link['title'] = theme('languageicons_place', $link['title'], $icon);
+    $link['html'] = TRUE;    
   }
 }
 

@@ -5,8 +5,10 @@
  * @file
  * Internationalization (i18n) module
  *
- * Trimmed down
- * - Language initialization
+ * This module extends multilingual support being the base module for the i18n package.
+ * - Multilingual variables
+ * - Extended languages for nodes
+ * - Extended language API
  * 
  * @author Jose A. Reyero, 2004
  *
@@ -16,35 +18,6 @@
 define('LANGUAGE_SUPPORT_NONE', 0);
 define('LANGUAGE_SUPPORT_NORMAL', 1);
 define('LANGUAGE_SUPPORT_EXTENDED', 2);
-
-/**
- * Implementation of hook_theme()
- */
-function i18n_theme() {
-  return array(
-    'i18n_language_icon' => array(
-      'arguments' => array('langcode' => array()),
-    ),
-  );
-}
-
-
-/**
- * Language block
- * 
- * This is a simple language switcher which knows nothing about translations
- */
-function i18n_block($op = 'list', $delta = 0) {
-  if ($op == 'list') {
-    $blocks[0]['info'] = t('Language switcher');
-  }
-  elseif($op == 'view') {
-    $blocks['subject'] = t('Languages');
-    $query = drupal_query_string_encode($_GET, array('q'));
-    $blocks['content'] = theme('item_list', i18n_get_links($_GET['q'], empty($query) ? NULL : $query));
-  }
-  return $blocks;
-}
 
 /**
  * Implementation of hook_init()
@@ -78,20 +51,25 @@ function i18n_init(){
 function i18n_help($section = 'admin/help#i18n' ) {
   switch ($section) {
     case 'admin/help#i18n' :
-      $output = '<p>'.t('This module provides support for multilingual content in Drupal sites:').'</p>';
+      $output = '<p>'.t('This module improves support for multilingual content in Drupal sites:').'</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('Translation of the user interface for anonymous users (combined with locale)').'</li>';
-      $output .= '<li>'.t('Multi-language for content. Adds a language field for nodes and taxonomy vocabularies and terms').'</li>';
-      $output .= '<li>'.t('Browser language detection').'</li>';
-      $output .= '<li>'.t('Keeps the language setting accross consecutive requests using URL rewriting').'</li>';
-      $output .= '<li>'.t('Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i>').'</li>';
-      $output .= '<li>'.t('Support for long locale names').'</li>';
-      $output .= '<li>'.t('Multilingual menu items').'</li>';      
+      $output .= '<li>'.t('Shows content depending on page language').'</li>';
+      $output .= '<li>'.t('Handles multilingual variables').'</li>';
+      $output .= '<li>'.t('Extended language option for chosen content types. For these content types transations will be allowed for all defined languages, not only for enabled ones.').'</li>';
+      $output .= '<li>'.t('Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i>').'</li>';     
+      $output .= '</ul>';
+      $output .= '<p>'.t('This is the base module for several others adding different features:').'</p>';
+      $output .= '<ul>';      
+      $output .= '<li>'.t('Multilingual menu items').'</li>';       
+      $output .= '<li>'.t('Multilingual taxonomy Adds a language field for taxonomy vocabularies and terms').'</li>';
       $output .= '</ul>';
       $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/31631')) .'</p>';
       return $output;
     case 'admin/settings/i18n':
-      $output .= '<p>'.t('To enable multilingual support for specific content types go to !configure_content_types.', array('!configure_content_types' => l(t('configure content types'), 'admin/content/types'), )).'</p>';
+      $output = '<ul>';
+      $output .= '<li>'.t('To manage languages go to the !configure_languages', array('!configure_languages' => l(t('Languages configuration page'), 'admin/settings/language'))).'</li>';
+      $output .= '<li>'.t('To enable multilingual support for specific content types go to !configure_content_types.', array('!configure_content_types' => l(t('configure content types'), 'admin/content/types'), )).'</li>';
+      $output . '</ul>';
       return $output;
   }
 }
@@ -100,21 +78,48 @@ function i18n_help($section = 'admin/help#i18n' ) {
  * Implementation of hook_menu().
  */
 function i18n_menu() {
-  $items[] = array(
-    'path' => 'admin/settings/i18n',
+  $items['admin/settings/i18n'] = array(
     'title' => 'Multilingual system',
-    'description' => 'Configure multilingual content and translation.',
-    'callback' => 'drupal_get_form',
-    'callback arguments' => array('i18n_admin_settings'),
-    'access' => user_access('administer site configuration'),
+    'description' => 'Configure extended options for multilingual content and translations.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('i18n_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'i18n.admin.inc',
   );
-  $items[] = array(
-    'path' => 'admin/settings/i18n/main',
+  $items['admin/settings/i18n/main'] = array(
     'title' => 'Internationalization',
-    'type' => MENU_DEFAULT_LOCAL_TASK
+    'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
   return $items;
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ * 
+ * Take over the node translation page
+ */
+function i18n_menu_alter(&$items) {
+  // dsm($router_items);
+  /*
+  $items['node/%node/translate']['page callback'] = 'i18n_translation_node_overview';
+  $items['node/%node/translate']['file'] = 'i18n.pages.inc';
+  $items['node/%node/translate']['module'] = 'i18n';
+  */
+  /**
+  $items = array();
+  $items['node/%node/translate'] = array(
+    'title' => 'Translate',
+    'page callback' => 'translation_node_overview',
+    'page arguments' => array(1),
+    'access callback' => '_translation_tab_access',
+    'access arguments' => array(1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 2,
+    'file' => 'i18n.pages.inc',
+  );
+  return $items;
+  */
 }
 
 /**
@@ -175,6 +180,55 @@ function i18n_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 */
 
 /**
+ * Implementation of hook_alter_translation_link().
+ *
+ * Handles links for extended language. The links will have current language
+ */
+function i18n_translation_link_alter(&$links, $path) {
+  global $language;
+  
+  // Check for a node related path, and for its translations.
+  if ((preg_match("!^node/([0-9]+)(/.+|)$!", $path, $matches)) && ($node = node_load((int)$matches[1])) && !empty($node->tnid)) {
+    $languages = language_list();
+    $extended = array();
+    foreach (translation_node_get_translations($node->tnid) as $langcode => $translation_node) {
+      if (!isset($links[$langcode]) && isset($languages[$langcode])) {
+        $extended[$langcode] = array(
+           'href' => 'node/'.$translation_node->nid . $matches[2],
+           'language' => $language,
+           'language_icon' => $languages[$langcode],
+           'title' => $languages[$langcode]->native,
+           'attributes' => array('class' => 'language-link'),
+        );
+      }
+    }
+    // This will run after languageicon module, so we add icon in case that one is enabled
+    if ($extended && function_exists('languageicons_translation_link_alter')) {
+      languageicons_translation_link_alter($extended, $path);
+    }
+    $links = array_merge($links, $extended);
+  }
+}
+
+/**
+ * Implementation of hook_link_alter().
+ *
+ * Handles links for extended languages. Sets current interface language;
+ */
+function i18n_link_alter(&$links, $node) {
+  global $language;
+  
+  if ($node->tnid) {
+    foreach (array_keys(i18n_language_list('extended')) as $langcode) {
+      $index = 'node_translation_'.$langcode;
+      if (!empty($links[$index])) {
+        $links[$index]['language'] = $language;
+      }
+    }
+  }
+}
+
+/**
  * Implementation of hook_user()
  * 
  * Switch to user's language after login
@@ -187,41 +241,8 @@ function i18n_user($op, &$edit, &$account, $category = NULL) {
 }
 
 /**
- * Form builder function.
- * 
- * TO DO: Add exclude paths for content selection
- * Some options have been removed from previous versions:
- * - Languages are now taken from locale module unless defined in settings file
- * - Language dependent tables are authomatically used if defined in settings file
- */
-function i18n_admin_settings() {
-
-  // Content selection options
-  $form['selection'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Content selection'),
-    //'#collapsible' => TRUE,
-    //'#collapsed' => TRUE,
-  );
-  $form['selection']['i18n_selection_mode'] = array(
-    '#type' => 'radios',
-    '#title' => t('Content selection mode'),
-    '#default_value' => variable_get('i18n_selection_mode', 'simple'),
-    '#options' => _i18n_selection_mode(),
-    '#description' => t('Determines which content to show depending on language.'),
-  );
-
-    
-  return system_settings_form($form);
-}
-
-/**
  * Simple i18n API
  */
-
-
-
-
 
 /**
  * Get language properties
@@ -231,60 +252,16 @@ function i18n_admin_settings() {
  * @param $property
  *   It may be 'name', 'native', 'ltr'...
  */
-function i18n_language_property($code, $property = 'native') {
-  $languages = language_list($property);
-  return $languages[$code];
+function i18n_language_property($code, $property) {
+  $languages = language_list();
+  return isset($languages[$code][$property]) ? $languages[$code][$property] : NULL;
 }
-
-/**
- * Get locale languages plus i18n language settings
- * 
- * @param $key
- *   Data to be returned, defaults to 'active'
- *   'active' => array of enabled languages with native name
- *   'enabled' => array of enabled languages with english name
- *   'name' => all languages defined in locale module with english name
- *   'site_default' => code of default site language
- */
-function i18n_languages($key = 'active') {
-  static $languages;
-  if (!$languages) {
-    if($languages = variable_get('i18n_languages', 0)) {
-      foreach($languages['name'] as $code => $name) {
-        if($languages['enabled'][$code]) {
-          $languages['active'][$code] = $name;
-        }
-      }
-    } else {
-      // It is possible that languages are not initialized
-      if (function_exists('locale_supported_languages')) {
-        $languages = locale_supported_languages();
-      } else {
-        // Worst case scenario: locale module not loaded, for cached pages, at least this won't break everything
-        unset($languages); // There's some PHP bug: http://www.zend.com/zend/week/week98.php
-        $languages['name'] = array('en' => 'English');
-      }
-      $languages['site_default'] = key($languages['name']);
-      $languages['active'] = $languages['name'];
-      $languages['native'] = $languages['name'];
-    }
-    // Sort everything alphabetically
-    asort($languages['name']);
-    asort($languages['active']);
-    asort($languages['native']);
-  }
-  return $key ? $languages[$key] : $languages;
-}
-
-/**
- * More i18n API
- */
 
 /**
  * Get node language
  */
 function i18n_node_get_lang($nid, $default = '') {
-  $lang = db_result(db_query('SELECT language FROM {node} WHERE nid=%d',$nid));
+  $lang = db_result(db_query('SELECT language FROM {node} WHERE nid = %d',$nid));
   return $lang ? $lang : $default ;
 }
 
@@ -292,15 +269,31 @@ function i18n_node_get_lang($nid, $default = '') {
  * Get allowed languages for node
  * 
  * This allows node types to define its own language list implementing hook 'language_list'
+ * 
+ * @param $node
+ *   Node to retrieve language list for
+ * @param $translate
+ *   Only languages available for translation. Filter out existing translations
  */
-function i18n_node_language_list($node) {
-  if ($languages = node_invoke($node, 'language_list')) {
-    return $languages; // The node module manages its own language list
-  } elseif(variable_get('i18n_node_'.$node->type, 0) == LANGUAGE_SUPPORT_EXTENDED) {
-    return i18n_language_list(TRUE); // All defined languages
-  } else {
-    return i18n_language_list(); // All enabled languages
+function i18n_node_language_list($node, $translate = FALSE) {
+  // Check if the node module manages its own language list
+  $languages = node_invoke($node, 'language_list', $translate);
+  if (!$languages) {
+    if (variable_get('i18n_node_'.$node->type, 0) == LANGUAGE_SUPPORT_EXTENDED) {
+      $languages = locale_language_list('name', TRUE); // All defined languages
+    } else {
+      $languages = locale_language_list(); // All enabled languages
+    }
+    if ($translate && isset($node->tnid) && $node->tnid && ($translations = translation_node_get_translations($node->tnid))) {
+      unset($translations[$node->language]);
+      foreach (array_keys($translations) as $langcode) {
+        unset($languages[$langcode]);
+      }
+    }
+    $languages = array('' => t('Language neutral')) + $languages;
   }
+
+  return $languages;
 }
 
 /**
@@ -319,7 +312,7 @@ function i18n_get_links($path = '', $query = NULL, $names = NULL) {
   if($path == i18n_frontpage()) {
     $path = '';
   }
-  $names = $names ? $names : i18n_languages('native');
+  $names = $names ? $names : locale_language_list('native');
   foreach (array_keys(i18n_supported_languages()) as $lang){
     $links[$lang]= theme('i18n_link', $names[$lang], i18n_path($path, $lang), $lang, $query);
   }
@@ -358,44 +351,6 @@ function i18n_selection_mode($mode= NULL, $params= NULL){
     $current_value = $params;
   } 
 }
-// List of selection modes
-function _i18n_selection_mode(){
-  return array(
-    'simple' => t('Only current language and no language'),
-    'mixed' => t('Only current and default languages and no language'),
-    'default' => t('Only default language and no language'),    
-    'strict' => t('Only current language'),
-    'off' => t('All content. No language conditions apply'),    
-  );
-}
-// List of language support modes for content
-function _i18n_content_languages() {
-  return array(
-    LANGUAGE_SUPPORT_NONE => t('Disabled'),
-    LANGUAGE_SUPPORT_NORMAL => t('Normal - All enabled languages will be allowed.'),
-    LANGUAGE_SUPPORT_EXTENDED => t('Extended - All defined languages will be allowed.')
-  );
-}
-
-/**
- * @name Themeable functions
- * @{
- */
-  
-/**
- * Produces a language link with the right flag
- */
-function theme_i18n_link($text, $target, $lang, $query= NULL, $fragment = NULL){
-  $output = '<span class="i18n-link">';
-  $attributes = ($lang == i18n_get_lang()) ? array('class' => 'active') : NULL;
-  $output .= l(theme('i18n_language_icon', $lang), $target, $attributes, $query, $fragment, FALSE, TRUE);
-  $output .= "&nbsp;";
-  $output .= l($text, $target, $attributes, $query, $fragment, FALSE, TRUE);
-  $output .= '</span>';
-  return $output;
-}
-
-/* @} */
 
 /**
  * Implementation of hook_db_rewrite_sql()
@@ -407,12 +362,12 @@ function i18n_db_rewrite_sql($query, $primary_table, $primary_key){
     case 'node':
       // Node queries.
       // No rewrite for translation module queries
-      if (preg_match("/.*FROM {node} WHERE.* tnid/", $query)) return;
+      if (preg_match("/.*FROM {node} $primary_table WHERE.*$primary_table\.tnid/", $query)) return;
       // When loading specific nodes, language conditions shouldn't apply
       if (preg_match("/WHERE.*\s$primary_table.nid\s*=\s*(\d|%d)/", $query)) return;
       // If language conditions already there, get out
       if (preg_match("/i18n/", $query)) return;
-      
+
       //$result['join'] = "LEFT JOIN {i18n_node} i18n ON $primary_table.nid = i18n.nid";
       $result['where'] = i18n_db_rewrite_where($primary_table, 'node');
       return $result;
@@ -459,31 +414,31 @@ function i18n_exit(){
 }
 
 /**
- * Implementation of hook_form_alter
+ * Implementation of hook_form_alter();
  * 
  * This is the place to add language fields to all forms
  */
 function i18n_form_alter(&$form, $form_state, $form_id) {
-  //drupal_set_message("DEBUG: i18n_form_alter form_id=$form_id ");
-  switch($form_id){
+  switch ($form_id){
      case 'node_type_form':
-       $node_type = $form['old_type']['#value'];
-       // Build a fieldset to allow some more options here
-       $form['workflow']['i18n'] = array(
-          '#type' => 'fieldset',
-          '#title' => t('Multilingual options'),
+       // Add extended language support option to content type form.
+       $form['workflow']['i18n_node'] = array(
+          '#type' => 'radios',
+          '#title' => t('Extended language support'),
+          '#default_value' => variable_get('i18n_node_'. $form['#node_type']->type, LANGUAGE_SUPPORT_NORMAL),
+          '#options' => _i18n_content_language_options(),
+          '#description' => t('If enabled, all defined languages will be allowed for this content type in addition to only enabled ones. This is useful to have more languages for content than for the interface.')
        );
-       $form['workflow']['i18n']['i18n_node'] = array(
-         '#type' => 'radios',
-         '#title' => t('Multilingual content'),
-         '#default_value' => variable_get('i18n_node_'.$node_type, 0),
-         '#options' => _i18n_content_languages(),
-         '#description' => t('Enables language field and translations for this content type.'),
-       );
+
        break;
 
     default:
-      // Node edit form
+      // Extended language for node edit form
+      if (isset($form['#id']) && $form['#id'] == 'node-form') {
+        if (isset($form['#node']->type) && variable_get('language_content_type_'. $form['#node']->type, 0)) {
+          $form['language']['#options'] = i18n_node_language_list($form['#node'], TRUE);
+        }
+      }
       /** @ TO DO Upgrade
       if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id && $node = $form['#node']) {
         // Language field
@@ -534,39 +489,6 @@ function i18n_menu_edit_item_form_submit($form_id, $form_values) {
   $mid = menu_edit_item_save($form_values);
   db_query("UPDATE {menu} SET language = '%s' WHERE mid = %d", $form_values['language'], $mid);
   return 'admin/build/menu';
-}
-
-/**
- * Theme the locale admin manager form.
- */
-function theme_i18n_admin_manage_screen($form) {
-  foreach ($form['name'] as $key => $element) {
-    // Do not take form control structures.
-    if (is_array($element) && element_child($key)) {
-      $rows[] = array(check_plain($key), drupal_render($form['name'][$key]), drupal_render($form['native'][$key]), drupal_render($form['enabled'][$key]), drupal_render($form['site_default'][$key]), drupal_render($form['rtl'][$key]),($key != 'en' ? drupal_render($form['translation'][$key]) : t('n/a')), ($key != 'en' ? l(t('delete'), 'admin/settings/locale/language/delete/'. $key) : ''));
-    }
-  }
-  $header = array(array('data' => t('Code')), array('data' => t('English name')), array('data' => t('Native name')), array('data' => t('Enabled')), array('data' => t('Default')), array('data' => t('RTL')), array('data' => t('Translated')), array('data' => t('Operations')));
-  $output = theme('table', $header, $rows);
-  $output .= drupal_render($form);
-
-  return $output;
-}
-
-/**
- * Save language settings in variable
- */
-function i18n_admin_manage_screen_submit($form_id, $form_values) {
-  // Save changes to existing languages.
-  foreach(array('site_default', 'name', 'rtl', 'native', 'enabled') as $key) {
-    $save[$key] = $form_values[$key];
-  }
-  $save['name']['en'] = 'English';
-  $languages = locale_supported_languages(FALSE, TRUE);
-  foreach($languages['name'] as $key => $lang) {
-   // Nothing 
-  }
-  variable_set('i18n_languages', $save);
 }
 
 /**
@@ -642,7 +564,7 @@ function i18n_variable_init($language = NULL, $prefix = ''){
  * Helper function to create language selector
  */
 function _i18n_language_select($value ='', $description ='', $weight = -20, $languages = NULL){
-  $languages = $languages ? $languages : i18n_language_list();
+  $languages = $languages ? $languages : locale_language_list();
   return array(
       '#type' => 'select',
       '#title' => t('Language'),
@@ -725,21 +647,16 @@ function _i18n_get_original_path() {
  * Drupal 6, backwards compatibility layer
  * @ TO DO Fully upgrade all the modules and remove
  */
+
 /**
  * This one expects to be called first from common.inc
  */
-function i18n_get_lang($setlanguage = NULL) {
+function i18n_get_lang() {
   global $language;
-  
   return $language->language;
 }
 
-/**
- * Returns default language
- */
-function i18n_default_language(){
-  return language_default('language'); 
-}
+
 
 /**
  * Language dependent front page
@@ -750,41 +667,42 @@ function i18n_frontpage($lang = NULL) {
   return i18n_get_normal_path($lang.'/'.variable_get('site_frontpage','node'));
 }
 
-/**
- * Get localized language list, sort alphabetically
- * 
- * @param $all
- *   TRUE for all languages, not only enabled
- */
-function i18n_language_list($field = 'name', $all = FALSE) {
-  if ($all) {
-    $languages = language_list();
-  }
-  else {
-    $languages = language_list('enabled');
-    $languages = $languages[1];
-  }
-  $list = array();
-  foreach ($languages as $language) {
-    $list[$language->language] = ($field == 'name') ? t($language->name) : $language->$field;
-  }
-  return $list;
-}
-
-/**
- * Get list of supported languages
- * @param $all
- *   TRUE to get all defined languages
- */
-function i18n_supported_languages($all = FALSE) {
-  return i18n_language_list('native', $all);
-}
 
 /**
  * @defgroup i18n_api Extended language API
  * @{
  * This is an extended language API to be used by modules in i18n package.
  */
+
+/**
+ * Returns language lists
+ */
+function i18n_language_list($type = 'enabled', $field = 'name') {
+  switch ($type) {
+    case 'enabled':
+      return locale_language_list($field);
+    case 'extended':
+      $enabled = locale_language_list($field);
+      $defined = locale_language_list($field, TRUE);
+      return array_diff_assoc($defined, $enabled);
+  }
+}
+/**
+ * Returns default language code
+ */
+function i18n_default_language(){
+  return language_default('language'); 
+}
+
+/**
+ * Get list of supported languages, native name
+ * 
+ * @param $all
+ *   TRUE to get all defined languages
+ */
+function i18n_supported_languages($all = FALSE) {
+  return locale_language_list('native', $all);
+}
 
 /**
  * Set a persistent language dependent variable.

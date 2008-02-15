@@ -1,4 +1,4 @@
-name = Profile - i18n
+name = Multilingual Profile
 description = Enables multilingual profile fields.
 dependencies[] = i18n
 dependencies[] = profile

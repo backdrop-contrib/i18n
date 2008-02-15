@@ -61,13 +61,13 @@ function i18n_views_tables() {
 }
 
 function i18n_views_language_list($a, $b){
-  return i18n_language_list();
+  return locale_language_list();
 }
 function i18n_views_language_list_all($a, $b){
-  return i18n_language_list(TRUE);
+  return locale_language_list('name', TRUE);
 }
 function i18n_views_handler_language($fieldinfo, $fielddata, $value, $data) {
-  $languages = i18n_language_list(TRUE);
+  $languages = locale_language_list('name', TRUE);
   return $languages[$value];
 }
 

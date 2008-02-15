@@ -42,7 +42,7 @@ function i18n_install() {
   // Create database tables
   drupal_install_schema('i18n');
   // Set module weight for it to run after core modules
-  db_query("UPDATE {system} SET weight = -10 WHERE name = 'i18n' AND type = 'module'");
+  db_query("UPDATE {system} SET weight = 10 WHERE name = 'i18n' AND type = 'module'");
 }
 
 /**
@@ -106,4 +106,20 @@ function i18n_update_8(){
 /**
  * Drupal 6 updates
  */
- // Move node language and trid into node table
+ 
+function i18n_update_9() {
+  // Update content type settings
+  foreach (array_keys(node_get_types()) as $type) {
+    if (variable_get('i18n_node_'.$type, 0)) {
+      variable_set('language_content_type_'.$type, TRANSLATION_ENABLED);
+    }
+  }
+  // Set module weight for it to run after core modules
+  $items[] = update_sql("UPDATE {system} SET weight = 10 WHERE name = 'i18n' AND type = 'module'");  
+  
+  // Move node language and trid into node table
+  $items[] = update_sql("UPDATE {node} n SET language = (SELECT n2.language FROM {i18n_node} n2 WHERE n2.nid = n1.nid)  WHERE n.nid IN (SELECT nid FROM {i18n_node})");
+  $items[] = update_sql("UPDATE {node} n SET tnid = (SELECT n2.trid FROM {i18n_node} n2 WHERE n2.nid = n1.nid)  WHERE n.nid IN (SELECT nid FROM {i18n_node})");
+
+  return $items;
+}
