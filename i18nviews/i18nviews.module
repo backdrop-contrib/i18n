@@ -105,3 +105,50 @@ function i18n_views_pre_query(&$view) {
 function i18n_views_pre_view(&$view, &$items) {
   i18n_selection_mode('reset');
 }
+
+/**
+ * Implementation of hook_form_alter()
+ * 
+ * @ TODO Copied from i18ntaxonomy, update all this
+ */
+function i18nviews_form_alter(&$form, $form_state, $form_id) {
+  
+  if ($form_id == 'views_filters' && $translate = variable_get('i18ntaxonomy_vocabularies', array())) {
+    // We only translate exposed filters here
+    $view = $form['view']['#value'];
+    if($view->exposed_filter) {
+      foreach($view->exposed_filter as $index => $filter) {
+        $matches = array();
+        if($filter['field'] == 'term_node.tid') {
+          // That's a full taxonomy box. Translate options: arary(tid => "Vocabulary: Term")
+          // First, we get a translated list. Then we replace on the options array
+          $replace = _i18ntaxonomy_vocabulary_terms(array_keys($translate));
+          foreach($replace as $tid => $name) {
+            if(isset($form["filter$index"]['#options'][$tid])) {
+              $form["filter$index"]['#options'][$tid] = $name;
+            }
+          }
+        } elseif(preg_match("/term_node_(\d+)\.tid/", $filter['field'], $matches)) {
+          $vid = $matches[1];
+          if ($translate[$vid]) { 
+            // Translate this vocabulary terms, field name is filter$index vid = $matches[1]
+            foreach ($form["filter$index"]['#options'] as $value => $option) {
+              if ($value != '**ALL**') { // ALL option should be already localized
+                // This may be an object with an option property being an array (tid => name)
+                if (is_object($option) && is_array($option->option)) {
+                  foreach (array_keys($option->option) as $tid) {
+                    $option->option[$tid] = t($option->option[$tid]);
+                  }
+                  $form["filter$index"]['#options'][$value] = $option;
+                // But it used to be a plain string, so let's keep this just in case...
+                } elseif(is_string($option)) {
+                  $form["filter$index"]['#options'][$value] = t($option);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

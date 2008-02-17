@@ -15,6 +15,27 @@
  */
 
 /**
+ * Implementation of hook_help().
+ */
+function i18ntaxonomy_help($section = 'admin/help#i18n' ) {
+  switch ($section) {
+    case 'admin/help#i18ntaxonomy' :
+      $output = '<p>'.t('This module adds support for for multilingual taxonomy. You can set up multilingual options for each vocabulary:').'</p>';
+      $output .= '<ul>';
+      $output .= '<li>'.t('A language can be assigned globaly for a vocabulary').'</li>';
+      $output .= '<li>'.t('Different terms for each language with translation relationships.').'</li>';
+      $output .= '<li>'.t('Terms can be common to all languages but may be localized.').'</li>';
+      $output .= '</ul>';
+      $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/31631')) .'</p>';
+      return $output;
+    case 'admin/settings/i18n':
+      $output = '<ul>';
+      $output .= '<li>'.t('To set up multilingual options for vocabularies go to !configure_taxonomy', array('!configure_taxonomy' => l(t('Taxonomy configuration page'), 'admin/content/taxonomy'))).'</li>';
+      $output . '</ul>';
+      return $output;
+  }
+}
+/**
  * Modes for multilingual vocabularies
  */ 
 // No multilingual options
@@ -32,9 +53,9 @@ define('I18N_TAXONOMY_TRANSLATE', 3);
 function _i18ntaxonomy_vocabulary_options() {
   return array(
     I18N_TAXONOMY_NONE => t('No translation'),
-    I18N_TAXONOMY_LOCALIZE => t('Localize terms'),
-    I18N_TAXONOMY_TRANSLATE => t('Per language terms'), 
-    I18N_TAXONOMY_LANGUAGE => t('Set language to vocabulary'), 
+    I18N_TAXONOMY_LOCALIZE => t('Localize terms. Terms are common for all languages but their name and description may be localized.'),
+    I18N_TAXONOMY_TRANSLATE => t('Per language terms. Different terms will be allowed for each language and they can be translated.'), 
+    I18N_TAXONOMY_LANGUAGE => t('Set language to vocabulary. The vocabulary will have a global language and it will only show up for pages in that language.'), 
   );
 }
 /**
@@ -146,16 +167,19 @@ function i18ntaxonomy_taxonomy($op, $type, $edit = NULL) {
     case 'vocabulary/update':
       $vid = $edit['vid'];
       // Update vocabulary settings
-      i18ntaxonomy_vocabulary($vid, $edit['i18nmode']);
-      $language = isset($edit['language']) ? $edit['language'] : '';
-      db_query("UPDATE {vocabulary} SET language='%s' WHERE vid = %d", $language, $edit['vid']);    
-      if ($language && $op == 'update') {
-        db_query("UPDATE {term_data} SET language='%s' WHERE vid = %d", $edit['language'], $edit['vid']);
-        drupal_set_message(t('Reset language for all terms.'));
-      }
-      // Always add vocabulary translation if !$language
-      if (!$language) {
-        tt("taxonomy:vocabulary:$vid:name", $edit['name'], NULL, TRUE);
+      if (isset($edit['i18nmode'])) {
+        i18ntaxonomy_vocabulary($vid, $edit['i18nmode']);
+  
+        $language = isset($edit['language']) ? $edit['language'] : '';
+        db_query("UPDATE {vocabulary} SET language='%s' WHERE vid = %d", $language, $edit['vid']);    
+        if ($language && $op == 'update') {
+          db_query("UPDATE {term_data} SET language='%s' WHERE vid = %d", $edit['language'], $edit['vid']);
+          drupal_set_message(t('Reset language for all terms.'));
+        }
+        // Always add vocabulary translation if !$language
+        if (!$language) {
+          tt("taxonomy:vocabulary:$vid:name", $edit['name'], NULL, TRUE);
+        }
       }
       break;
     }
@@ -165,6 +189,9 @@ function i18ntaxonomy_taxonomy($op, $type, $edit = NULL) {
  * Implementation of hook_db_rewrite_sql()
  */
 function i18ntaxonomy_db_rewrite_sql($query, $primary_table, $primary_key){
+  // No rewrite for administration pages
+  if (arg(0) == 'admin') return;
+
   switch ($primary_table) {
     case 't':
     case 'v':
@@ -199,8 +226,12 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
       } else {
         $mode = I18N_TAXONOMY_NONE;
       }
-      
-      $form['i18n'] = array('#type' => 'fieldset', '#title' => t('Multilingual options'), '#collapsible' => TRUE);
+      $form['i18n'] = array(
+        '#type' => 'fieldset', 
+        '#title' => t('Multilingual options'), 
+        '#collapsible' => TRUE,
+        '#weight' => 0,
+      );
       $form['i18n']['i18nmode'] = array(
         '#type' => 'radios',
         '#title' => t('Translation mode'),
@@ -211,18 +242,17 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
       break;
       
     case 'taxonomy_form_term': // Taxonomy term
-      $vocabulary = taxonomy_vocabulary_load($form['vid']['#value']);
-      if (isset($form['tid']) && is_numeric($form['tid']['#value'])) {
-        $term = taxonomy_get_term($form['tid']['#value']);
-      }
+      $vocabulary = (object)$form['#vocabulary'];
+      $term = (object)$form['#term'];
       // Add language field or not depending on taxonomy mode
       switch (i18ntaxonomy_vocabulary($vocabulary->vid)) {
         case I18N_TAXONOMY_TRANSLATE:
-          $form['language'] = array(
+          $form['identification']['language'] = array(
             '#type' => 'select',
             '#title' => t('Language'),
-            '#default_value' => (isset($term) ? $term->language : ''),
+            '#default_value' => isset($term) && !empty($term->language) ? $term->language : '',
             '#options' => array('' => '') + locale_language_list('name'),
+            '#description' => t('This term belongs to a multilingual vocabulary.'),
           );
           break;       
         case I18N_TAXONOMY_LANGUAGE:
@@ -234,49 +264,13 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
           break;
       }
       break;
+    default:
+      if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id 
+        && ($node = $form['#node']) && isset($form['taxonomy']) ) {
+        // Node form. Translate vocabularies
+        i18ntaxonomy_node_form($form);
+      }    
   }
-  if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id 
-    && ($node = $form['#node']) && isset($form['taxonomy']) ) {
-    // Node form. Translate vocabularies
-    i18ntaxonomy_node_form($form);
-  } else if($form_id == 'views_filters' && $translate = variable_get('i18ntaxonomy_vocabularies', array())) {
-    // We only translate exposed filters here
-    $view = $form['view']['#value'];
-    if($view->exposed_filter) {
-      foreach($view->exposed_filter as $index => $filter) {
-        $matches = array();
-        if($filter['field'] == 'term_node.tid') {
-          // That's a full taxonomy box. Translate options: arary(tid => "Vocabulary: Term")
-          // First, we get a translated list. Then we replace on the options array
-          $replace = _i18ntaxonomy_vocabulary_terms(array_keys($translate));
-          foreach($replace as $tid => $name) {
-            if(isset($form["filter$index"]['#options'][$tid])) {
-              $form["filter$index"]['#options'][$tid] = $name;
-            }
-          }
-        } elseif(preg_match("/term_node_(\d+)\.tid/", $filter['field'], $matches)) {
-          $vid = $matches[1];
-          if ($translate[$vid]) { 
-            // Translate this vocabulary terms, field name is filter$index vid = $matches[1]
-            foreach ($form["filter$index"]['#options'] as $value => $option) {
-              if ($value != '**ALL**') { // ALL option should be already localized
-                // This may be an object with an option property being an array (tid => name)
-                if (is_object($option) && is_array($option->option)) {
-                  foreach (array_keys($option->option) as $tid) {
-                    $option->option[$tid] = t($option->option[$tid]);
-                  }
-                  $form["filter$index"]['#options'][$value] = $option;
-                // But it used to be a plain string, so let's keep this just in case...
-                } elseif(is_string($option)) {
-                  $form["filter$index"]['#options'][$value] = t($option);
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }  
 }
 
 /**
