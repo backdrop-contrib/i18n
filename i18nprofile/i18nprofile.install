@@ -1,31 +1,10 @@
 <?php
 // $Id$
-/**
- * Set language field in its own table
- * Do not drop node.language now, just in case
- * TO-DO: Drop old tables, fields
- */
 
+/**
+ * Nothing to install for Drupal 6
+ */
 function i18nprofile_install() {
-  switch ($GLOBALS['db_type']) {
-    case 'mysql':
-    case 'mysqli':
-      db_query("CREATE TABLE {i18n_profile_fields} (
-  `fid` int(10) NOT NULL,
-  `language` varchar(10) NOT NULL default '',
-  `title` varchar(255) default '',
-  `explanation` text,
-  `page` varchar(255) default '',
-  `options` text,
-   PRIMARY KEY  (`fid`, `language`)
-   ) /*!40100 DEFAULT CHARACTER SET UTF8 */ ");
- 
-      break;
-   
-    case 'pgsql':
-      drupal_set_message("PGSQL automatic install is not supported for i18nprofile module");
-      break;
-  }
 }
 
 /**
@@ -41,6 +20,51 @@ function i18nprofile_update_1() {
  * Drop old table and fields
  */
 function i18nprofile_update_2() {
-  // @ TODO Move fields into strings translations
-  // @ TODO Drop old i18n_profile_fields table
+  $items = array();
+  
+  // Create source strings for translations
+  $categories = array();
+  $result = db_query("SELECT * FROM {profile_fields}");
+  while ($field = db_fetch_object($result)) {
+    // Store strings to translate: title, explanation, options
+    to("profile:field:$field->name", $field, array('title', 'explanation', 'options'), NULL, TRUE);
+    if (!in_array($field->category, $categories)) {
+      $categories[] = $field->category;
+      tt("profile:category", $field->category, NULL, TRUE);
+    }
+  }
+  // Category translations from variables
+  foreach (array_keys(language_list()) as $lang) {
+    if ($translation = variable_get('i18nprofile_'.$lang)) {
+      foreach ($translation as $category => $translation) {
+        if (in_array($category, $categories) && $translation) {
+          $context = i18nstrings_context('profile:category', $category);
+          i18nstrings_update_translation($context, $lang, $translation);
+        }
+      }
+    }
+  }
+  // Move current data into string translations
+  $result = db_query("SELECT * FROM {i18n_profile_fields}");
+  while ($field = db_fetch_object($result)) {
+    foreach (array('title', 'explanation', 'options') as $property) {
+      if (!empty($field->$property)) {
+        i18nstrings_update_translation("profile:field:$field->name:$property", $field->language, $field->$property);
+      }
+    }
+  }
+
+  return $items;
 }
+
+// Clean up. Uncomment when it all works
+/*
+function i18nprofile_update_3() {
+  $items[] =  update_sql("DROP TABLE {i18n_profile_fields};");
+
+  foreach (array_keys(language_list()) as $lang) {
+    variable_del('i18nprofile_'.$lang);
+  }
+  return $items;
+}
+*/

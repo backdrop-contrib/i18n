@@ -5,7 +5,7 @@
  * @file
  * Internationalization (i18n) package - translatable strings
  * 
- * Similar to locale module but handling string context
+ * Object oriented string translation using locale and textgroups
  * 
  * Some concepts
  * - Textgroup. Group the string belongs to, defined by locale hook
@@ -128,6 +128,15 @@ function i18nstrings_update_string($context, $string) {
       break;
   }
   return $status;
+}
+
+/**
+ * Update string translation
+ */
+function i18nstrings_update_translation($context, $langcode, $translation) {
+  if ($source = i18nstrings_get_source($context, $translation)) {
+    db_query("INSERT INTO {locales_target}(lid, language, translation) VALUES(%d, '%s', '%s')", $source->lid, $langcode, $translation);
+  }
 }
 
 /**
