@@ -3,19 +3,32 @@
 
 /**
  * @file
- * Internationalization (i18n) package - translattable strings
+ * Internationalization (i18n) package - translatable strings
  * 
- * @author Jose A. Reyero, 2007
+ * Similar to locale module but handling string context
  * 
  * Some concepts
  * - Textgroup. Group the string belongs to, defined by locale hook
  * - Location. Unique id of the string for this textgroup
  * - Name. Unique absolute id of the string: textgroup + location
  * - Context. Object with textgroup, type, oid, property
+ * - Default language may be English or not. It will be the language set as default
+ *   Source strings will be stored in default language
+ * 
+ * @ TO DO: Handle default language changes.
+ * 
+ * @author Jose A. Reyero, 2007
  */
 
 /**
  * Translate configurable string
+ * 
+ * @param $name
+ *   Textgroup and location glued with ':'
+ * @param $string
+ *   String in default language. Default language may or may not be English
+ * @param $langcode
+ *   Optional language code if different from current request language
  */
 function tt($name, $string, $langcode = NULL, $update = FALSE) {
   global $language;
@@ -34,9 +47,11 @@ function tt($name, $string, $langcode = NULL, $update = FALSE) {
 
 /**
  * Translate configurable string
+ * @param $name
+ *   Textgroup and location glued with ':'
  */
 function i18nstrings_tt($name, $string, $langcode, $update = FALSE, $create = TRUE) {
-  $context = i18nstrings_context($name);
+  $context = i18nstrings_context($name, $string);
   
   if ($update) {
     i18nstrings_update_string($context, $string);
@@ -86,6 +101,11 @@ function i18nstrings_to($context, &$object, $properties = array(), $langcode = N
 
 /**
  * Update / create / remove string
+ * 
+ * @param $context
+ *   String context
+ * @pram $string
+ *   New value of string for update/create. May be empty for removing.
  */
 function i18nstrings_update_string($context, $string) {
   $context = i18nstrings_context($context);
@@ -148,15 +168,22 @@ function i18nstrings_add_string($name, $string) {
 }
 
 /**
- * Remove string
+ * Get source string provided a string context
+ * 
+ * This will search first with the full context parameters and, if not found,
+ * it will search again only with textgroup and source string
+ * 
+ * @param $context
+ *   Context string or object
+ * @return
+ *   Context object if it exists
  */
-
 function i18nstrings_get_source($context, $string = NULL) {
-  $location = i18nstrings_location($context);
   $context = i18nstrings_context($context);
   
   // Check if we have the string for this location
-  if ($source = db_fetch_object(db_query("SELECT s.*, i.type, i.oid, i.property  FROM {locales_source} s LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND s.location = '%s'", $context->textgroup, $location))) {
+  list($where, $args) = i18nstrings_context_query($context);
+  if ($source = db_fetch_object(db_query("SELECT s.*, i.type, i.oid, i.property  FROM {locales_source} s LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE ". implode(' AND ', $where), $args))) {
     $source->context = $context;
     return $source;
   }
@@ -170,6 +197,11 @@ function i18nstrings_get_source($context, $string = NULL) {
 /**
  * Get string for a language
  * 
+ * @param $context
+ *   Context string or object
+ * @param $langcode
+ *   Language code to retrieve string for
+ * 
  * @return
  *   - translation if found
  *   - TRUE if not found and cached
@@ -182,7 +214,10 @@ function i18nstrings_get_string($context, $langcode) {
     return $translation;
   } else {
     // Search translation and add it to the cache
-    $text = db_fetch_object(db_query("SELECT s.*, t.translation FROM {locales_source} s LEFT JOIN {locales_target} t ON s.lid = t.lid AND t.language = '%s' WHERE s.textgroup = '%s' AND s.location = '%s'", $langcode, $context->textgroup, $context->location));
+    list($where, $args) = i18nstrings_context_query($context);
+    $where[] = "t.language = '%s'";
+    $args[] = $langcode;
+    $text = db_fetch_object(db_query("SELECT s.*, t.translation FROM {locales_source} s INNER JOIN {locales_target} t ON s.lid = t.lid WHERE ". implode(' AND ', $where), $args));
     if ($text && $text->translation) {
       i18nstrings_cache($context, $langcode, NULL, $text->translation);
       return $text->translation;
@@ -207,7 +242,12 @@ function i18nstrings_remove_string($context, $string = NULL) {
 }
 
 /**
- * Update context for strings
+ * Update context for strings.
+ * 
+ * As some string locations depend on configurable values, the field needs sometimes to be updated
+ * without losing existing translations. I.e:
+ * - profile fields indexed by field name
+ * - content types indexted by low level content type name
  * 
  * Example
  *  'profile:field:oldfield:*' -> 'profile:field:newfield:*'
@@ -242,7 +282,7 @@ function i18nstrings_update_context($oldname, $newname) {
 /**
  * Provides interface translation services.
  *
- * This function is called from t() to translate a string if needed.
+ * This function is called from tt() to translate a string if needed.
  * 
  * @param $textgroup
  * 
@@ -319,7 +359,7 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
 }
 
 /**
- * Convert context string in a context array
+ * Convert context string in a context object
  * 
  * I.e. 
  *   'taxonomy:term:1:name'
@@ -330,8 +370,17 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
  *   $context->property = 'name';
  * Examples:
  *  'taxonomy:title' -> (taxonomy, title, 0, 0)
+ *  'contenttypes:type:[type]:name'
+ *  'contenttypes:type:[type]:description'
+ *  'profile:category'
+ *  'profile:field:[fid]:title'
+ * 
+ * @param $context
+ *   Context string or object
+ * @return 
+ *   Context object with textgroup, type, oid, property and location names
  */
-function i18nstrings_context($context) {
+function i18nstrings_context($context, $string = NULL) {
   // Context may be already an object
   if (is_object($context)) {
     return $context;
@@ -345,11 +394,30 @@ function i18nstrings_context($context) {
       'property' => $property ? $property : 0,
     );
     $context->location = i18nstrings_location($context);
+    if (!$context->oid && !$context->property && $string) {
+      $context->source = $string;
+    }
     return $context;
   }
 }
+
+/**
+ * Get query conditions for this context
+ */
+function i18nstrings_context_query($context, $alias = 's') {
+  $where = array("$alias.textgroup = '%s'", "$alias.location = '%s'");
+  $args  = array($context->textgroup, $context->location);
+  if (!empty($context->source)) {
+    $where[] = "s.source = '%s'";
+    $args[] = $context->source;
+  }
+  return array($where, $args);  
+}
+
 /**
  * Get location string from context
+ * 
+ * Returns the location for the locale table for a string context
  */
 function i18nstrings_location($context) {
   if (is_string($context)){
@@ -408,7 +476,7 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
 }
 
 /**
- * Page level cache
+ * Retrieves and stores translations in page (static variable) cache.
  */
 function i18nstrings_cache($context, $langcode, $string = NULL, $translation = NULL) {
   static $strings;

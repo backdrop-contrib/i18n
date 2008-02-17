@@ -1,4 +1,5 @@
 name = i18n - views
 description = Views support for i18n
-dependencies = i18n views
+dependencies[] = i18n
+dependencies[] = views
 package = Multilanguage - i18n

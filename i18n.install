@@ -4,9 +4,6 @@
  * Implementation of hook_schema().
  */
 function i18n_schema() {
-  // NOTE: {variable} needs to be created before all other tables, as
-  // some database drivers, e.g. Oracle and DB2, will require variable_get()
-  // and variable_set() for overcoming some database specific limitations.
   $schema['i18n_variable'] = array(
     'description' => t('Multilingual variables.'),
     'fields' => array(
