@@ -770,3 +770,11 @@ function i18n_array_variable_set($name, $element, $value) {
 /**
  * @} End of "defgroup i18n_api".
  */
+
+ // List of language support modes for content
+function _i18n_content_language_options() {
+  return array(
+    LANGUAGE_SUPPORT_NORMAL => t('Normal - All enabled languages will be allowed.'),
+    LANGUAGE_SUPPORT_EXTENDED => t('Extended - All defined languages will be allowed.')
+  );
+}

@@ -43,10 +43,3 @@ function _i18n_selection_mode(){
   );
 }
 
-// List of language support modes for content
-function _i18n_content_language_options() {
-  return array(
-    LANGUAGE_SUPPORT_NORMAL => t('Normal - All enabled languages will be allowed.'),
-    LANGUAGE_SUPPORT_EXTENDED => t('Extended - All defined languages will be allowed.')
-  );
-}

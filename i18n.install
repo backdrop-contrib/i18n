@@ -105,8 +105,7 @@ function i18n_update_8(){
 
 /**
  * Drupal 6 updates
- */
- 
+ */ 
 function i18n_update_9() {
   // Update content type settings
   foreach (array_keys(node_get_types()) as $type) {
@@ -114,12 +113,39 @@ function i18n_update_9() {
       variable_set('language_content_type_'.$type, TRANSLATION_ENABLED);
     }
   }
+  // General language settings
+  if (variable_get('i18n_browser', 0)) {
+    variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH);
+  } else {
+    variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH_DEFAULT);
+  }
   // Set module weight for it to run after core modules
   $items[] = update_sql("UPDATE {system} SET weight = 10 WHERE name = 'i18n' AND type = 'module'");  
-  
   // Move node language and trid into node table
-  $items[] = update_sql("UPDATE {node} n SET language = (SELECT n2.language FROM {i18n_node} n2 WHERE n2.nid = n1.nid)  WHERE n.nid IN (SELECT nid FROM {i18n_node})");
-  $items[] = update_sql("UPDATE {node} n SET tnid = (SELECT n2.trid FROM {i18n_node} n2 WHERE n2.nid = n1.nid)  WHERE n.nid IN (SELECT nid FROM {i18n_node})");
-
+  $items[] = update_sql("UPDATE {node} n INNER JOIN {i18n_node} i ON n.nid = i.nid SET n.language = i.language, n.tnid = i.trid");
+  
   return $items;
 }
+
+/**
+ * Drupal 6 clean up. To uncomment after making sure all previous updates work
+ */
+/*
+function i18n_update_10() {
+  // Drop old tables
+  $items[] = update_sql("DROP TABLE {i18n_node}");
+  
+  // Delete variables. Most settings will be now handled by Drupal core.
+  variable_del('i18n_allow');
+  variable_del('i18n_browser');
+  variable_del('i18n_content');
+  variable_del('i18n_keep');
+  variable_del('i18n_multi');
+  variable_del('i18n_interface');
+  variable_del('i18n_default');
+  variable_del('i18n_supported_langs');
+  variable_del('i18n_translation_links');
+  variable_del('i18n_translation_node_links');
+  return $items;
+}
+*/
