@@ -29,6 +29,8 @@
  *   String in default language. Default language may or may not be English
  * @param $langcode
  *   Optional language code if different from current request language
+ * @param $update
+ *   Whether to update/create the string
  */
 function tt($name, $string, $langcode = NULL, $update = FALSE) {
   global $language;
@@ -41,7 +43,7 @@ function tt($name, $string, $langcode = NULL, $update = FALSE) {
     }
     return $string;
   } else {
-    return i18nstrings_tt($name, $string, $langcode, $update);
+    return i18nstrings_tt($name, $string, $langcode, $update, $update);
   }
 }
 

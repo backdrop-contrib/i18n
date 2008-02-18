@@ -13,3 +13,33 @@ function i18ntaxonomy_install() {
   // Set module weight for it to run after core modules
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'i18ntaxonomy' AND type = 'module'");
 }
+
+/**
+ * Drupal 6 update
+ * 
+ * Move i18n vocabulary options to new variables
+ */
+function i18ntaxonomy_update_1() {
+  $items = array();
+  $options = variable_get('i18ntaxonomy_vocabulary', array());
+  $translate = variable_get('i18ntaxonomy_vocabularies', array());
+  foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
+    if ($vocabulary->language) {
+      $options[$vid] = I18N_TAXONOMY_LANGUAGE;
+    } elseif (isset($translate[$vid]) && $translate[$vid]) {
+      $options[$vid] = I18N_TAXONOMY_LOCALIZE;
+    } else {
+      // Search for terms with language
+      $count = db_result(db_query("SELECT COUNT(language) FROM {term_data} WHERE vid = %d AND NOT language = ''", $vid));
+      if ($count) {
+        $options[$vid] = I18N_TAXONOMY_TRANSLATE;
+      } elseif (!isset($options[$vid])) {
+        $options[$vid] = I18N_TAXONOMY_NONE;
+      }
+    }
+  }
+  variable_set('i18ntaxonomy_vocabulary', $options);
+  drupal_set_message(t('The multilingual vocabulary settings have been updated. Please review them in the !taxonomy_admin page.', array('!taxonomy_admin' => l(t('taxonomy administration'), 'admin/content/taxonomy'))));
+  // @ TODO Update strings in localization tables
+  return $items;
+}
