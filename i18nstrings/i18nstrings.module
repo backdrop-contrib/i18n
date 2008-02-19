@@ -43,7 +43,7 @@ function tt($name, $string, $langcode = NULL, $update = FALSE) {
     }
     return $string;
   } else {
-    return i18nstrings_tt($name, $string, $langcode, $update, $update);
+    return i18nstrings_tt($name, $string, $langcode, $update);
   }
 }
 
@@ -145,6 +145,9 @@ function i18nstrings_update_translation($context, $langcode, $translation) {
  * Add string
  * 
  * This function checks for already existing string without context for this textgroup
+ * 
+ * @return 
+ *   Update status
  */
 function i18nstrings_add_string($name, $string) {
   $context = i18nstrings_context($name);
@@ -153,14 +156,13 @@ function i18nstrings_add_string($name, $string) {
   // Check if we have a source string
   $source = i18nstrings_get_source($context, $string);
 
-  $status = SAVED_UPDATED;
-  
+  $status = -1;
+
   if ($source) {
     if ($source->source != $string || $source->location != $location) {
       // String has changed or didnt have location
       db_query("UPDATE {locales_source} SET source = '%s' WHERE lid = %d", $string, $source->lid);
-    } else {
-      $status = TRUE;
+      $status = SAVED_UPDATED;
     }
   }
   else {
@@ -174,7 +176,7 @@ function i18nstrings_add_string($name, $string) {
   // Update metadata
   db_query("DELETE FROM {i18n_strings} WHERE lid = %d", $source->lid);
   db_query("INSERT INTO {i18n_strings} (lid, type, oid, property) VALUES(%d, '%s', %d, '%s')", $source->lid, $context->type, $context->oid, $context->property);
-  
+
   return $status; 
 }
 

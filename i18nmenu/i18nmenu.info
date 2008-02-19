@@ -1,4 +1,8 @@
-name = i18n - menu
+name = Multilingual Menu
 description = Supports translatable custom menu items.
-dependencies = i18n
+dependencies[] = i18n
+dependencies[] = menu
+dependencies[] = i18nstrings
 package = Multilanguage - i18n
+version = VERSION
+core = 6.x

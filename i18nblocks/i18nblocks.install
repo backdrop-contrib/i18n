@@ -36,7 +36,7 @@ function i18nblocks_schema() {
         'not null' => TRUE,
         'description' => t("The block's origin module, from {blocks}.module."),
       ),      
-    'delta' => array(
+      'delta' => array(
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
@@ -123,6 +123,7 @@ function i18nblocks_update_2() {
 function i18nblocks_update_3() {
   $items = array();
   $items[] = update_sql('DROP TABLE {i18n_blocks_i18n}');
+  $items[] = update_sql('DROP TABLE {i18n_blocks_drupal5}');
   return $items;
 }
 */

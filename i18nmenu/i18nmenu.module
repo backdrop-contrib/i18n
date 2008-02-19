@@ -7,47 +7,161 @@
  * @author Jose A. Reyero, 2005
  *
  */
+
 /**
- * Implementation of hook_menu().
+ * Implementation of hook_locale().
  */
-function i18nmenu_menu($may_cache){
-  static $menu_translate;
-  if($may_cache){
-    // The menu is being rebuilt. Prepares to translate on second call.
-    $menu_translate = TRUE;
-  } elseif($menu_translate) {
-    // This runs only when menu_hook is called twice
-    i18nmenu_translate_all();
+function i18nmenu_locale($op = 'groups') {
+  switch ($op) {
+    case 'groups':
+      return array('menu' => t('Menu'));
   }
 }
-
-function i18nmenu_translate_all(){
-  global $_menu;
-  global $user;
-  global $locale;
-  $cid = "$user->uid:$locale";
-  cache_clear_all($cid, 'cache_menu');
-  // Translate all user defined meny items
-  foreach($_menu['items'] as $mid => $item) {
-    if($item['type'] & MENU_CREATED_BY_ADMIN) {
-      $_menu['items'][$mid]['title'] = t($_menu['items'][$mid]['title']);
-    }
-  }
-  // Update cache
-  cache_set($cid, 'cache_menu', serialize($_menu), time() + (60 * 60 * 24));
+/**
+ * Implementation of hook_menu_alter().
+ */
+function i18nmenu_menu_alter(&$items){
+  //dsm($items);
 }
 
-function i18nmenu_help($section = 'admin/help#i18nmenu' ) {
+/**
+ * Implementation of hook_menu_link_alter().
+ * 
+ * Catch changed links, update language and refresh texts
+ */
+function i18nmenu_menu_link_alter(&$item, $menu) {
+  // If we set option to language it causes an error with the link system
+  // This should handle language only as the links are being manually updated
+  if (!empty($item['language'])) {
+    //dsm("Language set");
+    $item['options']['langcode'] = $item['language'];
+  } elseif(isset($item['language'])) {
+    //dsm('Removed language');
+    unset($item['options']['langcode']);
+  }
+  // @ TO DO: Refresh texts
+  //dsm($item);
+  //$original = $item['original_item'];
+  //$item['router_path'] = _menu_find_router_path($menu, $item['link_path']);
+  //i18nmenu_make_translatable($item);
+}
+
+function i18nmenu_help($section, $arg) {
   switch ($section) {
     case 'admin/help#i18nmenu' :
-      return t('
-        <p>This module provides support for translatable custom menu items:</p>
-        <ul>
-        <li>Create menus as usual, with names in English. If the menu is already created, no changes are needeed</li>
-        <li>Show the menu in some block</li>
-        <li>Switch language to some non english one -while viewing the block-, so the <i>locales</i> table is populated with the new strings</li>
-        <li>Use the localization system to translate menu item strings</li>
-        </ul>' );
+      $output = '<p>'.t('This module provides support for translatable custom menu items:').'</p>';
+      $output .= '<ul>';
+      $output .= '<li>'.t('Create menus as usual, with names in English or the default language. If the menu is already created, no changes are needed.').'</li>';
+      $output .= '<li>'.t('Use the localization system to translate menu item strings').'</li>';
+      $output .= '<li>'.t('Instead of the old menus use the new blocks provided by the module. These will be localized.').'</li>';
+      $output .= '<li>'.t('Optionally, you can set up a language for a menu item so it is only displayed for that language.').'</li>';
+      $output .= '</ul>';
+      return $output;
   }
 }
 
+/**
+ * Implementation of hook_block().
+ */
+function i18nmenu_block($op = 'list', $delta = 0) {
+  global $user;
+  $menus = menu_get_menus();
+  
+  // unset($menus['navigation']);
+  if ($op == 'list') {
+    $blocks = array();
+    foreach ($menus as $name => $title) {
+      // Default "Navigation" block is handled by user.module.
+      $blocks[$name]['info'] = check_plain($title).t('[Translated]');
+      // Menu blocks can't be cached because each menu item can have
+      // a custom access callback. menu.inc manages its own caching.
+      $blocks[$name]['cache'] = BLOCK_NO_CACHE;
+    }
+    return $blocks;
+  }
+  else if ($op == 'view') {
+    // The Navigation menu is handled like in the user module.
+    if ($delta == 'navigation') {
+      $data['subject'] = $user->uid ? check_plain($user->name) : t('Navigation');
+    } else {
+      $data['subject'] = check_plain($menus[$delta]);
+    }
+    $data['content'] = i18nmenu_translated_tree($delta);
+    return $data;
+  }  
+}
+
+/**
+ * Get localized menu tree
+ */
+function i18nmenu_translated_tree($menu_name) {
+  static $menu_output = array();
+
+  if (!isset($menu_output[$menu_name])) {
+    $tree = menu_tree_page_data($menu_name);
+    i18nmenu_localize_tree($tree);
+    $menu_output[$menu_name] = menu_tree_output($tree);
+  }
+  return $menu_output[$menu_name];
+}
+
+/**
+ * Localize menu tree
+ */
+function i18nmenu_localize_tree(&$tree) {
+  global $language;
+  foreach($tree as $index => $item) {
+    $link = $item['link'];
+    if ($link['customized']) {
+      // Remove links for other languages than current
+      // Links with language wont be localized
+      if (!empty($link['options']['langcode'])) {
+        if($link['options']['langcode'] != $language->language) {
+          unset($tree[$index]);
+          //dsm("Removed because language:".$link['title'].' language='.$link['options']['langcode']);
+        }
+      } else {
+        $router = i18nmenu_get_router($link['router_path']);
+        // If the title is the same it will be localized by the menu system
+        if ($link['link_title'] != $router['title']){
+          //$tree[$index]['link']['title'] = 'Translated';
+          $tree[$index]['link']['title'] = tt('menu:item:'.$link['mlid'].':title', $link['link_title'], NULL, TRUE);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Get the menu router for this router path
+ * 
+ * We need the untranslated title to comparte, and this will be fast
+ * There's no api function to do this?
+ */
+function i18nmenu_get_router($path) {
+  static $cache = array();
+  if (!array_key_exists($path, $cache)) {
+    $cache[$path] = db_fetch_array(db_query("SELECT title FROM {menu_router} WHERE path = '%s'", $path));
+  }
+  return $cache[$path];
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+function i18nmenu_form_alter(&$form, $form_state, $form_id){
+  if ($form_id == 'menu_edit_item') {
+    //dsm ($form);
+    if ($form['menu']['#item'] && isset($form['menu']['#item']['options']['langcode'])) {
+      $language = $form['menu']['#item']['options']['langcode'];
+    } else {
+      $language = '';
+    }
+    $form['menu']['language'] = array(
+      '#type' => 'select',
+      '#title' => t('Language'),
+      '#options' => array('' => t('All languages')) + locale_language_list('name'),
+      '#default_value' => $language,
+    );
+  }
+}

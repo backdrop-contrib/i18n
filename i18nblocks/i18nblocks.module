@@ -30,15 +30,16 @@ function _block_types() {
 /**
  * Implementation of hook_help()
  */ 
-function i18nblocks_help($section = 'admin/help#i18nblocks' ) {
+function i18nblocks_help($section, $arg) {
   switch ($section) {
     case 'admin/help#i18nblocks':
       $output = '<p>'.t('This module provides support for multilingual blocks.').'</p>';
-      $output = '<p>'.t('You can set up a language for a block or define it as translatable.').'</p>';
+      $output .= '<p>'.t('You can set up a language for a block or define it as translatable:').'</p>';
+      $output .= '<ul>';
+      $output .= '<li>'.t('Blocks with a language will be displayed only in pages with that language.').'</li>';
+      $output .= '<li>'.t('For translatable blocks, a new [Translatable] version of the block will be created.').'</li>';
+      $output .= '</ul>';
       return $output;
-    case 'admin/build/block/add':
-    case 'admin/build/block/configure':
-      return t('<p>These are not real blocks, but metablocks that group together a number of normal blocks and display the right one depending on language</p>');
   }
 }
 
@@ -143,8 +144,10 @@ function i18nblocks_form_submit($form, &$form_state) {
   $values = $form_state['values'];
   // Dirty trick to act on new created blocks
   if (!$values['delta']) {
-    $values['delta'] = db_last_insert_id('boxes', 'bid');
-  }dsm($values);
+    // The last insert id will return a different value in mysql
+    //$values['delta'] = db_last_insert_id('boxes', 'bid');
+    $values['delta'] = db_result(db_query("SELECT MAX(bid) FROM {boxes}"));
+  }
   switch ($values['language']) {
     case I18N_BLOCK_LOCALIZE: // Translatable block
       $values['language'] = '';
@@ -177,7 +180,6 @@ function i18nblocks_load($module, $delta) {
  */
 function i18nblocks_save($block) {
   // Update strings for localizable blocks
-
   if ($block['ibid']) {
     db_query("UPDATE {i18n_blocks} SET language = '%s' WHERE ibid = %d", $block['ibid']);
   } else {
@@ -218,30 +220,3 @@ function i18nblocks_get_block($delta, $language){
     return $block;
   }
 }
-
-/**
- * Helper function: collect translation nids and get related nodeasblock block
- */
-function _i18nblocks_nodeasblock($node) {
-  $nids = $translations = array();
-  if ($node->trid) { // It is a translation
-    $translations = translation_node_get_translations(array('trid' => $node->trid));
-  } elseif($node->translation_nid) { // Translation is just being created
-    $translations = translation_node_get_translations(array('nid' => $node->translation_nid), TRUE);
-    $nids[$node->translation_nid] = $node->translation_nid;
-  }
-  foreach($translations as $lang => $trn) {
-    $nids[$trn->nid] = $trn->nid;
-  }
-  if($node->nid) { // Updating existing node, no translations yet
-    $nids[$node->nid] = $node->nid;
-  }
-  // Check for existing block
-  if (!empty($nids) && $i18nblock = db_fetch_array(db_query_range("SELECT m.* FROM {i18n_blocks} m INNER JOIN {i18n_blocks_i18n} b ON m.delta = b.bid WHERE m.type = 'nodeasblock' AND b.delta IN (%s)", implode(',', $nids), 0, 1))) {
-    $i18nblock['nids'] = $nids;
-    return $i18nblock;
-  } 
-}
-
-
-
