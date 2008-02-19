@@ -25,49 +25,29 @@ function i18nblocks_schema() {
   $schema['i18n_blocks'] = array(
     'description' => t('Special i18n translatable blocks'),
     'fields' => array(
-      'i18ndelta' => array(
+      'ibid' => array(
         'description' => t('The i18n block identifier.'),
         'type' => 'serial',
         'unsigned' => TRUE,
         'not null' => TRUE),
-     'module' => array(
+      'module' => array(
         'type' => 'varchar',
         'length' => 64,
         'not null' => TRUE,
         'description' => t("The block's origin module, from {blocks}.module."),
-      ),
-      'delta'  => array(
+      ),      
+    'delta' => array(
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
-        'description' => t("The block's unique delta within module, from {blocks}.delta."),
+        'default' => '0',
+        'description' => t('Unique ID for block within a module.'),
       ),
-      'info' => array(
-        'type' => 'varchar',
-        'length' => 128,
+     'type' => array(
+        'type' => 'int',
         'not null' => TRUE,
-        'default' => '',
-        'description' => t('Block description.'),
-      ),
-    ),
-    'primary key' => array(
-      'i18ndelta',
-    ),
-  );
-  $schema['i18n_blocks_language'] = array(
-    'description' => t('Language data for blocks'),
-    'fields' => array(
-     'module' => array(
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-        'description' => t("The block's origin module, from {blocks}.module."),
-      ),
-      'delta'  => array(
-        'type' => 'varchar',
-        'length' => 32,
-        'not null' => TRUE,
-        'description' => t("The block's unique delta within module, from {blocks}.delta."),
+        'default' => '0',
+        'description' => t('Block type.'),
       ),
       'language' => array(
         'type' => 'varchar',
@@ -78,9 +58,8 @@ function i18nblocks_schema() {
       ),
     ),
     'primary key' => array(
-      'module', 'delta',
+      'ibid',
     ),
-    
   );
 
   return $schema; 
@@ -89,7 +68,6 @@ function i18nblocks_schema() {
 /**
  * Update: move old variable to new tables
  */
-
 function i18nblocks_update_1() {
   $ret = array();
   require_once drupal_get_path('module', 'i18nblocks').'/i18nblocks.module';
@@ -122,3 +100,30 @@ function i18nblocks_update_1() {
   return $ret;
 }
 
+/**
+ * Drupal 6 upgrade script
+ */
+function i18nblocks_update_2() {
+  $ret = array();
+  // Rename old table and install new schema
+  db_rename_table($ret, 'i18n_blocks', 'i18n_blocks_drupal5');
+  drupal_install_schema('i18nblocks');  
+  // Fill in new table with old blocks but only for user defined blocks.
+  // The rest will need manual update
+  $ret = update_sql("INSERT INTO {i18n_blocks}(module, delta, language) SELECT i.module, i.delta, i.language FROM {i18n_blocks_i18n} i WHERE i.module ='block'");
+
+  drupal_set_message(t('Multilingual blocks have been updated. Please, review your blocks configuration.'));
+  return $ret;
+}
+
+/**
+ * Drop old tables and fields. Uncomment when the previous one is 100% working
+ */
+/*
+function i18nblocks_update_3() {
+  $items = array();
+  $items[] = update_sql('DROP TABLE {i18n_blocks_i18n}');
+  return $items;
+}
+*/
+ 
