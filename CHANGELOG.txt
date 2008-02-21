@@ -1,3 +1,30 @@
+TO DO
+-----
+- Taxonomy autocomplete, localized terms
+
+5.x to 6.x
+----------
+21/02/2008
+- Upgraded i18ncontent, fully reworked, much cleaner now
+- Improved i18nstrings, translation of strings without source, debug facility
+- Replaced taxonomy term pages with localized version
+
+19/02/2008 Initial dev release for Drupal 6
+- Fully reworked block translation, language for blocks now, dropped old metablocks
+- Fully reworked menu translation, uses Drupal 6 features and extended blocks
+- Fully reworked taxonomy translation, all options in the same module now
+- Better code documentation and help texts everywhere
+- Reorganized package, no more experimental modules, all modules in its folder now
+- Language icons in an independent module now
+- Reworked strings handling (extended localization)
+- Trimmed down parts now done by Drupal core
+- Upgraded most of the modules, other are waiting on some dependencies (cck, views, nodeasblock, etc...)
+
+4.7.x to 5.x
+------------
+- Upgraded all modules
+- Added lots of features and new modules to the collection
+
 4-7-4 to ....
 --------------
 - Added support for RTL languages

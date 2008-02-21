@@ -1,0 +1,9 @@
+; $Id$
+name = Content Types
+description = Translates content type parameters.
+dependencies[] = i18n
+dependencies[] = i18nstrings
+package = Multilanguage - i18n
+core = 6.x
+
+

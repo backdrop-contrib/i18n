@@ -12,25 +12,65 @@
  * 
  * Notes:
  * This module needs to run after taxonomy, i18n, translation. Check module weight
+ * 
+ * @ TODO Test with CCK when possible, api may have changed
  */
- 
- /**
+
+/**
+ * Implementation of hook_help().
+ */
+function i18nsync_help($section, $arg) {
+  switch ($section) {
+    case 'admin/help#i18nsync' :
+      $output = '<p>'.t('This module synchronizes content taxonomy and field accross translations:').'</p>';
+      $output .= '<p>'.t('First you need to select which vocabularies and fields should be synchronized. Then, after a node has been updated, all enabled vocabularies and fields will be synchronized as follows:').'</p>';
+      $output .= '<ul>';
+      $output .= '<li>'.t('All the node fields selected for synchronization will be set to the same value for all translations').'</li>';
+      $output .= '<li>'.t('For multilingual vocabularies, the terms for all translations will be replaced by the translations of the original node terms.').'</li>';
+      $output .= '<li>'.t('For other vocabularies, the terms will be just copied over to all the translations.');
+      $output .= '</ul>';      
+      $output .= '<p><strong>'.t('Note that permissions are not checked for each node so if someone can edit a node and it is set to synchronize, all the translations will be synchronized anyway.').'</strong></p>';
+      $output .= '<p>'.t('To enable synchronization:').'</p>';
+      $output .= '<ul>';
+      $output .= '<li>'.t('Check vocabulary options to enable synchronization for each vocabulary').'</li>';
+      $output .= '<li>'.t('Check content type options to select which fields to synchronize for each content type').'</li>';
+      $output .= '</ul>';
+      $output .= '<p>'.t('The list of available fields for synchronization will include some standard node fields and all CCK fields. You can add more fields to the list in a configuration variable. See README.txt for how to do it.').'</p>';
+      $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/31631')) .'</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implementation of hook_theme()
+ */
+function i18nsync_theme() {
+  return array(
+    'i18nsync_workflow_checkbox' => array(
+      'arguments' => array('item' => NULL),
+    ),
+  );
+}
+
+/**
  * Implementation of hook_form_alter().
+ * - Vocabulary options
+ * - Content type options
  */
-function i18nsync_form_alter($form_id, &$form) {
+function i18nsync_form_alter(&$form, $form_state, $form_id) {
   // Taxonomy vocabulary form
   switch ($form_id) {
     case 'taxonomy_form_vocabulary':
+      $vid = isset($form['vid']['#value']) ? $form['vid']['#value'] : NULL;
       $nodesync = variable_get('i18n_vocabulary_nodesync', array());
       $form['i18n']['nodesync'] = array(
         '#type' => 'checkbox', '#title' => t('Synchronize node translations'),
-        '#default_value' => isset($form['vid']) && is_numeric($form['vid']['#value']) && $nodesync[$form['vid']['#value']],
+        '#default_value' => $vid && isset($nodesync[$vid]) ? $nodesync[$vid] : 0,
         '#description' => t('Synchronize terms of this vocabulary for node translations.')
       );
       break;
     case 'node_type_form':
-      $type = (isset($form['old_type']) && isset($form['old_type']['#value'])) ? $form['old_type']['#value'] : NULL;
-      
+      $type = $form['#node_type']->type;
       $current = i18nsync_node_fields($type);
 
       $form['workflow']['i18n']['i18nsync_nodeapi'] = array(
@@ -60,11 +100,15 @@ function i18nsync_form_alter($form_id, &$form) {
   }      
 }
 
+/**
+ * Theming function for workflow checkboxes
+ */
 function theme_i18nsync_workflow_checkbox($element){
   $output = $element['#group_title'] ? '<div class="description">'.$element['#group_title'].'</div>' : '';
   $output .= theme('checkbox', $element);
   return $output;
 }
+
 /**
  * Implementation of hook taxonomy.
  */
@@ -92,7 +136,7 @@ function i18nsync_nodeapi($node, $op, $a3 = NULL, $a4 = NULL) {
   global $i18nsync; // This variable will be true when a sync operation is in progress
 
   // Only for nodes that have language and belong to a translation set.
-  if (variable_get("i18n_node_$node->type", 0) && $node->language && $node->trid && !$i18nsync) {
+  if (variable_get("i18n_node_$node->type", 0) && $node->language && !empty($node->tnid) && !$i18nsync) {
     switch ($op) {
       case 'insert':
       case 'update':
@@ -102,7 +146,7 @@ function i18nsync_nodeapi($node, $op, $a3 = NULL, $a4 = NULL) {
           // Get vocabularies synchronized for this node type
           $result = db_query("SELECT v.* FROM {vocabulary} v INNER JOIN {vocabulary_node_types} n ON v.vid = n.vid WHERE n.type = '%s' AND v.vid IN (%s)", $node->type, implode(',', array_keys($sync)));
           $count = 0;
-          while($vocabulary = db_fetch_object($result)) {
+          while ($vocabulary = db_fetch_object($result)) {
             i18nsync_node_taxonomy($node, $vocabulary);
             $count++;
           }
@@ -111,8 +155,8 @@ function i18nsync_nodeapi($node, $op, $a3 = NULL, $a4 = NULL) {
           }
         } // No need to refresh cache. It will be refreshed after insert/update anyway
         
-        // Let's go with field synchronization
-        if (($fields = i18nsync_node_fields($node->type)) && $translations = translation_node_get_translations(array('nid' => $node->nid), FALSE)) {
+        // Let's go with field synchronization.
+        if (($fields = i18nsync_node_fields($node->type)) && ($translations = translation_node_get_translations($node->tnid)) && count($translations) > 1) {
           // We want to work with a fresh copy of this node, so we load it again bypassing cache.
           // This is to make sure all the other modules have done their stuff and the fields are right.
           // But we have to copy the revision field over to the new copy.
@@ -122,16 +166,35 @@ function i18nsync_nodeapi($node, $op, $a3 = NULL, $a4 = NULL) {
           $i18nsync = TRUE;
 
           foreach ($translations as $trnode) {
-            i18nsync_node_translation($node, $trnode, $fields);
+            if ($node->nid != $trnode->nid) {
+              i18nsync_node_translation($node, $trnode, $fields);
+            }
           }
           $i18nsync = FALSE;
-          drupal_set_message(t('All %count node translations have been synchronized', array('%count' => count($translations))));
+          drupal_set_message(t('All %count node translations have been synchronized', array('%count' => count($translations) - 1)));
         }
         break;
     }
   }
 }
 
+/**
+ * Synchronizes fields for node translation
+ * 
+ * There's some specific handling for known fields like:
+ * - files, for file attachments
+ * - iid (CCK node attachments, translations for them will be handled too)
+ * 
+ * All the rest of the fields will be just copied over.
+ * The 'revision' field will have the special effect of creating a revision too for the translation
+ * 
+ * @param $node
+ *   Source node being edited
+ * @param $translation
+ *   Node translation to synchronize, just needs nid property
+ * @param $fields
+ *   List of fields to synchronize
+ */
 function i18nsync_node_translation($node, $translation, $fields) {
   // Load full node, we need all data here
   $translation = node_load($translation->nid);
@@ -173,15 +236,14 @@ function i18nsync_node_translation($node, $translation, $fields) {
 }
 
 /**
- * Node attachments that may have translation
- * 
+ * Node attachments (CCK) that may have translation
  */
 function i18nsync_node_translation_attached_node(&$node, &$translation, $field) {
   if (isset($node->$field) && $attached = node_load($node->$field)) {
-    if (variable_get("i18n_node_$attached->type", 0)) {
+    if (translation_supported_type($attached->type)) {
       // This content type has translations, find the one
-      if ($attached->translations && isset($attached->translation[$translation->language])) {
-        $translation->$field = $attached->translation[$translation->language]->nid;
+      if (($attachedtrans = translation_node_get_translations($attached)) && isset($attachedtrans[$translation->language])) {
+        $translation->$field = $attachedtrans[$translation->language]->nid;
       }
     } else {
       // Content type without language, just copy the nid
@@ -189,46 +251,47 @@ function i18nsync_node_translation_attached_node(&$node, &$translation, $field) 
     }
   }
 }
+
 /**
- * Actual synchronization for node, vocabulary
+ * Synchronization for node taxonomy
  * 
  * These are the 'magic' db queries.
  */
 function i18nsync_node_taxonomy($node, $vocabulary) {
   // Paranoid extra check. This queries may really delete data
-  if ($vocabulary->language || !$node->nid || !$node->trid || !$node->language || !$vocabulary->vid) return;
+  if ($vocabulary->language || !$node->nid || !$node->tnid || !$node->language || !$vocabulary->vid) return;
   
   // Reset all terms for this vocabulary for other nodes in the translation set
   // First delete all terms without language
   db_query("DELETE FROM {term_node} WHERE nid != %d ".
-    " AND nid IN (SELECT nid FROM {i18n_node} WHERE trid = %d) ". 
+    " AND nid IN (SELECT nid FROM {node} WHERE tnid = %d) ". 
     " AND tid IN (SELECT tid FROM {term_data} WHERE (language = '' OR language IS NULL) AND vid = %d) ", 
-    $node->nid, $node->trid, $vocabulary->vid);
+    $node->nid, $node->tnid, $vocabulary->vid);
     
   // Now delete all terms which have a translation in the node language
   // We don't touch the terms that have language but no translation
   db_query("DELETE FROM {term_node} WHERE nid != %d ".
-    " AND nid IN (SELECT nid FROM {i18n_node} WHERE trid = %d) ". 
+    " AND nid IN (SELECT nid FROM {node} WHERE tnid = %d) ". 
     " AND tid IN (SELECT td.tid FROM {term_data} td INNER JOIN {term_data} tt ON td.trid = tt.trid ".
     " WHERE td.vid = %d AND td.trid AND tt.language = '%s') ", // These are all the terms with translation
-    $node->nid, $node->trid, $vocabulary->vid, $node->language);   
+    $node->nid, $node->tnid, $vocabulary->vid, $node->language);   
   
   // Copy terms with no language
   db_query("INSERT INTO {term_node}(tid, nid) SELECT tn.tid, n.nid " .
-        " FROM {i18n_node} n ,  {term_node} tn " .
+        " FROM {node} n ,  {term_node} tn " .
         " INNER JOIN {term_data} td ON tn.tid = td.tid " . // This one to check no language
-        " WHERE tn.nid = %d AND n.nid != %d AND n.trid = %d AND td.vid = %d " .
+        " WHERE tn.nid = %d AND n.nid != %d AND n.tnid = %d AND td.vid = %d " .
         " AND td.language = '' OR td.language IS NULL", // Only terms without language
-         $node->nid, $node->nid, $node->trid, $vocabulary->vid);
+         $node->nid, $node->nid, $node->tnid, $vocabulary->vid);
   
   // Now copy terms translating on the fly
   db_query("INSERT INTO {term_node}(tid, nid) SELECT tdt.tid, n.nid " .
-        " FROM {i18n_node} n ,  {term_data} tdt " . // This will be term data translations
+        " FROM {node} n ,  {term_data} tdt " . // This will be term data translations
         " INNER JOIN {term_data} td ON tdt.trid = td.trid " . // Same translation set
         " INNER JOIN {term_node} tn ON tn.tid = td.tid " . 
         " WHERE tdt.trid AND tdt.language = n.language " . // trid cannot be 0 or NULL
-        " AND n.nid != %d AND tn.nid = %d AND n.trid = %d AND td.vid = %d",
-         $node->nid, $node->nid, $node->trid, $vocabulary->vid);  
+        " AND n.nid != %d AND tn.nid = %d AND n.tnid = %d AND td.vid = %d",
+         $node->nid, $node->nid, $node->tnid, $vocabulary->vid);  
 }
 
 /**
@@ -274,7 +337,7 @@ function i18nsync_node_available_fields($type) {
   }
 
   // Get variable for this node type
-  $fields += variable_get("i18nsync_fields_$type", array());
+  $fields += variable_get("i18nsync_fields_node_$type", array());
   
   // Image attach
   if (variable_get('image_attach_'. $type, 0)) {

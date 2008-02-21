@@ -1,0 +1,128 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Internationalization (i18n) package - translatable content type parameters
+ * 
+ * This new module uses a pure forms/strings approach as opposed to the old one (v5)
+ * which was using some dirty db rewrite tricks.
+ * 
+ * @ TODO Handle node type changed and deleted
+ * 
+ * @author Jose A. Reyero, 2007
+ */
+
+/**
+ * Implementation of hook_help().
+ */
+function i18ncontent_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#i18ncontent':
+      $output = '<p>'.t('This module will localize all content type configuration texts.').'</p>';
+      $output .= '<ul>';
+      $output .= '<li>'.t('Content type names').'</li>';
+      $output .= '<li>'.t('Submission guidelines').'</li>';
+      $output .= '<li>'.t('Content type descriptions were previously localized so they won\'t be affected').'</li>';
+      $output .= '</ul>';
+      return $output;
+  }
+  if ($arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {
+    $type = str_replace('-', '_', $arg[2]);
+    if ($help = ts("nodetype:$type:help")) {
+      return '<p>'. filter_xss_admin($help) .'</p>';
+    }
+  }  
+}
+
+/**
+ * Implementation of hook_locale().
+ */
+function i18ncontent_locale($op = 'groups') {
+  switch ($op) {
+    case 'groups':
+      return array('nodetype' => t('Content type'));
+  }
+}
+
+/**
+ * Implementation of hook_form_alter()
+ */
+function i18ncontent_form_alter(&$form, $form_state, $form_id) {
+  // Translate field names for title and body for the node edit form
+  if (isset($form['#id']) && $form['#id'] == 'node-form') {
+    $type = $form['#node']->type;
+    if (!empty($form['title']['#title'])) {
+      $form['title']['#title'] = tt("nodetype:$type:title", $form['title']['#title']);
+    }
+    if (!empty($form['body_field']['body']['#title'])) {
+      $form['body_field']['body']['#title'] = tt("nodetype:$type:body", $form['body_field']['body']['#title']);
+    }
+  }
+  // Handle submissions for node_type_forms
+  if ($form_id == 'node_type_form') {
+    $type = $form['#node_type']->type;
+    // We are using default language for this
+    $language = language_default('language');
+    // If we are creating a new one, just add the submission hook
+    if ($type) {
+      //$form['description']['#default_value'] = ts("nodetype:$type:description");
+      $form['submission']['help']['#default_value'] = ts("nodetype:$type:help", $form['submission']['help']['#default_value'], $language);
+    } 
+    $form['#submit'] = array_merge(array('i18ncontent_form_submit'), $form['#submit']);
+  }
+}
+
+/**
+ * Handle content type form submissions
+ */
+function i18ncontent_form_submit($form, &$form_state) {
+  $language = language_default('language');
+  $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
+  $type = trim($form_state['values']['type']);
+  $old_type = isset($form_state['values']['old_type']) ? $form_state['values']['old_type'] : $type->type;
+  if ($op == t('Reset to defaults')) {
+    // Do anything?;
+  }
+  elseif ($op == t('Delete content type')) {
+    // Delete strings
+    tt("nodetype:$type:name", NULL, NULL, TRUE);
+    tt("nodetype:$type:help", NULL, NULL, TRUE);
+  } else {
+    // Update sources if changed type id
+    if ($old_type && $old_type != $type) {
+      i18nstrings_update_context("nodetype:$old_type:*", "nodetype:$type:*");
+    }
+    tt("nodetype:$type:name", $form_state['values']['name'], $language, TRUE);
+    ts("nodetype:$type:help", $form_state['values']['help'], $language, TRUE);
+    // We remove help text so it's not produced later by node module
+    $form_state['values']['help'] = '';
+  }
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ * 
+ * Take over the node add pages
+ */
+function i18ncontent_menu_alter(&$menu) {
+  foreach ($menu as $path => $item) {
+    if (!empty($item['page callback']) && $item['page callback'] == 'node_add') {
+      $arg = arg(NULL, $path);
+      $menu[$path]['title callback'] = 'i18nstrings_title_callback';
+      $menu[$path]['title arguments'] = array('nodetype:'.$arg[2].':name', $item['title']);
+    }
+  }
+}
+
+
+/**
+ * Replacement for node_add_page
+ */
+function i18ncontent_node_add_page() {
+  $item = menu_get_item();
+  $content = system_admin_menu_block($item);
+  //dsm($content);
+  return theme('node_add_list', $content);  
+}
+

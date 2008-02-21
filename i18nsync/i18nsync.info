@@ -1,5 +1,7 @@
 ; $Id$
-name = Synchronization
-description = Synchronizes content translations
-dependencies = i18n translation
+name = Translation Synchronization
+description = Synchronizes taxonomy and fields accross translations of the same content
+dependencies[] = i18n
+dependencies[] = i18ntaxonomy
 package = Multilanguage - i18n
+core = 6.x

@@ -48,6 +48,44 @@ function tt($name, $string, $langcode = NULL, $update = FALSE) {
 }
 
 /**
+ * Get configurable string, 
+ * 
+ * The difference with tt() is that it doesn't use a default string, it will be retrieved too.
+ * This is used for source texts that we don't have stored anywhere else.
+ * 
+ * As the original language string will be stored in locales too so it should be only used when updating
+ */
+function ts($name, $string = '', $langcode = NULL, $update = FALSE) {
+  global $language;
+  
+  $langcode = $langcode ? $langcode : $language->language;
+  $translation = NULL;
+  
+  if ($update) {
+    i18nstrings_update_string($name, $string);
+  }
+  // if language is default look in sources table
+  if (language_default('language') != $langcode) {
+    $translation = i18nstrings_get_string($name, $langcode);
+  }
+  if (!$translation) {
+    if ($source = i18nstrings_get_source($name)) {
+      $translation = $source->source;
+    } else {
+      $translation = '';
+    }
+  }
+  return $translation;  
+}
+
+/**
+ * Debug util. Marks the translated strings
+ */
+function ttd($name, $string, $langcode = NULL, $update = FALSE) {
+  return tt($name, $string, $langcode, $update).'[T:'.$string.']';
+}
+
+/**
  * Translate configurable string
  * @param $name
  *   Textgroup and location glued with ':'
@@ -477,7 +515,8 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
       $params[] = $value;
     }
   }  
-  $sql = "SELECT s.textgroup, s.source, i.type, i.oid, i.property, t.translation FROM {locales_source} s  INNER JOIN {i18n_strings} i ON s.lid = i.lid INNER JOIN {locales_target} t ON s.lid = t.lid ";
+  $sql = "SELECT s.textgroup, s.source, i.type, i.oid, i.property, t.translation FROM {locales_source} s";
+  $sql .=" INNER JOIN {i18n_strings} i ON s.lid = i.lid INNER JOIN {locales_target} t ON s.lid = t.lid ";
   $sql .= implode(' ', $join) . ' ' . implode (' AND ', $where);
   $result = db_query($sql, $params);
   
@@ -529,6 +568,17 @@ function i18nstrings_cache($context, $langcode, $string = NULL, $translation = N
     return $search;
   }    
 
+}
+
+/**
+ * Callback for menu title translation
+ */
+function i18nstrings_title_callback($name, $string, $callback = NULL) {
+  $string = tt($name, $string);
+  if ($callback) {
+    $string = $callback($string);
+  }
+  return $string;
 }
 
 /**

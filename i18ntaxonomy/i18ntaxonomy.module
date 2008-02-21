@@ -78,11 +78,36 @@ function i18ntaxonomy_menu() {
     'title' => 'Translation',
     'page callback' => 'i18ntaxonomy_page_vocabulary',
     'page arguments' => array(3, 5, 6),
+    'access callback' => '_i18ntaxonomy_translation_tab',
+    'access arguments' => array(3),
     'type' => MENU_LOCAL_TASK,
     'parent' => 'admin/content/taxonomy/%taxonomy_vocabulary',
     'file' => 'i18ntaxonomy.admin.inc',
   );
   return $items;
+}
+
+/**
+ * Implementation of hook_menu_alter().
+ * 
+ * Take over the taxonomy pages
+ */
+function i18ntaxonomy_menu_alter(&$items) {
+  // Taxonomy term page. Localize terms
+  $items['taxonomy/term/%']['module'] = 'i18ntaxonomy';
+  $items['taxonomy/term/%']['page callback'] = 'i18ntaxonomy_term_page';
+  $items['taxonomy/term/%']['file'] = 'i18ntaxonomy.pages.inc';
+  // Localize autocomplete
+  $items['taxonomy/autocomplete']['module'] = 'i18ntaxonomy';
+  $items['taxonomy/autocomplete']['page callback'] = 'i18ntaxonomy_autocomplete';
+  $items['taxonomy/autocomplete']['file'] = 'i18ntaxonomy.pages.inc';
+}
+
+/**
+ * Menu access callback. Show tab only for full multilingual vocabularies
+ */
+function _i18ntaxonomy_translation_tab($vocabulary) {
+  return i18ntaxonomy_vocabulary($vocabulary->vid) == I18N_TAXONOMY_TRANSLATE;
 }
 
 /**
@@ -512,6 +537,7 @@ function i18ntaxonomy_translate_terms($taxonomy, $langcode) {
   }
   return $translation;
 }
+
 /**
  * Implementation of hook_views_pre_view().
  * 
