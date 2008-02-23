@@ -1,0 +1,9 @@
+; $Id$
+name = Multilingual Poll
+description = Aggregates poll results for all translations
+dependencies[] = i18n
+dependencies[] = poll
+package = Multilanguage - i18n
+core = 6.x
+
+

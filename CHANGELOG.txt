@@ -4,6 +4,10 @@ TO DO
 
 5.x to 6.x
 ----------
+23/02/2008
+- Added aggregated polls: i18npoll.module
+- Options for language icons: show/don't show for nodes and block
+
 21/02/2008
 - Upgraded i18ncontent, fully reworked, much cleaner now
 - Improved i18nstrings, translation of strings without source, debug facility

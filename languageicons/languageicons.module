@@ -70,8 +70,10 @@ function languageicons_menu() {
  * Adds language icons to normal translation links.
  */
 function languageicons_translation_link_alter(&$links, $path) {
-  foreach (array_keys($links) as $langcode) {
-    languageicons_link_add($links[$langcode]);
+  if (variable_get('languageicons_show_block', 1)) {
+    foreach (array_keys($links) as $langcode) {
+      languageicons_link_add($links[$langcode]);
+    }
   }
 }
 
@@ -81,7 +83,7 @@ function languageicons_translation_link_alter(&$links, $path) {
  * Adds language icons to node links.
  */
 function languageicons_link_alter(&$links, $node) {
-  if ($node->tnid && $translations = module_invoke('translation', 'node_get_translations', $node->tnid)) {
+  if (variable_get('languageicons_show_node', 1) && $node->tnid && $translations = module_invoke('translation', 'node_get_translations', $node->tnid)) {
     $languages = language_list();
     foreach ($translations as $langcode => $translation) {
       $index = 'node_translation_'.$langcode;
@@ -112,6 +114,21 @@ function languageicons_link_add(&$link, $title = NULL) {
  */
 function languageicons_admin_settings() {
   
+  $form['show'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Add language icons'),
+    '#description' => t('Link types to add language icons.'),
+  );
+  $form['show']['languageicons_show_node'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Node links'),
+    '#default_value' => variable_get('languageicons_show_node', 1),
+  );
+  $form['show']['languageicons_show_block'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Language switcher block'),
+    '#default_value' => variable_get('languageicons_show_block', 1),
+  );
   $form['languageicons_placement'] = array(
     '#type' => 'radios',
     '#title' => t('Icon placement'),
