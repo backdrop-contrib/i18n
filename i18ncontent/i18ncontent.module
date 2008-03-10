@@ -38,10 +38,30 @@ function i18ncontent_help($path, $arg) {
 /**
  * Implementation of hook_locale().
  */
-function i18ncontent_locale($op = 'groups') {
+function i18ncontent_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('nodetype' => t('Content type'));
+    case 'refresh':
+      if ($group == 'nodetype') {
+        return i18ncontent_locale_refresh();
+      }
+  }
+}
+
+/**
+ * Refresh content type strings
+ */
+function i18ncontent_locale_refresh() {
+  foreach (node_get_types() as $type) {
+    tt("nodetype:$type->type:name", $type->name, NULL, TRUE);
+    tt("nodetype:$type->type:title", $type->title_label, NULL, TRUE);
+    tt("nodetype:$type->type:title", $type->body_label, NULL, TRUE);
+    if ($type->help) {
+      ts("nodetype:$type->type:help", $type->help, NULL, TRUE);
+      $type->help = '';
+      node_type_save($type);
+    }
   }
 }
 

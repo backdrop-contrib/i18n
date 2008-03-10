@@ -193,7 +193,7 @@ function i18nsync_node_translation($node, $translation, $fields, $op) {
         break;
       case 'parent': // Book outlines, translating parent page if exists
       case 'iid': // Attached image nodes  
-        i18nsync_node_translation_attached_node(&$node, &$translation, $field);
+        i18nsync_node_translation_attached_node($node, $translation, $field);
         break;
       case 'files':
         // Sync existing attached files

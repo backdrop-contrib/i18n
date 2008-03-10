@@ -21,6 +21,35 @@
  */
 
 /**
+ * Implementation of hook_help()
+ */
+function i18nstrings_help($path, $arg) {
+  switch ($path) {
+    case 'admin/build/translate/refresh':
+      $output = '<p>'.t('On this page you can refresh and update values for user defined strings.').'</p>';
+      $output .= '<ul>';
+      $output .= '<li>'.t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.').'</li>';
+      $output .= '<li>'.t('Use the update option when some of the strings had been previously translated with the localization system but the translations are not showing up for the configurable strings.').'</li>';
+      $output .= '</ul>';
+      return $output;
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function i18nstrings_menu() {
+  $items['admin/build/translate/refresh'] = array(
+    'title' => 'Refresh',
+    'weight' => 20,
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'i18nstrings_admin_refresh_page',
+    'file' => 'i18nstrings.admin.inc',    
+  );
+  return $items;
+}
+
+/**
  * Translate configurable string
  * 
  * @param $name
