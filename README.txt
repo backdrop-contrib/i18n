@@ -35,12 +35,6 @@ Some site-wide variables, like 'site_name', 'site_slogan', user e-mail contents.
 Since I don't like the solution of runing them through the localization system, because this means when you change the 'master' text, you have to re-translate it for every language, I've added this new feature which makes possible to have a list of variables -defined in the config file- which will be kept separated for each language.
 This part is an add-on, and you can use it or not.
 
-About language dependent tables 
-===============================
-Language dependent tables are not needed anymore for multilingual content.
-This is kept for backwards compatibility, experimentation and may be some use in the future.
-* This can be used to have per-language data for modules not language-aware, like language statistics... you can experiment...
-
 Known problems, compatibility issues
 ====================================
 These modules should be compatible with all Drupal core modules.

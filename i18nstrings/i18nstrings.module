@@ -162,8 +162,9 @@ function i18nstrings_to($context, &$object, $properties = array(), $langcode = N
   // @ TODO Object prefetch
   foreach ($properties as $property) {
     $context->property = $property;
+    $context->location = i18nstrings_location($context);
     if (!empty($object->$property)) {
-      $object->property = i18nstrings_tt($context, $object->$property, $langcode, $update, $create);
+      $object->$property = i18nstrings_tt($context, $object->$property, $langcode, $update, $create);
     }
   }
 }

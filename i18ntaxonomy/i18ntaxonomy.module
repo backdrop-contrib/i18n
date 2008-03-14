@@ -673,12 +673,12 @@ function _i18ntaxonomy_vocabulary_terms($vid = NULL, $fullname = TRUE) {
  */
 function i18ntaxonomy_vocabulary($vid = NULL, $mode = NULL) {
   $options = variable_get('i18ntaxonomy_vocabulary', array());
-  if ($vid && $mode) {
+  if ($vid && !is_null($mode)) {
     $options[$vid] = $mode;
     variable_set('i18ntaxonomy_vocabulary', $options);
   } elseif ($vid) {
     return array_key_exists($vid, $options) ? $options[$vid] : I18N_TAXONOMY_NONE;
-  } elseif ($mode) {
+  } elseif (!is_null($mode)) {
     return array_keys($options, $mode);
   } else {
     return $options;

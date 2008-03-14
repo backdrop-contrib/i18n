@@ -1,10 +1,14 @@
 TO DO
 -----
 - Taxonomy autocomplete, localized terms
-- Implement locale refresh for blocks and profile
+- Handle or block switching of default language (some user defined strings are lost)
 
 6.x-dev to
 ------------------
+- Fixed: i18nstrings_to() not changing location, http://drupal.org/node/230750
+- Fixed: taxonomy vocabulary setting not saved when set to 'none'
+- Updated README.txt and INSTALL.txt files
+
 - Added string refreshing for all the modules using i18nstrings.
 - Fixed installation issues doing operations on enable hook instead of install.
 - Fixed: wrong function name on i18ntaxonomy producing errors/warnings
