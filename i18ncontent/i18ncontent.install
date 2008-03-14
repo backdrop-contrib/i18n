@@ -5,11 +5,14 @@
 function i18ncontent_install() {
   // Create strings in the extended localization system
   // There seems to be some issue with module loading on install/update
-  if (function_exists('tt')) {
-    i18ncontent_locale_refresh();
-  }
 }
 
+/**
+ * Implementatin of hook_enable()
+ */
+function i18ncontent_enable() {
+  i18ncontent_locale_refresh();
+}
 /**
  * Implementation of hook_uninstall()
  */
@@ -30,6 +33,6 @@ function i18ncontent_uninstall() {
  */
 function i18ncontent_update_1() {
   $ret = array();
-  i18ncontent_install();
+  i18ncontent_locale_refresh();
   return $ret;
 }

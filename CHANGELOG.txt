@@ -5,10 +5,11 @@ TO DO
 
 6.x-dev to
 ------------------
+- Added string refreshing for all the modules using i18nstrings.
+- Fixed installation issues doing operations on enable hook instead of install.
 - Fixed: wrong function name on i18ntaxonomy producing errors/warnings
 - Fixed: blocks not saving language properly.
 - Improved taxonomy vocabulary form, re-grouping the fields and with some help text.
-
 - Fixed Call-time-pass-by reference, http://drupal.org/node/231856
 - New refresh and update feature for i18nstrings (implemented for taxonomy and content)
 

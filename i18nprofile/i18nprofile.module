@@ -23,11 +23,32 @@ function i18nprofile_help($section = 'admin/help#i18nmenu' ) {
 /**
  * Implementation of hook_locale().
  */
-function i18nprofile_locale($op = 'groups') {
+function i18nprofile_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('profile' => t('Profile'));
+    case 'refresh':
+      if ($group == 'profile') {
+        return i18nprofile_locale_refresh();
+      }
   }
+}
+
+/**
+ * Refresh strings
+ */
+function i18nprofile_locale_refresh() {
+  $result = db_query('SELECT * FROM {profile_fields}');
+  $categories = array();
+  while ($field = db_fetch_object($result)) {
+    // Store strings to translate: title, explanation, options
+    to("profile:field:$field->name", $field, array('title', 'explanation', 'options'), NULL, TRUE);
+    // Store category if not there yet
+    if (!isset($categories[$field->category])) {
+      tt("profile:category", $field->category, NULL, TRUE);
+      $categories[$field->category] = 1;
+    }    
+  }  
 }
 
 /**

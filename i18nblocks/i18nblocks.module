@@ -80,8 +80,10 @@ function i18nblocks_block($op = 'list', $delta = 0, $edit = array()) {
 
 /**
  * Implementation of hook_locale().
+ * 
+ * This one doesn't need locale refresh because strings are stored from module config form.
  */
-function i18nblocks_locale($op = 'groups') {
+function i18nblocks_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('blocks' => t('Blocks'));

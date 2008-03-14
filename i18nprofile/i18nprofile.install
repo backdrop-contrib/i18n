@@ -8,6 +8,13 @@ function i18nprofile_install() {
 }
 
 /**
+ * Refresh strings when enabled
+ */
+function i18nprofile_enable() {
+  i18nprofile_locale_refresh();
+}
+
+/**
  * Update table to utf-8
  */
 function i18nprofile_update_1() {

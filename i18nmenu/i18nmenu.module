@@ -11,12 +11,27 @@
 /**
  * Implementation of hook_locale().
  */
-function i18nmenu_locale($op = 'groups') {
+function i18nmenu_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('menu' => t('Menu'));
+    case 'refresh':
+      if ($group == 'profile') {
+        return i18nmenu_locale_refresh();
+      }      
   }
 }
+
+/**
+ * Refresh locale strings
+ */
+function i18nmenu_locale_refresh() {
+  foreach (menu_get_menus() as $name => $title) {
+    $tree = menu_tree_all_data($name);
+    i18nmenu_localize_tree($tree);
+  }
+}
+
 /**
  * Implementation of hook_menu_alter().
  */
