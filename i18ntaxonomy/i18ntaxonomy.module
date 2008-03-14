@@ -297,7 +297,7 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
       }
       break;
     case 'taxonomy_form_vocabulary': // Taxonomy vocabulary
-      if ($form['vid']['#value']) {
+      if (!empty($form['vid']['#value'])) {
         $vocabulary = taxonomy_vocabulary_load($form['vid']['#value']);
         $mode = i18ntaxonomy_vocabulary($vocabulary->vid);
       } else {
@@ -315,14 +315,15 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
         '#title' => t('Translation mode'),
         '#options' => _i18ntaxonomy_vocabulary_options(),
         '#default_value' => $mode,
+        '#description' => t('For localizable vocabularies, to have all terms available for translation visit the !locale-refresh page', array('!locale-refresh' => l(t('translation refresh'), 'admin/build/translate/refresh') )),
       );
-      $form['identification']['language'] = array(
+      $form['i18n']['language'] = array(
         '#type' => 'select',
         '#title' => t('Language'),
         '#default_value' => $vocabulary && !empty($vocabulary->language) ? $vocabulary->language : '',
         '#options' => array('' => '') + locale_language_list('name'),
         '#description' => t('Language for this vocbulary. If set, it will apply to all terms in this vocabulary.'),
-        '#disabled' => ($mode != I18N_TAXONOMY_LANGUAGE),
+        '#disabled' => ($vocabulary && $mode != I18N_TAXONOMY_LANGUAGE),
       );
       break;
       

@@ -142,8 +142,8 @@ function i18nblocks_form_alter(&$form, $form_state, $form_id) {
  */
 function i18nblocks_form_submit($form, &$form_state) {
   $values = $form_state['values'];
-  // Dirty trick to act on new created blocks
-  if (!$values['delta']) {
+  // Dirty trick to act on new created blocks. Delta may be zero for other modules than block.
+  if (!$values['delta'] && $values['module'] == 'block') {
     // The last insert id will return a different value in mysql
     //$values['delta'] = db_last_insert_id('boxes', 'bid');
     $values['delta'] = db_result(db_query("SELECT MAX(bid) FROM {boxes}"));
@@ -177,11 +177,14 @@ function i18nblocks_load($module, $delta) {
 
 /**
  * Set block language data
+ * 
+ * @param array $block
+ *   Array of block parameters: module, delata, ibid (internal i18nblocks delta)
  */
 function i18nblocks_save($block) {
   // Update strings for localizable blocks
   if ($block['ibid']) {
-    db_query("UPDATE {i18n_blocks} SET language = '%s' WHERE ibid = %d", $block['ibid']);
+    db_query("UPDATE {i18n_blocks} SET language = '%s' WHERE ibid = %d", $block['language'], $block['ibid']);
   } else {
     db_query("INSERT INTO {i18n_blocks}(module, delta, language) VALUES('%s', '%s', '%s')", $block['module'], $block['delta'], $block['language']);
     $block['ibid'] = db_last_insert_id('i18n_blocks', 'ibid');

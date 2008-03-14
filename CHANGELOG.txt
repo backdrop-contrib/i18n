@@ -3,10 +3,17 @@ TO DO
 - Taxonomy autocomplete, localized terms
 - Implement locale refresh for blocks and profile
 
-5.x to 6.x
-----------
+6.x-dev to
+------------------
+- Fixed: wrong function name on i18ntaxonomy producing errors/warnings
+- Fixed: blocks not saving language properly.
+- Improved taxonomy vocabulary form, re-grouping the fields and with some help text.
+
 - Fixed Call-time-pass-by reference, http://drupal.org/node/231856
 - New refresh and update feature for i18nstrings (implemented for taxonomy and content)
+
+5.x to 6.x
+----------
 07/03/2008
 - Fixed file synchronization for translations
 - Added field population for synchronized fields

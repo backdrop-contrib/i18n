@@ -155,7 +155,7 @@ function i18nsync_prepare_translation(&$node, $source, $field_list){
     if (empty($source->$field)) continue;
     switch($field) {
       case 'taxonomy':
-        i18nsync_taxonomy($node, $source);
+        i18nsync_taxonomyfield($node, $source);
         break;
       default:
         $node->$field = $source->$field;
@@ -189,7 +189,7 @@ function i18nsync_node_translation($node, $translation, $fields, $op) {
   foreach ($fields as $field) {
     switch($field) {
       case 'taxonomy': // Do nothing it has already been syncd
-        i18nsync_taxonomy($translation, $node);
+        i18nsync_taxonomyfield($translation, $node);
         break;
       case 'parent': // Book outlines, translating parent page if exists
       case 'iid': // Attached image nodes  
@@ -231,7 +231,7 @@ function i18nsync_node_translation($node, $translation, $fields, $op) {
  * 
  * Translate translatable terms, just copy over the rest
  */
-function i18nsync_taxonomy(&$node, $source) {
+function i18nsync_taxonomyfield(&$node, $source) {
   if (module_exists('i18ntaxonomy')) {
     $node->taxonomy = i18ntaxonomy_translate_terms($source->taxonomy, $node->language);
   } else {
