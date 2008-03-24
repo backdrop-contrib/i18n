@@ -354,13 +354,17 @@ function i18n_selection_mode($mode= NULL, $params= NULL){
 
 /**
  * Implementation of hook_db_rewrite_sql()
+ * 
+ * Rewrite node queries so language selection options are enforced
  */
 function i18n_db_rewrite_sql($query, $primary_table, $primary_key){
 
   switch ($primary_table) {
     case 'n':
     case 'node':
-      // Node queries.
+      // No rewrite for queries with subselect ? (views count queries)
+      // @ TO DO Actually these queries look un-rewrittable, check with other developers
+      if (preg_match("/FROM \(SELECT/", $query)) return;
       // No rewrite for translation module queries
       if (preg_match("/.*FROM {node} $primary_table WHERE.*$primary_table\.tnid/", $query)) return;
       // When loading specific nodes, language conditions shouldn't apply
@@ -667,6 +671,25 @@ function i18n_frontpage($lang = NULL) {
   return i18n_get_normal_path($lang.'/'.variable_get('site_frontpage','node'));
 }
 
+/**
+ * Implementation of hook_views_pre_query().
+ * 
+ * Disable language conditions for views. This is called before filter handlers
+ * 
+ * @ TODO Check whether these views hooks still exist in Drupal 6
+ */
+function i18n_pre_query(&$view) {
+  i18n_selection_mode(variable_get('i18n_selection_mode', 'off'));
+}
+
+/**
+ * Implementation of hook_views_pre_view().
+ * 
+ * If used language selection filter, reset query rewriting again
+ */
+function i18n_pre_view(&$view, &$items) {
+  i18n_selection_mode('reset');
+}
 
 /**
  * @defgroup i18n_api Extended language API
@@ -687,6 +710,7 @@ function i18n_language_list($type = 'enabled', $field = 'name') {
       return array_diff_assoc($defined, $enabled);
   }
 }
+
 /**
  * Returns default language code
  */

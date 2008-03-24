@@ -37,7 +37,7 @@ function i18nblocks_help($section, $arg) {
       $output .= '<p>'.t('You can set up a language for a block or define it as translatable:').'</p>';
       $output .= '<ul>';
       $output .= '<li>'.t('Blocks with a language will be displayed only in pages with that language.').'</li>';
-      $output .= '<li>'.t('For translatable blocks, a new [Translatable] version of the block will be created.').'</li>';
+      $output .= '<li>'.t('Translatable blocks can be translated using the localization interface.').'</li>';
       $output .= '</ul>';
       return $output;
   }
@@ -60,6 +60,7 @@ function i18nblocks_db_rewrite_sql($query, $primary_table, $primary_key) {
  * 
  * Blocks in i18n_blocks with no language are suppossed to be translatable
  */
+/*
 function i18nblocks_block($op = 'list', $delta = 0, $edit = array()) {
   switch($op) {
     case 'list':
@@ -77,7 +78,7 @@ function i18nblocks_block($op = 'list', $delta = 0, $edit = array()) {
       return $form;  
   }
 }
-
+*/
 /**
  * Implementation of hook_locale().
  * 
@@ -224,4 +225,80 @@ function i18nblocks_get_block($delta, $language){
     $block['content'] = tt("blocks:block:$delta:content", $block['content'], $language);
     return $block;
   }
+}
+
+/**
+ * Translate localizable block
+ */
+function i18nblocks_translate_block($block) {
+  if ($block->title) {
+    // Check plain here to allow module generated titles to keep any markup.
+    $block->subject = $block->title == '<none>' ? '' : check_plain(tt("blocks:block:$block->delta:title", $block->title));
+  } elseif (!empty($block->subject)) {
+    $block->subject = tt("blocks:block:$block->delta:title", $block->subject);
+  }
+  $block->content = tt("blocks:block:$block->delta:content", $block->content);
+  return $block;
+}
+
+/**
+ * Implementation of hook_theme()
+ * 
+ * Overrides the theme_blocks() definition
+ */
+function i18nblocks_theme() {
+  return array(
+    'blocks' => array(
+      'function' => 'i18nblocks_theme_blocks',
+      'arguments' => array('region' => NULL),
+    ),  
+  );
+}
+
+/**
+ * Overrides theme_blocks() and translates blocks on the go
+ */
+function i18nblocks_theme_blocks($region) {
+  $output = '';
+  $i18nmenu = module_exists('i18nmenu');
+  $i18nblocks = _i18nblocks_list();
+  if ($list = block_list($region)) {
+    foreach ($list as $key => $block) {
+      // Configurable blocks, may be localizable
+      if ($block->module == 'block') {
+        if (isset($i18nblocks['block'][$block->delta])) {
+          $block = i18nblocks_translate_block($block);
+        }
+      }
+      elseif ($i18nmenu) {
+        // Replace menu blocks by their translated version
+        if ($block->module == 'menu') {
+          $block->content = i18nmenu_translated_tree($block->delta);
+        } elseif ($block->module == 'user' && $block->delta == 1) {
+          $block->content = i18nmenu_translated_tree('navigation');
+        } 
+      }
+      // Finally, render the block using standard theming
+      $output .= theme('block', $block);
+    }
+  }
+
+  // Add any content assigned to this region through drupal_set_content() calls.
+  $output .= drupal_get_content($region);
+
+  return $output;  
+}
+
+/**
+ * Get list of blocks i18n properties
+ */
+function _i18nblocks_list($langcode = '') {
+  static $list = array();
+  if (!isset($list[$langcode])) {
+    $result = db_query("SELECT * FROM {i18n_blocks} WHERE language = '%s'", $langcode);
+    while ($info = db_fetch_object($result)) {
+      $list[$langcode][$info->module][$info->delta] = $info;
+    }
+  }
+  return $list[$langcode];
 }

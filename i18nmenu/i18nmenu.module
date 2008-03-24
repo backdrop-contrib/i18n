@@ -78,6 +78,7 @@ function i18nmenu_help($section, $arg) {
 /**
  * Implementation of hook_block().
  */
+/*
 function i18nmenu_block($op = 'list', $delta = 0) {
   global $user;
   $menus = menu_get_menus();
@@ -105,6 +106,7 @@ function i18nmenu_block($op = 'list', $delta = 0) {
     return $data;
   }  
 }
+*/
 
 /**
  * Get localized menu tree
