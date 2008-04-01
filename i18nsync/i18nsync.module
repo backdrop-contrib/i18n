@@ -318,6 +318,7 @@ function i18nsync_node_available_fields($type) {
   }
 
   // Get CCK fields
+  /* Disabled until there's a stable version of CCK + views
   if (($content = module_invoke('content', 'types', $type)) && isset($content['fields'])) {
     // Get context information
     $info = module_invoke('content', 'fields', NULL, $type);
@@ -326,11 +327,12 @@ function i18nsync_node_available_fields($type) {
       $fields['cck']['#options'][$data['field_name']] = $data['widget']['label'];      
     }
   }
+  */
   return $fields;
 }
 
 /*
- * Sample CCK field definition
+ * Sample CCK field definition for Drupal 5
 'field_text' => 
     array
       'field_name' => string 'field_text' (length=10)

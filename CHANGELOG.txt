@@ -4,9 +4,11 @@ TO DO
 
 6.x-dev to
 ------------------
+- Disabled CCK integration in i18nsync till there's a stable cck version
+- Fixed multiple issues with selection modes and some old function clean up
+- Fixed issues with menu administration pages, now showing all items for nodes
 - Improved block management, no need for 'Translated' duplicated blocks anymore.
 - Added new dependency for i18nmenu, now it works with i18nblocks
-
 - Fixed: i18nstrings_to() not changing location, http://drupal.org/node/230750
 - Fixed: taxonomy vocabulary setting not saved when set to 'none'
 - Updated README.txt and INSTALL.txt files

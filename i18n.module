@@ -29,19 +29,26 @@ function i18n_init(){
   // If not in bootstrap, variable init
   if(!_i18n_is_bootstrap()){
     //include drupal_get_path('module', 'i18n').'/i18n.inc';
-    i18n_variable_init();    
-  }
-  if (arg(0) == 'node') {
-    if(isset($_POST['language']) && $_POST['language']) {
-      $pagelang = $_POST['language'];
-    } elseif( is_numeric(arg(1)) && $node = node_load(arg(1)) ) {
-      // Node language when loading specific nodes
-      $pagelang = $node->language;
+    i18n_variable_init();  
+    // Initialize selection mode for content, the default may be changed below
+    i18n_selection_mode(variable_get('i18n_selection_mode', 'simple'));
+    // Node language when loading specific nodes or creating translations
+    if (arg(0) == 'node') {
+      if (is_numeric(arg(1)) && ($node = node_load(arg(1))) && $node->language ) {
+        i18n_selection_mode('node', $node->language);
+      } elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language']))  {
+        i18n_selection_mode('translation', db_escape_string($_GET['language']));
+      } 
+    } elseif (arg(0) == 'admin') {
+      // There are some exceptions for admin pages
+      if (arg(1) == 'content' && user_access('administer all languages')) {
+        // No restrictions for administration pages
+        i18n_selection_mode('off');
+      } elseif (arg(1) == 'build' && arg(2) == 'menu-customize') {
+        // All nodes available when editing custom menu items
+        i18n_selection_mode('off');
+      }
     }
-    if(isset($pagelang)) i18n_selection_mode('node', db_escape_string($pagelang));
-  } elseif(arg(0) == 'admin' && arg(0) == 'content' && user_access('administer all languages')) {
-    // No restrictions for administration pages
-    i18n_selection_mode('off');
   }
 }
 
@@ -344,7 +351,6 @@ function i18n_selection_mode($mode= NULL, $params= NULL){
     return $current_value;
   } elseif($mode == 'reset'){
     list($current_mode, $current_value) = array_pop($store);
-    //drupal_set_message("i18n mode reset mode=$current_mode value=$current_value");
   } else {
     array_push($store, array($current_mode, $current_value));
     $current_mode = $mode;
@@ -358,7 +364,10 @@ function i18n_selection_mode($mode= NULL, $params= NULL){
  * Rewrite node queries so language selection options are enforced
  */
 function i18n_db_rewrite_sql($query, $primary_table, $primary_key){
-
+  // If mode is 'off' = no rewrite, we cannot return any empty 'where' string so check here
+  $mode = i18n_selection_mode();
+  if ($mode == 'off') return;
+  
   switch ($primary_table) {
     case 'n':
     case 'node':
@@ -373,7 +382,7 @@ function i18n_db_rewrite_sql($query, $primary_table, $primary_key){
       if (preg_match("/i18n/", $query)) return;
 
       //$result['join'] = "LEFT JOIN {i18n_node} i18n ON $primary_table.nid = i18n.nid";
-      $result['where'] = i18n_db_rewrite_where($primary_table, 'node');
+      $result['where'] = i18n_db_rewrite_where($primary_table, 'node', $mode);
       return $result;
   }
 }
@@ -385,12 +394,11 @@ function i18n_db_rewrite_where($alias, $type, $mode = NULL){
   if (!$mode) {
     // Some exceptions for query rewrites
     $mode = i18n_selection_mode();
-    // drupal_set_message("i18n_db_rewrite mode=$mode query=$query");
   } 
-    // Special case. Selection mode is 'strict' but this should be only for node queries
-    if ($mode == 'strict' && $type != 'node') {
-      $mode = 'simple';
-    }   
+  // Special case. Selection mode is 'strict' but this should be only for node queries
+  if ($mode == 'strict' && $type != 'node') {
+    $mode = 'simple';
+  }   
   switch($mode){
     case 'off':
       return '';
@@ -628,24 +636,6 @@ function _i18n_variable_exit(){
 function _i18n_is_bootstrap(){
   return !function_exists('drupal_get_headers');
 }    
-
-/**
- * Sets db_prefix to given language
- */
-function _i18n_set_db_prefix($lang) {
-  global $db_prefix, $db_prefix_i18n;
-  if (is_array($db_prefix_i18n)) {
-    $db_prefix = array_merge($db_prefix, str_replace('**', $lang, $db_prefix_i18n));
-  }
-}
-
-/**
- * To get the original path. 
- * Cannot use $_GET["q"] cause it may have been already changed
- */
-function _i18n_get_original_path() {
-  return isset($_REQUEST["q"]) ? trim($_REQUEST["q"],"/") : '';
-}
 
 /**
  * Drupal 6, backwards compatibility layer

@@ -251,8 +251,9 @@ function i18ntaxonomy_taxonomy($op, $type, $edit = NULL) {
  * Implementation of hook_db_rewrite_sql()
  */
 function i18ntaxonomy_db_rewrite_sql($query, $primary_table, $primary_key){
-  // No rewrite for administration pages
-  if (arg(0) == 'admin') return;
+  // No rewrite for administration pages or mode = off
+  $mode = i18n_selection_mode();
+  if ($mode == 'off' || arg(0) == 'admin') return;
 
   switch ($primary_table) {
     case 't':
@@ -262,7 +263,7 @@ function i18ntaxonomy_db_rewrite_sql($query, $primary_table, $primary_key){
       if (preg_match("/WHERE.* $primary_table\.tid\s*(=\s*\d|IN)/", $query)) return;
       // Taxonomy for specific node
       if (preg_match("/WHERE r\.nid = \%d/", $query)) return;
-      $result['where'] = i18n_db_rewrite_where($primary_table, 'taxonomy');
+      $result['where'] = i18n_db_rewrite_where($primary_table, 'taxonomy', $mode);
       return $result;
   }
 }

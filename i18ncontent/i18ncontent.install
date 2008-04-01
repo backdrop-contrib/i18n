@@ -18,9 +18,9 @@ function i18ncontent_enable() {
  */
 function i18ncontent_uninstall() {
   // Remove and restore help texts
-  $language = language_default('language');
+  $langcode = language_default('language');
   foreach (node_get_types() as $type) {
-    if (!$type->help && ($help = ts("nodetype:$type->type:help", $language))) {
+    if (!$type->help && ($help = ts("nodetype:$type->type:help", $langcode))) {
       $type->help = $help;
       node_type_save($type);
     }
