@@ -44,7 +44,8 @@ function i18nstrings_menu() {
     'weight' => 20,
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'i18nstrings_admin_refresh_page',
-    'file' => 'i18nstrings.admin.inc',    
+    'file' => 'i18nstrings.admin.inc',
+    'access arguments' => array('translate interface'),   
   );
   return $items;
 }

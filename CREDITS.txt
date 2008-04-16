@@ -1,3 +1,5 @@
+// $Id$
+
 Drupal module created by Jose A. Reyero, <drupal at reyero dot net>
 
 My website http://freelance.reyero.net, it uses this module.

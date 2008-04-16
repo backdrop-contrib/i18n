@@ -52,6 +52,7 @@ function languageicons_menu() {
     'title' => 'Configure',
     'weight' => 10,
     'type' => MENU_DEFAULT_LOCAL_TASK,
+    'access arguments' => array('administer languages'),
   );
 
   $items['admin/settings/language/configure/icons'] = array(
@@ -60,6 +61,7 @@ function languageicons_menu() {
     'page arguments' => array('languageicons_admin_settings'),
     'weight' => 10,
     'type' => MENU_LOCAL_TASK,
+    'access arguments' => array('administer languages'),
   );
   return $items;
 }
