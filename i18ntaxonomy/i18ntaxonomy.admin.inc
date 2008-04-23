@@ -137,7 +137,7 @@ function i18ntaxonomy_translation_overview($vid) {
     $thisrow = array();
     foreach ($languages as $lang => $name) {
       if (array_key_exists($lang, $terms)) {
-        $thisrow[] = $terms[$lang]->name;
+        $thisrow[] = l($terms[$lang]->name, 'taxonomy/term/'.$terms[$lang]->tid);
        }
        else {
         $thisrow[] = '--';

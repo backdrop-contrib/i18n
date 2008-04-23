@@ -3,6 +3,9 @@
 TO DO
 -----
 - Taxonomy autocomplete, localized terms
+- Add language filter to search form
+- Allow hiding of *all* node language links
+- Enable synchronization of CCK fields (Waiting for CCK module upgrade)
 
 6.x-dev to
 ------------------
