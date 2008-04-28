@@ -1,0 +1,6 @@
+; $Id$
+name = Translation Overview
+description = Provides an overview of the translation status of the site's content.
+dependencies[] = translation
+package = Multilanguage - i18n
+core = 6.x

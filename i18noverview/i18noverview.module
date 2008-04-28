@@ -1,0 +1,264 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_help().
+ */
+function i18noverview_help($path, $arg) {
+  switch ($path) {
+    case 'admin/content/translation_overview':
+      $args = array();
+      $statuses = array('original', 'current', 'outofdate', 'missing');
+      foreach ($statuses as $status) {
+        $args['!'. $status] = theme('i18noverview_status_img', $status, $status);
+      }
+      return '<p>'. t('The table uses the following symbols to indicate the translation status: !original Original language, !current Current translation, !outofdate Out-of-date translation, !missing Untranslated.', $args) .'</p>';
+  }
+}
+
+/**
+ * Implementation of hook_menu().
+ */
+function i18noverview_menu() {
+  $items = array();  
+  $items['admin/content/translation_overview'] = array(
+    'title' => 'Translation overview',
+    'type' => MENU_NORMAL_ITEM,
+    'description' => "View the translation status of the site's content.",
+    'page callback' => 'i18noverview_overview_page',
+    'access arguments' => array('translate content'),
+  );
+  $items['admin/content/translation_overview/all'] = array(
+    'title' => 'All',
+    'description' => 'All translations',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -20,
+    'access arguments' => array('translate content'),
+  );
+  foreach (language_list() as $key => $language) {
+    if ($language->enabled) {
+      $items['admin/content/translation_overview/'. $language->language] = array(
+        'title' => $language->language,
+        'description' => $language->name,
+        'type' => MENU_LOCAL_TASK,
+        'page callback' => 'i18noverview_language_page',
+        'page arguments' => array($language->language),
+        'access arguments' => array('translate content'),
+      );
+    }
+  }
+  return $items;
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function i18noverview_theme() {
+  return array(
+    'i18noverview_translation_link' => array(
+      'arguments' => array('status' => NULL, 'path' => '', 'options' => array(), 'show_long' => FALSE),
+    ),
+    'i18noverview_status_img' => array(
+      'arguments' => array('status' => NULL, 'alt_text' => ''),
+    ),
+  );
+}
+
+/**
+ * Get a list of the node types that have translation support enabled.
+ *
+ * @return array of node types.
+ */
+function i18noverview_node_types() {
+  return array_filter(array_keys(node_get_types('names')), 'translation_supported_type');
+}
+
+/**
+ * Translation overview page.
+ * 
+ * Current assumptions:
+ *  - translated node's status is synchronized via the i18n_sync module.
+ */
+function i18noverview_overview_page() {
+  $rows_per_page = 30;
+
+  // Get a list of the node types that have translation support enabled.
+  $types = i18noverview_node_types();
+
+  // Get a list of the enabled languages
+  $languages = array();
+  foreach (language_list() as $key => $language) {
+    if ($language->enabled) {
+      $languages[$key] = $language->language;
+    }
+  }
+  // Sort the list so the order matches the menu items.
+  asort($languages);
+
+  $header = array(
+    array('field' => 'n.title', 'data' => t('Title'), 'sort' => 'asc'),
+    array('field' => 'n.type', 'data' => t('Type')),
+    array('field' => 'n.created', 'data' => t('Created')),
+  );
+  foreach ($languages as $key => $language_name) {
+    $header[] = array('data' => $language_name);
+  }
+
+  $rows = array();
+  $sql = "SELECT n.nid, n.title, n.type, n.tnid, n.status, n.created, n.language, n.translate 
+    FROM {node} n WHERE n.type IN (" . db_placeholders($types, 'varchar') . ") AND (n.nid = n.tnid OR n.tnid = 0) ";
+
+  $result = pager_query(db_rewrite_sql($sql . tablesort_sql($header)), $rows_per_page, 0, NULL, $types);
+  while ($node = db_fetch_object($result)) {
+    // Shorten down the title so the table isn't too wide.
+    $title = $node->title;
+    if (drupal_strlen($title) > 20) {
+      $title = drupal_substr($title, 0, 15) .'...';
+    }
+
+    $row = array(
+      l($title, 'node/' . $node->nid, array('attributes' => array('title' => $node->title))),
+      check_plain($node->type),
+      format_date($node->created, 'custom', 'j M Y'),
+    );
+
+    // Load the node's translations and then fill in the table with the status.
+    $translations = (array) translation_node_get_translations($node->tnid);
+    foreach ($languages as $language) {
+      $translation_nid = empty($translations[$language]->nid) ? NULL : $translations[$language]->nid;
+      $row[$language] = i18noverview_translation_link($node, $translation_nid, $language, FALSE);
+    }
+
+    $rows[] = $row;
+  }
+
+  return theme('table', $header, $rows) . theme('pager', NULL, $rows_per_page);
+}
+
+function i18noverview_language_page($language) {
+  $rows_per_page = 30;
+  $types = i18noverview_node_types();
+  
+  $header = array(
+    array('field' => 'n.title', 'data' => t('Title')),
+    array('field' => 'n.type', 'data' => t('Type')),
+    array('field' => 'n.status', 'data' => t('Status')),
+    array('field' => 'n.language','data' => t('Language')),
+    array('field' => 'n.created', 'data' => t('Created')),
+    array('field' => 'translation_status', 'data' => t('Translated'), 'sort' => 'asc'),
+  );
+
+  // We want to sort the nodes by the status so we have to resort to this SQL 
+  // CASE statement.
+  // NOTE: the '0 AS i18n' is a little hack to prevent i18n from re-writing our
+  // query.
+  $sql = "SELECT n.nid, n.title, n.type, n.language, n.status, n.created, n.tnid, nt.nid AS t_nid, CASE 
+    WHEN n.language = '%s' THEN '4 LOCAL'
+    WHEN nt.translate = 0 THEN '3 DONE'
+    WHEN nt.tnid IS NULL THEN '2 MISS'
+    WHEN n.nid = n.tnid THEN '1 OLD'
+    ELSE 'unknown' END AS translation_status, 0 AS i18n
+    FROM node n LEFT JOIN node nt ON n.nid = nt.tnid AND nt.language = '%s' 
+    WHERE n.type IN (" . db_placeholders($types, 'varchar') . ") AND ((n.nid = n.tnid OR n.tnid = 0) AND (n.language != '')) ";
+  $args = array_merge(array($language, $language), $types);
+  
+  $rows = array();
+  $result = pager_query(db_rewrite_sql($sql . tablesort_sql($header)), $rows_per_page, 0, NULL, $args);
+  while ($node = db_fetch_object($result)) {
+    // Shorten down the title
+    $title = $node->title;
+    if (drupal_strlen($title) > 25) {
+      $title = drupal_substr($title, 0, 20) .'...';
+    }
+
+    $rows[] = array(
+      l($title, 'node/' . $node->nid, array('attributes' => array('title' => $node->title))),
+      check_plain($node->type),
+      empty($node->status) ? t('Unpublished') : t('Published'),
+      $node->language,
+      format_date($node->created, 'custom', 'j M Y'),
+      i18noverview_translation_link($node, $node->t_nid, $language, TRUE),
+    );
+  }
+
+  return theme('table', $header, $rows) . theme('pager', NULL, $rows_per_page);
+}
+
+/**
+ * Build a link to the translated node.
+ *
+ * @param $node Source node object
+ * @param $translation_nid Id of the translated node.
+ * @param $language Language code.
+ * @param $show_long Boolean, indicating if a longer version of the text should
+ *   be displayed.
+ * @return Link to the node if the user has permission or else just text.
+ */
+function i18noverview_translation_link($node, $translation_nid, $language, $show_long = FALSE) {
+  $path = 'node/'. $node->nid;
+  $options = array();
+
+  if ($language == $node->language) {
+    return theme('i18noverview_translation_link', 'original', $path, $options, $show_long);
+  }
+  if (!empty($translation_nid)) {
+     // Determine the status of the translation.
+    $tnode = node_load($translation_nid);
+    if ($tnode->nid) {
+      if ($tnode->translate == 0) {
+        $path = 'node/'. $tnode->nid;
+        return theme('i18noverview_translation_link', 'current', $path, $options, $show_long);
+      }
+      if (node_access('update', $tnode)) {
+        $path = "node/$tnode->nid/edit";
+        $options['query'] = array('destination' => $_GET['q']);
+      }
+      return theme('i18noverview_translation_link', 'outofdate', $path, $options, $show_long);
+    }
+  }
+  
+  // Assume it's missing, see if we can create a translation.
+  $path = '';
+  if (node_access('create', $node)) {
+    $path = 'node/add/'. str_replace('_', '-', $node->type);
+    $options['query'] = array('destination' => $_GET['q'], 'translation' => $node->nid, 'language' => $language);
+  }
+  return theme('i18noverview_translation_link', 'missing', $path, $options, $show_long);
+}
+
+function theme_i18noverview_status_img($status, $alt_text) {
+  $img_path = drupal_get_path('module', 'i18noverview') ."/status_{$status}.png";
+  return theme('image', $img_path, $alt_text);
+}
+
+function theme_i18noverview_translation_link($status, $path, $options = array(), $show_long = FALSE) {
+  switch ($status) {
+    case 'original':
+      $long = t('Original');
+      $options['attributes'] = array('title' => t('View original'));
+      break;
+    case 'current':
+      $long = t('Complete');
+      $options['attributes'] = array('title' => t('Translation is up-to-date, view it'));
+      break;
+    case 'outofdate':
+      $long = t('Out-of-date');
+      if (preg_match('/node\/\d*\/edit/', $path)) {
+        $options['attributes'] = array('title' => t('Translation is out-of-date, edit it'));
+      }
+      else {
+        $options['attributes'] = array('title' => t('Translation is out-of-date, view it'));
+      }
+      break;
+    case 'missing':
+      $long = t('Untranslated');
+      $options['attributes'] = array('title' => t('Translation does not exist, create it'));
+      break;
+  }
+  $text = theme('i18noverview_status_img', $status, $long) . ($show_long ? ' '. $long : '');
+  $options['html'] = TRUE;
+  if ($path) {
+    return l($text, $path, $options);
+  }
+  return $text;
+}
