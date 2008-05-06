@@ -205,18 +205,20 @@ function i18noverview_translation_link($node, $translation_nid, $language, $show
      // Determine the status of the translation.
     $tnode = node_load($translation_nid);
     if ($tnode->nid) {
-      if ($tnode->translate == 0) {
-        $path = 'node/'. $tnode->nid;
-        return theme('i18noverview_translation_link', 'current', $path, $options, $show_long);
-      }
       if (node_access('update', $tnode)) {
         $path = "node/$tnode->nid/edit";
         $options['query'] = array('destination' => $_GET['q']);
       }
+      else {
+        $path = 'node/'. $tnode->nid;
+      }
+      if ($tnode->translate == 0) {
+        return theme('i18noverview_translation_link', 'current', $path, $options, $show_long);
+      }
       return theme('i18noverview_translation_link', 'outofdate', $path, $options, $show_long);
     }
   }
-  
+
   // Assume it's missing, see if we can create a translation.
   $path = '';
   if (node_access('create', $node)) {
@@ -239,7 +241,14 @@ function theme_i18noverview_translation_link($status, $path, $options = array(),
       break;
     case 'current':
       $long = t('Complete');
-      $options['attributes'] = array('title' => t('Translation is up-to-date, view it'));
+      if (preg_match('/node\/\d*\/edit/', $path)) {
+        $options['attributes'] = array('title' => t('Translation is up-to-date, edit it'));
+      }
+      else {
+        $options['attributes'] = array('title' => t('Translation is up-to-date, view it'));
+      }
+      
+      
       break;
     case 'outofdate':
       $long = t('Out-of-date');
