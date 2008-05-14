@@ -106,7 +106,7 @@ function i18noverview_overview_page() {
 
   $rows = array();
   $sql = "SELECT n.nid, n.title, n.type, n.tnid, n.status, n.created, n.language, n.translate 
-    FROM {node} n WHERE n.type IN (" . db_placeholders($types, 'varchar') . ") AND (n.nid = n.tnid OR n.tnid = 0) ";
+    FROM {node} n WHERE n.type IN (" . db_placeholders($types, 'varchar') . ") AND (n.nid = n.tnid OR n.tnid = 0) AND n.language != '' AND n.language IS NOT NULL";
 
   $result = pager_query(db_rewrite_sql($sql . tablesort_sql($header)), $rows_per_page, 0, NULL, $types);
   while ($node = db_fetch_object($result)) {
@@ -159,7 +159,7 @@ function i18noverview_language_page($language) {
     WHEN n.nid = n.tnid THEN '1 OLD'
     ELSE 'unknown' END AS translation_status, 0 AS i18n
     FROM {node} n LEFT JOIN {node} nt ON n.nid = nt.tnid AND nt.language = '%s' 
-    WHERE n.type IN (" . db_placeholders($types, 'varchar') . ") AND ((n.nid = n.tnid OR n.tnid = 0) AND (n.language != '')) ";
+    WHERE n.type IN (" . db_placeholders($types, 'varchar') . ") AND ((n.nid = n.tnid OR n.tnid = 0) AND n.language != '' AND n.language IS NOT NULL) ";
   $args = array_merge(array($language, $language), $types);
   
   $rows = array();
