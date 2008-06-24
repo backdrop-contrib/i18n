@@ -1,6 +1,6 @@
 name = Mutilingual Blocks
 description = Enables multilingual blocks.
 dependencies[] = i18n
-package = Multilanguage - i18n
+package = Multilanguage
 version = VERSION
 core = 6.x

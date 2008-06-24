@@ -3,6 +3,6 @@ description = Enables multilingual taxonomy.
 dependencies[] = i18n
 dependencies[] = taxonomy
 dependencies[] = i18nstrings
-package = Multilanguage - i18n
+package = Multilanguage
 version = VERSION
 core = 6.x

@@ -2,6 +2,6 @@ name = Multilingual Profile
 description = Enables multilingual profile fields.
 dependencies[] = profile
 dependencies[] = i18nstrings
-package = Multilanguage - i18n
+package = Multilanguage
 version = VERSION
 core = 6.x

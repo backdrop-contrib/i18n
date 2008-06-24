@@ -3,7 +3,7 @@ name = Multilingual Poll
 description = Aggregates poll results for all translations
 dependencies[] = translation
 dependencies[] = poll
-package = Multilanguage - i18n
+package = Multilanguage
 core = 6.x
 
 
