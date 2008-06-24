@@ -120,11 +120,8 @@ function i18nprofile_form_alter(&$form, $form_state, $form_id) {
         i18nprofile_form_translate_category($form, $category);
       } 
       break;
-      /*
-      elseif ($form_id == 'user_register') {
-        i18nprofile_form_translate_all($form_id, $form);
-      }
-      */
+    case 'user_register':
+      i18nprofile_form_translate_all($form_id, $form);
       break;
   }
 }
@@ -209,10 +206,10 @@ function i18nprofile_field_options($field, $source = array()) {
  */
 function i18nprofile_form_translate_all($form_id, &$form) {
   $categories = profile_categories();
-  if(is_array($categories)) {
-    foreach($categories as $category) {
-      if(isset($form[$category['name']])) {
-        i18nprofile_form_translate($form_id, $form, $category['name']);
+  if (is_array($categories)) {
+    foreach ($categories as $category) {
+      if (isset($form[$category['name']])) {
+        i18nprofile_form_translate_category( $form, $category['name']);
       }
     }
   }

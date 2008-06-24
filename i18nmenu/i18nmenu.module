@@ -16,7 +16,7 @@ function i18nmenu_locale($op = 'groups', $group = NULL) {
     case 'groups':
       return array('menu' => t('Menu'));
     case 'refresh':
-      if ($group == 'profile') {
+      if ($group == 'menu') {
         return i18nmenu_locale_refresh();
       }      
   }
@@ -33,13 +33,6 @@ function i18nmenu_locale_refresh() {
 }
 
 /**
- * Implementation of hook_menu_alter().
- */
-function i18nmenu_menu_alter(&$items){
-  //dsm($items);
-}
-
-/**
  * Implementation of hook_menu_link_alter().
  * 
  * Catch changed links, update language and refresh texts
@@ -48,10 +41,8 @@ function i18nmenu_menu_link_alter(&$item, $menu) {
   // If we set option to language it causes an error with the link system
   // This should handle language only as the links are being manually updated
   if (!empty($item['language'])) {
-    //dsm("Language set");
     $item['options']['langcode'] = $item['language'];
   } elseif(isset($item['language'])) {
-    //dsm('Removed language');
     unset($item['options']['langcode']);
   }
   // @ TO DO: Refresh texts
@@ -61,6 +52,9 @@ function i18nmenu_menu_link_alter(&$item, $menu) {
   //i18nmenu_make_translatable($item);
 }
 
+/**
+ * Implementation of hook_help()
+ */
 function i18nmenu_help($section, $arg) {
   switch ($section) {
     case 'admin/help#i18nmenu' :
@@ -74,39 +68,6 @@ function i18nmenu_help($section, $arg) {
       return $output;
   }
 }
-
-/**
- * Implementation of hook_block().
- */
-/*
-function i18nmenu_block($op = 'list', $delta = 0) {
-  global $user;
-  $menus = menu_get_menus();
-  
-  // unset($menus['navigation']);
-  if ($op == 'list') {
-    $blocks = array();
-    foreach ($menus as $name => $title) {
-      // Default "Navigation" block is handled by user.module.
-      $blocks[$name]['info'] = check_plain($title).t('[Translated]');
-      // Menu blocks can't be cached because each menu item can have
-      // a custom access callback. menu.inc manages its own caching.
-      $blocks[$name]['cache'] = BLOCK_NO_CACHE;
-    }
-    return $blocks;
-  }
-  else if ($op == 'view') {
-    // The Navigation menu is handled like in the user module.
-    if ($delta == 'navigation') {
-      $data['subject'] = $user->uid ? check_plain($user->name) : t('Navigation');
-    } else {
-      $data['subject'] = check_plain($menus[$delta]);
-    }
-    $data['content'] = i18nmenu_translated_tree($delta);
-    return $data;
-  }  
-}
-*/
 
 /**
  * Get localized menu tree

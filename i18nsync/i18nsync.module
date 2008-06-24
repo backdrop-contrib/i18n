@@ -125,18 +125,10 @@ function i18nsync_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       case 'update':
         // Let's go with field synchronization.
         if (!empty($node->tnid) && ($fields = i18nsync_node_fields($node->type)) && ($translations = translation_node_get_translations($node->tnid)) && count($translations) > 1) {
-  
-          // We want to work with a fresh copy of this node, so we load it again bypassing cache.
-          // This is to make sure all the other modules have done their stuff and the fields are right.
-          // But we have to copy the revision field over to the new copy.
-          $revision = isset($node->revision) && $node->revision;
-          $source = node_load(array('nid' => $node->nid));
-          $source->revision = $revision;
           $i18nsync = TRUE;
-
           foreach ($translations as $trnode) {
-            if ($source->nid != $trnode->nid) {
-              i18nsync_node_translation($source, $trnode, $fields, $op);
+            if ($node->nid != $trnode->nid) {
+              i18nsync_node_translation($node, $trnode, $fields, $op);
             }
           }
           $i18nsync = FALSE;
@@ -237,7 +229,7 @@ function i18nsync_taxonomyfield(&$node, $source) {
   } else {
     // If not multilingual taxonomy enabled, just copy over
     $node->taxonomy = $source->taxonomy;
-  }  
+  }
 }
 /**
  * Node attachments (CCK) that may have translation

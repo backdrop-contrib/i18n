@@ -7,8 +7,16 @@ TO DO
 - Allow hiding of *all* node language links
 - Enable synchronization of CCK fields (Waiting for CCK module upgrade)
 
-6.x-dev to
-------------------
+6.x-beta1 to ......
+--------------------
+- Patch to prevent query rewriting for views, by Frank Steiner, #272432
+- Taxonomies not syncing, by drewish, #256357
+- Menu not refreshing locales, by Frank Steiner, #263124
+- User profiles not translated on registration, by gustavlarson, #248089
+
+6.x-dev to 6.x-beta1
+--------------------
+- Security update, http://drupal.org/node/250344
 - Disabled CCK integration in i18nsync till there's a stable cck version
 - Fixed multiple issues with selection modes and some old function clean up
 - Fixed issues with menu administration pages, now showing all items for nodes
