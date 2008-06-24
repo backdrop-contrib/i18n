@@ -38,7 +38,7 @@ function i18ntaxonomy_help($section, $arg) {
       $output .= '<li>'.t('Different terms for each language with translation relationships.').'</li>';
       $output .= '<li>'.t('Terms can be common to all languages but may be localized.').'</li>';
       $output .= '</ul>';
-      $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/31631')) .'</p>';
+      $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/133977')) .'</p>';
       return $output;
     case 'admin/settings/i18n':
       $output = '<ul>';
@@ -348,7 +348,7 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
           break;
         case I18N_TAXONOMY_LOCALIZE:
           $form['language'] = array('#type' => 'value', '#value' => '');
-          $form['identification']['name']['#description'] .= ' <strong>'.t('This name be localizable').'</strong>';
+          $form['identification']['name']['#description'] .= ' <strong>'.t('This name will be localizable').'</strong>';
           $form['identification']['description']['#description'] .= ' <strong>'.t('This description will be localizable').'</strong>'; 
           break;
         case I18N_TAXONOMY_NONE:

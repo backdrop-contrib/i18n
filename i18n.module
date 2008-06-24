@@ -70,7 +70,7 @@ function i18n_help($section = 'admin/help#i18n' ) {
       $output .= '<li>'.t('Multilingual menu items').'</li>';       
       $output .= '<li>'.t('Multilingual taxonomy Adds a language field for taxonomy vocabularies and terms').'</li>';
       $output .= '</ul>';
-      $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/31631')) .'</p>';
+      $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/133977')) .'</p>';
       return $output;
     case 'admin/settings/i18n':
       $output = '<ul>';
@@ -316,7 +316,7 @@ function i18n_node_language_list($node, $translate = FALSE) {
  *   Names to use for the links. Defaults to native language names
  */
 function i18n_get_links($path = '', $query = NULL, $names = NULL) {
-  if($path == i18n_frontpage()) {
+  if($path == variable_get('site_frontpage', 'node')) {
     $path = '';
   }
   $names = $names ? $names : locale_language_list('native');
@@ -651,17 +651,6 @@ function _i18n_is_bootstrap(){
 function i18n_get_lang() {
   global $language;
   return $language->language;
-}
-
-
-
-/**
- * Language dependent front page
- * This function will search for aliases like 'en/home', 'es/home'...
- */
-function i18n_frontpage($lang = NULL) {
-  $lang = $lang ? $lang : i18n_get_lang();
-  return i18n_get_normal_path($lang.'/'.variable_get('site_frontpage','node'));
 }
 
 /**

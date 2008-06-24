@@ -9,6 +9,11 @@ TO DO
 
 6.x-beta1 to ......
 --------------------
+- Fixed node upgrade issue, #260626
+- Removed references to obsolteted function i18n_get_normal_path(), #259603
+- Wrong link and typos in taxonomy module, by AaronCollier, #259440
+- Added Thai flag, by kengggg, #257387
+- Fixed wrong link on help page, by steinmb, #257289
 - Patch to prevent query rewriting for views, by Frank Steiner, #272432
 - Taxonomies not syncing, by drewish, #256357
 - Menu not refreshing locales, by Frank Steiner, #263124
