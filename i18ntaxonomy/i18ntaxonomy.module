@@ -572,6 +572,7 @@ function i18ntaxonomy_translate_terms($taxonomy, $langcode) {
  * //field[i][id] = term_node_1.name, translate table header
  * and replace handler for that field
  */
+/*
 function i18ntaxonomy_views_pre_view(&$view, &$items) {
   //var_dump($view);
   $translate = variable_get('i18ntaxonomy_vocabularies', array());
@@ -590,12 +591,13 @@ function i18ntaxonomy_views_pre_view(&$view, &$items) {
   }
 
 }
-
+*/
 /**
  * Field handler for taxonomy term fields
  * 
  * Remake of views_handler_field_allterms with term name translation
  */
+/*
 function i18ntaxonomy_views_handler_field_allterms($fieldinfo, $fielddata, $value, $data) {
   if ($fieldinfo['vocabulary']) {
     $terms = taxonomy_node_get_terms_by_vocabulary($data->nid, $fieldinfo['vocabulary']);
@@ -619,6 +621,7 @@ function i18ntaxonomy_views_handler_field_allterms($fieldinfo, $fielddata, $valu
   }
   return $links;
 }
+*/
 
 /**
  * Localize taxonomy terms for localizable vocabularies

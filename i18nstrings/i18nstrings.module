@@ -60,20 +60,21 @@ function i18nstrings_menu() {
  * @param $langcode
  *   Optional language code if different from current request language
  * @param $update
- *   Whether to update/create the string
+ *   Whether to force update/create for the string.
  */
 function tt($name, $string, $langcode = NULL, $update = FALSE) {
   global $language;
+  
   $langcode = $langcode ? $langcode : $language->language;
   
+  if ($update) {
+    i18nstrings_update_string($name, $string);
+  }
   // If language is default, just return
   if (language_default('language') == $langcode) {
-    if ($update) {
-      i18nstrings_update_string($name, $string);
-    }
     return $string;
   } else {
-    return i18nstrings_tt($name, $string, $langcode, $update);
+    return i18nstrings_tt($name, $string, $langcode, FALSE);
   }
 }
 
@@ -112,31 +113,43 @@ function ts($name, $string = '', $langcode = NULL, $update = FALSE) {
  * Debug util. Marks the translated strings
  */
 function ttd($name, $string, $langcode = NULL, $update = FALSE) {
-  return tt($name, $string, $langcode, $update).'[T:'.$string.']';
+  $context = i18nstrings_context($name, $string);
+  $context = implode('/', (array)$context);
+  return tt($name, $string, $langcode, $update).'[T:'.$string.'('.$context.')]';
 }
 
 /**
  * Translate configurable string
+ * 
+ * Support for l10n client (patch pending for l10n client)
+ * 
  * @param $name
  *   Textgroup and location glued with ':'
  */
-function i18nstrings_tt($name, $string, $langcode, $update = FALSE, $create = TRUE) {
+function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
+  global $language, $l10n_client_strings;
+  
   $context = i18nstrings_context($name, $string);
   
   if ($update) {
     i18nstrings_update_string($context, $string);
   }
   
-  $translation = i18nstrings_get_string($context, $langcode);
+  $translation = i18nstrings_get_string($context, $langcode, $string, !$update);
   
-  if ($translation) {
-    return ($translation === TRUE) ? $string : $translation;
-  } elseif ($translation === FALSE && $create) {
-    i18nstrings_update_string($context, $string);
-    i18nstrings_cache($context, $string, $langcode, TRUE);
+  if ($translation === FALSE) {
+    if (!$update) {
+      i18nstrings_add_string($name, $string);
+      i18nstrings_cache($context, $langcode, $string, TRUE);
+    }
+    $translation = TRUE;
   }
-  // Default case, just return untranslated string
-  return $string;
+  // If current language add to l10n list for later on page translation
+  // If language were the default one we are not supossed to reach here
+  if ($language->language == $langcode) {
+    $l10n_client_strings = $translation;
+  }
+  return ($translation === TRUE) ? $string : $translation;
 }
 
 /**
@@ -236,10 +249,11 @@ function i18nstrings_add_string($name, $string) {
   }
   else {
     db_query("INSERT INTO {locales_source} (location, source, textgroup, version) VALUES ('%s', '%s', '%s', '%s')", $location, $string, $context->textgroup, 0);
+    // Mysql just gets last id for latest query ?
+    $source->lid = db_last_insert_id('locales_source', 'lid');
     // Clear locale cache so this string can be added in a later request.
     cache_clear_all('locale:'.$context->textgroup.':', 'cache', TRUE);      
-    // Create string
-    $source->lid = db_last_insert_id('locales_source', 'lid');
+    // Create string    
     $status = SAVED_NEW; 
   }
   // Update metadata
@@ -283,7 +297,7 @@ function i18nstrings_get_source($context, $string = NULL) {
  *   Context string or object
  * @param $langcode
  *   Language code to retrieve string for
- * 
+ *   
  * @return
  *   - translation if found
  *   - TRUE if not found and cached
@@ -300,6 +314,7 @@ function i18nstrings_get_string($context, $langcode) {
     $where[] = "t.language = '%s'";
     $args[] = $langcode;
     $text = db_fetch_object(db_query("SELECT s.*, t.translation FROM {locales_source} s INNER JOIN {locales_target} t ON s.lid = t.lid WHERE ". implode(' AND ', $where), $args));
+    
     if ($text && $text->translation) {
       i18nstrings_cache($context, $langcode, NULL, $text->translation);
       return $text->translation;
@@ -459,6 +474,8 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
  * 
  * @param $context
  *   Context string or object
+ * @param $string
+ *   For some textgroups and objects that don't have ids we use the string itself as index
  * @return 
  *   Context object with textgroup, type, oid, property and location names
  */
@@ -564,11 +581,11 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
 function i18nstrings_cache($context, $langcode, $string = NULL, $translation = NULL) {
   static $strings;
   
-  $context = i18nstrings_context($context);
+  $context = i18nstrings_context($context, $string);
   
-  if (!$context->oid && $string) {
+  if (!$context->oid && $context->source) {
     // This is a type indexed by string
-    $context->oid = $string;    
+    $context->oid = $context->source;    
   }
   // At this point context must have at least textgroup and type
   if ($translation) {
@@ -612,111 +629,3 @@ function i18nstrings_title_callback($name, $string, $callback = NULL) {
   return $string;
 }
 
-/**
- * Implementation of hook_menu().
- *
-function i18nstrings_menu($may_cache) {
-  $items = array();
-  if ($may_cache) {
-    $items[] = array(
-      'path' => 'admin/settings/i18n/strings',
-      'type' => MENU_LOCAL_TASK,
-      'title' => t('Strings'),
-      'description' => t('Translatable strings.'),
-      'callback' => 'i18nstrings_admin',
-       'access' => user_access('administer site configuration'),
-      );
-  } else {   
-
-  }
-
-  return $items;
-}
-
-/**
- * Menu callback. Administration page
- *
-function i18nstrings_admin($op = NULL, $strid = NULL) {
-  switch($op) {
-    case 'edit':
-      return drupal_get_form('i18nstrings_admin_form', $strid);
-    default:
-      return i18nstrings_admin_overview();
-  }
-}
-
-/**
- * List of strings
- *
-function i18nstrings_admin_overview() {
-  $output = '';
-  $header = array(t('String Id'), t('Default'), '');
-  $result = db_query("SELECT DISTINCT(strid) FROM {i18n_strings} ORDER BY strid", i18n_default_language());
-  $rows = array();
-  while($str = db_fetch_object($result)) {
-    $rows[] = array(
-      $str->strid, 
-      tt($str->strid), 
-      l(t('edit'), 'admin/settings/i18n/strings/edit/'.$str->strid)
-    );
-  }
-  $output .= theme('table', $header, $rows);
-  return $output;
-}
-
-/**
- * Form callback: i18nstrings_admin_form
- *
-function i18nstrings_admin_form($strid) {
-  $strings = i18nstrings_load($strid);
-  $form['strid'] = array('#type' => 'value', '#value' => $strid);
-  $form['languages'] = array('#type' => 'fieldset', '#tree' => TRUE, '#title' => t('Translations'));
-
-  // Approximate the number of rows in a textfield with a maximum of 10.
-  $default = i18nstrings_get_string($strid, i18n_default_language());
-  $rows = min(ceil(str_word_count($default) / 12), 10);
-  
-  foreach (i18n_supported_languages() as $language => $name) {
-    $form['languages'][$language] = array(
-      '#type' => 'textarea',
-      '#rows' => $rows,
-      '#title' => $name,
-      '#default_value' => i18nstrings_get_string($strid, $language)
-    );
-  }
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
-  return $form;
-}
-
-/**
- * Form submit callback
- *
-function i18nstrings_admin_form_submit($form_id, $form_values) {
-  $strid = $form_values['strid'];
-  foreach (i18n_supported_languages() as $language => $name) {
-    i18nstrings_save_string($strid, $language, $form_values['languages'][$language]);
-  }
-  drupal_set_message(t('The strings have been updated'));
-  return 'admin/settings/i18n/strings';
-}
-
-/**
- * Load string translations
- *
-function i18nstrings_load($strid) {
-  $strings = array();
-  $result = db_query("SELECT * FROM {i18n_strings} WHERE strid = '%s'", $strid);
-  while ($str = db_fetch_object($result)) {
-    $strings[$str->locale] = $str->text;
-  }
-}
-
-/**
- * Save string for a language
- *
-function i18nstrings_save_string($strid, $language, $value) {
-  drupal_set_message("DEBUG: i18n_strings_save: $strid($language)= $value");
-  db_query("DELETE FROM {i18n_strings} WHERE strid = '%s' AND locale = '%s'", $strid, $language);
-  db_query("INSERT INTO {i18n_strings}(strid, locale, text) VALUES('%s', '%s', '%s')", $strid, $language, $value);
-}
-/**/

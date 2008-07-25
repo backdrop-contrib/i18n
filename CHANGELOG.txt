@@ -9,6 +9,13 @@ TO DO
 
 6.x-beta1 to ......
 --------------------
+- Commented out views hooks on i18ntaxonomy (not for the first version), #285660
+- Fixed wrong duplicated translations (context/caching issue), #281471
+- Added preliminary support for l10n client (Patch pending)
+- Fixed missing dependency on i18nblocks, #279769
+- Fixed i18npoll_nodeapi returning $node, breaking feeds and cron calls, #254022 
+- Fixed notice and possible i18n blocks not found, #278588
+
 - Fixed node upgrade issue, #260626
 - Removed references to obsolteted function i18n_get_normal_path(), #259603
 - Wrong link and typos in taxonomy module, by AaronCollier, #259440

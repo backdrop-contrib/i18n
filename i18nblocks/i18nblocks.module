@@ -294,11 +294,16 @@ function i18nblocks_theme_blocks($region) {
  */
 function _i18nblocks_list($langcode = '') {
   static $list = array();
-  if (!isset($list[$langcode])) {
+  
+  // Handle issues when no $langcode, use a different array index
+  $index = $langcode ? $langcode : I18N_BLOCK_LOCALIZE;
+  
+  if (!isset($list[$index])) {
+    $list[$index] = array();
     $result = db_query("SELECT * FROM {i18n_blocks} WHERE language = '%s'", $langcode);
     while ($info = db_fetch_object($result)) {
-      $list[$langcode][$info->module][$info->delta] = $info;
+      $list[$index][$info->module][$info->delta] = $info;
     }
   }
-  return $list[$langcode];
+  return $list[$index];
 }

@@ -51,8 +51,7 @@ function i18npoll_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         $node->allowvotes = FALSE;
       }
     }
-  }
-  return $node;  
+  } 
 }
 
 /**
