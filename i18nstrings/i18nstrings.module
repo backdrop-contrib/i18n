@@ -147,7 +147,7 @@ function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
   // If current language add to l10n list for later on page translation
   // If language were the default one we are not supossed to reach here
   if ($language->language == $langcode) {
-    $l10n_client_strings = $translation;
+    $l10n_client_strings[$string] = $translation;
   }
   return ($translation === TRUE) ? $string : $translation;
 }
