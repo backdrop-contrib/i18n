@@ -1,0 +1,68 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Views support for Internationalization (i18n) package
+ *
+ * This module translates some views strings on the fly using i18n string system
+ * 
+ * @author Jose A. Reyero, 2007
+ */
+
+/**
+ * Implementation of hook_views_pre_view().
+ * 
+ * Translate table header for taxonomy fields
+ * //field[i][id] = term_node_1.name, translate table header
+ * and replace handler for that field
+ */
+function i18nviews_views_pre_view(&$view, &$items) {
+  //var_dump($view);
+  if (module_exists('i18ntaxonomy') && $view->field) {
+    $translate = variable_get('i18ntaxonomy_vocabularies', array());
+    foreach ($view->field as $index => $data) {
+      $matches = array();
+      if($data['id'] == 'term_node.name') {
+        // That's a full taxonomy box
+        $view->field[$index]['handler'] = 'i18ntaxonomy_views_handler_field_allterms';
+      } elseif(preg_match("/term_node_(\d+)\.name/", $data['id'], $matches)) {
+        $vid = $matches[1];
+        if ($translate[$vid]) { 
+          // Set new handler for this field
+          $view->field[$index]['handler'] = 'i18ntaxonomy_views_handler_field_allterms';
+        }
+      }
+    }
+  }
+
+}
+
+/**
+ * Field handler for taxonomy term fields
+ * 
+ * Remake of views_handler_field_allterms with term name translation
+ */
+function i18ntaxonomy_views_handler_field_allterms($fieldinfo, $fielddata, $value, $data) {
+  if ($fieldinfo['vocabulary']) {
+    $terms = taxonomy_node_get_terms_by_vocabulary($data->nid, $fieldinfo['vocabulary']);
+  }
+  else {
+    $terms = taxonomy_node_get_terms($data->nid);
+  }
+  // Translate all these terms
+  _i18ntaxonomy_translate_terms($terms);
+  
+  if ($fielddata['options'] == 'nolink') {
+    foreach ($terms as $term) {
+      $links[] = check_plain($term->name);
+    }
+    $links = !empty($links) ? implode(' | ', $links) : '';
+  }
+  else {
+    $node = new stdClass();
+    $node->taxonomy = $terms;
+    $links = theme('links', taxonomy_link('taxonomy terms', $node));
+  }
+  return $links;
+}

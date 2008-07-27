@@ -85,7 +85,7 @@ function languageicons_translation_link_alter(&$links, $path) {
  * Adds language icons to node links.
  */
 function languageicons_link_alter(&$links, $node) {
-  if (variable_get('languageicons_show_node', 1) && $node->tnid && $translations = module_invoke('translation', 'node_get_translations', $node->tnid)) {
+  if (variable_get('languageicons_show_node', 1) && (!empty($node->tnid)) && $translations = module_invoke('translation', 'node_get_translations', $node->tnid)) {
     $languages = language_list();
     foreach ($translations as $langcode => $translation) {
       $index = 'node_translation_'.$langcode;

@@ -1,0 +1,6 @@
+name = Views Translation
+description = Views support for i18n, translation of views strings
+dependencies[] = i18nstrings
+dependencies[] = views
+package = Multilanguage
+core = 6.x

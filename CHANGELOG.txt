@@ -7,15 +7,17 @@ TO DO
 - Allow hiding of *all* node language links
 - Enable synchronization of CCK fields (Waiting for CCK module upgrade)
 
-6.x-beta1 to ......
+6.x-beta1 to 6.x-beta2
 --------------------
+- Better icon for Arabic, by Afief, #278140
+- Added back i18nviews module for views specific features
+- Fixed languageicons occassional warning, by eMPee584, #276161 
 - Commented out views hooks on i18ntaxonomy (not for the first version), #285660
 - Fixed wrong duplicated translations (context/caching issue), #281471
 - Added preliminary support for l10n client (Patch pending)
 - Fixed missing dependency on i18nblocks, #279769
 - Fixed i18npoll_nodeapi returning $node, breaking feeds and cron calls, #254022 
 - Fixed notice and possible i18n blocks not found, #278588
-
 - Fixed node upgrade issue, #260626
 - Removed references to obsolteted function i18n_get_normal_path(), #259603
 - Wrong link and typos in taxonomy module, by AaronCollier, #259440
