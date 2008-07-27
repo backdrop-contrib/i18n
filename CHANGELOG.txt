@@ -7,6 +7,10 @@ TO DO
 - Allow hiding of *all* node language links
 - Enable synchronization of CCK fields (Waiting for CCK module upgrade)
 
+6.x-beta2 to ........
+----------------------
+- Moved language icons to a new project, http://drupal.org/project/languageicons
+
 6.x-beta1 to 6.x-beta2
 --------------------
 - Better icon for Arabic, by Afief, #278140

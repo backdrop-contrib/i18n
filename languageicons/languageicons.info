@@ -1,6 +1,0 @@
-name = Language Icons
-description = Adds icons to language links.
-dependencies[] = locale
-package = Multilanguage
-version = VERSION
-core = 6.x
