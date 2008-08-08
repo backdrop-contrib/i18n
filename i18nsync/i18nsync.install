@@ -1,7 +1,7 @@
 <?php
 /**
  * Set module weight
- * 
+ *
  * Make sure this runs after taxonomy, i18n and translation modules
  * and ideally after all other modules implementing nodeapi hook.
  */

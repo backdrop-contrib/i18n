@@ -4,15 +4,15 @@
 /**
  * @file
  * Internationalization (i18n) package. Synchronization of translations
- * 
+ *
  * Keeps vocabulary terms in sync for translations.
  * This is a per-vocabulary option
- * 
+ *
  * Ref: http://drupal.org/node/115463
- * 
+ *
  * Notes:
  * This module needs to run after taxonomy, i18n, translation. Check module weight
- * 
+ *
  * @ TODO Test with CCK when possible, api may have changed
  */
 
@@ -28,7 +28,7 @@ function i18nsync_help($section, $arg) {
       $output .= '<li>'.t('All the node fields selected for synchronization will be set to the same value for all translations').'</li>';
       $output .= '<li>'.t('For multilingual vocabularies, the terms for all translations will be replaced by the translations of the original node terms.').'</li>';
       $output .= '<li>'.t('For other vocabularies, the terms will be just copied over to all the translations.');
-      $output .= '</ul>';      
+      $output .= '</ul>';
       $output .= '<p><strong>'.t('Note that permissions are not checked for each node so if someone can edit a node and it is set to synchronize, all the translations will be synchronized anyway.').'</strong></p>';
       $output .= '<p>'.t('To enable synchronization check content type options to select which fields to synchronize for each node type').'</p>';
       $output .= '<p>'.t('The list of available fields for synchronization will include some standard node fields and all CCK fields. You can add more fields to the list in a configuration variable. See README.txt for how to do it.').'</p>';
@@ -79,12 +79,12 @@ function i18nsync_form_alter(&$form, $form_state, $form_id) {
             '#default_value' => in_array($field, $current),
             '#theme' => 'i18nsync_workflow_checkbox',
           );
-          $title = '';  
-        }     
+          $title = '';
+        }
       }
 
       break;
-  }      
+  }
 }
 
 /**
@@ -153,19 +153,19 @@ function i18nsync_prepare_translation(&$node, $source, $field_list){
         $node->$field = $source->$field;
         break;
     }
-  }          
+  }
 }
 
 /**
  * Synchronizes fields for node translation
- * 
+ *
  * There's some specific handling for known fields like:
  * - files, for file attachments
  * - iid (CCK node attachments, translations for them will be handled too)
- * 
+ *
  * All the rest of the fields will be just copied over.
  * The 'revision' field will have the special effect of creating a revision too for the translation
- * 
+ *
  * @param $node
  *   Source node being edited
  * @param $translation
@@ -184,7 +184,7 @@ function i18nsync_node_translation($node, $translation, $fields, $op) {
         i18nsync_taxonomyfield($translation, $node);
         break;
       case 'parent': // Book outlines, translating parent page if exists
-      case 'iid': // Attached image nodes  
+      case 'iid': // Attached image nodes
         i18nsync_node_translation_attached_node($node, $translation, $field);
         break;
       case 'files':
@@ -220,7 +220,7 @@ function i18nsync_node_translation($node, $translation, $fields, $op) {
 
 /**
  * Synchronize taxonomy
- * 
+ *
  * Translate translatable terms, just copy over the rest
  */
 function i18nsync_taxonomyfield(&$node, $source) {
@@ -250,7 +250,7 @@ function i18nsync_node_translation_attached_node(&$node, &$translation, $field) 
 
 /**
  * Returns list of fields to synchronize for a given content type
- * 
+ *
  * @param $type
  *   Node type
  */
@@ -259,7 +259,7 @@ function i18nsync_node_fields($type) {
 }
 /**
  * Returns list of available fields for given content type
- * 
+ *
  * @param $type
  *   Node type
  * @param $tree
@@ -293,7 +293,7 @@ function i18nsync_node_available_fields($type) {
 
   // Get variable for this node type
   $fields += variable_get("i18nsync_fields_node_$type", array());
-  
+
   // Image attach
   if (variable_get('image_attach_'. $type, 0)) {
     $fields['image']['#title'] = t('Image Attach module');
@@ -316,7 +316,7 @@ function i18nsync_node_available_fields($type) {
     $info = module_invoke('content', 'fields', NULL, $type);
     $fields['cck']['#title'] = t('CCK fields');
     foreach ($content['fields'] as $name => $data) {
-      $fields['cck']['#options'][$data['field_name']] = $data['widget']['label'];      
+      $fields['cck']['#options'][$data['field_name']] = $data['widget']['label'];
     }
   }
   */
@@ -325,7 +325,7 @@ function i18nsync_node_available_fields($type) {
 
 /*
  * Sample CCK field definition for Drupal 5
-'field_text' => 
+'field_text' =>
     array
       'field_name' => string 'field_text' (length=10)
       'type' => string 'text' (length=4)
@@ -336,7 +336,7 @@ function i18nsync_node_available_fields($type) {
       'max_length' => string '' (length=0)
       'allowed_values' => string '' (length=0)
       'allowed_values_php' => string '' (length=0)
-      'widget' => 
+      'widget' =>
         array
           ...
       'type_name' => string 'test' (length=4)
