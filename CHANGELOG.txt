@@ -9,6 +9,9 @@ TO DO
 
 6.x-beta2 to ........
 ----------------------
+- Fixed issue with synchronization and empty fields as array (files)
+- Added back CCK syncronization, by drewish, #293019
+- Added new 'mixed' language selection option, by ablivio, #203798
 - Moved language icons to a new project, http://drupal.org/project/languageicons
 
 6.x-beta1 to 6.x-beta2

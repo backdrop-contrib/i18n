@@ -27,7 +27,7 @@ function i18n_admin_settings() {
     '#title' => t('Content selection mode'),
     '#default_value' => variable_get('i18n_selection_mode', 'simple'),
     '#options' => _i18n_selection_mode(),
-    '#description' => t('Determines which content to show depending on language.'),
+    '#description' => t('Determines which content to show depending on the current page language and the default language of the site.'),
   );
   return system_settings_form($form);
 }
@@ -35,9 +35,9 @@ function i18n_admin_settings() {
 // List of selection modes
 function _i18n_selection_mode(){
   return array(
-    'simple' => t('Only current language and no language'),
-    'mixed' => t('Only current and default languages and no language'),
-    'default' => t('Only default language and no language'),    
+    'simple' => t('Current language and language neutral'),
+    'mixed' => t('Mixed current language (if available) or default language (if not) and language neutral'),
+    'default' => t('Only default language and language neutral'),    
     'strict' => t('Only current language'),
     'off' => t('All content. No language conditions apply'),    
   );

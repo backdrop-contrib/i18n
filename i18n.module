@@ -383,9 +383,18 @@ function i18n_db_rewrite_sql($query, $primary_table, $primary_key, $args = array
       if (preg_match("/WHERE.*\s$primary_table.nid\s*=\s*(\d|%d)/", $query)) return;
       // If language conditions already there, get out
       if (preg_match("/i18n/", $query)) return;
-
-      //$result['join'] = "LEFT JOIN {i18n_node} i18n ON $primary_table.nid = i18n.nid";
-      $result['where'] = i18n_db_rewrite_where($primary_table, 'node', $mode);
+      
+      
+      // Mixed mode is a bit more complex, we need to join in one more table
+      // and add some more conditions, but only if language is not default
+      if ($mode == 'mixed' && i18n_get_lang() != i18n_default_language()) {
+        $result['join'] = "LEFT JOIN {node} i18n ON $primary_table.tnid = i18n.tnid AND i18n.language = '".i18n_get_lang()."'";
+        $result['where'] = i18n_db_rewrite_where($primary_table, 'node', 'simple');
+        // So we show also nodes that have default language
+        $result['where'] .= " OR ($primary_table.language = '" . i18n_default_language() . "' AND i18n.nid IS NULL)" ;
+      } else {
+        $result['where'] = i18n_db_rewrite_where($primary_table, 'node', $mode);
+      }
       return $result;
   }
 }
@@ -398,24 +407,34 @@ function i18n_db_rewrite_where($alias, $type, $mode = NULL){
     // Some exceptions for query rewrites
     $mode = i18n_selection_mode();
   } 
-  // Special case. Selection mode is 'strict' but this should be only for node queries
+
+  // Get languages to simplify query building
+  $current = i18n_get_lang();
+  $default = i18n_default_language();
+    
   if ($mode == 'strict' && $type != 'node') {
+    // Special case. Selection mode is 'strict' but this should be only for node queries
     $mode = 'simple';
-  }   
-  switch($mode){
+  }  
+  elseif ($mode == 'mixed' && $current == $default) {
+    // If mode is mixed but current = default, is the same as 'simple'
+    $mode = 'simple';
+  }
+  
+  switch ($mode){
     case 'off':
       return '';
     case 'simple':
-      return "$alias.language ='".i18n_get_lang()."' OR $alias.language ='' OR $alias.language IS NULL" ;
+      return "$alias.language ='$current' OR $alias.language ='' OR $alias.language IS NULL" ;
     case 'mixed':
-      return "$alias.language ='".i18n_get_lang()."' OR $alias.language ='".i18n_default_language()."' OR $alias.language ='' OR $alias.language IS NULL" ;
+      return "$alias.language ='$current' OR $alias.language ='$default' OR $alias.language ='' OR $alias.language IS NULL" ;
     case 'strict':
-      return "$alias.language ='".i18n_get_lang()."'" ;
+      return "$alias.language ='$current'" ;
     case 'node':
     case 'translation':
       return "$alias.language ='".i18n_selection_mode('params')."' OR $alias.language ='' OR $alias.language IS NULL" ;
     case 'default':
-      return "$alias.language ='".i18n_default_language()."' OR $alias.language ='' OR $alias.language IS NULL" ;
+      return "$alias.language ='$default' OR $alias.language ='' OR $alias.language IS NULL" ;
     case 'custom':
       return str_replace('%alias', $alias, i18n_selection_mode('params'));
   }  

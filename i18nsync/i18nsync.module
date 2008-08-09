@@ -178,41 +178,65 @@ function i18nsync_prepare_translation(&$node, $source, $field_list){
 function i18nsync_node_translation($node, $translation, $fields, $op) {
   // Load full node, we need all data here
   $translation = node_load($translation->nid);
+
+  // Collect info on any CCK fields.
+  $content = module_invoke('content', 'types', $node->type);
+
   foreach ($fields as $field) {
-    switch($field) {
-      case 'taxonomy': // Do nothing it has already been syncd
-        i18nsync_taxonomyfield($translation, $node);
-        break;
-      case 'parent': // Book outlines, translating parent page if exists
-      case 'iid': // Attached image nodes
-        i18nsync_node_translation_attached_node($node, $translation, $field);
-        break;
-      case 'files':
-        // Sync existing attached files
-        foreach ($node->files as $fid => $file) {
-          if (isset($translation->files[$fid])) {
-            $translation->files[$fid]->list = $file->list;
-          } else {
-            // New file. Create new revision of file for the translation
-            $translation->files[$fid] = $file;
-            // If it's a new node revision it will just be created, but if it's not
-            // we have to update the table directly. The revision field was before this one in the list
-            if (!isset($translation->revision) || !$translation->revision) {
-              db_query("INSERT INTO {upload} (fid, nid, vid, list, description) VALUES (%d, %d, %d, %d, '%s')", $file->fid, $translation->nid, $translation->vid, $file->list, $file->description);
+    // Check for CCK fields first
+    if (isset($content['fields'][$field])) {
+      switch ($content['fields'][$field]['type']) {
+        // TODO take type specific actions.
+        case 'filefield':
+        case 'imagefield':
+          break;
+
+        default:
+          // For fields that don't need special handling
+          if (isset($node->$field)) {
+            $translation->$field = $node->$field;
+          }
+      }
+      // Skip over the regular handling.
+      continue;
+    }
+    else {
+      switch($field) {
+        case 'taxonomy': // Do nothing it has already been syncd
+          i18nsync_taxonomyfield($translation, $node);
+          break;
+        case 'parent': // Book outlines, translating parent page if exists
+        case 'iid': // Attached image nodes
+          i18nsync_node_translation_attached_node($node, $translation, $field);
+          break;
+        case 'files':
+          // Sync existing attached files
+          foreach ((array)$node->files as $fid => $file) {
+            if (isset($translation->files[$fid])) {
+              $translation->files[$fid]->list = $file->list;
+            } else {
+              // New file. Create new revision of file for the translation
+              $translation->files[$fid] = $file;
+              // If it's a new node revision it will just be created, but if it's not
+              // we have to update the table directly. The revision field was before this one in the list
+              if (!isset($translation->revision) || !$translation->revision) {
+                db_query("INSERT INTO {upload} (fid, nid, vid, list, description) VALUES (%d, %d, %d, %d, '%s')", $file->fid, $translation->nid, $translation->vid, $file->list, $file->description);
+              }
             }
           }
-        }
-        // Drop removed files
-        foreach ($translation->files as $fid => $file) {
-          if (!isset($node->files[$fid])) {
-            $translation->files[$fid]->remove = TRUE;
+          // Drop removed files
+          foreach ((array)$translation->files as $fid => $file) {
+            if (!isset($node->files[$fid])) {
+              $translation->files[$fid]->remove = TRUE;
+            }
           }
-        }
-        break;
-      default: // For fields that don't need special handling
-        if (isset($node->$field)) {
-          $translation->$field = $node->$field;
-        }
+          break;
+        default:
+            // For fields that don't need special handling
+          if (isset($node->$field)) {
+            $translation->$field = $node->$field;
+          }
+      }
     }
   }
   node_save($translation);
@@ -310,7 +334,6 @@ function i18nsync_node_available_fields($type) {
   }
 
   // Get CCK fields
-  /* Disabled until there's a stable version of CCK + views
   if (($content = module_invoke('content', 'types', $type)) && isset($content['fields'])) {
     // Get context information
     $info = module_invoke('content', 'fields', NULL, $type);
@@ -319,7 +342,7 @@ function i18nsync_node_available_fields($type) {
       $fields['cck']['#options'][$data['field_name']] = $data['widget']['label'];
     }
   }
-  */
+
   return $fields;
 }
 
