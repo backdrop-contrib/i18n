@@ -138,6 +138,7 @@ function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
   $translation = i18nstrings_get_string($context, $langcode, $string, !$update);
   
   if ($translation === FALSE) {
+    // If the string is missing, create it
     if (!$update) {
       i18nstrings_add_string($name, $string);
       i18nstrings_cache($context, $langcode, $string, TRUE);

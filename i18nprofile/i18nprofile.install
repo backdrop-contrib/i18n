@@ -14,13 +14,6 @@ function i18nprofile_enable() {
   i18nprofile_locale_refresh();
 }
 
-/**
- * Update table to utf-8
- */
-function i18nprofile_update_1() {
-  return _system_update_utf8(array('i18n_profile_fields'));
-}
-
 // Drupal 6 updates
 
 /**

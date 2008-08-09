@@ -11,15 +11,47 @@
  */
 
 /**
+ * Implementation of hook_locale().
+ */
+function i18nviews_locale($op = 'groups', $group = NULL) {
+  switch ($op) {
+    case 'groups':
+      return array('views' => t('Views'));
+    case 'refresh':
+      if ($group == 'views') {
+        return i18nviews_locale_refresh();
+      }
+  }
+}
+
+/**
+ * Refresh views locales
+ */
+function i18nviews_locale_refresh() {
+  // To be implemented
+}
+
+/**
  * Implementation of hook_views_pre_view().
  * 
- * Translate table header for taxonomy fields
- * //field[i][id] = term_node_1.name, translate table header
- * and replace handler for that field
+ * Views are identified by $view->name
+ * 
+ * @TODO This needs a lot of research and work
+ * @TODO Ask Earl
  */
-function i18nviews_views_pre_view(&$view, &$items) {
-  //var_dump($view);
-  if (module_exists('i18ntaxonomy') && $view->field) {
+function i18nviews_views_pre_view(&$view, &$display_id, &$args) {
+  // Translate all possible display strings, step by step
+  // I.e. for a page, there seems to be a 'page' and a 'default' display
+  $fields = array('title', 'header', 'footer', 'empty');
+  foreach (array($display_id, 'default') as $display) {
+    if (!empty($view->display[$display])) {
+      _i18nviews_localize_array($view->name, $display, $view->display[$display]->handler->options, $fields, TRUE);
+    }
+  }
+  
+  // Translate taxonomy fields
+  // @todo I don think this works at all
+  if (module_exists('i18ntaxonomy') && is_array($view->field)) {
     $translate = variable_get('i18ntaxonomy_vocabularies', array());
     foreach ($view->field as $index => $data) {
       $matches = array();
@@ -36,6 +68,41 @@ function i18nviews_views_pre_view(&$view, &$items) {
     }
   }
 
+}
+
+/**
+ * Translate a group of fields
+ * 
+ * We get the translated fields out of the array so they are not translated again.
+ */
+function _i18nviews_localize_array($name, $group, &$data, &$field_names, $trim = FALSE) {
+  $translated = array();
+  foreach ($field_names as $field) {
+    if (!empty($data[$field])) {
+      $data[$field] = tt("views:$name:$group:$field", $data[$field]);
+      $translated[] = $field;
+    }
+  }
+  if ($trim && $translated) {
+    $field_names = array_diff($field_names, $translated);
+  }
+}
+
+/**
+ * Translate a group of fields for an object.
+ * 
+ * We cannot play with object 2 array conversion because some are real typed objects.
+ */
+function _i18nviews_localize_object($name, $group, &$data, &$field_names, $trim = FALSE) {
+  $translated = array();
+  foreach ($field_names as $field) {
+    if (!empty($data->$field)) {
+      $data->$field = tt("views:$name:$group:$field", $data->$field);
+    }
+  }
+  if ($trim && $translated) {
+    $field_names = array_diff($field_names, $translated);
+  }
 }
 
 /**

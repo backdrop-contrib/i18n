@@ -9,6 +9,8 @@ TO DO
 
 6.x-beta2 to ........
 ----------------------
+- Added some basic functionality to i18nviews module, wip
+- Some clean up of update scripts, removed obsoleted functions.
 - Moved selection mode initialization out of hook init, to first time it's needed.
 - Fixed some issues with taxonomy and query rewriting rewriting, by vingbord, #260156 and #260151
 - Fixed wrong data type in schema, by polarbear128, #289027

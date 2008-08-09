@@ -1,5 +1,5 @@
 name = Views Translation
-description = Views support for i18n, translation of views strings
+description = Views support for i18n, translation of views strings (Experimental)
 dependencies[] = i18nstrings
 dependencies[] = views
 package = Multilanguage
