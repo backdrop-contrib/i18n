@@ -46,7 +46,7 @@ function i18nblocks_schema() {
      'type' => array(
         'type' => 'int',
         'not null' => TRUE,
-        'default' => '0',
+        'default' => 0,
         'description' => t('Block type.'),
       ),
       'language' => array(
@@ -127,4 +127,3 @@ function i18nblocks_update_3() {
   return $items;
 }
 */
- 

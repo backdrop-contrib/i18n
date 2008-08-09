@@ -261,8 +261,9 @@ function i18ntaxonomy_db_rewrite_sql($query, $primary_table, $primary_key){
       // Taxonomy queries
       // When loading specific terms, vocabs, language conditions shouldn't apply
       if (preg_match("/WHERE.* $primary_table\.tid\s*(=\s*\d|IN)/", $query)) return;
-      // Taxonomy for specific node
+      // Taxonomy for specific node, or when using the term_node table
       if (preg_match("/WHERE r\.nid = \%d/", $query)) return;
+      if (preg_match("/{term_node}/", $query)) return;
       $result['where'] = i18n_db_rewrite_where($primary_table, 'taxonomy', $mode);
       return $result;
   }

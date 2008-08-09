@@ -9,6 +9,9 @@ TO DO
 
 6.x-beta2 to ........
 ----------------------
+- Moved selection mode initialization out of hook init, to first time it's needed.
+- Fixed some issues with taxonomy and query rewriting rewriting, by vingbord, #260156 and #260151
+- Fixed wrong data type in schema, by polarbear128, #289027
 - Fixed issue with synchronization and empty fields as array (files)
 - Added back CCK syncronization, by drewish, #293019
 - Added new 'mixed' language selection option, by ablivio, #203798

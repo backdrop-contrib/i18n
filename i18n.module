@@ -30,25 +30,6 @@ function i18n_init(){
   if(!_i18n_is_bootstrap()){
     //include drupal_get_path('module', 'i18n').'/i18n.inc';
     i18n_variable_init();  
-    // Initialize selection mode for content, the default may be changed below
-    i18n_selection_mode(variable_get('i18n_selection_mode', 'simple'));
-    // Node language when loading specific nodes or creating translations
-    if (arg(0) == 'node') {
-      if (is_numeric(arg(1)) && ($node = node_load(arg(1))) && $node->language ) {
-        i18n_selection_mode('node', $node->language);
-      } elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language']))  {
-        i18n_selection_mode('translation', db_escape_string($_GET['language']));
-      } 
-    } elseif (arg(0) == 'admin') {
-      // There are some exceptions for admin pages
-      if (arg(1) == 'content' && user_access('administer all languages')) {
-        // No restrictions for administration pages
-        i18n_selection_mode('off');
-      } elseif (arg(1) == 'build' && arg(2) == 'menu-customize') {
-        // All nodes available when editing custom menu items
-        i18n_selection_mode('off');
-      }
-    }
   }
 }
 
@@ -327,7 +308,9 @@ function i18n_get_links($path = '', $query = NULL, $names = NULL) {
 }
 
 /**
- * i18n_selection_mode
+ * Selection mode for content.
+ * 
+ * Warning: when used with params they need to be escaped, as some values are thrown directly in queries
  * 
  * Allows several modes for query rewriting and to change them programatically
  * 	off = No language conditions inserted
@@ -341,9 +324,33 @@ function i18n_get_links($path = '', $query = NULL, $names = NULL) {
  *  custom = add custom where clause, like "%alias.language = 'en'"
  */
 function i18n_selection_mode($mode= NULL, $params= NULL){
-  static $current_mode = 'simple';
+  static $current_mode = NULL;
   static $current_value = '';
   static $store = array();
+  
+  // Initialization, first time this runs with no explicit mode
+  if (!$current_mode && !$mode) {
+    $current_mode = variable_get('i18n_selection_mode', 'simple');
+    // Node language when loading specific nodes or creating translations
+    if (arg(0) == 'node') {
+      if (is_numeric(arg(1)) && ($node = node_load(arg(1))) && $node->language ) {
+        $current_mode = 'node';
+        $current_value = $node->language;
+      } elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language']) && empty($_POST))  {
+        $current_mode = 'translation';
+        $current_value = db_escape_string($_GET['language']);
+      } 
+    } elseif (arg(0) == 'admin') {
+      // There are some exceptions for admin pages
+      if (arg(1) == 'content' && user_access('administer all languages')) {
+        // No restrictions for administration pages
+        $current_mode = 'off';
+      } elseif (arg(1) == 'build' && arg(2) == 'menu-customize') {
+        // All nodes available when editing custom menu items
+        $current_mode = 'off';
+      }
+    }    
+  }
   
   if(!$mode) {
     return $current_mode;
