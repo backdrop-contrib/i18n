@@ -581,7 +581,7 @@ function i18ntaxonomy_localize_terms($terms, $fields = array('name')) {
   foreach ($terms as $index => $term) {
     if (in_array($term->vid, $localize)) {
       foreach ($fields as $property) {
-        $terms[$index]->$property = tt("taxonomy:term:$term->tid:$property", $term->name);
+        $terms[$index]->$property = tt("taxonomy:term:$term->tid:$property", $term->$property);
       }
     }
   }

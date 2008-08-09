@@ -17,7 +17,7 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
 
   if ($terms['tids']) {
     // We need vid here too
-    $result = db_query(db_rewrite_sql('SELECT t.vid, t.tid, t.name FROM {term_data} t WHERE t.tid IN ('. db_placeholders($terms['tids']) .')', 't', 'tid'), $terms['tids']);
+    $result = db_query(db_rewrite_sql('SELECT t.tid, t.vid, t.name FROM {term_data} t WHERE t.tid IN ('. db_placeholders($terms['tids']) .')', 't', 'tid'), $terms['tids']);
     $tids = array(); // we rebuild the $tids-array so it only contains terms the user has access to.
     $names = array();
     while ($term = db_fetch_object($result)) {
@@ -54,11 +54,13 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
         case 'feed':
           $channel['link'] = url('taxonomy/term/'. $str_tids .'/'. $depth, array('absolute' => TRUE));
           $channel['title'] = variable_get('site_name', 'Drupal') .' - '. $title;
+          
           // Only display the description if we have a single term, to avoid clutter and confusion.
-          if (count($tids) == 1) {
-            $term = taxonomy_get_term($tids[0]);
-            // HTML will be removed from feed description, so no need to filter here.
-            $channel['description'] = $term->description;
+	  if (count($tids) == 1) {
+	    $terms = array(taxonomy_get_term($tids[0]));
+	    $terms = i18ntaxonomy_localize_terms($terms, array('description'));
+	    // HTML will be removed from feed description, so no need to filter here.
+	    $channel['description'] = $terms[0]->description;
           }
 
           $result = taxonomy_select_nodes($tids, $terms['operator'], $depth, FALSE);

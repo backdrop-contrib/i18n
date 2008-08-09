@@ -331,23 +331,25 @@ function i18n_selection_mode($mode= NULL, $params= NULL){
   // Initialization, first time this runs with no explicit mode
   if (!$current_mode && !$mode) {
     $current_mode = variable_get('i18n_selection_mode', 'simple');
+    if ($current_mode != 'off') {
     // Node language when loading specific nodes or creating translations
-    if (arg(0) == 'node') {
-      if (is_numeric(arg(1)) && ($node = node_load(arg(1))) && $node->language ) {
-        $current_mode = 'node';
-        $current_value = $node->language;
-      } elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language']) && empty($_POST))  {
-        $current_mode = 'translation';
-        $current_value = db_escape_string($_GET['language']);
-      } 
-    } elseif (arg(0) == 'admin') {
-      // There are some exceptions for admin pages
-      if (arg(1) == 'content' && user_access('administer all languages')) {
-        // No restrictions for administration pages
-        $current_mode = 'off';
-      } elseif (arg(1) == 'build' && arg(2) == 'menu-customize') {
-        // All nodes available when editing custom menu items
-        $current_mode = 'off';
+      if (arg(0) == 'node' ) {
+        if (is_numeric(arg(1)) && ($node = node_load(arg(1))) && $node->language ) {
+          $current_mode = 'node';
+          $current_value = $node->language;
+        } elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language']) && empty($_POST))  {
+          $current_mode = 'translation';
+          $current_value = db_escape_string($_GET['language']);
+        } 
+      } elseif (arg(0) == 'admin') {
+        // There are some exceptions for admin pages
+        if (arg(1) == 'content' && user_access('administer all languages')) {
+          // No restrictions for administration pages
+          $current_mode = 'off';
+        } elseif (arg(1) == 'build' && arg(2) == 'menu-customize') {
+          // All nodes available when editing custom menu items
+          $current_mode = 'off';
+        }
       }
     }    
   }
