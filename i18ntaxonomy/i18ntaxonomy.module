@@ -409,12 +409,13 @@ function i18ntaxonomy_node_form(&$form) {
  */
 function i18ntaxonomy_vocabulary_form($vid, $value = 0, $help = NULL, $name = 'taxonomy') {
   $vocabulary = taxonomy_vocabulary_load($vid);
-  $help = $vocabulary->help ? tt("taxonomy:vocabulary:$vid:help", $vocabulary->help) : '';
-  if ($vocabulary->required) {
-    $blank = 0;
+  $help = ($help) ? $help : tt("taxonomy:vocabulary:$vid:help", $vocabulary->help);
+
+  if (!$vocabulary->multiple) {
+    $blank = ($vocabulary->required) ? t('- Please choose -') : t('- None selected -');
   }
   else {
-    $blank = '<'. t('none') .'>';
+    $blank = ($vocabulary->required) ? 0 : t('- None -');
   }
 
   return _i18ntaxonomy_term_select(check_plain(tt("taxonomy:vocabulary:$vid:name", $vocabulary->name)), $name, $value, $vid, $help, intval($vocabulary->multiple), $blank);
@@ -426,7 +427,7 @@ function _i18ntaxonomy_term_select($title, $name, $value, $vocabulary_id, $descr
   $options = array();
 
   if ($blank) {
-    $options[0] = $blank;
+    $options[''] = $blank;
   }
   if ($tree) {
     foreach ($tree as $term) {
@@ -435,10 +436,6 @@ function _i18ntaxonomy_term_select($title, $name, $value, $vocabulary_id, $descr
         $choice->option = array($term->tid => str_repeat('-', $term->depth) . tt("taxonomy:term:$term->tid:name", $term->name));
         $options[] = $choice;
       }
-    }
-    if (!$blank && !$value) {
-      // required but without a predefined value, so set first as predefined
-      $value = $tree[0]->tid;
     }
   }
 
