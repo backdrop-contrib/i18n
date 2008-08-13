@@ -16,7 +16,7 @@ function i18ntaxonomy_install() {
 
 /**
  * Implementation of hook_enable()
- * 
+ *
  * Just add strings to locale tables
  */
 function i18ntaxonomy_enable() {
@@ -25,7 +25,7 @@ function i18ntaxonomy_enable() {
 
 /**
  * Drupal 6 update
- * 
+ *
  * Move i18n vocabulary options to new variables
  */
 function i18ntaxonomy_update_1() {

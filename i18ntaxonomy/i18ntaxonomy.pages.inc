@@ -54,7 +54,7 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
         case 'feed':
           $channel['link'] = url('taxonomy/term/'. $str_tids .'/'. $depth, array('absolute' => TRUE));
           $channel['title'] = variable_get('site_name', 'Drupal') .' - '. $title;
-          
+
           // Only display the description if we have a single term, to avoid clutter and confusion.
 	  if (count($tids) == 1) {
 	    $terms = array(taxonomy_get_term($tids[0]));
@@ -64,7 +64,7 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
           }
 
           $result = taxonomy_select_nodes($tids, $terms['operator'], $depth, FALSE);
-          $items = array(); 
+          $items = array();
           while ($row = db_fetch_object($result)) {
             $items[] = $row->nid;
           }
@@ -121,7 +121,7 @@ function theme_taxonomy_term_page($tids, $result) {
 
 /**
  * Helper function for autocompletion
- * 
+ *
  * @ TODO Optimized localization. We cannot just tt() huge lists of terms
  */
 function i18ntaxonomy_autocomplete($vid, $string = '') {
@@ -130,7 +130,7 @@ function i18ntaxonomy_autocomplete($vid, $string = '') {
 
   // Is this vocabulary localizable ?
   $localizable = i18ntaxonomy_vocabulary($vid) == I18N_TAXONOMY_LOCALIZE;
-  
+
   // Fetch last tag
   $last_string = trim(array_pop($array));
   $matches = array();
