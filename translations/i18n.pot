@@ -1,11 +1,27 @@
-# LANGUAGE translation of PROJECT
+# $Id$
+#
+# LANGUAGE translation of Drupal (root)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  i18n.admin.inc,v 1.2.2.1 2008/08/09 12:12:40 jareyero
+#  i18n.module,v 1.41.2.7 2008/08/09 17:23:05 jareyero
+#  i18n.info,v 1.5.2.2 2008/06/24 11:49:55 jareyero
+#  i18n.install,v 1.15.2.2 2008/08/09 16:11:39 jareyero
+#  i18nblocks/i18nblocks.info: n/a
+#  i18ncontent.info,v 1.1.2.3 2008/06/24 11:49:56 jareyero
+#  i18nmenu/i18nmenu.info: n/a
+#  i18npoll.info,v 1.1.2.3 2008/06/24 11:49:55 jareyero
+#  i18nprofile/i18nprofile.info: n/a
+#  i18nstrings.info,v 1.2.2.2 2008/06/24 11:49:56 jareyero
+#  i18nsync.info,v 1.2.2.3 2008/06/24 11:49:55 jareyero
+#  i18ntaxonomy/i18ntaxonomy.info: n/a
+#  i18nviews/i18nviews.info: n/a
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2004-08-12 17:58+0200\n"
+"POT-Creation-Date: 2008-09-07 12:14+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -14,111 +30,151 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: i18n.module:54
-msgid "\n        <p>This module provides support for internationalization of Drupal sites in various ways:</p>\n        <ul><li>Translation of the user interface for registered and anonymous users</li>\n        <li>Multi-language for content, combined with url aliasing. For this feature to be used, you must enable it in the module configuration and then use url aliasing to keep pages in various languages. I.e. 'en/mypage', 'es/mypage' should be English and Spanish versions of the same page</li>\n        <li>Detection of the brower language</li>\n        <li>Keeps the language settings accross consecutive requests, using a number of methods: URL rewriting, sessions, cookies</li>\n        <li>Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i></li></ul>\n        <p>For url rewriting you need to have the file <b>i18n.inc</b> in the <i>includes</i> folder and add the following line to your configuration file:</p>\n        <pre>\n        include 'includes/i18n.inc';\n        </pre>\n        <p>You can try different settings to have only content translation, interface translation or both.</p>\n        <p><small>Module developed by <a href=\"http://freelance.reyero.net\">freelance.reyero.net</a></small></p>"
+#: i18n.admin.inc:21
+msgid "Content selection"
 msgstr ""
 
-#: i18n.module:69
-msgid "Supports site internationalization (i18n)."
+#: i18n.admin.inc:27
+msgid "Content selection mode"
 msgstr ""
 
-#: i18n.module:87
-msgid "edit %language"
+#: i18n.admin.inc:30
+msgid "Determines which content to show depending on the current page language and the default language of the site."
 msgstr ""
 
-#: i18n.module:97
-msgid "Interface translation"
+#: i18n.admin.inc:38
+msgid "Current language and language neutral"
 msgstr ""
 
-#: i18n.module:97;98;106;111
-msgid "Disabled"
+#: i18n.admin.inc:39
+msgid "Mixed current language (if available) or default language (if not) and language neutral"
 msgstr ""
 
-#: i18n.module:97;98;111
-msgid "Enabled"
+#: i18n.admin.inc:40
+msgid "Only default language and language neutral"
 msgstr ""
 
-#: i18n.module:97
-msgid "If disabled, uses Drupal's default. If enabled, translates the interface to selected language"
+#: i18n.admin.inc:41
+msgid "Only current language"
 msgstr ""
 
-#: i18n.module:98
-msgid "Content translation"
+#: i18n.admin.inc:42
+msgid "All content. No language conditions apply"
 msgstr ""
 
-#: i18n.module:98
-msgid "If enabled, prepends language code to url and searches for translated content"
+#: i18n.module:42
+msgid "This module improves support for multilingual content in Drupal sites:"
 msgstr ""
 
-#: i18n.module:99
-msgid "Synchronize content"
+#: i18n.module:44
+msgid "Shows content depending on page language"
 msgstr ""
 
-#: i18n.module:100
-msgid "Nodes"
+#: i18n.module:45
+msgid "Handles multilingual variables"
 msgstr ""
 
-#: i18n.module:101
-msgid "Taxonomy"
+#: i18n.module:46
+msgid "Extended language option for chosen content types. For these content types transations will be allowed for all defined languages, not only for enabled ones."
 msgstr ""
 
-#: i18n.module:102
-msgid "Synchronize tables for different languages. When some element is created/removed, it will be created/removed for all languages with the same id"
+#: i18n.module:47
+msgid "Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i>"
 msgstr ""
 
-#: i18n.module:104
-msgid "Front page"
+#: i18n.module:49
+msgid "This is the base module for several others adding different features:"
 msgstr ""
 
-#: i18n.module:104
-msgid "Default"
+#: i18n.module:51
+msgid "Multilingual menu items"
 msgstr ""
 
-#: i18n.module:104
-msgid "Language dependant"
+#: i18n.module:52
+msgid "Multilingual taxonomy Adds a language field for taxonomy vocabularies and terms"
 msgstr ""
 
-#: i18n.module:104
-msgid "If language dependant and <i>Content translation</i> is enabled, default front page will be prepended with language code, i.e. 'en/node'"
+#: i18n.module:58
+msgid "To manage languages go to the !configure_languages"
 msgstr ""
 
-#: i18n.module:105
-msgid "Keep Language"
+#: i18n.module:58
+msgid "Languages configuration page"
 msgstr ""
 
-#: i18n.module:107
-msgid "URL rewriting"
+#: i18n.module:59
+msgid "To enable multilingual support for specific content types go to !configure_content_types."
 msgstr ""
 
-#: i18n.module:108
-msgid "Session"
+#: i18n.module:59
+msgid "configure content types"
 msgstr ""
 
-#: i18n.module:109
-msgid "Cookie"
+#: i18n.module:281
+msgid "Language neutral"
 msgstr ""
 
-#: i18n.module:110
-msgid "A language code independent of user's language will be kept accross requests using the selected method"
+#: i18n.module:470
+msgid "Extended language support"
 msgstr ""
 
-#: i18n.module:111
-msgid "Detect browser language"
+#: i18n.module:473
+msgid "If enabled, all defined languages will be allowed for this content type in addition to only enabled ones. This is useful to have more languages for content than for the interface."
 msgstr ""
 
-#: i18n.module:112
-msgid "Flags directory"
+#: i18n.module:547
+msgid "This is a multilingual variable."
 msgstr ""
 
-#: i18n.module:112
-msgid "Path for flags. Asterisk '*' is a placeholder for language code. This is only needed when you want a language selector block"
+#: i18n.module:791
+msgid "Normal - All enabled languages will be allowed."
 msgstr ""
 
-#: i18n.module:119;122
-msgid "Languages"
+#: i18n.module:792
+msgid "Extended - All defined languages will be allowed."
+msgstr ""
+
+#: i18n.module:526
+msgid "administer all languages"
+msgstr ""
+
+#: i18n.module:70
+msgid "Multilingual system"
+msgstr ""
+
+#: i18n.module:71
+msgid "Configure extended options for multilingual content and translations."
+msgstr ""
+
+#: i18n.module:78 i18n.info:0
+msgid "Internationalization"
 msgstr ""
 
 #: i18n.module:0
 msgid "i18n"
+msgstr ""
+
+#: i18n.install:8
+msgid "Multilingual variables."
+msgstr ""
+
+#: i18n.install:11
+msgid "The name of the variable."
+msgstr ""
+
+#: i18n.install:17
+msgid "The language of the variable."
+msgstr ""
+
+#: i18n.install:23
+msgid "The value of the variable."
+msgstr ""
+
+#: i18n.info:0
+msgid "Enables multilingual content."
+msgstr ""
+
+#: i18n.info:0 i18nblocks/i18nblocks.info:0 i18ncontent/i18ncontent.info:0 i18nmenu/i18nmenu.info:0 i18npoll/i18npoll.info:0 i18nprofile/i18nprofile.info:0 i18nstrings/i18nstrings.info:0 i18nsync/i18nsync.info:0 i18ntaxonomy/i18ntaxonomy.info:0 i18nviews/i18nviews.info:0
+msgid "Multilanguage"
 msgstr ""
 

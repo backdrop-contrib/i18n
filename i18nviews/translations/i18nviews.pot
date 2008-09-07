@@ -1,0 +1,37 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (i18nviews)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  i18nviews.module,v 1.4.2.3 2008/08/09 16:11:40 jareyero
+#  i18nviews/i18nviews.info: n/a
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2008-09-07 12:14+0200\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: i18nviews/i18nviews.module:19
+msgid "Views"
+msgstr ""
+
+#: i18nviews/i18nviews.module:0
+msgid "i18nviews"
+msgstr ""
+
+#: i18nviews/i18nviews.info:0
+msgid "Views Translation"
+msgstr ""
+
+#: i18nviews/i18nviews.info:0
+msgid "Views support for i18n, translation of views strings (Experimental)"
+msgstr ""
+
