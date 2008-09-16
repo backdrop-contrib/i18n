@@ -1,0 +1,114 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (i18nstrings)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  i18nstrings.admin.inc,v 1.1.2.1 2008/03/10 23:27:50 jareyero
+#  i18nstrings.module,v 1.8.2.7 2008/08/09 16:11:40 jareyero
+#  i18nstrings.install,v 1.2 2007/10/25 18:57:51 jareyero
+#  i18nstrings.info,v 1.2.2.2 2008/06/24 11:49:56 jareyero
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: German translation of i18nstrings\n"
+"POT-Creation-Date: 2008-09-07 12:14+0200\n"
+"PO-Revision-Date: 2008-09-16 22:23+0100\n"
+"Last-Translator: Alexander Hass\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: GERMANY\n"
+
+#: i18nstrings/i18nstrings.admin.inc:23
+msgid "Select text groups"
+msgstr ""
+
+#: i18nstrings/i18nstrings.admin.inc:26;51
+msgid "Refresh strings"
+msgstr ""
+
+#: i18nstrings/i18nstrings.admin.inc:27
+msgid "This will create all the missing strings for the selected text groups"
+msgstr ""
+
+#: i18nstrings/i18nstrings.admin.inc:34
+msgid "Select languages"
+msgstr ""
+
+#: i18nstrings/i18nstrings.admin.inc:37;55
+msgid "Update translations"
+msgstr ""
+
+#: i18nstrings/i18nstrings.admin.inc:38
+msgid "This will fetch all existing translations from the localization tables for the selected text groups and languages"
+msgstr ""
+
+#: i18nstrings/i18nstrings.admin.inc:60
+msgid "%number strings have been updated"
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:29
+msgid "On this page you can refresh and update values for user defined strings."
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:31
+msgid "Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations."
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:32
+msgid "Use the update option when some of the strings had been previously translated with the localization system but the translations are not showing up for the configurable strings."
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:209
+msgid "Updated string %location for textgroup %textgroup: %string"
+msgstr "Die Zeichenkette %location wurde für die Textgruppe %textgroup aktualisiert: %string"
+
+#: i18nstrings/i18nstrings.module:212
+msgid "Created string %location for text group %textgroup: %string"
+msgstr "Die Zeichenkette %location wurde für die Textgruppe %textgroup erstellt: %string"
+
+#: i18nstrings/i18nstrings.module:377
+#, fuzzy
+msgid "Updating string names from %oldname to %newname"
+msgstr "Die Namen der Zeichenketten werden von %oldname nach %newname aktualisiert"
+
+#: i18nstrings/i18nstrings.module:43
+msgid "Refresh"
+msgstr "Aktualisieren"
+
+#: i18nstrings/i18nstrings.module:0
+msgid "i18nstrings"
+msgstr "i18nstrings"
+
+#: i18nstrings/i18nstrings.install:21
+msgid "Metadata for source strings."
+msgstr "Die Metadaten für Quellzeichenketten."
+
+#: i18nstrings/i18nstrings.install:27
+#, fuzzy
+msgid "Source string ID. References {locales_source}.lid."
+msgstr "ID der Quellzeichenkette. Referenziert {locales_source}.lid."
+
+#: i18nstrings/i18nstrings.install:33
+msgid "Object ID."
+msgstr "Objekt-ID."
+
+#: i18nstrings/i18nstrings.install:40
+msgid "Object type for this string."
+msgstr "Der Objekttyp für diese Zeichenkette."
+
+#: i18nstrings/i18nstrings.install:47
+msgid "Object property for this string."
+msgstr "Die Objekteigenschaft für diese Zeichenkette."
+
+#: i18nstrings/i18nstrings.info:0
+msgid "Strings"
+msgstr "Zeichenketten"
+
+#: i18nstrings/i18nstrings.info:0
+msgid "Translatable strings."
+msgstr "Übersetzbare Zeichenketten."
+

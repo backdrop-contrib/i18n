@@ -1,0 +1,152 @@
+# $Id$
+#
+# LANGUAGE translation of Drupal (i18nsync)
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+# Generated from files:
+#  i18nsync.module,v 1.1.2.8 2008/08/09 12:12:40 jareyero
+#  i18nsync.info,v 1.2.2.3 2008/06/24 11:49:55 jareyero
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: German translation for i18nsync\n"
+"POT-Creation-Date: 2008-09-07 12:14+0200\n"
+"PO-Revision-Date: 2008-09-16 22:03+0100\n"
+"Last-Translator: Alexander Hass\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n!=1);\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: GERMANY\n"
+
+#: i18nsync/i18nsync.module:25
+msgid "This module synchronizes content taxonomy and fields accross translations:"
+msgstr ""
+
+#: i18nsync/i18nsync.module:26
+msgid "First you need to select which fields should be synchronized. Then, after a node has been updated, all enabled vocabularies and fields will be synchronized as follows:"
+msgstr ""
+
+#: i18nsync/i18nsync.module:28
+msgid "All the node fields selected for synchronization will be set to the same value for all translations"
+msgstr ""
+
+#: i18nsync/i18nsync.module:29
+msgid "For multilingual vocabularies, the terms for all translations will be replaced by the translations of the original node terms."
+msgstr ""
+
+#: i18nsync/i18nsync.module:30
+msgid "For other vocabularies, the terms will be just copied over to all the translations."
+msgstr ""
+
+#: i18nsync/i18nsync.module:32
+msgid "Note that permissions are not checked for each node so if someone can edit a node and it is set to synchronize, all the translations will be synchronized anyway."
+msgstr ""
+
+#: i18nsync/i18nsync.module:33
+msgid "To enable synchronization check content type options to select which fields to synchronize for each node type"
+msgstr ""
+
+#: i18nsync/i18nsync.module:34
+msgid "The list of available fields for synchronization will include some standard node fields and all CCK fields. You can add more fields to the list in a configuration variable. See README.txt for how to do it."
+msgstr ""
+
+#: i18nsync/i18nsync.module:65
+msgid "Synchronize translations"
+msgstr "Übersetzungen synchonisieren"
+
+#: i18nsync/i18nsync.module:68
+msgid "Select which fields to synchronize for all translations of this content type."
+msgstr "Die für alle Übersetzungen dieses Inhaltstyps zu synchonisierenden Felder auswählen."
+
+#: i18nsync/i18nsync.module:135
+msgid "All %count node translations have been synchronized"
+msgstr "Alle %count Beitragsübersetzungen wurden synchronisiert."
+
+#: i18nsync/i18nsync.module:294
+msgid "Standard node fields."
+msgstr "Standard Beitragsfelder"
+
+#: i18nsync/i18nsync.module:297
+msgid "Author"
+msgstr "Autor"
+
+#: i18nsync/i18nsync.module:298
+msgid "Status"
+msgstr "Status"
+
+#: i18nsync/i18nsync.module:299
+#, fuzzy
+msgid "Promote"
+msgstr "Auf der Startseite"
+
+#: i18nsync/i18nsync.module:300
+#, fuzzy
+msgid "Moderate"
+msgstr "Moderation"
+
+#: i18nsync/i18nsync.module:301
+msgid "Sticky"
+msgstr "am Anfang von Listen"
+
+#: i18nsync/i18nsync.module:302
+msgid "Revision (Create also new revision for translations)"
+msgstr "Version (Erstellt auch neue Versionen für Übersetzungen)"
+
+#: i18nsync/i18nsync.module:303
+msgid "Book outline (With the translated parent)"
+msgstr "Inhaltsverzeichnis (mit dem Übersetzten übergeordneter Eintrag)"
+
+#: i18nsync/i18nsync.module:304
+msgid "Taxonomy terms"
+msgstr "Taxonomie Begriffe"
+
+#: i18nsync/i18nsync.module:307
+msgid "Comment settings"
+msgstr "Einstellungen für Kommentare"
+
+#: i18nsync/i18nsync.module:310
+msgid "File attachments"
+msgstr "Dateianhänge"
+
+#: i18nsync/i18nsync.module:323
+msgid "Image Attach module"
+msgstr "Bildanhangsmodul"
+
+#: i18nsync/i18nsync.module:324
+msgid "Attached image nodes"
+msgstr "Angehängte Bildbeiträge"
+
+#: i18nsync/i18nsync.module:328
+msgid "Event fields"
+msgstr "Ereignisfeld"
+
+#: i18nsync/i18nsync.module:330
+msgid "Event start"
+msgstr "Ereignisbegin"
+
+#: i18nsync/i18nsync.module:331
+msgid "Event end"
+msgstr "Ereignisende"
+
+#: i18nsync/i18nsync.module:332
+msgid "Timezone"
+msgstr "Zeitzone"
+
+#: i18nsync/i18nsync.module:340
+msgid "CCK fields"
+msgstr "CCK-Felder"
+
+#: i18nsync/i18nsync.module:0
+msgid "i18nsync"
+msgstr "i18nsync"
+
+#: i18nsync/i18nsync.info:0
+msgid "Translation Synchronization"
+msgstr "Übersetzungssynchonisatzion"
+
+#: i18nsync/i18nsync.info:0
+msgid "Synchronizes taxonomy and fields accross translations of the same content"
+msgstr "Synchonisiert Taxonomie und Felder über Übersetzungen des gleichen Inhalts hinweg."
+
