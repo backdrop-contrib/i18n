@@ -244,15 +244,28 @@ function i18nblocks_translate_block($block) {
 /**
  * Implementation of hook_theme()
  * 
- * Overrides the theme_blocks() definition
+ * This will be used to override the theme_blocks() definition
  */
+
 function i18nblocks_theme() {
   return array(
-    'blocks' => array(
+    'i18nblocks' => array(
       'function' => 'i18nblocks_theme_blocks',
       'arguments' => array('region' => NULL),
     ),  
   );
+}
+
+/**
+ * Implementation of hook theme_registry_alter()
+ * 
+ * Replace theme_blocks with theme_i18nblocks. There may be a better way to do this but
+ * I cannot figure out an easier way to build the whole registry entry
+ * 
+ * Warning: this can mess with themes implementing the _blocks function
+ */
+function i18nblocks_theme_registry_alter(&$theme_registry) {
+  $theme_registry['blocks'] = $theme_registry['i18nblocks'];
 }
 
 /**

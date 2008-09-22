@@ -549,15 +549,17 @@ function i18ntaxonomy_nodeapi(&$node, $op) {
  */
 function i18ntaxonomy_translate_terms($taxonomy, $langcode) {
   $translation = array();
-  foreach ($taxonomy as $index => $term) {
-    if ($term->language && $term->language != $langcode) {
-      $translated_terms = i18ntaxonomy_term_get_translations(array('tid' => $term->tid));
-      if ($translated_terms && $newterm = $translated_terms[$langcode]) {
-        $translation[$newterm->tid] = $newterm;
+  if (is_array($taxonomy)) {
+    foreach ($taxonomy as $index => $term) {
+      if ($term->language && $term->language != $langcode) {
+        $translated_terms = i18ntaxonomy_term_get_translations(array('tid' => $term->tid));
+        if ($translated_terms && $newterm = $translated_terms[$langcode]) {
+          $translation[$newterm->tid] = $newterm;
+        }
+      } else {
+        // Term has no language. Should be ok
+        $translation[$index] = $term;
       }
-    } else {
-      // Term has no language. Should be ok
-      $translation[$index] = $term;
     }
   }
   return $translation;

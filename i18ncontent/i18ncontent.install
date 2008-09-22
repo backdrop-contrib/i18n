@@ -33,6 +33,7 @@ function i18ncontent_uninstall() {
  */
 function i18ncontent_update_1() {
   $ret = array();
+  drupal_load('module', 'i18ncontent');
   i18ncontent_locale_refresh();
   return $ret;
 }
