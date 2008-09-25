@@ -173,7 +173,7 @@ function i18ntaxonomy_translation_link_alter(&$links, $path) {
  *   Translated term tid if exists, or $default
  */
 function i18ntaxonomy_translation_term_tid($tid, $language = NULL, $default = NULL) {
-  $translation = db_result(db_query("SELECT t.tid FROM {term_data} t INNER JOIN {term_data} a ON t.trid = a.trid AND t.tid != a.tid WHERE a.tid = %d AND t.language = '%s' AND t.trid", $tid, $language ? $language : i18n_get_lang()));
+  $translation = db_result(db_query("SELECT t.tid FROM {term_data} t INNER JOIN {term_data} a ON t.trid = a.trid AND t.tid != a.tid WHERE a.tid = %d AND t.language = '%s' AND t.trid > 0", $tid, $language ? $language : i18n_get_lang()));
   return $translation ? $translation : $default;
 }
 

@@ -194,7 +194,7 @@ function i18nstrings_to($context, &$object, $properties = array(), $langcode = N
  *   New value of string for update/create. May be empty for removing.
  */
 function i18nstrings_update_string($context, $string) {
-  $context = i18nstrings_context($context);
+  $context = i18nstrings_context($context, $string);
   if ($string) {
     $status = i18nstrings_add_string($context, $string);
   } else {
@@ -234,7 +234,7 @@ function i18nstrings_update_translation($context, $langcode, $translation) {
  *   Update status
  */
 function i18nstrings_add_string($name, $string) {
-  $context = i18nstrings_context($name);
+  $context = i18nstrings_context($name, $string);
   $location = i18nstrings_location($context);
 
   // Check if we have a source string
@@ -277,7 +277,7 @@ function i18nstrings_add_string($name, $string) {
  *   Context object if it exists
  */
 function i18nstrings_get_source($context, $string = NULL) {
-  $context = i18nstrings_context($context);
+  $context = i18nstrings_context($context, $string);
   
   // Check if we have the string for this location
   list($where, $args) = i18nstrings_context_query($context);

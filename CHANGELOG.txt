@@ -7,18 +7,21 @@ TO DO
 - Allow hiding of *all* node language links
 - Enable synchronization of CCK fields (Waiting for CCK module upgrade)
 
-6.x-beta3 to
+6.x-beta3 to 6.x-beta4
 ----------------------
+- Fixed postgresql compatibility issue, by miopa, #308554
+- Fixed profile category string issues, #304451
+
 - Renamed some modules, updated descriptions 
 - Fixed / improved some module help texts.
 - Fixed multiple localization issues, by hass, #310852
-
-6.x-beta2 to 6.x-beta3
-----------------------
 - Fixed error with i18ncontent update, #295263
 - Fixed warning in sync module, by vjacquin, #299064 and #294511
 - Fixed issue with i18nblocks and system module weights, #299642
 - Fixed warning in i18ntaxonomy, by mvc , #304003
+
+6.x-beta2 to 6.x-beta3
+----------------------
 - Partial fix for node view forcing selection mode, #283839
 - Fixed multiple taxonomy translation issues, by japanitrat, #292232
 - Added some basic functionality to i18nviews module, wip
