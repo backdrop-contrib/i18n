@@ -9,12 +9,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation for i18nmenu\n"
-"POT-Creation-Date: 2008-09-07 12:14+0200\n"
-"PO-Revision-Date: 2008-09-15 22:29+0100\n"
-"Last-Translator: Alexander Hass\n"
+"POT-Creation-Date: 2008-09-26 00:38+0200\n"
+"PO-Revision-Date: 2008-09-26 00:51+0100\n"
+"Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "X-Poedit-Language: German\n"
@@ -29,18 +29,10 @@ msgid "This module provides support for translatable custom menu items:"
 msgstr ""
 
 #: i18nmenu/i18nmenu.module:63
-msgid "Create menus as usual, with names in English or the default language. If the menu is already created, no changes are needed."
+msgid "Create menus as usual, with names in the default language, usually English. If the menu is already created, no changes are needed."
 msgstr ""
 
 #: i18nmenu/i18nmenu.module:64
-msgid "Use the localization system to translate menu item strings"
-msgstr ""
-
-#: i18nmenu/i18nmenu.module:65
-msgid "Instead of the old menus use the new blocks provided by the module. These will be localized."
-msgstr ""
-
-#: i18nmenu/i18nmenu.module:66
 msgid "Optionally, you can set up a language for a menu item so it is only displayed for that language."
 msgstr ""
 
@@ -49,8 +41,8 @@ msgid "i18nmenu"
 msgstr "i18nmenu"
 
 #: i18nmenu/i18nmenu.info:0
-msgid "Multilingual Menu"
-msgstr "Mehrsprachiges Menü"
+msgid "Menu translation"
+msgstr "Menüübersetzung"
 
 #: i18nmenu/i18nmenu.info:0
 msgid "Supports translatable custom menu items."

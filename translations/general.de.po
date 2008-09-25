@@ -13,38 +13,48 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation for i18n module\n"
-"POT-Creation-Date: 2008-09-07 12:14+0200\n"
-"PO-Revision-Date: 2008-09-15 20:27+0100\n"
-"Last-Translator: Alexander Hass\n"
+"POT-Creation-Date: 2008-09-26 00:38+0200\n"
+"PO-Revision-Date: 2008-09-26 00:46+0100\n"
+"Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 
-# not literally
-#: i18n.module:54
+#: i18n.module:62
 #: i18nsync/i18nsync.module:35
-#: i18ntaxonomy/i18ntaxonomy.module:41
-msgid "For more information please read the <a href=\"@i18n\">on-line help pages</a>."
+#: i18ntaxonomy/i18ntaxonomy.module:42
+msgid "For more information, see the online handbook entry for <a href=\"@i18n\">Internationalization module</a>."
 msgstr "Nähere Informationen bezüglich der Konfiguration und Anpassung gibt es auf der Handbuch-Seite zum <a href=\"@i18n\">Internationalisierungs-Modul</a>."
 
-#: i18n.module:564
-#: i18ncontent/i18ncontent.module:104
+#: i18n.module:572
+#: i18ncontent/i18ncontent.module:105
 msgid "Reset to defaults"
 msgstr "Zurücksetzen"
 
-#: i18n.module:613
-#: i18nblocks/i18nblocks.module:132
-#: i18nmenu/i18nmenu.module:140
-#: i18ntaxonomy/i18ntaxonomy.module:324;340
+#: i18n.module:623
+#: i18nblocks/i18nblocks.module:133
+#: i18nmenu/i18nmenu.module:139
+#: i18ntaxonomy/i18ntaxonomy.module:325;341
 msgid "Language"
 msgstr "Sprache"
 
-#: i18nblocks/i18nblocks.module:124
-#: i18nmenu/i18nmenu.module:141
+#: i18nblocks/i18nblocks.module:42
+#: i18ncontent/i18ncontent.module:28
+#: i18nmenu/i18nmenu.module:66
+#: i18nprofile/i18nprofile.module:20
+#: i18nstrings/i18nstrings.module:34
+#: i18ntaxonomy/i18ntaxonomy.module:41
+#: i18nviews/i18nviews.module:20
+#, fuzzy
+msgid "To search and translate strings, use the <a href=\"@translate-interface\">translation interface</a> pages."
+msgstr "Um Zeichenketten zu suchen und übersetzen, können die Seiten zum <a href=\"@translate-interface\">Übersetzen der Oberfläche</a> verwendet werden."
+
+#: i18nblocks/i18nblocks.module:125
+#: i18nmenu/i18nmenu.module:140
 msgid "All languages"
 msgstr "Alle Sprachen"
 

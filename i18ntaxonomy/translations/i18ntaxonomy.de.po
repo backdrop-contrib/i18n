@@ -12,12 +12,12 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation for i18ntaxonomy\n"
-"POT-Creation-Date: 2008-09-07 12:14+0200\n"
-"PO-Revision-Date: 2008-09-15 23:05+0100\n"
-"Last-Translator: Alexander Hass\n"
+"POT-Creation-Date: 2008-09-26 00:38+0200\n"
+"PO-Revision-Date: 2008-09-26 01:01+0100\n"
+"Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n!=1);\n"
 "X-Poedit-Language: German\n"
@@ -36,8 +36,8 @@ msgid "Save"
 msgstr "Speichern"
 
 #: i18ntaxonomy/i18ntaxonomy.admin.inc:76
-msgid "Term translations have been updated"
-msgstr "Begriffsübersetzung wurde aktualisiert."
+msgid "Term translations have been updated."
+msgstr "Die Begriffsübersetzung wurde aktualisiert."
 
 #: i18ntaxonomy/i18ntaxonomy.admin.inc:123
 msgid "Operations"
@@ -48,8 +48,8 @@ msgid "edit"
 msgstr "Bearbeiten"
 
 #: i18ntaxonomy/i18ntaxonomy.admin.inc:152
-msgid "No translations defined for this vocabulary"
-msgstr "Keine Übersetzung für dieses Vokabular festgelegt"
+msgid "No translations defined for this vocabulary."
+msgstr "Keine Übersetzung für dieses Vokabular festgelegt."
 
 #: i18ntaxonomy/i18ntaxonomy.admin.inc:154
 msgid "Create new translation"
@@ -60,120 +60,110 @@ msgid "Home"
 msgstr "Startseite"
 
 #: i18ntaxonomy/i18ntaxonomy.module:35
-msgid "This module adds support for for multilingual taxonomy. You can set up multilingual options for each vocabulary:"
+msgid "This module adds support for multilingual taxonomy. You can set up multilingual options for each vocabulary:"
 msgstr ""
 
 #: i18ntaxonomy/i18ntaxonomy.module:37
-msgid "A language can be assigned globaly for a vocabulary"
-msgstr "Eine Sprache kann global für ein Vokabular zugewiesen werden"
+msgid "A language can be assigned globaly for a vocabulary."
+msgstr "Eine Sprache kann einem Vokabular global zugewiesen werden."
 
 #: i18ntaxonomy/i18ntaxonomy.module:38
 msgid "Different terms for each language with translation relationships."
 msgstr ""
 
 #: i18ntaxonomy/i18ntaxonomy.module:39
-msgid "Terms can be common to all languages but may be localized."
+msgid "Terms can be common to all languages, but may be localized."
 msgstr ""
 
-#: i18ntaxonomy/i18ntaxonomy.module:45
-msgid "To set up multilingual options for vocabularies go to !configure_taxonomy"
+#: i18ntaxonomy/i18ntaxonomy.module:46
+msgid "To set up multilingual options for vocabularies go to <a href=\"@configure_taxonomy\">Taxonomy configuration page</a>."
 msgstr ""
 
-#: i18ntaxonomy/i18ntaxonomy.module:45
-msgid "Taxonomy configuration page"
-msgstr "Konfigurationsseite für Taxonomie"
-
-#: i18ntaxonomy/i18ntaxonomy.module:52
+#: i18ntaxonomy/i18ntaxonomy.module:53
 msgid "%capital_name is a localizable vocabulary. You will be able to translate term names and descriptions using the localization interface."
 msgstr ""
 
-#: i18ntaxonomy/i18ntaxonomy.module:54
+#: i18ntaxonomy/i18ntaxonomy.module:55
 msgid "%capital_name is a vocabulary with a fixed language. All the terms in this vocabulary will have %language language."
 msgstr ""
 
-#: i18ntaxonomy/i18ntaxonomy.module:56
+#: i18ntaxonomy/i18ntaxonomy.module:57
 msgid "%capital_name is a full multilingual vocabulary. You will be able to set a language for each term and create translation relationships."
 msgstr ""
 
-#: i18ntaxonomy/i18ntaxonomy.module:67
-msgid "None. No multilingual options for this vocabulary"
-msgstr ""
-
 #: i18ntaxonomy/i18ntaxonomy.module:68
-msgid "Localize terms. Terms are common for all languages but their name and description may be localized."
+msgid "None. No multilingual options for this vocabulary."
 msgstr ""
 
 #: i18ntaxonomy/i18ntaxonomy.module:69
-msgid "Per language terms. Different terms will be allowed for each language and they can be translated."
+msgid "Localize terms. Terms are common for all languages, but their name and description may be localized."
 msgstr ""
 
 #: i18ntaxonomy/i18ntaxonomy.module:70
+msgid "Per language terms. Different terms will be allowed for each language and they can be translated."
+msgstr ""
+
+#: i18ntaxonomy/i18ntaxonomy.module:71
 msgid "Set language to vocabulary. The vocabulary will have a global language and it will only show up for pages in that language."
 msgstr ""
 
-#: i18ntaxonomy/i18ntaxonomy.module:119
+#: i18ntaxonomy/i18ntaxonomy.module:120
 msgid "Taxonomy"
 msgstr "Taxonomie"
 
-#: i18ntaxonomy/i18ntaxonomy.module:220
-msgid "Removed translation information from term"
+#: i18ntaxonomy/i18ntaxonomy.module:221
+msgid "Removed translation information from term."
 msgstr ""
 
-#: i18ntaxonomy/i18ntaxonomy.module:239
+#: i18ntaxonomy/i18ntaxonomy.module:240
 msgid "Reset language for all terms."
 msgstr "Die Sprache für alle Begriffe zurücksetzen."
 
-#: i18ntaxonomy/i18ntaxonomy.module:311
+#: i18ntaxonomy/i18ntaxonomy.module:312
 msgid "Multilingual options"
 msgstr "Mehrsprachige Optionen"
 
-#: i18ntaxonomy/i18ntaxonomy.module:317
+#: i18ntaxonomy/i18ntaxonomy.module:318
 msgid "Translation mode"
 msgstr "Übersetzungsmodus"
 
-#: i18ntaxonomy/i18ntaxonomy.module:320
-msgid "For localizable vocabularies, to have all terms available for translation visit the !locale-refresh page"
+#: i18ntaxonomy/i18ntaxonomy.module:321
+msgid "For localizable vocabularies, to have all terms available for translation visit the <a href=\"!locale-refresh\">translation refresh</a> page."
 msgstr ""
 
-#: i18ntaxonomy/i18ntaxonomy.module:320
-msgid "translation refresh"
-msgstr "Aktualisierung der Übersetzung"
-
-#: i18ntaxonomy/i18ntaxonomy.module:327
+#: i18ntaxonomy/i18ntaxonomy.module:328
 msgid "Language for this vocbulary. If set, it will apply to all terms in this vocabulary."
 msgstr "Die Sprache für dieses Vokabular. Sobald aktiviert, wird diese auf alle Begriffe in diesem Vokabular angewendet."
 
-#: i18ntaxonomy/i18ntaxonomy.module:343
+#: i18ntaxonomy/i18ntaxonomy.module:344
 msgid "This term belongs to a multilingual vocabulary. You can set a language for it."
 msgstr "Dieser Begriff gehört zu einem mehrsprachigen Vokabular. Hier kann die Sprache dafür festgelegt werden."
 
-#: i18ntaxonomy/i18ntaxonomy.module:348
+#: i18ntaxonomy/i18ntaxonomy.module:349
 msgid "All terms in this vocabulary have a fixed language: %language"
 msgstr "Alle Begriffe in diesem Vokabular haben eine feste Sprache: %language"
 
-#: i18ntaxonomy/i18ntaxonomy.module:352
-#, fuzzy
-msgid "This name will be localizable"
-msgstr "Dieser Name wird lokalisierbar sein"
-
 #: i18ntaxonomy/i18ntaxonomy.module:353
-#, fuzzy
-msgid "This description will be localizable"
-msgstr "Diese Beschreibung wird lokalisierbar sein"
+msgid "This name will be localizable."
+msgstr "Dieser Name wird lokalisierbar sein."
 
-#: i18ntaxonomy/i18ntaxonomy.module:415
+#: i18ntaxonomy/i18ntaxonomy.module:354
+msgid "This description will be localizable."
+msgstr "Diese Beschreibung wird lokalisierbar sein."
+
+#: i18ntaxonomy/i18ntaxonomy.module:416
 msgid "- Please choose -"
 msgstr "- Bitte auswählen -"
 
-#: i18ntaxonomy/i18ntaxonomy.module:415
+#: i18ntaxonomy/i18ntaxonomy.module:416
 msgid "- None selected -"
 msgstr "- Keine ausgewählt -"
 
-#: i18ntaxonomy/i18ntaxonomy.module:418
+#: i18ntaxonomy/i18ntaxonomy.module:419
 msgid "- None -"
 msgstr "- Keine -"
 
-#: i18ntaxonomy/i18ntaxonomy.module:78
+#: i18ntaxonomy/i18ntaxonomy.module:79
 msgid "Translation"
 msgstr "Übersetzung"
 
@@ -182,16 +172,12 @@ msgid "i18ntaxonomy"
 msgstr "i18ntaxonomy"
 
 #: i18ntaxonomy/i18ntaxonomy.install:51
-msgid "The multilingual vocabulary settings have been updated. Please review them in the !taxonomy_admin page."
-msgstr "Die mehrsprachigen Vokabulareinstellungen wurden aktualisiert. Diese sollten auf der !taxonomy_admin-Seite überprüft werden."
-
-#: i18ntaxonomy/i18ntaxonomy.install:51
-msgid "taxonomy administration"
-msgstr "Taxonomie verwalten"
+msgid "The multilingual vocabulary settings have been updated. Please review them in the <a href=\"@taxonomy_admin page\">taxonomy administration</a>."
+msgstr "Die mehrsprachigen Vokabulareinstellungen wurden aktualisiert. Diese sollten in der <a href=\"@taxonomy_admin page\">Taxonomie-Verwaltung</a> überprüft werden."
 
 #: i18ntaxonomy/i18ntaxonomy.info:0
-msgid "Multilingual taxonomy"
-msgstr "Mehrsprachige Taxonomie"
+msgid "Taxonomy translation"
+msgstr "Taxonomieübersetzung"
 
 #: i18ntaxonomy/i18ntaxonomy.info:0
 msgid "Enables multilingual taxonomy."
