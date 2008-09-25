@@ -9,9 +9,9 @@ TO DO
 
 6.x-beta3 to 6.x-beta4
 ----------------------
+- Fixed issue with language dependent front page, that couldn't be used before
 - Fixed postgresql compatibility issue, by miopa, #308554
 - Fixed profile category string issues, #304451
-
 - Renamed some modules, updated descriptions 
 - Fixed / improved some module help texts.
 - Fixed multiple localization issues, by hass, #310852

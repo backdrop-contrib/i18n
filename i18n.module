@@ -24,12 +24,20 @@ define('LANGUAGE_SUPPORT_EXTENDED', 2);
  * 
  * Will initialize language dependent variables
  * Modify rewriting conditions when viewing specific nodes
+ * 
+ * Special fix for site_frontpage, that may have been used before the language variables are loaded
  */
 function i18n_init(){
   // If not in bootstrap, variable init
   if(!_i18n_is_bootstrap()){
-    //include drupal_get_path('module', 'i18n').'/i18n.inc';
-    i18n_variable_init();  
+    $default_frontpage = variable_get('site_frontpage', 'node');
+    
+    i18n_variable_init();
+    
+    // Now we check whether this is the frontpage and it should be a different one
+    if ($default_frontpage != variable_get('site_frontpage', 'node') && $_GET['q'] == drupal_get_normal_path($default_frontpage)) {
+      $_GET['q'] = drupal_get_normal_path(variable_get('site_frontpage', 'node'));
+    }
   }
 }
 
@@ -585,18 +593,20 @@ function i18n_variable_form_submit($form, &$form_state) {
  * @param $prefix
  *   Variable name prefix to load just a selected group of variables
  */
-function i18n_variable_init($language = NULL, $prefix = ''){
+function i18n_variable_init($langcode = NULL, $prefix = ''){
   global $conf;
   global $i18n_conf;
-  $language = $language ? $language : i18n_get_lang();
+  
+  $langcode = $langcode ? $langcode : i18n_get_lang();
   if ($i18n_variables = variable_get('i18n_variables', '')){
     if (!$i18n_conf) {
       $i18n_conf = array();
     }
-    $variables = _i18n_variable_init($language, $prefix);
+    $variables = _i18n_variable_init($langcode, $prefix);
     foreach($i18n_variables as $name){
       $i18n_conf[$name] = isset($variables[$name]) ? $variables[$name] : (isset($conf[$name]) ? $conf[$name] : '');
     }
+
     $conf = array_merge($conf, $i18n_conf);
   }
 }
