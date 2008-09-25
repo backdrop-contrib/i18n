@@ -3,14 +3,14 @@
 # LANGUAGE translation of Drupal (i18nprofile)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  i18nprofile.module,v 1.6.2.2 2008/06/24 11:17:34 jareyero
+#  i18nprofile.module,v 1.6.2.4 2008/09/25 19:16:12 jareyero
 #  i18nprofile/i18nprofile.info: n/a
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-09-07 12:14+0200\n"
+"POT-Creation-Date: 2008-09-26 00:38+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -23,7 +23,7 @@ msgstr ""
 msgid "Supports translation for profile module field names and descriptions."
 msgstr ""
 
-#: i18nprofile/i18nprofile.module:29
+#: i18nprofile/i18nprofile.module:31
 msgid "Profile"
 msgstr ""
 
@@ -32,7 +32,7 @@ msgid "i18nprofile"
 msgstr ""
 
 #: i18nprofile/i18nprofile.info:0
-msgid "Multilingual Profile"
+msgid "Profile translation"
 msgstr ""
 
 #: i18nprofile/i18nprofile.info:0

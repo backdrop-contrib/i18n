@@ -4,13 +4,13 @@
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
 #  i18npoll/i18npoll.module: n/a
-#  i18npoll.info,v 1.1.2.3 2008/06/24 11:49:55 jareyero
+#  i18npoll.info,v 1.1.2.4 2008/09/25 16:09:28 jareyero
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-09-07 12:14+0200\n"
+"POT-Creation-Date: 2008-09-26 00:38+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -48,10 +48,10 @@ msgid "i18npoll"
 msgstr ""
 
 #: i18npoll/i18npoll.info:0
-msgid "Multilingual Poll"
+msgid "Poll aggregate"
 msgstr ""
 
 #: i18npoll/i18npoll.info:0
-msgid "Aggregates poll results for all translations"
+msgid "Aggregates poll results for all translations."
 msgstr ""
 

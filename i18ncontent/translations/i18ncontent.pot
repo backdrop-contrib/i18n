@@ -3,14 +3,14 @@
 # LANGUAGE translation of Drupal (i18ncontent)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  i18ncontent.module,v 1.1.2.3 2008/03/10 23:27:51 jareyero
-#  i18ncontent.info,v 1.1.2.3 2008/06/24 11:49:56 jareyero
+#  i18ncontent.module,v 1.1.2.5 2008/09/25 19:16:12 jareyero
+#  i18ncontent.info,v 1.1.2.4 2008/09/25 16:09:28 jareyero
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-09-07 12:14+0200\n"
+"POT-Creation-Date: 2008-09-26 00:38+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -32,14 +32,14 @@ msgid "Submission guidelines"
 msgstr ""
 
 #: i18ncontent/i18ncontent.module:26
-msgid "Content type descriptions were previously localized so they won't be affected"
+msgid "Content type descriptions were previously localized so they won't be affected."
 msgstr ""
 
-#: i18ncontent/i18ncontent.module:44
+#: i18ncontent/i18ncontent.module:45
 msgid "Content type"
 msgstr ""
 
-#: i18ncontent/i18ncontent.module:107
+#: i18ncontent/i18ncontent.module:108
 msgid "Delete content type"
 msgstr ""
 
@@ -48,10 +48,10 @@ msgid "i18ncontent"
 msgstr ""
 
 #: i18ncontent/i18ncontent.info:0
-msgid "Content Types"
+msgid "Content type translation"
 msgstr ""
 
 #: i18ncontent/i18ncontent.info:0
-msgid "Translates content type parameters."
+msgid "Translates content type related strings: name, description, help text..."
 msgstr ""
 
