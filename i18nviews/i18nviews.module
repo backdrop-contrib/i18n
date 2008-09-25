@@ -11,6 +11,18 @@
  */
 
 /**
+ * Implementation of hook_help()
+ */
+function i18nviews_help($section, $arg) {
+  switch ($section) {
+    case 'admin/modules#description' :
+      $output = '<p>' . t('Supports translation for views strings: title, header, footer...') . '</p>';
+      $output .= '<p>' . t('To search and translate strings, use the !translate-interface pages.', array('!translate-interface' => l(t('Translate interface'), 'admin/build/translate'))) . '</p>';      
+      return $output;
+  }
+}
+
+/**
  * Implementation of hook_locale().
  */
 function i18nviews_locale($op = 'groups', $group = NULL) {

@@ -24,7 +24,7 @@ function i18nstrings_admin_refresh() {
     '#options' => $groups,
   );
   $form['refresh'] = array('#type' => 'submit', '#value' => t('Refresh strings'),
-    '#suffix' => '<p>'.t('This will create all the missing strings for the selected text groups').'</p>',
+    '#suffix' => '<p>'.t('This will create all the missing strings for the selected text groups.').'</p>',
   );
   // Get all languages, except default language
   $languages = locale_language_list('name', TRUE);
@@ -35,7 +35,7 @@ function i18nstrings_admin_refresh() {
     '#options' => $languages,    
   );
   $form['update'] = array('#type' => 'submit', '#value' => t('Update translations'),
-    '#suffix' => '<p>'.t('This will fetch all existing translations from the localization tables for the selected text groups and languages').'</p>',
+    '#suffix' => '<p>'.t('This will fetch all existing translations from the localization tables for the selected text groups and languages.').'</p>',
   );
   return $form; 
 }
@@ -57,7 +57,7 @@ function i18nstrings_admin_refresh_submit($form, &$form_state) {
     foreach ($languages as $language) {
       $count += i18nstrings_admin_update($language, $groups);
     }
-    drupal_set_message(t('%number strings have been updated', array('%number' => $count)));
+    drupal_set_message(format_plural($count, '1 string has been updated.', '@count strings have been updated.'));
   }
 }
 

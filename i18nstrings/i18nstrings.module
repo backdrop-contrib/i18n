@@ -29,8 +29,9 @@ function i18nstrings_help($path, $arg) {
       $output = '<p>'.t('On this page you can refresh and update values for user defined strings.').'</p>';
       $output .= '<ul>';
       $output .= '<li>'.t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.').'</li>';
-      $output .= '<li>'.t('Use the update option when some of the strings had been previously translated with the localization system but the translations are not showing up for the configurable strings.').'</li>';
+      $output .= '<li>'.t('Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings.').'</li>';
       $output .= '</ul>';
+      $output .= '<p>' . t('To search and translate strings, use the !translate-interface pages.', array('!translate-interface' => l(t('Translate interface'), 'admin/build/translate'))) . '</p>';      
       return $output;
   }
 }
@@ -374,7 +375,7 @@ function i18nstrings_update_context($oldname, $newname) {
     // Update object data
     db_query("UPDATE {i18n_strings} SET type = '%s', oid = '%s', property = '%s' WHERE lid = %d", $context->type, $context->oid, $context->property, $source->lid);
   }
-  drupal_set_message(t('Updating string names from %oldname to %newname', array('%oldname' => $oldname, '%newname' => $newname)));
+  drupal_set_message(t('Updating string names from %oldname to %newname.', array('%oldname' => $oldname, '%newname' => $newname)));
 }
 
 /**

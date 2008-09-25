@@ -32,17 +32,18 @@ define('I18N_TAXONOMY_TRANSLATE', 3);
 function i18ntaxonomy_help($section, $arg) {
   switch ($section) {
     case 'admin/help#i18ntaxonomy' :
-      $output = '<p>'.t('This module adds support for for multilingual taxonomy. You can set up multilingual options for each vocabulary:').'</p>';
+      $output = '<p>'.t('This module adds support for multilingual taxonomy. You can set up multilingual options for each vocabulary:').'</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('A language can be assigned globaly for a vocabulary').'</li>';
+      $output .= '<li>'.t('A language can be assigned globaly for a vocabulary.').'</li>';
       $output .= '<li>'.t('Different terms for each language with translation relationships.').'</li>';
-      $output .= '<li>'.t('Terms can be common to all languages but may be localized.').'</li>';
+      $output .= '<li>'.t('Terms can be common to all languages, but may be localized.').'</li>';
       $output .= '</ul>';
-      $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/133977')) .'</p>';
+      $output .= '<p>' . t('To search and translate strings, use the !translate-interface pages.', array('!translate-interface' => l(t('Translate interface'), 'admin/build/translate'))) . '</p>';      
+      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' =>'http://drupal.org/node/133977')) .'</p>'; 
       return $output;
     case 'admin/settings/i18n':
       $output = '<ul>';
-      $output .= '<li>'.t('To set up multilingual options for vocabularies go to !configure_taxonomy', array('!configure_taxonomy' => l(t('Taxonomy configuration page'), 'admin/content/taxonomy'))).'</li>';
+      $output .= '<li>'.t('To set up multilingual options for vocabularies go to <a href="!configure_taxonomy">Taxonomy configuration page</a>.', array('!configure_taxonomy' => url('admin/content/taxonomy'))).'</li>';
       $output . '</ul>';
       return $output;
     case 'admin/content/taxonomy/%':
@@ -64,8 +65,8 @@ function i18ntaxonomy_help($section, $arg) {
  */
 function _i18ntaxonomy_vocabulary_options() {
   return array(
-    I18N_TAXONOMY_NONE => t('None. No multilingual options for this vocabulary'),
-    I18N_TAXONOMY_LOCALIZE => t('Localize terms. Terms are common for all languages but their name and description may be localized.'),
+    I18N_TAXONOMY_NONE => t('None. No multilingual options for this vocabulary.'),
+    I18N_TAXONOMY_LOCALIZE => t('Localize terms. Terms are common for all languages, but their name and description may be localized.'),
     I18N_TAXONOMY_TRANSLATE => t('Per language terms. Different terms will be allowed for each language and they can be translated.'),
     I18N_TAXONOMY_LANGUAGE => t('Set language to vocabulary. The vocabulary will have a global language and it will only show up for pages in that language.'),
   );
@@ -217,7 +218,7 @@ function i18ntaxonomy_taxonomy($op, $type, $edit = NULL) {
       if (!$language && !empty($edit['trid'])) {
         // Removed language, remove trid
         db_query('UPDATE {term_data} SET trid = 0 WHERE tid = %d', $tid);
-        if(db_affected_rows()) drupal_set_message(t('Removed translation information from term'));
+        if(db_affected_rows()) drupal_set_message(t('Removed translation information from term.'));
       }
       // Update strings for localizable vocabulary
       if (i18ntaxonomy_vocabulary($edit['vid']) == I18N_TAXONOMY_LOCALIZE) {
@@ -317,7 +318,7 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
         '#title' => t('Translation mode'),
         '#options' => _i18ntaxonomy_vocabulary_options(),
         '#default_value' => $mode,
-        '#description' => t('For localizable vocabularies, to have all terms available for translation visit the !locale-refresh page', array('!locale-refresh' => l(t('translation refresh'), 'admin/build/translate/refresh') )),
+        '#description' => t('For localizable vocabularies, to have all terms available for translation visit the <a href="!locale-refresh">translation refresh</a> page.', array('!locale-refresh' => url('admin/build/translate/refresh'))),
       );
       $form['i18n']['language'] = array(
         '#type' => 'select',
@@ -349,8 +350,8 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
           break;
         case I18N_TAXONOMY_LOCALIZE:
           $form['language'] = array('#type' => 'value', '#value' => '');
-          $form['identification']['name']['#description'] .= ' <strong>'.t('This name will be localizable').'</strong>';
-          $form['identification']['description']['#description'] .= ' <strong>'.t('This description will be localizable').'</strong>';
+          $form['identification']['name']['#description'] .= ' <strong>'.t('This name will be localizable.').'</strong>';
+          $form['identification']['description']['#description'] .= ' <strong>'.t('This description will be localizable.').'</strong>';
           break;
         case I18N_TAXONOMY_NONE:
         default:

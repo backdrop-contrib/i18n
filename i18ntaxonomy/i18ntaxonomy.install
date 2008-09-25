@@ -48,7 +48,7 @@ function i18ntaxonomy_update_1() {
     }
   }
   variable_set('i18ntaxonomy_vocabulary', $options);
-  drupal_set_message(t('The multilingual vocabulary settings have been updated. Please review them in the !taxonomy_admin page.', array('!taxonomy_admin' => l(t('taxonomy administration'), 'admin/content/taxonomy'))));
+  drupal_set_message(t('The multilingual vocabulary settings have been updated. Please review them in the <a href="!taxonomy_admin page">taxonomy administration</a>.', array('!taxonomy_admin' => url('admin/content/taxonomy'))));
   // @ TODO Update strings in localization tables
   return $items;
 }

@@ -60,11 +60,10 @@ function i18nmenu_help($section, $arg) {
     case 'admin/help#i18nmenu' :
       $output = '<p>'.t('This module provides support for translatable custom menu items:').'</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('Create menus as usual, with names in English or the default language. If the menu is already created, no changes are needed.').'</li>';
-      $output .= '<li>'.t('Use the localization system to translate menu item strings').'</li>';
-      $output .= '<li>'.t('Instead of the old menus use the new blocks provided by the module. These will be localized.').'</li>';
-      $output .= '<li>'.t('Optionally, you can set up a language for a menu item so it is only displayed for that language.').'</li>';
+      $output .= '<li>'.t('Create menus as usual, with names in the default language, usually English. If the menu is already created, no changes are needed.') . '</li>';
+      $output .= '<li>'.t('Optionally, you can set up a language for a menu item so it is only displayed for that language.') . '</li>';
       $output .= '</ul>';
+      $output .= '<p>' . t('To search and translate strings, use the !translate-interface pages.', array('!translate-interface' => l(t('Translate interface'), 'admin/build/translate'))) . '</p>';      
       return $output;
   }
 }

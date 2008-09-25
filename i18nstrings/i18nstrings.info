@@ -1,6 +1,6 @@
 ; $Id$
-name = Strings
-description = Translatable strings.
+name = String translation
+description = Provides support for translation of user defined strings.
 dependencies[] = locale
 package = Multilanguage
 version = VERSION

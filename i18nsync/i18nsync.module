@@ -25,14 +25,14 @@ function i18nsync_help($section, $arg) {
       $output = '<p>'.t('This module synchronizes content taxonomy and fields accross translations:').'</p>';
       $output .= '<p>'.t('First you need to select which fields should be synchronized. Then, after a node has been updated, all enabled vocabularies and fields will be synchronized as follows:').'</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('All the node fields selected for synchronization will be set to the same value for all translations').'</li>';
+      $output .= '<li>'.t('All the node fields selected for synchronization will be set to the same value for all translations.').'</li>';
       $output .= '<li>'.t('For multilingual vocabularies, the terms for all translations will be replaced by the translations of the original node terms.').'</li>';
       $output .= '<li>'.t('For other vocabularies, the terms will be just copied over to all the translations.');
       $output .= '</ul>';
-      $output .= '<p><strong>'.t('Note that permissions are not checked for each node so if someone can edit a node and it is set to synchronize, all the translations will be synchronized anyway.').'</strong></p>';
+      $output .= '<p><strong>'.t('Note that permissions are not checked for each node. So if someone can edit a node and it is set to synchronize, all the translations will be synchronized anyway.').'</strong></p>';
       $output .= '<p>'.t('To enable synchronization check content type options to select which fields to synchronize for each node type').'</p>';
       $output .= '<p>'.t('The list of available fields for synchronization will include some standard node fields and all CCK fields. You can add more fields to the list in a configuration variable. See README.txt for how to do it.').'</p>';
-      $output .= '<p>'. t('For more information please read the <a href="@i18n">on-line help pages</a>.', array('@i18n' =>'http://drupal.org/node/31631')) .'</p>';
+      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) .'</p>';
       return $output;
   }
 }
@@ -134,7 +134,7 @@ function i18nsync_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
             }
           }
           $i18nsync = FALSE;
-          drupal_set_message(t('All %count node translations have been synchronized', array('%count' => count($translations) - 1)));
+          drupal_set_message(format_plural(count($translations) - 1, 'One node translation have been synchronized.', 'All @count node translations have been synchronized.'));
         }
         break;
     }
@@ -302,7 +302,7 @@ function i18nsync_node_available_fields($type) {
       'moderate' => t('Moderate'),
       'sticky' => t('Sticky'),
       'revision' => t('Revision (Create also new revision for translations)'),
-      'parent' => t('Book outline (With the translated parent)'),
+      'parent' => t('Book outline (with the translated parent)'),
       'taxonomy' => t('Taxonomy terms'),
   );
   if (module_exists('comment')) {

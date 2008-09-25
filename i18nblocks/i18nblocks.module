@@ -39,6 +39,7 @@ function i18nblocks_help($section, $arg) {
       $output .= '<li>'.t('Blocks with a language will be displayed only in pages with that language.').'</li>';
       $output .= '<li>'.t('Translatable blocks can be translated using the localization interface.').'</li>';
       $output .= '</ul>';
+      $output .= '<p>' . t('To search and translate strings, use the !translate-interface pages.', array('!translate-interface' => l(t('Translate interface'), 'admin/build/translate'))) . '</p>';      
       return $output;
   }
 }

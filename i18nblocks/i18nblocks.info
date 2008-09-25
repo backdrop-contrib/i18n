@@ -1,5 +1,5 @@
-name = Mutilingual Blocks
-description = Enables multilingual blocks.
+name = Block translation
+description = Enables multilingual blocks and block translation.
 dependencies[] = i18n
 dependencies[] = i18nstrings
 package = Multilanguage

@@ -73,7 +73,7 @@ function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $ed
 function i18ntaxonomy_translation_term_form_submit($form, &$form_state) {
   $form_values = $form_state['values'];
   i18ntaxonomy_translation_save($form_values, $form_values['trid']);
-  drupal_set_message(t('Term translations have been updated'));
+  drupal_set_message(t('Term translations have been updated.'));
 }
 
 /**
@@ -149,7 +149,7 @@ function i18ntaxonomy_translation_overview($vid) {
   if ($rows) {
     $output .= theme('table', $header, $rows);
   } else {
-    $messages[] = t('No translations defined for this vocabulary');
+    $messages[] = t('No translations defined for this vocabulary.');
   }
   $messages[]= l(t('Create new translation'), "admin/content/taxonomy/$vid/translation/edit/new");
   $output .= theme('item_list', $messages);

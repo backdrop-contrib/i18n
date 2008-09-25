@@ -7,6 +7,12 @@ TO DO
 - Allow hiding of *all* node language links
 - Enable synchronization of CCK fields (Waiting for CCK module upgrade)
 
+6.x-beta3 to
+----------------------
+- Renamed some modules, updated descriptions 
+- Fixed / improved some module help texts.
+- Fixed multiple localization issues, by hass, #310852
+
 6.x-beta2 to 6.x-beta3
 ----------------------
 - Fixed error with i18ncontent update, #295263

@@ -1,4 +1,4 @@
-name = Multilingual taxonomy
+name = Taxonomy translation
 description = Enables multilingual taxonomy.
 dependencies[] = i18n
 dependencies[] = taxonomy

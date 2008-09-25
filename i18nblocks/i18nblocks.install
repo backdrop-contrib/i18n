@@ -23,7 +23,7 @@ function i18nblocks_uninstall() {
  */
 function i18nblocks_schema() {
   $schema['i18n_blocks'] = array(
-    'description' => t('Special i18n translatable blocks'),
+    'description' => t('Special i18n translatable blocks.'),
     'fields' => array(
       'ibid' => array(
         'description' => t('The i18n block identifier.'),
@@ -52,7 +52,7 @@ function i18nblocks_schema() {
       'language' => array(
         'type' => 'varchar',
         'length' => 12,
-        'description' => t("Block language"),
+        'description' => t('Block language'),
         'not null' => TRUE,
         'default' => '',
       ),

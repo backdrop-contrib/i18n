@@ -1,6 +1,6 @@
 ; $Id$
 name = Internationalization
-description = Enables multilingual content.
+description = Extends Drupal support for multilingual features
 dependencies[] = locale
 dependencies[] = translation
 package = Multilanguage
