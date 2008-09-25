@@ -63,7 +63,7 @@ function i18nmenu_help($section, $arg) {
       $output .= '<li>'.t('Create menus as usual, with names in the default language, usually English. If the menu is already created, no changes are needed.') . '</li>';
       $output .= '<li>'.t('Optionally, you can set up a language for a menu item so it is only displayed for that language.') . '</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the !translate-interface pages.', array('!translate-interface' => l(t('Translate interface'), 'admin/build/translate'))) . '</p>';      
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
       return $output;
   }
 }

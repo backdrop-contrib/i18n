@@ -25,7 +25,7 @@ function i18ncontent_help($path, $arg) {
       $output .= '<li>'.t('Submission guidelines').'</li>';
       $output .= '<li>'.t("Content type descriptions were previously localized so they won't be affected.").'</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the !translate-interface pages.', array('!translate-interface' => l(t('Translate interface'), 'admin/build/translate'))) . '</p>';      
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
       return $output;
   }
   if ($arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {

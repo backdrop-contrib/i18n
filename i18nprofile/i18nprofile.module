@@ -17,7 +17,7 @@ function i18nprofile_help($section, $arg) {
   switch ($section) {
     case 'admin/modules#description' :
       $output = '<p>' . t('Supports translation for profile module field names and descriptions.') . '</p>';
-      $output .= '<p>' . t('To search and translate strings, use the !translate-interface pages.', array('!translate-interface' => l(t('Translate interface'), 'admin/build/translate'))) . '</p>';      
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
       return $output;
   }
 }

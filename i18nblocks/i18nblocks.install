@@ -52,7 +52,7 @@ function i18nblocks_schema() {
       'language' => array(
         'type' => 'varchar',
         'length' => 12,
-        'description' => t('Block language'),
+        'description' => t('Block language.'),
         'not null' => TRUE,
         'default' => '',
       ),
