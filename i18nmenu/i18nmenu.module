@@ -104,6 +104,10 @@ function i18nmenu_localize_tree(&$tree) {
           //$tree[$index]['link']['title'] = 'Translated';
           $tree[$index]['link']['title'] = tt('menu:item:'.$link['mlid'].':title', $link['link_title'], NULL, TRUE);
         }
+        // Localize subtree
+        if ($item['below'] !== FALSE) {
+          i18nmenu_localize_tree($tree[$index]['below']);
+        }
       }
     }
   }

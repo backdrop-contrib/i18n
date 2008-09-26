@@ -2,10 +2,15 @@
 
 TO DO
 -----
+- Reimplement: Choose an existing node as a translation, http://drupal.org/node/295682
 - Taxonomy autocomplete, localized terms
 - Add language filter to search form
 - Allow hiding of *all* node language links
-- Enable synchronization of CCK fields (Waiting for CCK module upgrade)
+
+6.x-beta4 to .......
+----------------------
+- Fixed: Code tries to access object as array, by Skiller, #293275
+- Fixed: Sub-menu items not localized, by Anselm Heaton, #298612
 
 6.x-beta3 to 6.x-beta4
 ----------------------
