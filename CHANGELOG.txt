@@ -6,6 +6,7 @@ TO DO
 - Taxonomy autocomplete, localized terms
 - Add language filter to search form
 - Allow hiding of *all* node language links
+- Support for translation of some node strings, #313840
 
 6.x-beta4 to .......
 ----------------------
@@ -13,6 +14,7 @@ TO DO
 - Fixed: Sub-menu items not localized, by Anselm Heaton, #298612
 - Some clean up in i18ntaxonomy module, coding standards, cvs tags, etc..
 - Fixed some race condition when creating term translations
+- Multiple bug fixes and code improvements, by stella, #314846, #314880, #314853
 
 6.x-beta3 to 6.x-beta4
 ----------------------

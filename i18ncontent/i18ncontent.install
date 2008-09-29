@@ -13,10 +13,13 @@ function i18ncontent_install() {
 function i18ncontent_enable() {
   i18ncontent_locale_refresh();
 }
+
 /**
- * Implementation of hook_uninstall()
+ * Implementation of hook_disable()
+ * 
+ * This function depends on i18nstrings, so it must be run on _disable() better than uninstall()
  */
-function i18ncontent_uninstall() {
+function i18ncontent_disable() {
   // Remove and restore help texts
   $langcode = language_default('language');
   foreach (node_get_types() as $type) {

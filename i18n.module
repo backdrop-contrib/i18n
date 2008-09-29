@@ -44,8 +44,8 @@ function i18n_init(){
 /**
  * Implementation of hook_help().
  */
-function i18n_help($section = 'admin/help#i18n' ) {
-  switch ($section) {
+function i18n_help($path = 'admin/help#i18n', $arg) {
+  switch ($path) {
     case 'admin/help#i18n' :
       $output = '<p>'.t('This module improves support for multilingual content in Drupal sites:').'</p>';
       $output .= '<ul>';
@@ -342,7 +342,7 @@ function i18n_selection_mode($mode= NULL, $params= NULL){
     if ($current_mode != 'off') {
     // Node language when loading specific nodes or creating translations
       if (arg(0) == 'node' ) {
-        if (is_numeric(arg(1)) && ($node = node_load(arg(1))) && $node->language ) {
+        if (($node = menu_get_object('node')) && $node->language) {
           $current_mode = 'node';
           $current_value = $node->language;
         } elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language']) && empty($_POST))  {
@@ -536,9 +536,9 @@ function i18n_perm() {
 /**
  * Process menu and menu item add/edit form submissions.
  */
-function i18n_menu_edit_item_form_submit($form_id, $form_values) {
-  $mid = menu_edit_item_save($form_values);
-  db_query("UPDATE {menu} SET language = '%s' WHERE mid = %d", $form_values['language'], $mid);
+function i18n_menu_edit_item_form_submit($form, &$form_state) {
+  $mid = menu_edit_item_save($form_state['values']);
+  db_query("UPDATE {menu} SET language = '%s' WHERE mid = %d", $form_state['values']['language'], $mid);
   return 'admin/build/menu';
 }
 
@@ -563,22 +563,21 @@ function i18n_form_alter_settings(&$form, &$variables) {
  * Save multilingual variables and remove them from form
  */
 function i18n_variable_form_submit($form, &$form_state) {
-  $form_values = $form_state['values'];
-  $op = isset($form_values['op']) ? $form_values['op'] : '';
+  $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
   $variables = variable_get('i18n_variables', array());
   $language = i18n_get_lang();
-  foreach ($form_values as $key => $value) {
+  foreach ($form_state['values'] as $key => $value) {
     if (in_array($key, $variables)) {
       if ($op == t('Reset to defaults')) {
         i18n_variable_del($key, $language);
       }
       else {
-        if (is_array($value) && isset($form_values['array_filter'])) {
+        if (is_array($value) && isset($form_state['values']['array_filter'])) {
           $value = array_keys(array_filter($value));
         }
         i18n_variable_set($key, $value, $language);
       }
-      unset($form_values[$key]);
+      unset($form_state['values'][$key]);
     } 
   }
   // Re-submit form
@@ -666,7 +665,7 @@ function _i18n_variable_exit(){
       }
     }
     if($refresh) {
-      cache_set('variables:'.$lang, 'cache', serialize($i18n_conf));
+      cache_set('variables:'.$lang, $i18n_conf);
     }
   }
 }

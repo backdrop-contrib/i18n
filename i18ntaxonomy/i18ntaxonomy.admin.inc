@@ -68,15 +68,14 @@ function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $ed
  * Form callback: Process vocabulary translation form
  */
 function i18ntaxonomy_translation_term_form_submit($form, &$form_state) {
-  $values = $form_state['values'];
-  switch ($values['op']) {
+  switch ($form_state['values']['op']) {
     case t('Save'):
-      i18ntaxonomy_translation_save($values, $values['trid']);
+      i18ntaxonomy_translation_save($form_state['values'], $form_state['values']['trid']);
       drupal_set_message(t('Term translations have been updated.'));
       break;
     case t('Delete'):
       // Delete old translations for this trid
-      db_query("UPDATE {term_data} SET trid = 0 WHERE trid = %d", $values['trid']);
+      db_query("UPDATE {term_data} SET trid = 0 WHERE trid = %d", $form_state['values']['trid']);
       drupal_set_message(t('The term translation has been deleted.'));
       break;
   }

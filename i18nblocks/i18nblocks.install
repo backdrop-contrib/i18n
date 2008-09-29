@@ -70,6 +70,7 @@ function i18nblocks_schema() {
  */
 function i18nblocks_update_1() {
   $ret = array();
+  $t = get_t();
   require_once drupal_get_path('module', 'i18nblocks').'/i18nblocks.module';
   require_once drupal_get_path('module', 'i18n').'/i18n.module';
   // Create the tables if updating from previous version
@@ -95,7 +96,7 @@ function i18nblocks_update_1() {
       }
       i18nblocks_save($metablock);
     }
-    drupal_set_message('The i18nblocks have been updated. Please, review your block settings.');
+    drupal_set_message($t('The i18nblocks have been updated. Please, review your block settings.'));
   }
   return $ret;
 }

@@ -376,12 +376,7 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
 function i18ntaxonomy_node_form(&$form) {
   $node = $form['#node'];
   if (!isset($node->taxonomy)) {
-    if (!empty($node->nid)) {
-      $terms = taxonomy_node_get_terms($node->nid);
-    }
-    else {
-      $terms = array();
-    }
+    $terms = taxonomy_node_get_terms($node);
   }
   else {
     $terms = $node->taxonomy;
@@ -459,15 +454,15 @@ function _i18ntaxonomy_term_select($title, $name, $value, $vocabulary_id, $descr
 function i18ntaxonomy_vocabulary_get_terms($vid, $lang, $status = 'all') {
   switch($status) {
     case 'translated':
-      $andsql = ' AND trid > 0';
+      $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s' AND trid > 0", $vid, $lang);
       break;
     case 'untranslated':
-      $andsql = ' AND trid = 0';
+      $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s' AND trid = 0", $vid, $lang);
       break;
     default:
-      $andsql = '';
+      $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s'", $vid, $lang);
+      break;
   }
-  $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s' $andsql", $vid, $lang);
   $list = array();
   while ($term = db_fetch_object($result)) {
      $list[$term->tid] = $term->name;
