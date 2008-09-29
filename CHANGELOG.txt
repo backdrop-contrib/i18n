@@ -11,6 +11,8 @@ TO DO
 ----------------------
 - Fixed: Code tries to access object as array, by Skiller, #293275
 - Fixed: Sub-menu items not localized, by Anselm Heaton, #298612
+- Some clean up in i18ntaxonomy module, coding standards, cvs tags, etc..
+- Fixed some race condition when creating term translations
 
 6.x-beta3 to 6.x-beta4
 ----------------------

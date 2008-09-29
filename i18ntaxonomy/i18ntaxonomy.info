@@ -1,3 +1,4 @@
+; $Id$
 name = Taxonomy translation
 description = Enables multilingual taxonomy.
 dependencies[] = i18n

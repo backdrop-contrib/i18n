@@ -1,4 +1,6 @@
 <?php
+// $Id$
+
 /**
  * @file
  *   i18n taxonomy module
@@ -32,29 +34,29 @@ define('I18N_TAXONOMY_TRANSLATE', 3);
 function i18ntaxonomy_help($section, $arg) {
   switch ($section) {
     case 'admin/help#i18ntaxonomy' :
-      $output = '<p>'.t('This module adds support for multilingual taxonomy. You can set up multilingual options for each vocabulary:').'</p>';
+      $output = '<p>' .t('This module adds support for multilingual taxonomy. You can set up multilingual options for each vocabulary:').'</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('A language can be assigned globaly for a vocabulary.').'</li>';
-      $output .= '<li>'.t('Different terms for each language with translation relationships.').'</li>';
-      $output .= '<li>'.t('Terms can be common to all languages, but may be localized.').'</li>';
+      $output .= '<li>' . t('A language can be assigned globaly for a vocabulary.').'</li>';
+      $output .= '<li>' . t('Different terms for each language with translation relationships.').'</li>';
+      $output .= '<li>' . t('Terms can be common to all languages, but may be localized.').'</li>';
       $output .= '</ul>';
       $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
-      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' =>'http://drupal.org/node/133977')) .'</p>'; 
+      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' =>'http://drupal.org/node/133977')) . '</p>'; 
       return $output;
     case 'admin/settings/i18n':
       $output = '<ul>';
-      $output .= '<li>'.t('To set up multilingual options for vocabularies go to <a href="@configure_taxonomy">Taxonomy configuration page</a>.', array('@configure_taxonomy' => url('admin/content/taxonomy'))).'</li>';
+      $output .= '<li>' . t('To set up multilingual options for vocabularies go to <a href="@configure_taxonomy">Taxonomy configuration page</a>.', array('@configure_taxonomy' => url('admin/content/taxonomy'))) . '</li>';
       $output . '</ul>';
       return $output;
     case 'admin/content/taxonomy/%':
       $vocabulary = taxonomy_vocabulary_load($arg[3]);
       switch (i18ntaxonomy_vocabulary($vocabulary->vid)) {
         case I18N_TAXONOMY_LOCALIZE:
-          return '<p>'. t('%capital_name is a localizable vocabulary. You will be able to translate term names and descriptions using the localization interface.', array('%capital_name' => drupal_ucfirst($vocabulary->name), '%name' => $vocabulary->name)) .'</p>';
+          return '<p>'. t('%capital_name is a localizable vocabulary. You will be able to translate term names and descriptions using the localization interface.', array('%capital_name' => drupal_ucfirst($vocabulary->name), '%name' => $vocabulary->name)) . '</p>';
         case I18N_TAXONOMY_LANGUAGE:
-          return '<p>'. t('%capital_name is a vocabulary with a fixed language. All the terms in this vocabulary will have %language language.', array('%capital_name' => drupal_ucfirst($vocabulary->name), '%name' => $vocabulary->name, '%language' => i18n_language_property($vocabulary->language, 'name'))) .'</p>';
+          return '<p>' . t('%capital_name is a vocabulary with a fixed language. All the terms in this vocabulary will have %language language.', array('%capital_name' => drupal_ucfirst($vocabulary->name), '%name' => $vocabulary->name, '%language' => i18n_language_property($vocabulary->language, 'name'))) . '</p>';
         case I18N_TAXONOMY_TRANSLATE:
-          return '<p>'. t('%capital_name is a full multilingual vocabulary. You will be able to set a language for each term and create translation relationships.', array('%capital_name' => drupal_ucfirst($vocabulary->name))) .'</p>';
+          return '<p>' . t('%capital_name is a full multilingual vocabulary. You will be able to set a language for each term and create translation relationships.', array('%capital_name' => drupal_ucfirst($vocabulary->name))) . '</p>';
       }
 
   }
@@ -173,7 +175,7 @@ function i18ntaxonomy_translation_link_alter(&$links, $path) {
  *   Translated term tid if exists, or $default
  */
 function i18ntaxonomy_translation_term_tid($tid, $language = NULL, $default = NULL) {
-  $translation = db_result(db_query("SELECT t.tid FROM {term_data} t INNER JOIN {term_data} a ON t.trid = a.trid AND t.tid != a.tid WHERE a.tid = %d AND t.language = '%s' AND t.trid > 0", $tid, $language ? $language : i18n_get_lang()));
+  $translation = db_result(db_query("SELECT t.tid FROM {term_data} t INNER JOIN {term_data} a ON t.trid = a.trid AND t.tid <> a.tid WHERE a.tid = %d AND t.language = '%s' AND t.trid > 0", $tid, $language ? $language : i18n_get_lang()));
   return $translation ? $translation : $default;
 }
 
@@ -218,7 +220,7 @@ function i18ntaxonomy_taxonomy($op, $type, $edit = NULL) {
       if (!$language && !empty($edit['trid'])) {
         // Removed language, remove trid
         db_query('UPDATE {term_data} SET trid = 0 WHERE tid = %d', $tid);
-        if(db_affected_rows()) drupal_set_message(t('Removed translation information from term.'));
+        if (db_affected_rows()) drupal_set_message(t('Removed translation information from term.'));
       }
       // Update strings for localizable vocabulary
       if (i18ntaxonomy_vocabulary($edit['vid']) == I18N_TAXONOMY_LOCALIZE) {
@@ -278,7 +280,7 @@ function i18ntaxonomy_db_rewrite_sql($query, $primary_table, $primary_key){
  * @ TO DO The vocabulary form needs some javascript
  */
 function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
-  switch($form_id){
+  switch ($form_id) {
     case 'taxonomy_overview_vocabularies':
       $vocabularies = taxonomy_get_vocabularies();
       $languages = locale_language_list('name');
@@ -455,7 +457,7 @@ function _i18ntaxonomy_term_select($title, $name, $value, $vocabulary_id, $descr
  * Returns a list for terms for vocabulary, language
  */
 function i18ntaxonomy_vocabulary_get_terms($vid, $lang, $status = 'all') {
-  switch($status){
+  switch($status) {
     case 'translated':
       $andsql = ' AND trid > 0';
       break;
@@ -465,7 +467,7 @@ function i18ntaxonomy_vocabulary_get_terms($vid, $lang, $status = 'all') {
     default:
       $andsql = '';
   }
-  $result = db_query("SELECT * FROM {term_data} WHERE vid=%d AND language='%s' $andsql", $vid, $lang);
+  $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s' $andsql", $vid, $lang);
   $list = array();
   while ($term = db_fetch_object($result)) {
      $list[$term->tid] = $term->name;
@@ -485,11 +487,11 @@ function i18ntaxonomy_vocabulary_get_terms($vid, $lang, $status = 'all') {
  *   An array of the from lang => Term
  */
 function i18ntaxonomy_term_get_translations($params, $getall = TRUE) {
-  foreach($params as $field => $value) {
+  foreach ($params as $field => $value) {
     $conds[] = "i.$field = '%s'";
     $values[] = $value;
   }
-  if(!$getall){ // If not all, a parameter must be tid
+  if (!$getall){ // If not all, a parameter must be tid
     $conds[] = "t.tid != %d";
     $values[] = $params['tid'];
   }
@@ -586,22 +588,6 @@ function i18ntaxonomy_localize_terms($terms, $fields = array('name')) {
     }
   }
   return $terms;
-}
-
-// Get a list of vocabularies and terms
-function _i18ntaxonomy_vocabulary_terms($vid = NULL, $fullname = TRUE) {
-  $tids = array();
-  if (is_numeric($vid)) {
-    $where = "WHERE td.vid = $vid";
-  } elseif(is_array($vid)) {
-    $where = "WHERE td.vid IN(".implode(',', $vid).')';
-  }
-  $result = db_query("SELECT DISTINCT(td.tid), td.name, td.weight, v.name as vocabname, v.weight FROM {term_data} td LEFT JOIN {vocabulary} v ON v.vid = td.vid $where ORDER BY v.weight, v.name, td.weight, td.name");
-  while ($obj = db_fetch_object($result)) {
-    $tids[$obj->tid] = $fullname ? t($obj->vocabname).': '.t($obj->name) : t($obj->name);
-  }
-
-  return $tids;
 }
 
 /**

@@ -1,4 +1,6 @@
 <?php
+// $Id$
+
 /**
  * @file
  * Helper functions for taxonomy administration 
@@ -18,14 +20,6 @@ function i18ntaxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
     case 'edit':
       drupal_set_title(t('Edit term translations'));
       $output = drupal_get_form('i18ntaxonomy_translation_term_form', $vocabulary->vid, $tid);
-      break;
-    case t('Submit'):
-      drupal_set_title(t('Submit'));
-      i18ntaxonomy_translation_term_save($edit);
-      $output = i18ntaxonomy_translation_overview($vocabulary->vid);
-      break;
-    case 'delete':
-      //print theme('page', node_delete($edit), t('Delete'));
       break;
     default:
       $output = i18ntaxonomy_translation_overview($vocabulary->vid);
@@ -58,11 +52,14 @@ function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $ed
       '#type' => 'select', 
       '#title' => $langname,
       '#default_value' => $current,
-      '#options' => $list
+      '#options' => $list,
     );
-    $form[$lang]['old'] = array('#type' => 'hidden', '#value' =>$current);
+    $form[$lang]['old'] = array('#type' => 'hidden', '#value' => $current);
   }
   $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
+  if ($trid != 'new') {
+    $form['delete'] = array('#type' => 'submit', '#value' => t('Delete'));
+  }
   $form['destination'] = array('#type' => 'hidden', '#value' => 'admin/content/taxonomy/'.arg(3).'/translation');
   return $form;
 }
@@ -71,9 +68,18 @@ function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $ed
  * Form callback: Process vocabulary translation form
  */
 function i18ntaxonomy_translation_term_form_submit($form, &$form_state) {
-  $form_values = $form_state['values'];
-  i18ntaxonomy_translation_save($form_values, $form_values['trid']);
-  drupal_set_message(t('Term translations have been updated.'));
+  $values = $form_state['values'];
+  switch ($values['op']) {
+    case t('Save'):
+      i18ntaxonomy_translation_save($values, $values['trid']);
+      drupal_set_message(t('Term translations have been updated.'));
+      break;
+    case t('Delete'):
+      // Delete old translations for this trid
+      db_query("UPDATE {term_data} SET trid = 0 WHERE trid = %d", $values['trid']);
+      drupal_set_message(t('The term translation has been deleted.'));
+      break;
+  }
 }
 
 /**
@@ -87,7 +93,7 @@ function i18ntaxonomy_translation_term_form_submit($form, &$form_state) {
 function i18ntaxonomy_translation_save($terms, $trid = 0) {
   // Delete old translations for this trid
   if ($trid){
-    db_query("UPDATE {term_data} SET trid = 0 WHERE trid= %d", $trid);
+    db_query("UPDATE {term_data} SET trid = 0 WHERE trid = %d", $trid);
   }
   // Now pick up all the tids in an array
   $translations = array();
@@ -96,12 +102,18 @@ function i18ntaxonomy_translation_save($terms, $trid = 0) {
       $translations[$lang] = $tid;
     }
   }
-  // Now set a translation set with all these terms.
+  // Now set a translation set with all these terms. We need some table locking to avoid race conditions
+  // when other translations created simulaneously. @TODO Find a better way.
   if (count($translations)) {
+    db_query('LOCK TABLES {term_data} WRITE');
     $trid = (is_numeric($trid) && $trid) ? $trid : i18ntaxonomy_next_trid();
-    db_query('UPDATE {term_data} SET trid = %d WHERE tid IN(%s)', $trid, implode(',',$translations));
+    $params = array_merge(array($trid), $translations);
+    db_query('UPDATE {term_data} SET trid = %d WHERE tid IN(' . db_placeholders($translations). ')', $params);
+    db_query('UNLOCK TABLES');
   }  
 }
+
+
 
 /**
  * Get next free trid.
@@ -124,10 +136,10 @@ function i18ntaxonomy_translation_overview($vid) {
   $links = array();
   $types = array();
   // Get terms/translations for this vocab 
-  $result = db_query('SELECT * FROM {term_data} t WHERE vid=%d',$vocabulary->vid);
+  $result = db_query('SELECT * FROM {term_data} t WHERE vid = %d', $vocabulary->vid);
   $terms = $messages = array();
   while ($term = db_fetch_object($result)) {
-    if($term->trid && $term->language) {
+    if ($term->trid && $term->language) {
       $terms[$term->trid][$term->language] = $term;
     }
   }
