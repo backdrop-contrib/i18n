@@ -11,7 +11,7 @@
  * - Textgroup. Group the string belongs to, defined by locale hook
  * - Location. Unique id of the string for this textgroup
  * - Name. Unique absolute id of the string: textgroup + location
- * - Context. Object with textgroup, type, oid, property
+ * - Context. Object with textgroup, type, objectid, property
  * - Default language may be English or not. It will be the language set as default
  *   Source strings will be stored in default language
  * 
@@ -26,10 +26,10 @@
 function i18nstrings_help($path, $arg) {
   switch ($path) {
     case 'admin/build/translate/refresh':
-      $output = '<p>'.t('On this page you can refresh and update values for user defined strings.').'</p>';
+      $output = '<p>' . t('On this page you can refresh and update values for user defined strings.') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.').'</li>';
-      $output .= '<li>'.t('Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings.').'</li>';
+      $output .= '<li>' . t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.') . '</li>';
+      $output .= '<li>' . t('Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings.') . '</li>';
       $output .= '</ul>';
       $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
       return $output;
@@ -49,6 +49,29 @@ function i18nstrings_menu() {
     'access arguments' => array('translate interface'),   
   );
   return $items;
+}
+
+/**
+ * Implementation of hook_form_alter();
+ * 
+ * Add English language in some string forms when it is not the default
+ */
+function i18nstrings_form_alter(&$form, $form_state, $form_id) {
+
+  switch ($form_id){
+    case 'locale_translate_export_po_form':
+    case 'locale_translate_import_form':
+      $names = locale_language_list('name', TRUE);
+      if (language_default('language') != 'en' && array_key_exists('en', $names)) {
+        if (isset($form['export'])) {
+          $form['export']['langcode']['#options']['en'] = $names['en'];
+        }
+        else {
+          $form['import']['langcode']['#options'][t('Already added languages')]['en'] = $names['en'];
+        }
+      }
+      break;
+  }
 }
 
 /**
@@ -260,7 +283,7 @@ function i18nstrings_add_string($name, $string) {
   }
   // Update metadata
   db_query("DELETE FROM {i18n_strings} WHERE lid = %d", $source->lid);
-  db_query("INSERT INTO {i18n_strings} (lid, type, oid, property) VALUES(%d, '%s', %d, '%s')", $source->lid, $context->type, $context->oid, $context->property);
+  db_query("INSERT INTO {i18n_strings} (lid, type, objectid, property) VALUES(%d, '%s', %d, '%s')", $source->lid, $context->type, $context->objectid, $context->property);
 
   return $status; 
 }
@@ -281,12 +304,12 @@ function i18nstrings_get_source($context, $string = NULL) {
   
   // Check if we have the string for this location
   list($where, $args) = i18nstrings_context_query($context);
-  if ($source = db_fetch_object(db_query("SELECT s.*, i.type, i.oid, i.property  FROM {locales_source} s LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE ". implode(' AND ', $where), $args))) {
+  if ($source = db_fetch_object(db_query("SELECT s.*, i.type, i.objectid, i.property  FROM {locales_source} s LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE ". implode(' AND ', $where), $args))) {
     $source->context = $context;
     return $source;
   }
   // Search for the same string for this textgroup without object data
-  if ($string && $source = db_fetch_object(db_query("SELECT s.*, i.type, i.oid, i.property FROM {locales_source} s  LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND s.source = '%s' AND i.lid IS NULL", $context->textgroup, $string))) {
+  if ($string && $source = db_fetch_object(db_query("SELECT s.*, i.type, i.objectid, i.property FROM {locales_source} s  LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND s.source = '%s' AND i.lid IS NULL", $context->textgroup, $string))) {
     $source->context = NULL;
     return $source;
   }
@@ -357,13 +380,13 @@ function i18nstrings_update_context($oldname, $newname) {
   $newcontext = i18nstrings_context(str_replace('*', '', $newname));
   // Get location with placeholders
   $location = i18nstrings_location(str_replace('*', '%', $oldname));
-  foreach (array('textgroup', 'type', 'oid', 'property') as $field) {
+  foreach (array('textgroup', 'type', 'objectid', 'property') as $field) {
     if ((!empty($oldcontext->$field) || !empty($newcontext->$field)) && $oldcontext->$field != $newcontext->$field) {
       $replace[$field] = $newcontext->$field;
     }
   }
   // Query and replace
-  $result = db_query("SELECT s.*, i.type, i.oid, i.property FROM {locales_source} s  LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND s.location LIKE '%s'", $oldcontext->textgroup, $location);
+  $result = db_query("SELECT s.*, i.type, i.objectid, i.property FROM {locales_source} s  LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND s.location LIKE '%s'", $oldcontext->textgroup, $location);
   while ($source = db_fetch_object($result)) {
     // Make sure we have string and context
     $context = i18nstrings_context($oldcontext->textgroup.':'.$source->location);
@@ -373,7 +396,7 @@ function i18nstrings_update_context($oldname, $newname) {
     // Update source string
     db_query("UPDATE {locales_source} SET textgroup = '%s', location = '%s' WHERE lid = %d", $context->textgroup, i18nstrings_location($context), $source->lid);
     // Update object data
-    db_query("UPDATE {i18n_strings} SET type = '%s', oid = '%s', property = '%s' WHERE lid = %d", $context->type, $context->oid, $context->property, $source->lid);
+    db_query("UPDATE {i18n_strings} SET type = '%s', objectid = '%s', property = '%s' WHERE lid = %d", $context->type, $context->objectid, $context->property, $source->lid);
   }
   drupal_set_message(t('Updating string names from %oldname to %newname.', array('%oldname' => $oldname, '%newname' => $newname)));
 }
@@ -465,7 +488,7 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
  * will become a $context object where
  *   $context->textgroup = 'taxonomy';
  *   $context->type = 'term';
- *   $context->oid = 1;
+ *   $context->objectid = 1;
  *   $context->property = 'name';
  * Examples:
  *  'taxonomy:title' -> (taxonomy, title, 0, 0)
@@ -479,7 +502,7 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
  * @param $string
  *   For some textgroups and objects that don't have ids we use the string itself as index
  * @return 
- *   Context object with textgroup, type, oid, property and location names
+ *   Context object with textgroup, type, objectid, property and location names
  */
 function i18nstrings_context($context, $string = NULL) {
   // Context may be already an object
@@ -487,15 +510,15 @@ function i18nstrings_context($context, $string = NULL) {
     return $context;
   } else {
     // We add empty fields at the end before splitting
-    list($textgroup, $type, $oid, $property) = split(':', $context.':::');
+    list($textgroup, $type, $objectid, $property) = split(':', $context.':::');
     $context = (object)array(
       'textgroup' => $textgroup,
       'type' => $type,
-      'oid' => $oid ? $oid : 0,
+      'objectid' => $objectid ? $objectid : 0,
       'property' => $property ? $property : 0,
     );
     $context->location = i18nstrings_location($context);
-    if (!$context->oid && !$context->property && $string) {
+    if (!$context->objectid && !$context->property && $string) {
       $context->source = $string;
     }
     return $context;
@@ -525,8 +548,8 @@ function i18nstrings_location($context) {
     $context = i18nstrings_context($context);
   }
   $location[] = $context->type;
-  if ($context->oid) {
-    $location[] = $context->oid;
+  if ($context->objectid) {
+    $location[] = $context->objectid;
     if ($context->property) {
       $location[] = $context->property;
     }
@@ -565,7 +588,7 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
       $params[] = $value;
     }
   }  
-  $sql = "SELECT s.textgroup, s.source, i.type, i.oid, i.property, t.translation FROM {locales_source} s";
+  $sql = "SELECT s.textgroup, s.source, i.type, i.objectid, i.property, t.translation FROM {locales_source} s";
   $sql .=" INNER JOIN {i18n_strings} i ON s.lid = i.lid INNER JOIN {locales_target} t ON s.lid = t.lid ";
   $sql .= implode(' ', $join) . ' ' . implode (' AND ', $where);
   $result = db_query($sql, $params);
@@ -585,16 +608,16 @@ function i18nstrings_cache($context, $langcode, $string = NULL, $translation = N
   
   $context = i18nstrings_context($context, $string);
   
-  if (!$context->oid && $context->source) {
+  if (!$context->objectid && $context->source) {
     // This is a type indexed by string
-    $context->oid = $context->source;    
+    $context->objectid = $context->source;    
   }
   // At this point context must have at least textgroup and type
   if ($translation) {
     if ($context->property) {
-      $strings[$langcode][$context->textgroup][$context->type][$context->oid][$context->property] = $translation;
-    } elseif ($context->oid) {  
-      $strings[$langcode][$context->textgroup][$context->type][$context->oid] = $translation;
+      $strings[$langcode][$context->textgroup][$context->type][$context->objectid][$context->property] = $translation;
+    } elseif ($context->objectid) {  
+      $strings[$langcode][$context->textgroup][$context->type][$context->objectid] = $translation;
     } else {
       $strings[$langcode][$context->textgroup][$context->type] = $translation;
     }
@@ -602,7 +625,7 @@ function i18nstrings_cache($context, $langcode, $string = NULL, $translation = N
     // Search up the tree for the object or a default
     $search = &$strings[$langcode];
     $default = NULL;
-    $list = array('textgroup', 'type', 'oid', 'property');
+    $list = array('textgroup', 'type', 'objectid', 'property');
     while (($field = array_shift($list)) && !empty($context->$field)) {
       if (isset($search[$context->$field])) {
         $search = &$search[$context->$field];

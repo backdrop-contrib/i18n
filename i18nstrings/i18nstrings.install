@@ -28,7 +28,7 @@ function i18nstrings_schema() {
         'default' => 0,
         'description' => t('Source string ID. References {locales_source}.lid.'),
       ),
-      'oid' => array(
+      'objectid' => array(
         'type' => 'int',
         'not null' => TRUE,
         'default' => 0,
@@ -52,4 +52,16 @@ function i18nstrings_schema() {
     'primary key' => array('lid'),
   );
   return $schema;
+}
+
+/**
+ * Drupal 6 update. Change field name, 'oid' was psql reserved name
+ * 
+ * ALTER TABLE `drupal6_i18n`.`i18n_strings` CHANGE COLUMN `oid` `objectid` INTEGER  NOT NULL DEFAULT 0;
+ */
+function i18nstrings_update_6001() {
+  $ret = array();
+  db_change_field($ret, 'i18n_strings', 'oid', 'objectid', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
+  
+  return $ret;
 }

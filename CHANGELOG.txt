@@ -10,6 +10,9 @@ TO DO
 
 6.x-beta4 to .......
 ----------------------
+- Fixed: Column name conflict (oid) on PostgreSQL, #314126
+- Fixed: Added English language to import/export page, #314035
+
 - Fixed: Code tries to access object as array, by Skiller, #293275
 - Fixed: Sub-menu items not localized, by Anselm Heaton, #298612
 - Some clean up in i18ntaxonomy module, coding standards, cvs tags, etc..
