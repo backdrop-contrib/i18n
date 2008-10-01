@@ -10,9 +10,10 @@ TO DO
 
 6.x-beta4 to .......
 ----------------------
+- Fixed: Synchronization not happening when creating a translation, #313605
+- Added some help texts for i18nstrings and warnings about the site default language, #314035
 - Fixed: Column name conflict (oid) on PostgreSQL, #314126
 - Fixed: Added English language to import/export page, #314035
-
 - Fixed: Code tries to access object as array, by Skiller, #293275
 - Fixed: Sub-menu items not localized, by Anselm Heaton, #298612
 - Some clean up in i18ntaxonomy module, coding standards, cvs tags, etc..

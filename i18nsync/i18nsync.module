@@ -114,12 +114,17 @@ function i18nsync_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
         }
         break;
       case 'insert':
-        // When creating a translation we need to save the files that have been inherited
-        if (!empty($node->translation_source) && !empty($node->files)) {
-          foreach ($node->files as $fid => $file) {
-            $file = (object)$file;
-            if (empty($file->remove) && !isset($_SESSION['upload_files'][$fid])) {
-              db_query("INSERT INTO {upload} (fid, nid, vid, list, description, weight) VALUES (%d, %d, %d, %d, '%s', %d)", $file->fid, $node->nid, $node->vid, $file->list, $file->description, $file->weight);
+        // When creating a translation, there are some aditional steps, different from update 
+        if (!empty($node->translation_source)) {
+          // Set tnid that is not set by translation module
+          $node->tnid = $node->translation_source->tnid ? $node->translation_source->tnid : $node->translation_source->nid;          
+          // If we have files, we need to save the files that have been inherited
+          if (!empty($node->files)) {
+            foreach ($node->files as $fid => $file) {
+              $file = (object)$file;
+              if (empty($file->remove) && !isset($_SESSION['upload_files'][$fid])) {
+                db_query("INSERT INTO {upload} (fid, nid, vid, list, description, weight) VALUES (%d, %d, %d, %d, '%s', %d)", $file->fid, $node->nid, $node->vid, $file->list, $file->description, $file->weight);
+              }
             }
           }
         }
