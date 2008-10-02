@@ -35,11 +35,11 @@ function i18n_admin_settings() {
 // List of selection modes
 function _i18n_selection_mode(){
   return array(
-    'simple' => t('Current language and language neutral'),
-    'mixed' => t('Mixed current language (if available) or default language (if not) and language neutral'),
-    'default' => t('Only default language and language neutral'),    
-    'strict' => t('Only current language'),
-    'off' => t('All content. No language conditions apply'),    
+    'simple' => t('Current language and language neutral.'),
+    'mixed' => t('Mixed current language (if available) or default language (if not) and language neutral.'),
+    'default' => t('Only default language and language neutral.'),    
+    'strict' => t('Only current language.'),
+    'off' => t('All content. No language conditions apply.'),    
   );
 }
 
