@@ -2,7 +2,8 @@
 // $Id$
 
 /**
- * Internationalization (i18n) submodule: Menu translation
+ * @file
+ * Internationalization (i18n) submodule: Menu translation.
  *
  * @author Jose A. Reyero, 2005
  *
@@ -15,6 +16,7 @@ function i18nmenu_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('menu' => t('Menu'));
+
     case 'refresh':
       if ($group == 'menu') {
         return i18nmenu_locale_refresh();
@@ -23,7 +25,7 @@ function i18nmenu_locale($op = 'groups', $group = NULL) {
 }
 
 /**
- * Refresh locale strings
+ * Refresh locale strings.
  */
 function i18nmenu_locale_refresh() {
   foreach (menu_get_menus() as $name => $title) {
@@ -42,7 +44,8 @@ function i18nmenu_menu_link_alter(&$item, $menu) {
   // This should handle language only as the links are being manually updated
   if (!empty($item['language'])) {
     $item['options']['langcode'] = $item['language'];
-  } elseif(isset($item['language'])) {
+  }
+  elseif(isset($item['language'])) {
     unset($item['options']['langcode']);
   }
   // @ TO DO: Refresh texts
@@ -53,15 +56,15 @@ function i18nmenu_menu_link_alter(&$item, $menu) {
 }
 
 /**
- * Implementation of hook_help()
+ * Implementation of hook_help().
  */
-function i18nmenu_help($section, $arg) {
-  switch ($section) {
+function i18nmenu_help($path, $arg) {
+  switch ($path) {
     case 'admin/help#i18nmenu' :
-      $output = '<p>'.t('This module provides support for translatable custom menu items:').'</p>';
+      $output = '<p>' . t('This module provides support for translatable custom menu items:') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('Create menus as usual, with names in the default language, usually English. If the menu is already created, no changes are needed.') . '</li>';
-      $output .= '<li>'.t('Optionally, you can set up a language for a menu item so it is only displayed for that language.') . '</li>';
+      $output .= '<li>' . t('Create menus as usual, with names in the default language, usually English. If the menu is already created, no changes are needed.') . '</li>';
+      $output .= '<li>' . t('Optionally, you can set up a language for a menu item so it is only displayed for that language.') . '</li>';
       $output .= '</ul>';
       $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
       return $output;
@@ -69,7 +72,7 @@ function i18nmenu_help($section, $arg) {
 }
 
 /**
- * Get localized menu tree
+ * Get localized menu tree.
  */
 function i18nmenu_translated_tree($menu_name) {
   static $menu_output = array();
@@ -83,26 +86,27 @@ function i18nmenu_translated_tree($menu_name) {
 }
 
 /**
- * Localize menu tree
+ * Localize menu tree.
  */
 function i18nmenu_localize_tree(&$tree) {
   global $language;
-  foreach($tree as $index => $item) {
+  foreach ($tree as $index => $item) {
     $link = $item['link'];
     if ($link['customized']) {
-      // Remove links for other languages than current
-      // Links with language wont be localized
+      // Remove links for other languages than current.
+      // Links with language wont be localized.
       if (!empty($link['options']['langcode'])) {
-        if($link['options']['langcode'] != $language->language) {
+        if ($link['options']['langcode'] != $language->language) {
           unset($tree[$index]);
           //dsm("Removed because language:".$link['title'].' language='.$link['options']['langcode']);
         }
-      } else {
+      }
+      else {
         $router = i18nmenu_get_router($link['router_path']);
-        // If the title is the same it will be localized by the menu system
-        if ($link['link_title'] != $router['title']){
+        // If the title is the same it will be localized by the menu system.
+        if ($link['link_title'] != $router['title']) {
           //$tree[$index]['link']['title'] = 'Translated';
-          $tree[$index]['link']['title'] = tt('menu:item:'.$link['mlid'].':title', $link['link_title'], NULL, TRUE);
+          $tree[$index]['link']['title'] = tt('menu:item:' . $link['mlid'] . ':title', $link['link_title'], NULL, TRUE);
         }
         // Localize subtree
         if ($item['below'] !== FALSE) {
@@ -114,9 +118,9 @@ function i18nmenu_localize_tree(&$tree) {
 }
 
 /**
- * Get the menu router for this router path
+ * Get the menu router for this router path.
  *
- * We need the untranslated title to comparte, and this will be fast
+ * We need the untranslated title to compare, and this will be fast.
  * There's no api function to do this?
  */
 function i18nmenu_get_router($path) {
@@ -135,7 +139,8 @@ function i18nmenu_form_alter(&$form, $form_state, $form_id){
     //dsm ($form);
     if ($form['menu']['#item'] && isset($form['menu']['#item']['options']['langcode'])) {
       $language = $form['menu']['#item']['options']['langcode'];
-    } else {
+    }
+    else {
       $language = '';
     }
     $form['menu']['language'] = array(

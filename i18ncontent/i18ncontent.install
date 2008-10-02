@@ -1,10 +1,14 @@
 <?php
+// $Id$
+
 /**
- * Installation script for i18ncontent module
+ * @file
+ * Installation file for i18ncontent module.
  */
+
 function i18ncontent_install() {
-  // Create strings in the extended localization system
-  // There seems to be some issue with module loading on install/update
+  // Create strings in the extended localization system.
+  // There seems to be some issue with module loading on install/update.
 }
 
 /**
@@ -15,12 +19,12 @@ function i18ncontent_enable() {
 }
 
 /**
- * Implementation of hook_disable()
+ * Implementation of hook_disable().
  *
- * This function depends on i18nstrings, so it must be run on _disable() better than uninstall()
+ * This function depends on i18nstrings, so it must be run on _disable() better than uninstall().
  */
 function i18ncontent_disable() {
-  // Remove and restore help texts
+  // Remove and restore help texts.
   $langcode = language_default('language');
   foreach (node_get_types() as $type) {
     if (!$type->help && ($help = ts("nodetype:$type->type:help", $langcode))) {
@@ -32,7 +36,7 @@ function i18ncontent_disable() {
 }
 
 /**
- * The old module with the same name had a different approach, so the update will be full install
+ * The old module with the same name had a different approach, so the update will be full install.
  */
 function i18ncontent_update_1() {
   $ret = array();

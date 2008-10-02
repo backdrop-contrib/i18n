@@ -1,5 +1,11 @@
 <?php
 // $Id$
+
+/**
+ * @file
+ * Installation file for Internationalization (i18n) module.
+ */
+
 /**
  * Implementation of hook_schema().
  */
@@ -59,7 +65,8 @@ function i18n_update_9() {
   // General language settings
   if (variable_get('i18n_browser', 0)) {
     variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH);
-  } else {
+  }
+  else {
     variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH_DEFAULT);
   }
   // Set module weight for it to run after core modules

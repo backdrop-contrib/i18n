@@ -2,40 +2,39 @@
 // $Id$
 
 /**
- * Nothing to install for Drupal 6
+ * @file
+ * Installation file for i18nprofile module.
  */
-function i18nprofile_install() {
-}
 
 /**
- * Refresh strings when enabled
+ * Refresh strings when enabled.
  */
 function i18nprofile_enable() {
   i18nprofile_locale_refresh();
 }
 
-// Drupal 6 updates
+// Drupal 6 updates.
 
 /**
- * Drop old table and fields
+ * Drop old table and fields.
  */
 function i18nprofile_update_2() {
   $items = array();
 
-  // Create source strings for translations
+  // Create source strings for translations.
   $categories = array();
   $result = db_query("SELECT * FROM {profile_fields}");
   while ($field = db_fetch_object($result)) {
-    // Store strings to translate: title, explanation, options
+    // Store strings to translate: title, explanation, options.
     to("profile:field:$field->name", $field, array('title', 'explanation', 'options'), NULL, TRUE);
     if (!in_array($field->category, $categories)) {
       $categories[] = $field->category;
       tt("profile:category", $field->category, NULL, TRUE);
     }
   }
-  // Category translations from variables
+  // Category translations from variables.
   foreach (array_keys(language_list()) as $lang) {
-    if ($translation = variable_get('i18nprofile_'.$lang, FALSE)) {
+    if ($translation = variable_get('i18nprofile_' . $lang, FALSE)) {
       foreach ($translation as $category => $translation) {
         if (in_array($category, $categories) && $translation) {
           $context = i18nstrings_context('profile:category', $category);
@@ -44,7 +43,7 @@ function i18nprofile_update_2() {
       }
     }
   }
-  // Move current data into string translations
+  // Move current data into string translations.
   $result = db_query("SELECT * FROM {i18n_profile_fields}");
   while ($field = db_fetch_object($result)) {
     foreach (array('title', 'explanation', 'options') as $property) {
@@ -57,7 +56,7 @@ function i18nprofile_update_2() {
   return $items;
 }
 
-// Clean up. Uncomment when it all works
+// Clean up. Uncomment when it all works.
 /*
 function i18nprofile_update_3() {
   $items[] =  update_sql("DROP TABLE {i18n_profile_fields};");

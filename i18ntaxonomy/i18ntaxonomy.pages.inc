@@ -16,7 +16,7 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
   }
 
   if ($terms['tids']) {
-    // We need vid here too
+    // We need vid here, too.
     $result = db_query(db_rewrite_sql('SELECT t.tid, t.vid, t.name FROM {term_data} t WHERE t.tid IN ('. db_placeholders($terms['tids']) .')', 't', 'tid'), $terms['tids']);
     $tids = array(); // we rebuild the $tids-array so it only contains terms the user has access to.
     $names = array();
@@ -24,7 +24,8 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
       $tids[] = $term->tid;
       if (i18ntaxonomy_vocabulary($term->vid) == I18N_TAXONOMY_LOCALIZE) {
         $names[] = tt("taxonomy:term:$term->tid:name", $term->name);
-      } else {
+      }
+      else {
         $names[] = $term->name;
       }
     }
@@ -55,12 +56,12 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
           $channel['link'] = url('taxonomy/term/'. $str_tids .'/'. $depth, array('absolute' => TRUE));
           $channel['title'] = variable_get('site_name', 'Drupal') .' - '. $title;
 
-    // Only display the description if we have a single term, to avoid clutter and confusion.
-    if (count($tids) == 1) {
-      $terms = array(taxonomy_get_term($tids[0]));
-      $terms = i18ntaxonomy_localize_terms($terms, array('description'));
-      // HTML will be removed from feed description, so no need to filter here.
-      $channel['description'] = $terms[0]->description;
+          // Only display the description if we have a single term, to avoid clutter and confusion.
+          if (count($tids) == 1) {
+            $terms = array(taxonomy_get_term($tids[0]));
+            $terms = i18ntaxonomy_localize_terms($terms, array('description'));
+            // HTML will be removed from feed description, so no need to filter here.
+            $channel['description'] = $terms[0]->description;
           }
 
           $result = taxonomy_select_nodes($tids, $terms['operator'], $depth, FALSE);
@@ -93,7 +94,7 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
  * @ingroup themeable
  */
 function theme_taxonomy_term_page($tids, $result) {
-  drupal_add_css(drupal_get_path('module', 'taxonomy') .'/taxonomy.css');
+  drupal_add_css(drupal_get_path('module', 'taxonomy') . '/taxonomy.css');
 
   $output = '';
 
@@ -101,8 +102,9 @@ function theme_taxonomy_term_page($tids, $result) {
   if (count($tids) == 1) {
     $term = taxonomy_get_term($tids[0]);
     if (i18ntaxonomy_vocabulary($term->vid) == I18N_TAXONOMY_LOCALIZE) {
-      $description = tt('taxonomy:term:'.$term->tid.':description', $term->description);
-    } else {
+      $description = tt('taxonomy:term:' . $term->tid . ':description', $term->description);
+    }
+    else {
       $description = $term->description;
     }
 
@@ -120,18 +122,18 @@ function theme_taxonomy_term_page($tids, $result) {
 }
 
 /**
- * Helper function for autocompletion
+ * Helper function for autocompletion.
  *
- * @ TODO Optimized localization. We cannot just tt() huge lists of terms
+ * @ TODO Optimized localization. We cannot just tt() huge lists of terms.
  */
 function i18ntaxonomy_autocomplete($vid, $string = '') {
   // The user enters a comma-separated list of tags. We only autocomplete the last tag.
   $array = drupal_explode_tags($string);
 
-  // Is this vocabulary localizable ?
+  // Is this vocabulary localizable?
   $localizable = i18ntaxonomy_vocabulary($vid) == I18N_TAXONOMY_LOCALIZE;
 
-  // Fetch last tag
+  // Fetch last tag.
   $last_string = trim(array_pop($array));
   $matches = array();
   if ($last_string != '') {

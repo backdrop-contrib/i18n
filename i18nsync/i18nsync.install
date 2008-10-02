@@ -1,6 +1,13 @@
 <?php
+// $Id$
+
 /**
- * Set module weight
+ * @file
+ * Installation file for i18nsync module.
+ */
+
+/**
+ * Set module weight.
  *
  * Make sure this runs after taxonomy, i18n and translation modules
  * and ideally after all other modules implementing nodeapi hook.

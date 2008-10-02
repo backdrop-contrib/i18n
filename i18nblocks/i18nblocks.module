@@ -2,14 +2,15 @@
 // $Id$
 
 /**
+ * @file
  * Internationalization (i18n) submodule: Multilingual meta-blocks
  *
  * @author Jose A. Reyero, 2005
  *
- * @ TODO Add strings on block update
+ * @ TODO Add strings on block update.
  */
 
-// Tag for localizable block, cannot be any language
+// Tag for localizable block, cannot be any language.
 define('I18N_BLOCK_LOCALIZE', '__LOCALIZE__');
 
 // Block type: localizable
@@ -28,16 +29,16 @@ function _block_types() {
 }
 
 /**
- * Implementation of hook_help()
+ * Implementation of hook_help().
  */
-function i18nblocks_help($section, $arg) {
-  switch ($section) {
+function i18nblocks_help($path, $arg) {
+  switch ($path) {
     case 'admin/help#i18nblocks':
-      $output = '<p>'.t('This module provides support for multilingual blocks.').'</p>';
-      $output .= '<p>'.t('You can set up a language for a block or define it as translatable:').'</p>';
+      $output = '<p>' . t('This module provides support for multilingual blocks.') . '</p>';
+      $output .= '<p>' . t('You can set up a language for a block or define it as translatable:') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('Blocks with a language will be displayed only in pages with that language.').'</li>';
-      $output .= '<li>'.t('Translatable blocks can be translated using the localization interface.').'</li>';
+      $output .= '<li>' . t('Blocks with a language will be displayed only in pages with that language.') . '</li>';
+      $output .= '<li>' . t('Translatable blocks can be translated using the localization interface.') . '</li>';
       $output .= '</ul>';
       $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
       return $output;
@@ -45,7 +46,7 @@ function i18nblocks_help($section, $arg) {
 }
 
 /**
- * Implementation of hook_db_rewrite_sql()
+ * Implementation of hook_db_rewrite_sql().
  */
 function i18nblocks_db_rewrite_sql($query, $primary_table, $primary_key) {
   global $language;
@@ -57,9 +58,9 @@ function i18nblocks_db_rewrite_sql($query, $primary_table, $primary_key) {
 }
 
 /**
- * Implementation of hook_block()
+ * Implementation of hook_block().
  *
- * Blocks in i18n_blocks with no language are suppossed to be translatable
+ * Blocks in i18n_blocks with no language are suppossed to be translatable.
  */
 /*
 function i18nblocks_block($op = 'list', $delta = 0, $edit = array()) {
@@ -71,11 +72,13 @@ function i18nblocks_block($op = 'list', $delta = 0, $edit = array()) {
         $blocks[$data->ibid]['info'] = $data->info . t('[Translatable]');
       }
       return $blocks;
+
     case 'view':
       return i18nblocks_get_block($delta, i18n_get_lang());
       break;
+
     case 'configure':
-      $form['i18nblocks']['#value'] = t('This is a localizable block');
+      $form['i18nblocks']['#value'] = t('This is a localizable block.');
       return $form;
   }
 }
@@ -102,18 +105,22 @@ function i18nblocks_form_alter(&$form, $form_state, $form_id) {
     $module = $form['module']['#value'];
     $delta = $form['delta']['#value'];
     $form['i18n'] = array(
-        '#type' => 'fieldset',
-        '#title' => t('Multilingual settings'),
-        '#collapsible' => TRUE,
-        '#weight' => -1,
-      );
-    // For i18nblocks, just a help text
+      '#type' => 'fieldset',
+      '#title' => t('Multilingual settings'),
+      '#collapsible' => TRUE,
+      '#weight' => -1,
+    );
+    // For i18nblocks, just a help text.
     if ($module == 'i18nblocks') {
       $form['i18n']['text'] = array('#value' => t('This is a translatable block.'));
       // Unset block title
       unset($form['block_settings']['title']);
-      $form['block_settings']['title'] = array('#type' => 'value', '#value' => '');
-    } else {
+      $form['block_settings']['title'] = array(
+        '#type' => 'value',
+        '#value' => ''
+      );
+    }
+    else {
       $i18nblock = i18nblocks_load($module, $delta);
       $form['i18n'] = array(
         '#type' => 'fieldset',
@@ -121,7 +128,7 @@ function i18nblocks_form_alter(&$form, $form_state, $form_id) {
         '#collapsible' => TRUE,
         '#weight' => 0,
       );
-      // Language options will depend on block type
+      // Language options will depend on block type.
       $options = array('' => t('All languages'));
       if ($module == 'block') {
         $options[I18N_BLOCK_LOCALIZE] = t('All languages (Translatable)');
@@ -129,12 +136,12 @@ function i18nblocks_form_alter(&$form, $form_state, $form_id) {
       $options += locale_language_list('name');
 
       $form['i18n']['language'] = array(
-            '#type' => 'radios',
-            '#title' => t('Language'),
-            '#default_value' => $i18nblock->language,
-            '#options' => $options,
+        '#type' => 'radios',
+        '#title' => t('Language'),
+        '#default_value' => $i18nblock->language,
+        '#options' => $options,
       );
-      // Pass i18ndelta value
+      // Pass i18ndelta value.
       $form['i18n']['ibid'] = array('#type' => 'value', '#value' => $i18nblock->ibid);
       $form['#submit'][] = 'i18nblocks_form_submit';
     }
@@ -142,7 +149,7 @@ function i18nblocks_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Forms api callback. Submit function
+ * Forms api callback. Submit function.
  */
 function i18nblocks_form_submit($form, &$form_state) {
   $values = $form_state['values'];
@@ -153,22 +160,27 @@ function i18nblocks_form_submit($form, &$form_state) {
     $values['delta'] = db_result(db_query("SELECT MAX(bid) FROM {boxes}"));
   }
   switch ($values['language']) {
-    case I18N_BLOCK_LOCALIZE: // Translatable block
+    case I18N_BLOCK_LOCALIZE:
+      // Translatable block.
       $values['language'] = '';
       i18nblocks_save($values);
       break;
-    case '': // No language, delete all i18n information
+
+    case '':
+      // No language, delete all i18n information.
       if ($values['ibid']) {
         db_query("DELETE FROM {i18n_blocks} WHERE ibid = %d", $values['ibid']);
       }
       break;
-    default: // The block has a language
+
+    default:
+      // The block has a language.    
       i18nblocks_save($values);
   }
 }
 
 /**
- * Get block language data
+ * Get block language data.
  */
 function i18nblocks_load($module, $delta) {
   $block = db_fetch_object(db_query("SELECT * FROM {i18n_blocks} WHERE module = '%s' AND delta = '%s'", $module, $delta));
@@ -180,16 +192,17 @@ function i18nblocks_load($module, $delta) {
 }
 
 /**
- * Set block language data
+ * Set block language data.
  *
  * @param array $block
- *   Array of block parameters: module, delata, ibid (internal i18nblocks delta)
+ *   Array of block parameters: module, delata, ibid (internal i18nblocks delta).
  */
 function i18nblocks_save($block) {
-  // Update strings for localizable blocks
+  // Update strings for localizable blocks.
   if ($block['ibid']) {
     db_query("UPDATE {i18n_blocks} SET language = '%s' WHERE ibid = %d", $block['language'], $block['ibid']);
-  } else {
+  }
+  else {
     db_query("INSERT INTO {i18n_blocks}(module, delta, language) VALUES('%s', '%s', '%s')", $block['module'], $block['delta'], $block['language']);
     $block['ibid'] = db_last_insert_id('i18n_blocks', 'ibid');
   }
@@ -200,27 +213,27 @@ function i18nblocks_save($block) {
   }
 }
 
-
 /**
- * Load and translate block data
+ * Load and translate block data.
  *
  * @param $delta
  *   Block id
  * @param $language
- *   Language to localize the block
+ *   Language to localize the block.
  */
 function i18nblocks_get_block($delta, $language){
-  // Get block metadata
+  // Get block metadata.
   $meta = db_fetch_object(db_query("SELECT b.* FROM {blocks} b INNER JOIN {i18n_blocks} i ON i.delta = b.delta AND i.module = b.module WHERE i.ibid = '%d'", $delta));
-  // Get block data from module
+  // Get block data from module.
   $block = module_invoke($meta->module, 'block', 'view', $meta->delta);
 
   if ($block) {
-    // Override the default title
+    // Override the default title.
     if ($meta->title) {
       // Check plain here to allow module generated titles to keep any markup.
       $block['subject'] = $meta->title == '<none>' ? '' : check_plain(tt("blocks:block:$delta:title", $meta->title, $language));
-    } elseif (!empty($block['subject'])) {
+    }
+    elseif (!empty($block['subject'])) {
       $block['subject'] = tt("blocks:block:$delta:title", $block['subject'], $language);
     }
     $block['content'] = tt("blocks:block:$delta:content", $block['content'], $language);
@@ -229,13 +242,14 @@ function i18nblocks_get_block($delta, $language){
 }
 
 /**
- * Translate localizable block
+ * Translate localizable block.
  */
 function i18nblocks_translate_block($block) {
   if ($block->title) {
     // Check plain here to allow module generated titles to keep any markup.
     $block->subject = $block->title == '<none>' ? '' : check_plain(tt("blocks:block:$block->delta:title", $block->title));
-  } elseif (!empty($block->subject)) {
+  }
+  elseif (!empty($block->subject)) {
     $block->subject = tt("blocks:block:$block->delta:title", $block->subject);
   }
   $block->content = tt("blocks:block:$block->delta:content", $block->content);
@@ -243,11 +257,10 @@ function i18nblocks_translate_block($block) {
 }
 
 /**
- * Implementation of hook_theme()
+ * Implementation of hook_theme().
  *
- * This will be used to override the theme_blocks() definition
+ * This will be used to override the theme_blocks() definition.
  */
-
 function i18nblocks_theme() {
   return array(
     'i18nblocks' => array(
@@ -258,19 +271,19 @@ function i18nblocks_theme() {
 }
 
 /**
- * Implementation of hook theme_registry_alter()
+ * Implementation of hook theme_registry_alter().
  *
  * Replace theme_blocks with theme_i18nblocks. There may be a better way to do this but
- * I cannot figure out an easier way to build the whole registry entry
+ * I cannot figure out an easier way to build the whole registry entry.
  *
- * Warning: this can mess with themes implementing the _blocks function
+ * Warning: this can mess with themes implementing the _blocks function.
  */
 function i18nblocks_theme_registry_alter(&$theme_registry) {
   $theme_registry['blocks'] = $theme_registry['i18nblocks'];
 }
 
 /**
- * Overrides theme_blocks() and translates blocks on the go
+ * Overrides theme_blocks() and translates blocks on the go.
  */
 function i18nblocks_theme_blocks($region) {
   $output = '';
@@ -278,21 +291,22 @@ function i18nblocks_theme_blocks($region) {
   $i18nblocks = _i18nblocks_list();
   if ($list = block_list($region)) {
     foreach ($list as $key => $block) {
-      // Configurable blocks, may be localizable
+      // Configurable blocks, may be localizable.
       if ($block->module == 'block') {
         if (isset($i18nblocks['block'][$block->delta])) {
           $block = i18nblocks_translate_block($block);
         }
       }
       elseif ($i18nmenu) {
-        // Replace menu blocks by their translated version
+        // Replace menu blocks by their translated version.
         if ($block->module == 'menu') {
           $block->content = i18nmenu_translated_tree($block->delta);
-        } elseif ($block->module == 'user' && $block->delta == 1) {
+        }
+        elseif ($block->module == 'user' && $block->delta == 1) {
           $block->content = i18nmenu_translated_tree('navigation');
         }
       }
-      // Finally, render the block using standard theming
+      // Finally, render the block using standard theming.
       $output .= theme('block', $block);
     }
   }

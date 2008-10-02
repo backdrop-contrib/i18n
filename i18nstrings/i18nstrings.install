@@ -1,15 +1,20 @@
 <?php
 // $Id$
 
+/**
+ * @file
+ * Installation file for i18nstrings module.
+ */
+
 function i18nstrings_install() {
-  // Create database tables
+  // Create database tables.
   drupal_install_schema('i18nstrings');
-  // Set module weight for it to run after core modules
+  // Set module weight for it to run after core modules.
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'i18nstrings' AND type = 'module'");
 }
 
 function i18nstrings_uninstall() {
-  // Create database tables
+  // Create database tables.
   drupal_uninstall_schema('i18nstrings');
   // @TODO locale table cleanup, think about it.
   // Should we drop all strings for groups other than 'default' ?
@@ -55,7 +60,7 @@ function i18nstrings_schema() {
 }
 
 /**
- * Drupal 6 update. Change field name, 'oid' was psql reserved name
+ * Drupal 6 update. Change field name, 'oid' was psql reserved name.
  *
  * ALTER TABLE `drupal6_i18n`.`i18n_strings` CHANGE COLUMN `oid` `objectid` INTEGER  NOT NULL DEFAULT 0;
  */

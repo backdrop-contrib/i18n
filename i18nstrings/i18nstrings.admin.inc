@@ -13,20 +13,23 @@ function i18nstrings_admin_refresh_page() {
 }
 
 /**
- * Form callback. Refresh textgroups
+ * Form callback. Refresh textgroups.
  */
 function i18nstrings_admin_refresh() {
-  // Select textgroup/s
+  // Select textgroup/s.
   $groups = module_invoke_all('locale', 'groups');
   unset($groups['default']);
-  $form['groups'] = array('#type' => 'checkboxes',
+  $form['groups'] = array(
+    '#type' => 'checkboxes',
     '#title' => t('Select text groups'),
     '#options' => $groups,
   );
-  $form['refresh'] = array('#type' => 'submit', '#value' => t('Refresh strings'),
-    '#suffix' => '<p>'.t('This will create all the missing strings for the selected text groups.').'</p>',
+  $form['refresh'] = array(
+    '#type' => 'submit',
+    '#value' => t('Refresh strings'),
+    '#suffix' => '<p>' . t('This will create all the missing strings for the selected text groups.') . '</p>',
   );
-  // Get all languages, except default language
+  // Get all languages, except default language.
   $languages = locale_language_list('name', TRUE);
   unset($languages[language_default('language')]);
   $form['languages'] = array(
@@ -34,14 +37,16 @@ function i18nstrings_admin_refresh() {
     '#title' => t('Select languages'),
     '#options' => $languages,
   );
-  $form['update'] = array('#type' => 'submit', '#value' => t('Update translations'),
-    '#suffix' => '<p>'.t('This will fetch all existing translations from the localization tables for the selected text groups and languages.').'</p>',
+  $form['update'] = array(
+    '#type' => 'submit',
+    '#value' => t('Update translations'),
+    '#suffix' => '<p>' . t('This will fetch all existing translations from the localization tables for the selected text groups and languages.') . '</p>',
   );
   return $form;
 }
 
 /**
- * Form submission
+ * Form submission.
  */
 function i18nstrings_admin_refresh_submit($form, &$form_state) {
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
@@ -52,7 +57,8 @@ function i18nstrings_admin_refresh_submit($form, &$form_state) {
     foreach ($groups as $group) {
       module_invoke_all('locale', 'refresh', $group);
     }
-  } else if($op == t('Update translations') && $groups && $languages) {
+  }
+  elseif ($op == t('Update translations') && $groups && $languages) {
     $count = 0;
     foreach ($languages as $language) {
       $count += i18nstrings_admin_update($language, $groups);
@@ -62,7 +68,7 @@ function i18nstrings_admin_refresh_submit($form, &$form_state) {
 }
 
 /**
- * Update strings for language
+ * Update strings for language.
  */
 function i18nstrings_admin_update($language, $groups) {
   $params = $groups;
@@ -80,6 +86,3 @@ function i18nstrings_admin_update($language, $groups) {
   }
   return $count;
 }
-
-
-

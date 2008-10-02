@@ -3,17 +3,17 @@
 
 /**
  * @file
- * Helper functions for taxonomy administration
+ * Helper functions for taxonomy administration.
  */
 
- /**
- * This is the callback for taxonomy translations
+/**
+ * This is the callback for taxonomy translations.
  *
  * Gets the urls:
- * admin/content/taxonomy/%taxonomy_vocabulary/translation'
+ *  admin/content/taxonomy/%taxonomy_vocabulary/translation
  *  admin/content/taxonomy/i18n/term/xx
- *    admin/content/taxonomy/i18n/term/new/xx
- *    admin/content/taxonomy/vid/translation/op/trid
+ *  admin/content/taxonomy/i18n/term/new/xx
+ *  admin/content/taxonomy/vid/translation/op/trid
  */
 function i18ntaxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
   switch ($op) {
@@ -21,6 +21,7 @@ function i18ntaxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
       drupal_set_title(t('Edit term translations'));
       $output = drupal_get_form('i18ntaxonomy_translation_term_form', $vocabulary->vid, $tid);
       break;
+
     default:
       $output = i18ntaxonomy_translation_overview($vocabulary->vid);
   }
@@ -28,21 +29,28 @@ function i18ntaxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
 }
 
 /**
- * Produces a vocabulary translation form
+ * Produces a vocabulary translation form.
  */
 function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $edit = array()) {
   $languages = i18n_supported_languages();
   if ($trid == 'new') {
     $translations = array();
-    $form['trid'] = array('#type' => 'hidden', '#value' => 0);
-  } else {
-    $form['trid'] = array('#type' => 'hidden', '#value' => $trid);
+    $form['trid'] = array(
+      '#type' => 'hidden',
+      '#value' => 0
+    );
+  }
+  else {
+    $form['trid'] = array(
+      '#type' => 'hidden',
+      '#value' => $trid
+    );
     $translations = i18ntaxonomy_term_get_translations(array('trid' =>$trid));
   }
   //var_dump($translations);
   $vocabulary = taxonomy_vocabulary_load($vid);
 
-  // List of terms for languages
+  // List of terms for languages.
   foreach ($languages as $lang => $langname) {
     $current = isset($translations[$lang]) ? $translations[$lang]->tid : '';
     $list = i18ntaxonomy_vocabulary_get_terms($vid, $lang, 'all');
@@ -54,18 +62,30 @@ function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $ed
       '#default_value' => $current,
       '#options' => $list,
     );
-    $form[$lang]['old'] = array('#type' => 'hidden', '#value' => $current);
+    $form[$lang]['old'] = array(
+      '#type' => 'hidden',
+      '#value' => $current
+    );
   }
-  $form['submit'] = array('#type' => 'submit', '#value' => t('Save'));
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save')
+  );
   if ($trid != 'new') {
-    $form['delete'] = array('#type' => 'submit', '#value' => t('Delete'));
+    $form['delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete')
+    );
   }
-  $form['destination'] = array('#type' => 'hidden', '#value' => 'admin/content/taxonomy/'.arg(3).'/translation');
+  $form['destination'] = array(
+    '#type' => 'hidden',
+    '#value' => 'admin/content/taxonomy/' . arg(3) . '/translation'
+  );
   return $form;
 }
 
 /**
- * Form callback: Process vocabulary translation form
+ * Form callback: Process vocabulary translation form.
  */
 function i18ntaxonomy_translation_term_form_submit($form, &$form_state) {
   switch ($form_state['values']['op']) {
@@ -73,8 +93,9 @@ function i18ntaxonomy_translation_term_form_submit($form, &$form_state) {
       i18ntaxonomy_translation_save($form_state['values'], $form_state['values']['trid']);
       drupal_set_message(t('Term translations have been updated.'));
       break;
+
     case t('Delete'):
-      // Delete old translations for this trid
+      // Delete old translations for this trid.
       db_query("UPDATE {term_data} SET trid = 0 WHERE trid = %d", $form_state['values']['trid']);
       drupal_set_message(t('The term translation has been deleted.'));
       break;
@@ -82,26 +103,26 @@ function i18ntaxonomy_translation_term_form_submit($form, &$form_state) {
 }
 
 /**
- * Save taxonomy term translations
+ * Save taxonomy term translations.
  *
  * @param $terms
- *   Array of terms indexed by language
+ *   Array of terms indexed by language.
  * @param $trid
- *   Optional translation set id
+ *   Optional translation set id.
  */
 function i18ntaxonomy_translation_save($terms, $trid = 0) {
-  // Delete old translations for this trid
+  // Delete old translations for this trid.
   if ($trid){
     db_query("UPDATE {term_data} SET trid = 0 WHERE trid = %d", $trid);
   }
-  // Now pick up all the tids in an array
+  // Now pick up all the tids in an array.
   $translations = array();
   foreach (i18n_supported_languages() as $lang => $name) {
     if (isset($terms[$lang]) && ($term = (array)$terms[$lang]) && $tid = $term['tid']) {
       $translations[$lang] = $tid;
     }
   }
-  // Now set a translation set with all these terms. We need some table locking to avoid race conditions
+  // Now set a translation set with all these terms. We need some table locking to avoid race conditions.
   // when other translations created simulaneously. @TODO Find a better way.
   if (count($translations)) {
     db_query('LOCK TABLES {term_data} WRITE');
@@ -111,8 +132,6 @@ function i18ntaxonomy_translation_save($terms, $trid = 0) {
     db_query('UNLOCK TABLES');
   }
 }
-
-
 
 /**
  * Get next free trid.
@@ -134,7 +153,7 @@ function i18ntaxonomy_translation_overview($vid) {
   $header = array_merge($languages, array(t('Operations')));
   $links = array();
   $types = array();
-  // Get terms/translations for this vocab
+  // Get terms/translations for this vocab.
   $result = db_query('SELECT * FROM {term_data} t WHERE vid = %d', $vocabulary->vid);
   $terms = $messages = array();
   while ($term = db_fetch_object($result)) {
@@ -142,17 +161,17 @@ function i18ntaxonomy_translation_overview($vid) {
       $terms[$term->trid][$term->language] = $term;
     }
   }
-  // Reorder data for rows and languages
+  // Reorder data for rows and languages.
   $rows = array();
   foreach ($terms as $trid => $terms) {
     $thisrow = array();
     foreach ($languages as $lang => $name) {
       if (array_key_exists($lang, $terms)) {
-        $thisrow[] = l($terms[$lang]->name, 'taxonomy/term/'.$terms[$lang]->tid);
-       }
-       else {
+        $thisrow[] = l($terms[$lang]->name, 'taxonomy/term/' . $terms[$lang]->tid);
+      }
+      else {
         $thisrow[] = '--';
-       }
+      }
     }
     $thisrow[] = l(t('edit'), "admin/content/taxonomy/$vid/translation/edit/$trid");
     $rows[] = $thisrow;

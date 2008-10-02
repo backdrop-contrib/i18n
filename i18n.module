@@ -11,7 +11,6 @@
  * - Extended language API
  *
  * @author Jose A. Reyero, 2004
- *
  */
 
 // Some constants. Language support modes for content
@@ -47,24 +46,25 @@ function i18n_init(){
 function i18n_help($path = 'admin/help#i18n', $arg) {
   switch ($path) {
     case 'admin/help#i18n' :
-      $output = '<p>'.t('This module improves support for multilingual content in Drupal sites:').'</p>';
+      $output = '<p>' . t('This module improves support for multilingual content in Drupal sites:') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('Shows content depending on page language').'</li>';
-      $output .= '<li>'.t('Handles multilingual variables').'</li>';
-      $output .= '<li>'.t('Extended language option for chosen content types. For these content types transations will be allowed for all defined languages, not only for enabled ones.').'</li>';
-      $output .= '<li>'.t('Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i>').'</li>';
+      $output .= '<li>' . t('Shows content depending on page language') . '</li>';
+      $output .= '<li>' . t('Handles multilingual variables') . '</li>';
+      $output .= '<li>' . t('Extended language option for chosen content types. For these content types transations will be allowed for all defined languages, not only for enabled ones.') . '</li>';
+      $output .= '<li>' . t('Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i>') . '</li>';
       $output .= '</ul>';
-      $output .= '<p>'.t('This is the base module for several others adding different features:').'</p>';
+      $output .= '<p>' . t('This is the base module for several others adding different features:') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>'.t('Multilingual menu items').'</li>';
-      $output .= '<li>'.t('Multilingual taxonomy Adds a language field for taxonomy vocabularies and terms').'</li>';
+      $output .= '<li>' . t('Multilingual menu items') . '</li>';
+      $output .= '<li>' . t('Multilingual taxonomy Adds a language field for taxonomy vocabularies and terms') . '</li>';
       $output .= '</ul>';
       $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' =>'http://drupal.org/node/133977')) .'</p>';
       return $output;
+
     case 'admin/settings/i18n':
       $output = '<ul>';
-      $output .= '<li>'.t('To manage languages go to the <a href="@configure_languages">languages configuration page</a>.', array('@configure_languages' => url('admin/settings/language'))).'</li>';
-      $output .= '<li>'.t('To enable multilingual support for specific content types go to <a href="@configure_content_types">configure content types</a>.', array('@configure_content_types' => url('admin/content/types'))).'</li>';
+      $output .= '<li>' . t('To manage languages go to the <a href="@configure_languages">languages configuration page</a>.', array('@configure_languages' => url('admin/settings/language'))).'</li>';
+      $output .= '<li>' . t('To enable multilingual support for specific content types go to <a href="@configure_content_types">configure content types</a>.', array('@configure_content_types' => url('admin/content/types'))).'</li>';
       $output . '</ul>';
       return $output;
   }
@@ -552,7 +552,7 @@ function i18n_form_alter_settings(&$form, &$variables) {
       $result += i18n_form_alter_settings($form[$field], $variables);
     }
     elseif (in_array($field, $variables)) {
-      $form[$field]['#description'] .= ' <strong>'.t('This is a multilingual variable.').'</strong>';
+      $form[$field]['#description'] .= ' <strong>' . t('This is a multilingual variable.') . '</strong>';
       $result++;
     }
   }
