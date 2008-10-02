@@ -55,12 +55,12 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
           $channel['link'] = url('taxonomy/term/'. $str_tids .'/'. $depth, array('absolute' => TRUE));
           $channel['title'] = variable_get('site_name', 'Drupal') .' - '. $title;
 
-          // Only display the description if we have a single term, to avoid clutter and confusion.
-	  if (count($tids) == 1) {
-	    $terms = array(taxonomy_get_term($tids[0]));
-	    $terms = i18ntaxonomy_localize_terms($terms, array('description'));
-	    // HTML will be removed from feed description, so no need to filter here.
-	    $channel['description'] = $terms[0]->description;
+    // Only display the description if we have a single term, to avoid clutter and confusion.
+    if (count($tids) == 1) {
+      $terms = array(taxonomy_get_term($tids[0]));
+      $terms = i18ntaxonomy_localize_terms($terms, array('description'));
+      // HTML will be removed from feed description, so no need to filter here.
+      $channel['description'] = $terms[0]->description;
           }
 
           $result = taxonomy_select_nodes($tids, $terms['operator'], $depth, FALSE);

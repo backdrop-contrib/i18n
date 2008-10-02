@@ -9,13 +9,13 @@ To have aditional fields, add the list in a variable in the settings.php file, l
 
 // Available fields for synchronization, for all node types
 $conf['i18nsync_fields_node'] = array(
-	'field1' => t('Field 1 name'),
-	'field2' => t('Field 2 name'),
-	.......................
+  'field1' => t('Field 1 name'),
+  'field2' => t('Field 2 name'),
+  .......................
 );
 
 // More fields for a specific content type 'nodetype' only
 $conf['i18nsync_fields_node_nodetype'] = array(
-	'field3' => t('Field 3 name'),
+  'field3' => t('Field 3 name'),
    .......
 );

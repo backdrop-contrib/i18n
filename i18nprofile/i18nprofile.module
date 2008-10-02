@@ -225,7 +225,7 @@ function i18nprofile_form_translate_all($form_id, &$form) {
  * Note: weight must be minor than profile module's for them to be added first
  *
  * @param $getraw
- * 	 Return the raw array of translations
+ *   Return the raw array of translations
  */
 function i18nprofile_categories($getraw = FALSE) {
   $language = i18n_get_lang();

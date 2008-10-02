@@ -31,7 +31,7 @@ will result in losing some of the user defined strings and translations.
 
 
 - Configure the modules in
-	Administer > Site Configuration > Multilingual system
+  Administer > Site Configuration > Multilingual system
 
 - Set up language for existing nodes, editing them manually.
 - Set up multilingual options for vocabularies and language for existing taxonomy terms
@@ -43,32 +43,31 @@ Language dependent variables
 
   I.e.
 
-    $conf['i18n_variables'] = array(
-        // Site configuration
-        'site_name',
-        'site_slogan',
-        'site_mission',
-        'site_footer',
-        'anonymous',
-        // Node help
-        'blog_help',
-        'story_help',
-        // User configuration
-        'user_registration_help',
-        'user_mail_welcome_subject',
-        'user_mail_welcome_body',
-        'user_mail_approval_subject',
-        'user_mail_approval_body',
-        'user_mail_pass_subject',
-        'user_mail_pass_body',
-        // Primary and secondary links
-        'menu_primary_menu',
-        'menu_secondary_menu';
-        // Theme settings. This is an 'all or nothing' for each theme
-        // This is for 'garland' theme, for other theme it would be 'theme_[themename]_settings'
-		    'theme_garland_settings',
-
-    );
+  $conf['i18n_variables'] = array(
+    // Site configuration
+    'site_name',
+    'site_slogan',
+    'site_mission',
+    'site_footer',
+    'anonymous',
+    // Node help
+    'blog_help',
+    'story_help',
+    // User configuration
+    'user_registration_help',
+    'user_mail_welcome_subject',
+    'user_mail_welcome_body',
+    'user_mail_approval_subject',
+    'user_mail_approval_body',
+    'user_mail_pass_subject',
+    'user_mail_pass_body',
+    // Primary and secondary links
+    'menu_primary_menu',
+    'menu_secondary_menu';
+    // Theme settings. This is an 'all or nothing' for each theme
+    // This is for 'garland' theme, for other theme it would be 'theme_[themename]_settings'
+    'theme_garland_settings',
+  );
 
   These are only some suggested ones, but you can add as many Drupal variables as you want to the array.
 

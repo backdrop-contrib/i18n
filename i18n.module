@@ -190,11 +190,11 @@ function i18n_translation_link_alter(&$links, $path) {
     foreach (translation_node_get_translations($node->tnid) as $langcode => $translation_node) {
       if (!isset($links[$langcode]) && isset($languages[$langcode])) {
         $extended[$langcode] = array(
-           'href' => 'node/'.$translation_node->nid . $matches[2],
-           'language' => $language,
-           'language_icon' => $languages[$langcode],
-           'title' => $languages[$langcode]->native,
-           'attributes' => array('class' => 'language-link'),
+          'href' => 'node/'.$translation_node->nid . $matches[2],
+          'language' => $language,
+          'language_icon' => $languages[$langcode],
+          'title' => $languages[$langcode]->native,
+          'attributes' => array('class' => 'language-link'),
         );
       }
     }
@@ -321,9 +321,9 @@ function i18n_get_links($path = '', $query = NULL, $names = NULL) {
  * Warning: when used with params they need to be escaped, as some values are thrown directly in queries
  *
  * Allows several modes for query rewriting and to change them programatically
- * 	off = No language conditions inserted
- * 	simple = Only current language and no language
- * 	mixed = Only current and default languages
+ *  off = No language conditions inserted
+ *  simple = Only current language and no language
+ *  mixed = Only current and default languages
  *  strict = Only current language
  *  default = Only default language
  *  user = User defined, in the module's settings page
