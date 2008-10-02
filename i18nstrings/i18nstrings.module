@@ -4,9 +4,9 @@
 /**
  * @file
  * Internationalization (i18n) package - translatable strings
- * 
+ *
  * Object oriented string translation using locale and textgroups
- * 
+ *
  * Some concepts
  * - Textgroup. Group the string belongs to, defined by locale hook
  * - Location. Unique id of the string for this textgroup
@@ -14,9 +14,9 @@
  * - Context. Object with textgroup, type, objectid, property
  * - Default language may be English or not. It will be the language set as default
  *   Source strings will be stored in default language
- * 
+ *
  * @ TO DO: Handle default language changes.
- * 
+ *
  * @author Jose A. Reyero, 2007
  */
 
@@ -29,7 +29,7 @@ function i18nstrings_help($path, $arg) {
       $output = '<p>' . t('This module adds support for other modules to translate user defined strings. Depending on which modules you have enabled that use this feature you may see different text groups to translate.') . '<p>';
       $output .= '<ul>';
       $output .= '<li>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</li>';
-      $output .= '<li>' . t('If you are missing strings to translate, use the <a href="@refresh-strings">refresh strings</a> page.', array('@refresh-strings' => url('admin/build/translate/refresh'))) . '</li>'; 
+      $output .= '<li>' . t('If you are missing strings to translate, use the <a href="@refresh-strings">refresh strings</a> page.', array('@refresh-strings' => url('admin/build/translate/refresh'))) . '</li>';
       $output .= '</ul>';
       $output .= '<p>' . t('Read more on the <i>Internationalization handbook</i>: <a href="http://drupal.org/node/313293">Translating user defined strings</a>.') . '</p>';
       return $output;
@@ -39,7 +39,7 @@ function i18nstrings_help($path, $arg) {
       $output .= '<li>' . t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.') . '</li>';
       $output .= '<li>' . t('Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings.') . '</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
       return $output;
     case 'admin/settings/language':
       $output .= '<p>' . t('<strong>Warning</strong>: Changing the default language may have unintended effects on string translations. Read more about <a href="@i18nstrings-help">String translation</a>', array('@i18nstrings-help' => url('admin/help/i18nstrings'))) . '</p>';
@@ -57,14 +57,14 @@ function i18nstrings_menu() {
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'i18nstrings_admin_refresh_page',
     'file' => 'i18nstrings.admin.inc',
-    'access arguments' => array('translate interface'),   
+    'access arguments' => array('translate interface'),
   );
   return $items;
 }
 
 /**
  * Implementation of hook_form_alter();
- * 
+ *
  * Add English language in some string forms when it is not the default
  */
 function i18nstrings_form_alter(&$form, $form_state, $form_id) {
@@ -87,7 +87,7 @@ function i18nstrings_form_alter(&$form, $form_state, $form_id) {
 
 /**
  * Translate configurable string
- * 
+ *
  * @param $name
  *   Textgroup and location glued with ':'
  * @param $string
@@ -99,9 +99,9 @@ function i18nstrings_form_alter(&$form, $form_state, $form_id) {
  */
 function tt($name, $string, $langcode = NULL, $update = FALSE) {
   global $language;
-  
+
   $langcode = $langcode ? $langcode : $language->language;
-  
+
   if ($update) {
     i18nstrings_update_string($name, $string);
   }
@@ -114,19 +114,19 @@ function tt($name, $string, $langcode = NULL, $update = FALSE) {
 }
 
 /**
- * Get configurable string, 
- * 
+ * Get configurable string,
+ *
  * The difference with tt() is that it doesn't use a default string, it will be retrieved too.
  * This is used for source texts that we don't have stored anywhere else.
- * 
+ *
  * As the original language string will be stored in locales too so it should be only used when updating
  */
 function ts($name, $string = '', $langcode = NULL, $update = FALSE) {
   global $language;
-  
+
   $langcode = $langcode ? $langcode : $language->language;
   $translation = NULL;
-  
+
   if ($update) {
     i18nstrings_update_string($name, $string);
   }
@@ -141,7 +141,7 @@ function ts($name, $string = '', $langcode = NULL, $update = FALSE) {
       $translation = '';
     }
   }
-  return $translation;  
+  return $translation;
 }
 
 /**
@@ -155,23 +155,23 @@ function ttd($name, $string, $langcode = NULL, $update = FALSE) {
 
 /**
  * Translate configurable string
- * 
+ *
  * Support for l10n client (patch pending for l10n client)
- * 
+ *
  * @param $name
  *   Textgroup and location glued with ':'
  */
 function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
   global $language, $l10n_client_strings;
-  
+
   $context = i18nstrings_context($name, $string);
-  
+
   if ($update) {
     i18nstrings_update_string($context, $string);
   }
-  
+
   $translation = i18nstrings_get_string($context, $langcode, $string, !$update);
-  
+
   if ($translation === FALSE) {
     // If the string is missing, create it
     if (!$update) {
@@ -193,11 +193,11 @@ function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
  */
 function to($context, &$object, $properties = array(), $langcode = NULL, $update = FALSE) {
   global $language;
-  
+
   $langcode = $langcode ? $langcode : $language->language;
-  
+
   // If language is default, just return
-  if (language_default('language') == $langcode && !$update) { 
+  if (language_default('language') == $langcode && !$update) {
     return $object;
   } else {
     i18nstrings_to($context, $object, $properties, $langcode, $update);
@@ -221,7 +221,7 @@ function i18nstrings_to($context, &$object, $properties = array(), $langcode = N
 
 /**
  * Update / create / remove string
- * 
+ *
  * @param $context
  *   String context
  * @pram $string
@@ -261,10 +261,10 @@ function i18nstrings_update_translation($context, $langcode, $translation) {
 
 /**
  * Add string
- * 
+ *
  * This function checks for already existing string without context for this textgroup
- * 
- * @return 
+ *
+ * @return
  *   Update status
  */
 function i18nstrings_add_string($name, $string) {
@@ -288,23 +288,23 @@ function i18nstrings_add_string($name, $string) {
     // Mysql just gets last id for latest query ?
     $source->lid = db_last_insert_id('locales_source', 'lid');
     // Clear locale cache so this string can be added in a later request.
-    cache_clear_all('locale:'.$context->textgroup.':', 'cache', TRUE);      
-    // Create string    
-    $status = SAVED_NEW; 
+    cache_clear_all('locale:'.$context->textgroup.':', 'cache', TRUE);
+    // Create string
+    $status = SAVED_NEW;
   }
   // Update metadata
   db_query("DELETE FROM {i18n_strings} WHERE lid = %d", $source->lid);
   db_query("INSERT INTO {i18n_strings} (lid, type, objectid, property) VALUES(%d, '%s', %d, '%s')", $source->lid, $context->type, $context->objectid, $context->property);
 
-  return $status; 
+  return $status;
 }
 
 /**
  * Get source string provided a string context
- * 
+ *
  * This will search first with the full context parameters and, if not found,
  * it will search again only with textgroup and source string
- * 
+ *
  * @param $context
  *   Context string or object
  * @return
@@ -312,7 +312,7 @@ function i18nstrings_add_string($name, $string) {
  */
 function i18nstrings_get_source($context, $string = NULL) {
   $context = i18nstrings_context($context, $string);
-  
+
   // Check if we have the string for this location
   list($where, $args) = i18nstrings_context_query($context);
   if ($source = db_fetch_object(db_query("SELECT s.*, i.type, i.objectid, i.property  FROM {locales_source} s LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE ". implode(' AND ', $where), $args))) {
@@ -328,12 +328,12 @@ function i18nstrings_get_source($context, $string = NULL) {
 
 /**
  * Get string for a language
- * 
+ *
  * @param $context
  *   Context string or object
  * @param $langcode
  *   Language code to retrieve string for
- *   
+ *
  * @return
  *   - translation if found
  *   - TRUE if not found and cached
@@ -350,7 +350,7 @@ function i18nstrings_get_string($context, $langcode) {
     $where[] = "t.language = '%s'";
     $args[] = $langcode;
     $text = db_fetch_object(db_query("SELECT s.*, t.translation FROM {locales_source} s INNER JOIN {locales_target} t ON s.lid = t.lid WHERE ". implode(' AND ', $where), $args));
-    
+
     if ($text && $text->translation) {
       i18nstrings_cache($context, $langcode, NULL, $text->translation);
       return $text->translation;
@@ -358,7 +358,7 @@ function i18nstrings_get_string($context, $langcode) {
       i18nstrings_cache($context, $langcode, NULL, TRUE);
       return $text ? NULL : FALSE ;
     }
-  }   
+  }
 }
 
 /**
@@ -367,21 +367,21 @@ function i18nstrings_get_string($context, $langcode) {
 function i18nstrings_remove_string($context, $string = NULL) {
   if ($source = i18nstrings_get_source($context, $string)) {
     db_query("DELETE FROM {locales_target} WHERE lid = %d", $source->lid);
-    db_query("DELETE FROM {i18n_strings} WHERE lid = %d", $source->lid);    
+    db_query("DELETE FROM {i18n_strings} WHERE lid = %d", $source->lid);
     db_query("DELETE FROM {locales_source} WHERE lid = %d", $source->lid);
     cache_clear_all('locale:'.$context->textgroup.':', 'cache', TRUE);
     return SAVED_DELETED;
-  }  
+  }
 }
 
 /**
  * Update context for strings.
- * 
+ *
  * As some string locations depend on configurable values, the field needs sometimes to be updated
  * without losing existing translations. I.e:
  * - profile fields indexed by field name
  * - content types indexted by low level content type name
- * 
+ *
  * Example
  *  'profile:field:oldfield:*' -> 'profile:field:newfield:*'
  */
@@ -416,9 +416,9 @@ function i18nstrings_update_context($oldname, $newname) {
  * Provides interface translation services.
  *
  * This function is called from tt() to translate a string if needed.
- * 
+ *
  * @param $textgroup
- * 
+ *
  * @param $string
  *   A string to look up translation for. If omitted, all the
  *   cached strings will be returned in all languages already
@@ -493,8 +493,8 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
 
 /**
  * Convert context string in a context object
- * 
- * I.e. 
+ *
+ * I.e.
  *   'taxonomy:term:1:name'
  * will become a $context object where
  *   $context->textgroup = 'taxonomy';
@@ -507,12 +507,12 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
  *  'contenttypes:type:[type]:description'
  *  'profile:category'
  *  'profile:field:[fid]:title'
- * 
+ *
  * @param $context
  *   Context string or object
  * @param $string
  *   For some textgroups and objects that don't have ids we use the string itself as index
- * @return 
+ * @return
  *   Context object with textgroup, type, objectid, property and location names
  */
 function i18nstrings_context($context, $string = NULL) {
@@ -546,12 +546,12 @@ function i18nstrings_context_query($context, $alias = 's') {
     $where[] = "s.source = '%s'";
     $args[] = $context->source;
   }
-  return array($where, $args);  
+  return array($where, $args);
 }
 
 /**
  * Get location string from context
- * 
+ *
  * Returns the location for the locale table for a string context
  */
 function i18nstrings_location($context) {
@@ -573,7 +573,7 @@ function i18nstrings_location($context) {
  */
 function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $conditions = array()) {
   global $language;
-  
+
   $langcode = $langcode ? $langcode : $language->language;
   // Add language condition
   $conditions['t.language'] = $langcode;
@@ -598,12 +598,12 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
       $where[] = $key . ' = ' . is_int($value) ? '%d' : "'%s'";
       $params[] = $value;
     }
-  }  
+  }
   $sql = "SELECT s.textgroup, s.source, i.type, i.objectid, i.property, t.translation FROM {locales_source} s";
   $sql .=" INNER JOIN {i18n_strings} i ON s.lid = i.lid INNER JOIN {locales_target} t ON s.lid = t.lid ";
   $sql .= implode(' ', $join) . ' ' . implode (' AND ', $where);
   $result = db_query($sql, $params);
-  
+
   // Fetch all rows and store in cache
   while ($t = db_fetch_object($result)) {
     i18nstrings_cache($t, $langcode, $t->source, $t->translation);
@@ -616,18 +616,18 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
  */
 function i18nstrings_cache($context, $langcode, $string = NULL, $translation = NULL) {
   static $strings;
-  
+
   $context = i18nstrings_context($context, $string);
-  
+
   if (!$context->objectid && $context->source) {
     // This is a type indexed by string
-    $context->objectid = $context->source;    
+    $context->objectid = $context->source;
   }
   // At this point context must have at least textgroup and type
   if ($translation) {
     if ($context->property) {
       $strings[$langcode][$context->textgroup][$context->type][$context->objectid][$context->property] = $translation;
-    } elseif ($context->objectid) {  
+    } elseif ($context->objectid) {
       $strings[$langcode][$context->textgroup][$context->type][$context->objectid] = $translation;
     } else {
       $strings[$langcode][$context->textgroup][$context->type] = $translation;
@@ -646,11 +646,11 @@ function i18nstrings_cache($context, $langcode, $string = NULL, $translation = N
       } else  {
         // We dont have cached this tree so we return the default
         return $default;
-      }    
+      }
     }
     // Returns the part of the array we got to
     return $search;
-  }    
+  }
 
 }
 

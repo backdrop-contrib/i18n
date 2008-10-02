@@ -17,5 +17,5 @@ $conf['i18nsync_fields_node'] = array(
 // More fields for a specific content type 'nodetype' only
 $conf['i18nsync_fields_node_nodetype'] = array(
 	'field3' => t('Field 3 name'),
-   .......	
+   .......
 );

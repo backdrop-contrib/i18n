@@ -21,7 +21,7 @@ function i18nprofile_enable() {
  */
 function i18nprofile_update_2() {
   $items = array();
-  
+
   // Create source strings for translations
   $categories = array();
   $result = db_query("SELECT * FROM {profile_fields}");

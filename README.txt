@@ -20,16 +20,16 @@ i18n: core i18n functionality
 - Extended language API for other modules
 
 languageicons: language icons for translation links
-============= 
+=============
 This module will be spin-off from the main package
 
 i18ntaxonomy: Taxonomy translation:
 ====================
-You can create vocabularies and terms with or without language. 
+You can create vocabularies and terms with or without language.
 - If you set language for a vocabulary/term, that term will just show up for pages in that language
 - If you set language for a vocabulary, all the terms in that vocabulary will be assigned that language.
 - When editing nodes, if you change the language for a node, you have to click on 'Preview' to have the right vocabularies/terms for that language. Otherwise, the language/taxonomy data for that node could be inconsistent.
-  
+
 
 About language dependent variables:
 ==================================
@@ -52,7 +52,7 @@ Sample sites, using this module - e-mail me to be listed here
 
 Additional Support
 =================
-For support, please create a support request for this module's project: 
+For support, please create a support request for this module's project:
   http://drupal.org/project/i18n
 
 If you need professional support, contact me by e-mail: freelance at reyero dot net

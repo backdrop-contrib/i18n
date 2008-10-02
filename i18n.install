@@ -48,7 +48,7 @@ function i18n_uninstall() {
 
 /**
  * Drupal 6 upgrade. I have started with the wrong numbering, cannot change it now.
- */ 
+ */
 function i18n_update_9() {
   // Update content type settings
   foreach (array_keys(node_get_types()) as $type) {
@@ -63,7 +63,7 @@ function i18n_update_9() {
     variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH_DEFAULT);
   }
   // Set module weight for it to run after core modules
-  $items[] = update_sql("UPDATE {system} SET weight = 10 WHERE name = 'i18n' AND type = 'module'");  
+  $items[] = update_sql("UPDATE {system} SET weight = 10 WHERE name = 'i18n' AND type = 'module'");
   // Move node language and trid into node table
   $items[] = update_sql("UPDATE {node} n INNER JOIN {i18n_node} i ON n.nid = i.nid SET n.language = i.language, n.tnid = i.trid");
   // Upgrade tnid's so they match one of the nodes nid's to avoid future conflicts when translating existing nodes
@@ -78,7 +78,7 @@ function i18n_update_9() {
 function i18n_update_10() {
   // Drop old tables
   $items[] = update_sql("DROP TABLE {i18n_node}");
-  
+
   // Delete variables. Most settings will be now handled by Drupal core.
   variable_del('i18n_allow');
   variable_del('i18n_browser');

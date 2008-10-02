@@ -40,8 +40,8 @@ function i18ntaxonomy_help($section, $arg) {
       $output .= '<li>' . t('Different terms for each language with translation relationships.').'</li>';
       $output .= '<li>' . t('Terms can be common to all languages, but may be localized.').'</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
-      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' =>'http://drupal.org/node/133977')) . '</p>'; 
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
+      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' =>'http://drupal.org/node/133977')) . '</p>';
       return $output;
     case 'admin/settings/i18n':
       $output = '<ul>';

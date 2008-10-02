@@ -114,10 +114,10 @@ function i18nsync_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
         }
         break;
       case 'insert':
-        // When creating a translation, there are some aditional steps, different from update 
+        // When creating a translation, there are some aditional steps, different from update
         if (!empty($node->translation_source)) {
           // Set tnid that is not set by translation module
-          $node->tnid = $node->translation_source->tnid ? $node->translation_source->tnid : $node->translation_source->nid;          
+          $node->tnid = $node->translation_source->tnid ? $node->translation_source->tnid : $node->translation_source->nid;
           // If we have files, we need to save the files that have been inherited
           if (!empty($node->files)) {
             foreach ($node->files as $fid => $file) {

@@ -56,12 +56,12 @@ function i18nstrings_schema() {
 
 /**
  * Drupal 6 update. Change field name, 'oid' was psql reserved name
- * 
+ *
  * ALTER TABLE `drupal6_i18n`.`i18n_strings` CHANGE COLUMN `oid` `objectid` INTEGER  NOT NULL DEFAULT 0;
  */
 function i18nstrings_update_6001() {
   $ret = array();
   db_change_field($ret, 'i18n_strings', 'oid', 'objectid', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
-  
+
   return $ret;
 }

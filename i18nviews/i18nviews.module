@@ -6,7 +6,7 @@
  * Views support for Internationalization (i18n) package
  *
  * This module translates some views strings on the fly using i18n string system
- * 
+ *
  * @author Jose A. Reyero, 2007
  */
 
@@ -17,7 +17,7 @@ function i18nviews_help($section, $arg) {
   switch ($section) {
     case 'admin/modules#description' :
       $output = '<p>' . t('Supports translation for views strings: title, header, footer...') . '</p>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
       return $output;
   }
 }
@@ -45,9 +45,9 @@ function i18nviews_locale_refresh() {
 
 /**
  * Implementation of hook_views_pre_view().
- * 
+ *
  * Views are identified by $view->name
- * 
+ *
  * @TODO This needs a lot of research and work
  * @TODO Ask Earl
  */
@@ -60,7 +60,7 @@ function i18nviews_views_pre_view(&$view, &$display_id, &$args) {
       _i18nviews_localize_array($view->name, $display, $view->display[$display]->handler->options, $fields, TRUE);
     }
   }
-  
+
   // Translate taxonomy fields
   // @todo I don think this works at all
   if (module_exists('i18ntaxonomy') && is_array($view->field)) {
@@ -72,7 +72,7 @@ function i18nviews_views_pre_view(&$view, &$display_id, &$args) {
         $view->field[$index]['handler'] = 'i18ntaxonomy_views_handler_field_allterms';
       } elseif(preg_match("/term_node_(\d+)\.name/", $data['id'], $matches)) {
         $vid = $matches[1];
-        if ($translate[$vid]) { 
+        if ($translate[$vid]) {
           // Set new handler for this field
           $view->field[$index]['handler'] = 'i18ntaxonomy_views_handler_field_allterms';
         }
@@ -84,7 +84,7 @@ function i18nviews_views_pre_view(&$view, &$display_id, &$args) {
 
 /**
  * Translate a group of fields
- * 
+ *
  * We get the translated fields out of the array so they are not translated again.
  */
 function _i18nviews_localize_array($name, $group, &$data, &$field_names, $trim = FALSE) {
@@ -102,7 +102,7 @@ function _i18nviews_localize_array($name, $group, &$data, &$field_names, $trim =
 
 /**
  * Translate a group of fields for an object.
- * 
+ *
  * We cannot play with object 2 array conversion because some are real typed objects.
  */
 function _i18nviews_localize_object($name, $group, &$data, &$field_names, $trim = FALSE) {
@@ -119,7 +119,7 @@ function _i18nviews_localize_object($name, $group, &$data, &$field_names, $trim 
 
 /**
  * Field handler for taxonomy term fields
- * 
+ *
  * Remake of views_handler_field_allterms with term name translation
  */
 function i18ntaxonomy_views_handler_field_allterms($fieldinfo, $fielddata, $value, $data) {
@@ -131,7 +131,7 @@ function i18ntaxonomy_views_handler_field_allterms($fieldinfo, $fielddata, $valu
   }
   // Translate all these terms
   _i18ntaxonomy_translate_terms($terms);
-  
+
   if ($fielddata['options'] == 'nolink') {
     foreach ($terms as $term) {
       $links[] = check_plain($term->name);

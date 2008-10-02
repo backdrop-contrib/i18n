@@ -28,16 +28,16 @@ function i18nstrings_admin_refresh() {
   );
   // Get all languages, except default language
   $languages = locale_language_list('name', TRUE);
-  unset($languages[language_default('language')]);  
+  unset($languages[language_default('language')]);
   $form['languages'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Select languages'),
-    '#options' => $languages,    
+    '#options' => $languages,
   );
   $form['update'] = array('#type' => 'submit', '#value' => t('Update translations'),
     '#suffix' => '<p>'.t('This will fetch all existing translations from the localization tables for the selected text groups and languages.').'</p>',
   );
-  return $form; 
+  return $form;
 }
 
 /**

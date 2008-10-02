@@ -16,7 +16,7 @@ function i18ncontent_enable() {
 
 /**
  * Implementation of hook_disable()
- * 
+ *
  * This function depends on i18nstrings, so it must be run on _disable() better than uninstall()
  */
 function i18ncontent_disable() {

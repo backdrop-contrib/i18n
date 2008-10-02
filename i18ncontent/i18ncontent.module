@@ -4,12 +4,12 @@
 /**
  * @file
  * Internationalization (i18n) package - translatable content type parameters
- * 
+ *
  * This new module uses a pure forms/strings approach as opposed to the old one (v5)
  * which was using some dirty db rewrite tricks.
- * 
+ *
  * @ TODO Handle node type changed and deleted
- * 
+ *
  * @author Jose A. Reyero, 2007
  */
 
@@ -25,7 +25,7 @@ function i18ncontent_help($path, $arg) {
       $output .= '<li>'.t('Submission guidelines').'</li>';
       $output .= '<li>'.t("Content type descriptions were previously localized so they won't be affected.").'</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
       return $output;
   }
   if ($arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {
@@ -33,7 +33,7 @@ function i18ncontent_help($path, $arg) {
     if ($help = ts("nodetype:$type:help")) {
       return '<p>'. filter_xss_admin($help) .'</p>';
     }
-  }  
+  }
 }
 
 /**
@@ -89,7 +89,7 @@ function i18ncontent_form_alter(&$form, $form_state, $form_id) {
     if ($type) {
       //$form['description']['#default_value'] = ts("nodetype:$type:description");
       $form['submission']['help']['#default_value'] = ts("nodetype:$type:help", $form['submission']['help']['#default_value'], $language);
-    } 
+    }
     $form['#submit'] = array_merge(array('i18ncontent_form_submit'), $form['#submit']);
   }
 }
@@ -123,7 +123,7 @@ function i18ncontent_form_submit($form, &$form_state) {
 
 /**
  * Implementation of hook_menu_alter().
- * 
+ *
  * Take over the node add pages
  */
 function i18ncontent_menu_alter(&$menu) {
@@ -144,6 +144,6 @@ function i18ncontent_node_add_page() {
   $item = menu_get_item();
   $content = system_admin_menu_block($item);
   //dsm($content);
-  return theme('node_add_list', $content);  
+  return theme('node_add_list', $content);
 }
 

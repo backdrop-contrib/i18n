@@ -1,6 +1,6 @@
 // $Id$
 ********************************************************************
-                     D R U P A L    M O D U L E                         
+                     D R U P A L    M O D U L E
 ********************************************************************
 Name: i18n module and translation module
 Author: Jose A. Reyero
@@ -29,8 +29,8 @@ will result in losing some of the user defined strings and translations.
 - Enable the module/s in: Administer > Site building > modules
   These modules are grouped under 'Multilanguage - i18n' package
 
-  
-- Configure the modules in 
+
+- Configure the modules in
 	Administer > Site Configuration > Multilingual system
 
 - Set up language for existing nodes, editing them manually.
@@ -42,7 +42,7 @@ Language dependent variables
   The list of variables to be made language dependent must be defined in the config file:
 
   I.e.
-  
+
     $conf['i18n_variables'] = array(
         // Site configuration
         'site_name',
@@ -67,13 +67,13 @@ Language dependent variables
         // Theme settings. This is an 'all or nothing' for each theme
         // This is for 'garland' theme, for other theme it would be 'theme_[themename]_settings'
 		    'theme_garland_settings',
-    
+
     );
-    
+
   These are only some suggested ones, but you can add as many Drupal variables as you want to the array.
-    
-  You need to redefine these variables for the first time for every language, as previous values are lost and they return to defaults -they will be back if you disable i18n-. 
-    
+
+  You need to redefine these variables for the first time for every language, as previous values are lost and they return to defaults -they will be back if you disable i18n-.
+
 Additional Support
 ==================
 For support, please create a support request for this module's project: http://drupal.org/project/i18n

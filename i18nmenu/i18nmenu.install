@@ -2,9 +2,9 @@
 
 /**
  * Implementation of hook_enable()
- * 
+ *
  * Create all strings from menus for translation
  */
 function i18nmenu_enable() {
-  i18nmenu_locale_refresh();  
+  i18nmenu_locale_refresh();
 }

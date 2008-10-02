@@ -3,7 +3,7 @@
 
 /**
  * Internationalization (i18n) submodule: Profile translation
- * 
+ *
  * Allows translation of profile categories and fields
  *
  * @author Jose A. Reyero, 2006
@@ -17,7 +17,7 @@ function i18nprofile_help($section, $arg) {
   switch ($section) {
     case 'admin/modules#description' :
       $output = '<p>' . t('Supports translation for profile module field names and descriptions.') . '</p>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';      
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
       return $output;
   }
 }
@@ -49,13 +49,13 @@ function i18nprofile_locale_refresh() {
     if (!isset($categories[$field->category])) {
       tt("profile:category", $field->category, NULL, TRUE);
       $categories[$field->category] = 1;
-    }    
-  }  
+    }
+  }
 }
 
 /**
  * Implementation of hook_menu_alter().
- * 
+ *
  * Replace title callbacks for profile categories
  */
 function i18nprofile_menu_alter(&$items) {
@@ -78,7 +78,7 @@ function i18nprofile_translate_category($title) {
 
 /**
  * Implementation of hook_profile_alter()
- * 
+ *
  * Translates categories and fields
  */
 function i18nprofile_profile_alter(&$account) {
@@ -95,7 +95,7 @@ function i18nprofile_profile_alter(&$account) {
           if (isset($options[$account->$field])) {
             // It may be a link or a paragraph, trick for not loading the field again
             if ($account->content[$name][$field]['#value'] == check_markup($account->$field)) {
-              $account->content[$name][$field]['#value'] = check_markup($options[$account->$field]); 
+              $account->content[$name][$field]['#value'] = check_markup($options[$account->$field]);
               // Plain html
             } else {
               // Link
@@ -103,7 +103,7 @@ function i18nprofile_profile_alter(&$account) {
             }
           }
         }
-         
+
       }
     }
   }
@@ -120,7 +120,7 @@ function i18nprofile_form_alter(&$form, $form_state, $form_id) {
     case 'user_profile_form':
       if (($category = $form['_category']['#value']) && $category != 'account') {
         i18nprofile_form_translate_category($form, $category);
-      } 
+      }
       break;
     case 'user_register':
       i18nprofile_form_translate_all($form_id, $form);
@@ -158,7 +158,7 @@ function i18nprofile_form_translate_category(&$form, $category){
 
 /**
  * Translate form field
- * 
+ *
  */
 function i18nprofile_form_translate_field(&$form, $field) {
   if (!empty($form[$field]['#title'])) {
@@ -203,7 +203,7 @@ function i18nprofile_field_options($field, $source = array()) {
 
 /**
  * Translate form fields for all categories
- * 
+ *
  * This is useful when we don't know which categories we have, like in the user register form
  */
 function i18nprofile_form_translate_all($form_id, &$form) {
@@ -219,11 +219,11 @@ function i18nprofile_form_translate_all($form_id, &$form) {
 
 /**
  * Returns translated categories
- * 
+ *
  * @ TODO Drupal 6
- * 
+ *
  * Note: weight must be minor than profile module's for them to be added first
- * 
+ *
  * @param $getraw
  * 	 Return the raw array of translations
  */
@@ -244,7 +244,7 @@ function i18nprofile_categories($getraw = FALSE) {
 
 /**
  * Returns field translations
- * 
+ *
  * @ TODO Drupal 6
  */
 function i18nprofile_fields($category){

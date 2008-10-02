@@ -2,13 +2,13 @@
 /**
  * @file
  *   Multilingual poll - Aggregates poll results for all translations
- * 
+ *
  * Most code ripped off poll module and adapted for multilingual results
  */
 
 /**
  * Implementation of hook_form_alter()
- * 
+ *
  * Rewrite the cancel vote form with the nid for the translation with the actual vote.
  */
 function i18npoll_form_alter(&$form, $form_state, $form_id) {
@@ -26,9 +26,9 @@ function i18npoll_form_alter(&$form, $form_state, $form_id) {
 
 /**
  * Implementation of hook_nodeapi()
- * 
+ *
  * Replaces poll results with aggregated translations.
- * 
+ *
  * We don't add all language results on loading to avoid the data being trashed
  * when editing and saving nodes again
  */
@@ -37,7 +37,7 @@ function i18npoll_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
 
   if ($node->type == 'poll' && !empty($node->tnid)) {
     // Replace results for node view
-    if ($op == 'view' && (empty($node->allowvotes) || !empty($node->show_results))) {  
+    if ($op == 'view' && (empty($node->allowvotes) || !empty($node->show_results))) {
       $node->content['body'] = array(
         '#value' => i18npoll_view_results($node, $teaser, $page, FALSE),
       );
@@ -51,7 +51,7 @@ function i18npoll_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
         $node->allowvotes = FALSE;
       }
     }
-  } 
+  }
 }
 
 /**
@@ -138,7 +138,7 @@ function i18npoll_view_results(&$node, $teaser, $page, $block) {
 
 /**
  * Get user vote for this node or its translations
- * 
+ *
  * Returns object with nid, chorder. Has static caching as this will typically be called twice
  */
 function i18npoll_get_vote($tnid) {

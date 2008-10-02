@@ -8,7 +8,7 @@
 
 /**
  * Form builder function.
- * 
+ *
  * TO DO: Add exclude paths for content selection
  * Some options have been removed from previous versions:
  * - Languages are now taken from locale module unless defined in settings file
@@ -37,9 +37,9 @@ function _i18n_selection_mode(){
   return array(
     'simple' => t('Current language and language neutral.'),
     'mixed' => t('Mixed current language (if available) or default language (if not) and language neutral.'),
-    'default' => t('Only default language and language neutral.'),    
+    'default' => t('Only default language and language neutral.'),
     'strict' => t('Only current language.'),
-    'off' => t('All content. No language conditions apply.'),    
+    'off' => t('All content. No language conditions apply.'),
   );
 }
 
