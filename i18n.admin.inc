@@ -11,11 +11,11 @@
  *
  * TO DO: Add exclude paths for content selection
  * Some options have been removed from previous versions:
- * - Languages are now taken from locale module unless defined in settings file
- * - Language dependent tables are authomatically used if defined in settings file
+ * - Languages are now taken from locale module unless defined in settings file.
+ * - Language dependent tables are authomatically used if defined in settings file.
  */
 function i18n_admin_settings() {
-  // Content selection options
+  // Content selection options.
   $form['selection'] = array(
     '#type' => 'fieldset',
     '#title' => t('Content selection'),
