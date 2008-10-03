@@ -3,14 +3,14 @@
 # LANGUAGE translation of Drupal (i18ncontent)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  i18ncontent.module,v 1.1.2.5 2008/09/25 19:16:12 jareyero
+#  i18ncontent.module,v 1.1.2.8 2008/10/03 11:32:23 hass
 #  i18ncontent.info,v 1.1.2.4 2008/09/25 16:09:28 jareyero
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-09-26 00:38+0200\n"
+"POT-Creation-Date: 2008-10-03 17:58+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -35,11 +35,11 @@ msgstr ""
 msgid "Content type descriptions were previously localized so they won't be affected."
 msgstr ""
 
-#: i18ncontent/i18ncontent.module:45
+#: i18ncontent/i18ncontent.module:46
 msgid "Content type"
 msgstr ""
 
-#: i18ncontent/i18ncontent.module:108
+#: i18ncontent/i18ncontent.module:110
 msgid "Delete content type"
 msgstr ""
 

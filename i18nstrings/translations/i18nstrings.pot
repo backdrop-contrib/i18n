@@ -3,16 +3,16 @@
 # LANGUAGE translation of Drupal (i18nstrings)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  i18nstrings.admin.inc,v 1.1.2.2 2008/09/25 16:09:27 jareyero
-#  i18nstrings.module,v 1.8.2.10 2008/09/25 19:16:12 jareyero
-#  i18nstrings.install,v 1.2 2007/10/25 18:57:51 jareyero
+#  i18nstrings.admin.inc,v 1.1.2.5 2008/10/03 11:32:23 hass
+#  i18nstrings.module,v 1.8.2.17 2008/10/03 11:40:19 hass
+#  i18nstrings.install,v 1.2.2.4 2008/10/02 21:33:53 hass
 #  i18nstrings.info,v 1.2.2.3 2008/09/25 16:09:27 jareyero
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-09-26 00:38+0200\n"
+"POT-Creation-Date: 2008-10-03 17:58+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -21,61 +21,81 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: i18nstrings/i18nstrings.admin.inc:23
+#: i18nstrings/i18nstrings.admin.inc:24
 msgid "Select text groups"
 msgstr ""
 
-#: i18nstrings/i18nstrings.admin.inc:26;51
+#: i18nstrings/i18nstrings.admin.inc:29;56
 msgid "Refresh strings"
 msgstr ""
 
-#: i18nstrings/i18nstrings.admin.inc:27
+#: i18nstrings/i18nstrings.admin.inc:30
 msgid "This will create all the missing strings for the selected text groups."
 msgstr ""
 
-#: i18nstrings/i18nstrings.admin.inc:34
+#: i18nstrings/i18nstrings.admin.inc:37
 msgid "Select languages"
 msgstr ""
 
-#: i18nstrings/i18nstrings.admin.inc:37;55
+#: i18nstrings/i18nstrings.admin.inc:42;61
 msgid "Update translations"
 msgstr ""
 
-#: i18nstrings/i18nstrings.admin.inc:38
+#: i18nstrings/i18nstrings.admin.inc:43
 msgid "This will fetch all existing translations from the localization tables for the selected text groups and languages."
 msgstr ""
 
-#: i18nstrings/i18nstrings.admin.inc:60
+#: i18nstrings/i18nstrings.admin.inc:66
 msgid "1 string has been updated."
 msgid_plural "@count strings have been updated."
 msgstr[0] ""
 msgstr[1] ""
 
 #: i18nstrings/i18nstrings.module:29
-msgid "On this page you can refresh and update values for user defined strings."
-msgstr ""
-
-#: i18nstrings/i18nstrings.module:31
-msgid "Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations."
+msgid "This module adds support for other modules to translate user defined strings. Depending on which modules you have enabled that use this feature you may see different text groups to translate."
 msgstr ""
 
 #: i18nstrings/i18nstrings.module:32
+msgid "If you are missing strings to translate, use the <a href=\"@refresh-strings\">refresh strings</a> page."
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:34
+msgid "Read more on the <i>Internationalization handbook</i>: <a href=\"http://drupal.org/node/313293\">Translating user defined strings</a>."
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:38
+msgid "On this page you can refresh and update values for user defined strings."
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:40
+msgid "Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations."
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:41
 msgid "Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings."
 msgstr ""
 
-#: i18nstrings/i18nstrings.module:210
+#: i18nstrings/i18nstrings.module:47
+msgid "<strong>Warning</strong>: Changing the default language may have unintended effects on string translations. Read more about <a href=\"@i18nstrings-help\">String translation</a>"
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:83
+msgid "Already added languages"
+msgstr ""
+
+#: i18nstrings/i18nstrings.module:250
 msgid "Updated string %location for textgroup %textgroup: %string"
 msgstr ""
 
-#: i18nstrings/i18nstrings.module:213
+#: i18nstrings/i18nstrings.module:254
 msgid "Created string %location for text group %textgroup: %string"
 msgstr ""
 
-#: i18nstrings/i18nstrings.module:378
+#: i18nstrings/i18nstrings.module:421
 msgid "Updating string names from %oldname to %newname."
 msgstr ""
 
-#: i18nstrings/i18nstrings.module:44
+#: i18nstrings/i18nstrings.module:57
 msgid "Refresh"
 msgstr ""
 
@@ -83,23 +103,23 @@ msgstr ""
 msgid "i18nstrings"
 msgstr ""
 
-#: i18nstrings/i18nstrings.install:21
+#: i18nstrings/i18nstrings.install:28
 msgid "Metadata for source strings."
 msgstr ""
 
-#: i18nstrings/i18nstrings.install:27
+#: i18nstrings/i18nstrings.install:34
 msgid "Source string ID. References {locales_source}.lid."
 msgstr ""
 
-#: i18nstrings/i18nstrings.install:33
+#: i18nstrings/i18nstrings.install:40
 msgid "Object ID."
 msgstr ""
 
-#: i18nstrings/i18nstrings.install:40
+#: i18nstrings/i18nstrings.install:47
 msgid "Object type for this string."
 msgstr ""
 
-#: i18nstrings/i18nstrings.install:47
+#: i18nstrings/i18nstrings.install:54
 msgid "Object property for this string."
 msgstr ""
 

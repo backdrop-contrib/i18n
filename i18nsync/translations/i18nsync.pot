@@ -3,14 +3,14 @@
 # LANGUAGE translation of Drupal (i18nsync)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  i18nsync.module,v 1.1.2.10 2008/09/25 16:09:27 jareyero
+#  i18nsync.module,v 1.1.2.15 2008/10/03 11:40:19 hass
 #  i18nsync.info,v 1.2.2.5 2008/09/25 19:16:11 jareyero
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-09-26 00:38+0200\n"
+"POT-Creation-Date: 2008-10-03 17:58+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -51,87 +51,87 @@ msgstr ""
 msgid "The list of available fields for synchronization will include some standard node fields and all CCK fields. You can add more fields to the list in a configuration variable. See README.txt for how to do it."
 msgstr ""
 
-#: i18nsync/i18nsync.module:65 i18nsync/i18nsync.info:0
+#: i18nsync/i18nsync.module:66 i18nsync/i18nsync.info:0
 msgid "Synchronize translations"
 msgstr ""
 
-#: i18nsync/i18nsync.module:68
+#: i18nsync/i18nsync.module:69
 msgid "Select which fields to synchronize for all translations of this content type."
 msgstr ""
 
-#: i18nsync/i18nsync.module:296
+#: i18nsync/i18nsync.module:313
 msgid "Standard node fields."
 msgstr ""
 
-#: i18nsync/i18nsync.module:299
+#: i18nsync/i18nsync.module:316
 msgid "Author"
 msgstr ""
 
-#: i18nsync/i18nsync.module:300
+#: i18nsync/i18nsync.module:317
 msgid "Status"
 msgstr ""
 
-#: i18nsync/i18nsync.module:301
+#: i18nsync/i18nsync.module:318
 msgid "Promote"
 msgstr ""
 
-#: i18nsync/i18nsync.module:302
+#: i18nsync/i18nsync.module:319
 msgid "Moderate"
 msgstr ""
 
-#: i18nsync/i18nsync.module:303
+#: i18nsync/i18nsync.module:320
 msgid "Sticky"
 msgstr ""
 
-#: i18nsync/i18nsync.module:304
+#: i18nsync/i18nsync.module:321
 msgid "Revision (Create also new revision for translations)"
 msgstr ""
 
-#: i18nsync/i18nsync.module:305
+#: i18nsync/i18nsync.module:322
 msgid "Book outline (with the translated parent)"
 msgstr ""
 
-#: i18nsync/i18nsync.module:306
+#: i18nsync/i18nsync.module:323
 msgid "Taxonomy terms"
 msgstr ""
 
-#: i18nsync/i18nsync.module:309
+#: i18nsync/i18nsync.module:326
 msgid "Comment settings"
 msgstr ""
 
-#: i18nsync/i18nsync.module:312
+#: i18nsync/i18nsync.module:329
 msgid "File attachments"
 msgstr ""
 
-#: i18nsync/i18nsync.module:325
+#: i18nsync/i18nsync.module:342
 msgid "Image Attach module"
 msgstr ""
 
-#: i18nsync/i18nsync.module:326
+#: i18nsync/i18nsync.module:343
 msgid "Attached image nodes"
 msgstr ""
 
-#: i18nsync/i18nsync.module:330
+#: i18nsync/i18nsync.module:347
 msgid "Event fields"
 msgstr ""
 
-#: i18nsync/i18nsync.module:332
+#: i18nsync/i18nsync.module:349
 msgid "Event start"
 msgstr ""
 
-#: i18nsync/i18nsync.module:333
+#: i18nsync/i18nsync.module:350
 msgid "Event end"
 msgstr ""
 
-#: i18nsync/i18nsync.module:334
+#: i18nsync/i18nsync.module:351
 msgid "Timezone"
 msgstr ""
 
-#: i18nsync/i18nsync.module:342
+#: i18nsync/i18nsync.module:359
 msgid "CCK fields"
 msgstr ""
 
-#: i18nsync/i18nsync.module:137
+#: i18nsync/i18nsync.module:145
 msgid "One node translation have been synchronized."
 msgid_plural "All @count node translations have been synchronized."
 msgstr[0] ""
