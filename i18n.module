@@ -48,10 +48,10 @@ function i18n_help($path = 'admin/help#i18n', $arg) {
     case 'admin/help#i18n' :
       $output = '<p>'. t('This module improves support for multilingual content in Drupal sites:') .'</p>';
       $output .= '<ul>';
-      $output .= '<li>'. t('Shows content depending on page language') .'</li>';
-      $output .= '<li>'. t('Handles multilingual variables') .'</li>';
+      $output .= '<li>'. t('Shows content depending on page language.') .'</li>';
+      $output .= '<li>'. t('Handles multilingual variables.') .'</li>';
       $output .= '<li>'. t('Extended language option for chosen content types. For these content types transations will be allowed for all defined languages, not only for enabled ones.') .'</li>';
-      $output .= '<li>'. t('Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i>') .'</li>';
+      $output .= '<li>'. t('Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i>.') .'</li>';
       $output .= '</ul>';
       $output .= '<p>'. t('This is the base module for several others adding different features:') .'</p>';
       $output .= '<ul>';
