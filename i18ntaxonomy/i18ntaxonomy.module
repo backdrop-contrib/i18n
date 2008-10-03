@@ -339,7 +339,7 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
         '#title' => t('Language'),
         '#default_value' => $vocabulary && !empty($vocabulary->language) ? $vocabulary->language : '',
         '#options' => array('' => '') + locale_language_list('name'),
-        '#description' => t('Language for this vocbulary. If set, it will apply to all terms in this vocabulary.'),
+        '#description' => t('Language for this vocabulary. If set, it will apply to all terms in this vocabulary.'),
         '#disabled' => ($vocabulary && $mode != I18N_TAXONOMY_LANGUAGE),
       );
       break;
