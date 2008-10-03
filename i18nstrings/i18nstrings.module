@@ -31,7 +31,7 @@ function i18nstrings_help($path, $arg) {
       $output .= '<li>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</li>';
       $output .= '<li>'. t('If you are missing strings to translate, use the <a href="@refresh-strings">refresh strings</a> page.', array('@refresh-strings' => url('admin/build/translate/refresh'))) .'</li>';
       $output .= '</ul>';
-      $output .= '<p>'. t('Read more on the <i>Internationalization handbook</i>: <a href="http://drupal.org/node/313293">Translating user defined strings</a>.') .'</p>';
+      $output .= '<p>'. t('Read more on the <em>Internationalization handbook</em>: <a href="http://drupal.org/node/313293">Translating user defined strings</a>.') .'</p>';
       return $output;
 
     case 'admin/build/translate/refresh':
