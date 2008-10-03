@@ -41,13 +41,13 @@ function i18ntaxonomy_help($path, $arg) {
       $output .= '<li>'. t('Terms can be common to all languages, but may be localized.') .'</li>';
       $output .= '</ul>';
       $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</p>';
-      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' =>'http://drupal.org/node/133977')) .'</p>';
+      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) .'</p>';
       return $output;
 
     case 'admin/settings/i18n':
       $output = '<ul>';
       $output .= '<li>'. t('To set up multilingual options for vocabularies go to <a href="@configure_taxonomy">Taxonomy configuration page</a>.', array('@configure_taxonomy' => url('admin/content/taxonomy'))) .'</li>';
-      $output . '</ul>';
+      $output .= '</ul>';
       return $output;
 
     case 'admin/content/taxonomy/%':

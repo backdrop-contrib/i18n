@@ -35,7 +35,7 @@ function i18nstrings_help($path, $arg) {
       return $output;
 
     case 'admin/build/translate/refresh':
-      $output = '<p>'. t('On this page you can refresh and update values for user defined strings.') . '</p>';
+      $output = '<p>'. t('On this page you can refresh and update values for user defined strings.') .'</p>';
       $output .= '<ul>';
       $output .= '<li>'. t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.') .'</li>';
       $output .= '<li>'. t('Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings.') .'</li>';
@@ -154,7 +154,7 @@ function ts($name, $string = '', $langcode = NULL, $update = FALSE) {
 function ttd($name, $string, $langcode = NULL, $update = FALSE) {
   $context = i18nstrings_context($name, $string);
   $context = implode('/', (array)$context);
-  return tt($name, $string, $langcode, $update).'[T:'. $string .'('. $context .')]';
+  return tt($name, $string, $langcode, $update) .'[T:'. $string .'('. $context .')]';
 }
 
 /**
@@ -378,7 +378,7 @@ function i18nstrings_remove_string($context, $string = NULL) {
     db_query("DELETE FROM {locales_target} WHERE lid = %d", $source->lid);
     db_query("DELETE FROM {i18n_strings} WHERE lid = %d", $source->lid);
     db_query("DELETE FROM {locales_source} WHERE lid = %d", $source->lid);
-    cache_clear_all('locale:'.$context->textgroup.':', 'cache', TRUE);
+    cache_clear_all('locale:'. $context->textgroup .':', 'cache', TRUE);
     return SAVED_DELETED;
   }
 }
@@ -615,7 +615,7 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
   }
   $sql = "SELECT s.textgroup, s.source, i.type, i.objectid, i.property, t.translation FROM {locales_source} s";
   $sql .=" INNER JOIN {i18n_strings} i ON s.lid = i.lid INNER JOIN {locales_target} t ON s.lid = t.lid ";
-  $sql .= implode(' ', $join) .' '. implode (' AND ', $where);
+  $sql .= implode(' ', $join) .' '. implode(' AND ', $where);
   $result = db_query($sql, $params);
 
   // Fetch all rows and store in cache.

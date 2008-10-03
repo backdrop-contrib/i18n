@@ -29,7 +29,7 @@ function i18nsync_help($path, $arg) {
       $output .= '<li>'. t('For multilingual vocabularies, the terms for all translations will be replaced by the translations of the original node terms.') .'</li>';
       $output .= '<li>'. t('For other vocabularies, the terms will be just copied over to all the translations.') .'</li>';
       $output .= '</ul>';
-      $output .= '<p><strong>' . t('Note that permissions are not checked for each node. So if someone can edit a node and it is set to synchronize, all the translations will be synchronized anyway.') .'</strong></p>';
+      $output .= '<p><strong>'. t('Note that permissions are not checked for each node. So if someone can edit a node and it is set to synchronize, all the translations will be synchronized anyway.') .'</strong></p>';
       $output .= '<p>'. t('To enable synchronization check content type options to select which fields to synchronize for each node type') .'</p>';
       $output .= '<p>'. t('The list of available fields for synchronization will include some standard node fields and all CCK fields. You can add more fields to the list in a configuration variable. See README.txt for how to do it.') .'</p>';
       $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) .'</p>';
