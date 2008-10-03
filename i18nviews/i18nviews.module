@@ -16,8 +16,8 @@
 function i18nviews_help($path, $arg) {
   switch ($path) {
     case 'admin/modules#description' :
-      $output = '<p>' . t('Supports translation for views strings: title, header, footer...') . '</p>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
+      $output = '<p>'. t('Supports translation for views strings: title, header, footer...') .'</p>';
+      $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</p>';
       return $output;
   }
 }
@@ -72,7 +72,7 @@ function i18nviews_views_pre_view(&$view, &$display_id, &$args) {
         // That's a full taxonomy box.
         $view->field[$index]['handler'] = 'i18ntaxonomy_views_handler_field_allterms';
       }
-      elseif(preg_match("/term_node_(\d+)\.name/", $data['id'], $matches)) {
+      elseif (preg_match("/term_node_(\d+)\.name/", $data['id'], $matches)) {
         $vid = $matches[1];
         if ($translate[$vid]) {
           // Set new handler for this field.

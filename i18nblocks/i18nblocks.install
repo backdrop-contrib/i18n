@@ -11,18 +11,19 @@
  * Implementation of hook_install().
  */
 function i18nblocks_install() {
-  // Create database tables
+  // Create database tables.
   drupal_install_schema('i18nblocks');
   // We dont need to change module weight
   //db_query("UPDATE {system} SET weight = 20 WHERE name = 'i18nblocks' AND type = 'module'");
 }
 
 /**
- * Implementation of hook_uninstall()
+ * Implementation of hook_uninstall().
  */
 function i18nblocks_uninstall() {
   drupal_uninstall_schema('i18nblocks');
 }
+
 /**
  * Implementation of hook_schema().
  */
@@ -34,7 +35,8 @@ function i18nblocks_schema() {
         'description' => t('The i18n block identifier.'),
         'type' => 'serial',
         'unsigned' => TRUE,
-        'not null' => TRUE),
+        'not null' => TRUE
+      ),
       'module' => array(
         'type' => 'varchar',
         'length' => 64,
@@ -71,21 +73,21 @@ function i18nblocks_schema() {
 }
 
 /**
- * Update: move old variable to new tables
+ * Update: move old variable to new tables.
  */
 function i18nblocks_update_1() {
   $ret = array();
   $t = get_t();
-  require_once drupal_get_path('module', 'i18nblocks').'/i18nblocks.module';
-  require_once drupal_get_path('module', 'i18n').'/i18n.module';
-  // Create the tables if updating from previous version
+  require_once drupal_get_path('module', 'i18nblocks') .'/i18nblocks.module';
+  require_once drupal_get_path('module', 'i18n') .'/i18n.module';
+  // Create the tables if updating from previous version.
   i18nblocks_install();
-  // Move old data from variables into new tables
+  // Move old data from variables into new tables.
   $languages = i18n_supported_languages();
   if ($number = variable_get('i18nblocks_number', 0)) {
     for ($delta = 1; $delta <= $number; $delta++) {
-      if ($block = variable_get('i18nblocks_' . $delta, NULL)) {
-        $update = update_sql("INSERT INTO {i18n_blocks}(delta) VALUES('" . db_escape_string($delta) . "')");
+      if ($block = variable_get('i18nblocks_'. $delta, NULL)) {
+        $update = update_sql("INSERT INTO {i18n_blocks}(delta) VALUES('". db_escape_string($delta) ."')");
         $ret[] = $update;
         $metablock = array();
         if ($update['success']) {
@@ -95,7 +97,7 @@ function i18nblocks_update_1() {
         $metablock['i18nblocks'] = array();
         foreach (array_keys($languages) as $lang) {
           if (isset($block[$lang]) && isset($block[$lang]['module']) && isset($block[$lang]['delta'])) {
-            $metablock['i18nblocks'][$lang] = $block[$lang]['module'] . ':' . $block[$lang]['delta'];
+            $metablock['i18nblocks'][$lang] = $block[$lang]['module'] .':'. $block[$lang]['delta'];
           }
         }
       }
@@ -107,7 +109,7 @@ function i18nblocks_update_1() {
 }
 
 /**
- * Drupal 6 upgrade script
+ * Drupal 6 upgrade script.
  */
 function i18nblocks_update_2() {
   $ret = array();
@@ -123,7 +125,7 @@ function i18nblocks_update_2() {
 }
 
 /**
- * Drop old tables and fields. Uncomment when the previous one is 100% working
+ * Drop old tables and fields. Uncomment when the previous one is 100% working.
  */
 /*
 function i18nblocks_update_3() {
@@ -131,5 +133,4 @@ function i18nblocks_update_3() {
   $items[] = update_sql('DROP TABLE {i18n_blocks_i18n}');
   $items[] = update_sql('DROP TABLE {i18n_blocks_drupal5}');
   return $items;
-}
-*/
+}*/

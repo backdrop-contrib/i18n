@@ -45,7 +45,7 @@ function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $ed
       '#type' => 'hidden',
       '#value' => $trid
     );
-    $translations = i18ntaxonomy_term_get_translations(array('trid' =>$trid));
+    $translations = i18ntaxonomy_term_get_translations(array('trid' => $trid));
   }
   //var_dump($translations);
   $vocabulary = taxonomy_vocabulary_load($vid);
@@ -79,7 +79,7 @@ function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $ed
   }
   $form['destination'] = array(
     '#type' => 'hidden',
-    '#value' => 'admin/content/taxonomy/' . arg(3) . '/translation'
+    '#value' => 'admin/content/taxonomy/'. arg(3) .'/translation'
   );
   return $form;
 }
@@ -112,7 +112,7 @@ function i18ntaxonomy_translation_term_form_submit($form, &$form_state) {
  */
 function i18ntaxonomy_translation_save($terms, $trid = 0) {
   // Delete old translations for this trid.
-  if ($trid){
+  if ($trid) {
     db_query("UPDATE {term_data} SET trid = 0 WHERE trid = %d", $trid);
   }
   // Now pick up all the tids in an array.
@@ -128,7 +128,7 @@ function i18ntaxonomy_translation_save($terms, $trid = 0) {
     db_query('LOCK TABLES {term_data} WRITE');
     $trid = (is_numeric($trid) && $trid) ? $trid : i18ntaxonomy_next_trid();
     $params = array_merge(array($trid), $translations);
-    db_query('UPDATE {term_data} SET trid = %d WHERE tid IN(' . db_placeholders($translations). ')', $params);
+    db_query('UPDATE {term_data} SET trid = %d WHERE tid IN('. db_placeholders($translations) .')', $params);
     db_query('UNLOCK TABLES');
   }
 }
@@ -167,7 +167,7 @@ function i18ntaxonomy_translation_overview($vid) {
     $thisrow = array();
     foreach ($languages as $lang => $name) {
       if (array_key_exists($lang, $terms)) {
-        $thisrow[] = l($terms[$lang]->name, 'taxonomy/term/' . $terms[$lang]->tid);
+        $thisrow[] = l($terms[$lang]->name, 'taxonomy/term/'. $terms[$lang]->tid);
       }
       else {
         $thisrow[] = '--';
@@ -178,7 +178,8 @@ function i18ntaxonomy_translation_overview($vid) {
   }
   if ($rows) {
     $output .= theme('table', $header, $rows);
-  } else {
+  }
+  else {
     $messages[] = t('No translations defined for this vocabulary.');
   }
   $messages[]= l(t('Create new translation'), "admin/content/taxonomy/$vid/translation/edit/new");

@@ -34,7 +34,7 @@ function i18nprofile_update_2() {
   }
   // Category translations from variables.
   foreach (array_keys(language_list()) as $lang) {
-    if ($translation = variable_get('i18nprofile_' . $lang, FALSE)) {
+    if ($translation = variable_get('i18nprofile_'. $lang, FALSE)) {
       foreach ($translation as $category => $translation) {
         if (in_array($category, $categories) && $translation) {
           $context = i18nstrings_context('profile:category', $category);
@@ -65,5 +65,4 @@ function i18nprofile_update_3() {
     variable_del('i18nprofile_'.$lang);
   }
   return $items;
-}
-*/
+}*/

@@ -12,7 +12,7 @@ function i18ncontent_install() {
 }
 
 /**
- * Implementatin of hook_enable()
+ * Implementation of hook_enable().
  */
 function i18ncontent_enable() {
   i18ncontent_locale_refresh();

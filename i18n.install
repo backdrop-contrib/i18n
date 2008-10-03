@@ -58,8 +58,8 @@ function i18n_uninstall() {
 function i18n_update_9() {
   // Update content type settings
   foreach (array_keys(node_get_types()) as $type) {
-    if (variable_get('i18n_node_'.$type, 0)) {
-      variable_set('language_content_type_'.$type, TRANSLATION_ENABLED);
+    if (variable_get('i18n_node_'. $type, 0)) {
+      variable_set('language_content_type_'. $type, TRANSLATION_ENABLED);
     }
   }
   // General language settings
@@ -98,5 +98,4 @@ function i18n_update_10() {
   variable_del('i18n_translation_links');
   variable_del('i18n_translation_node_links');
   return $items;
-}
-*/
+}*/

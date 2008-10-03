@@ -45,7 +45,7 @@ function i18nmenu_menu_link_alter(&$item, $menu) {
   if (!empty($item['language'])) {
     $item['options']['langcode'] = $item['language'];
   }
-  elseif(isset($item['language'])) {
+  elseif (isset($item['language'])) {
     unset($item['options']['langcode']);
   }
   // @ TO DO: Refresh texts
@@ -61,12 +61,12 @@ function i18nmenu_menu_link_alter(&$item, $menu) {
 function i18nmenu_help($path, $arg) {
   switch ($path) {
     case 'admin/help#i18nmenu' :
-      $output = '<p>' . t('This module provides support for translatable custom menu items:') . '</p>';
+      $output = '<p>'. t('This module provides support for translatable custom menu items:') .'</p>';
       $output .= '<ul>';
-      $output .= '<li>' . t('Create menus as usual, with names in the default language, usually English. If the menu is already created, no changes are needed.') . '</li>';
-      $output .= '<li>' . t('Optionally, you can set up a language for a menu item so it is only displayed for that language.') . '</li>';
+      $output .= '<li>'. t('Create menus as usual, with names in the default language, usually English. If the menu is already created, no changes are needed.') .'</li>';
+      $output .= '<li>'. t('Optionally, you can set up a language for a menu item so it is only displayed for that language.') .'</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
+      $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</p>';
       return $output;
   }
 }
@@ -106,9 +106,9 @@ function i18nmenu_localize_tree(&$tree) {
         // If the title is the same it will be localized by the menu system.
         if ($link['link_title'] != $router['title']) {
           //$tree[$index]['link']['title'] = 'Translated';
-          $tree[$index]['link']['title'] = tt('menu:item:' . $link['mlid'] . ':title', $link['link_title'], NULL, TRUE);
+          $tree[$index]['link']['title'] = tt('menu:item:'. $link['mlid'] .':title', $link['link_title'], NULL, TRUE);
         }
-        // Localize subtree
+        // Localize subtree.
         if ($item['below'] !== FALSE) {
           i18nmenu_localize_tree($tree[$index]['below']);
         }
@@ -134,7 +134,7 @@ function i18nmenu_get_router($path) {
 /**
  * Implementation of hook_form_alter().
  */
-function i18nmenu_form_alter(&$form, $form_state, $form_id){
+function i18nmenu_form_alter(&$form, $form_state, $form_id) {
   if ($form_id == 'menu_edit_item') {
     //dsm ($form);
     if ($form['menu']['#item'] && isset($form['menu']['#item']['options']['langcode'])) {

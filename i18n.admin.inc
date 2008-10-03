@@ -33,7 +33,7 @@ function i18n_admin_settings() {
 }
 
 // List of selection modes
-function _i18n_selection_mode(){
+function _i18n_selection_mode() {
   return array(
     'simple' => t('Current language and language neutral.'),
     'mixed' => t('Mixed current language (if available) or default language (if not) and language neutral.'),

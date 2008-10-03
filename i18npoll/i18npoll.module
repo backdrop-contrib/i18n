@@ -112,7 +112,7 @@ function i18npoll_view($node, $teaser = FALSE, $page = FALSE, $block = FALSE) {
     if ($node->allowvotes && $block) {
       $links[] = array(
         'title' => t('Results'),
-        'href' => 'node/' . $node->nid . '/results',
+        'href' => 'node/'. $node->nid .'/results',
         'attributes' => array(
           'title' => t('View the current poll results.')
         )

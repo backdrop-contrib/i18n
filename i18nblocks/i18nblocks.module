@@ -34,13 +34,13 @@ function _block_types() {
 function i18nblocks_help($path, $arg) {
   switch ($path) {
     case 'admin/help#i18nblocks':
-      $output = '<p>' . t('This module provides support for multilingual blocks.') . '</p>';
-      $output .= '<p>' . t('You can set up a language for a block or define it as translatable:') . '</p>';
+      $output = '<p>'. t('This module provides support for multilingual blocks.') .'</p>';
+      $output .= '<p>'. t('You can set up a language for a block or define it as translatable:') .'</p>';
       $output .= '<ul>';
-      $output .= '<li>' . t('Blocks with a language will be displayed only in pages with that language.') . '</li>';
-      $output .= '<li>' . t('Translatable blocks can be translated using the localization interface.') . '</li>';
+      $output .= '<li>'. t('Blocks with a language will be displayed only in pages with that language.') .'</li>';
+      $output .= '<li>'. t('Translatable blocks can be translated using the localization interface.') .'</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
+      $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</p>';
       return $output;
   }
 }
@@ -81,8 +81,8 @@ function i18nblocks_block($op = 'list', $delta = 0, $edit = array()) {
       $form['i18nblocks']['#value'] = t('This is a localizable block.');
       return $form;
   }
-}
-*/
+}*/
+
 /**
  * Implementation of hook_locale().
  *
@@ -174,7 +174,7 @@ function i18nblocks_form_submit($form, &$form_state) {
       break;
 
     default:
-      // The block has a language.    
+      // The block has a language.
       i18nblocks_save($values);
   }
 }
@@ -221,7 +221,7 @@ function i18nblocks_save($block) {
  * @param $language
  *   Language to localize the block.
  */
-function i18nblocks_get_block($delta, $language){
+function i18nblocks_get_block($delta, $language) {
   // Get block metadata.
   $meta = db_fetch_object(db_query("SELECT b.* FROM {blocks} b INNER JOIN {i18n_blocks} i ON i.delta = b.delta AND i.module = b.module WHERE i.ibid = '%d'", $delta));
   // Get block data from module.

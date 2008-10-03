@@ -15,9 +15,9 @@
  */
 function i18nprofile_help($path, $arg) {
   switch ($path) {
-    case 'admin/modules#description' :
-      $output = '<p>' . t('Supports translation for profile module field names and descriptions.') . '</p>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
+    case 'admin/modules#description':
+      $output = '<p>'. t('Supports translation for profile module field names and descriptions.') .'</p>';
+      $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</p>';
       return $output;
   }
 }
@@ -64,7 +64,7 @@ function i18nprofile_menu_alter(&$items) {
   if (($categories = _user_categories($empty_account)) && (count($categories) > 1)) {
     foreach ($categories as $key => $category) {
       // 'account' is already handled by the MENU_DEFAULT_LOCAL_TASK.
-      $path = 'user/%user_category/edit/' . $category['name'];
+      $path = 'user/%user_category/edit/'. $category['name'];
       if ($category['name'] != 'account' && !empty($items[$path])) {
         $items[$path]['title callback'] =  'i18nprofile_translate_category'; // Was 'check_plain',
         $items[$path]['title arguments'] = array($category['title']); // Was array($category['title'])
@@ -101,7 +101,7 @@ function i18nprofile_profile_alter(&$account) {
             }
             else {
               // Link
-              $account->content[$name][$field]['#value'] == check_markup(l($account->$field, 'profile/' . $field . '/' . $account->$field));
+              $account->content[$name][$field]['#value'] == check_markup(l($account->$field, 'profile/'. $field .'/'. $account->$field));
             }
           }
         }
@@ -150,7 +150,7 @@ function i18nprofile_field_form_submit($form, &$form_state) {
 /**
  * Translate form fields for a given category.
  */
-function i18nprofile_form_translate_category(&$form, $category){
+function i18nprofile_form_translate_category(&$form, $category) {
   if (!empty($form[$category])) {
     $form[$category]['#title'] = tt('profile:category', $form[$category]['#title']);
     foreach (element_children($form[$category]) as $field) {
@@ -233,7 +233,7 @@ function i18nprofile_form_translate_all($form_id, &$form) {
  */
 function i18nprofile_categories($getraw = FALSE) {
   $language = i18n_get_lang();
-  if ($translation = variable_get('i18nprofile_'.$language, 0)) {
+  if ($translation = variable_get('i18nprofile_'. $language, 0)) {
     if ($getraw) {
       return $translation;
     }
@@ -256,7 +256,7 @@ function i18nprofile_categories($getraw = FALSE) {
  *
  * @ TODO Drupal 6
  */
-function i18nprofile_fields($category){
+function i18nprofile_fields($category) {
   static $_fields;
   $language = i18n_get_lang();
   if (!isset($_fields[$category])) {

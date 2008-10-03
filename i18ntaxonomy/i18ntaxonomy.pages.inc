@@ -94,7 +94,7 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
  * @ingroup themeable
  */
 function theme_taxonomy_term_page($tids, $result) {
-  drupal_add_css(drupal_get_path('module', 'taxonomy') . '/taxonomy.css');
+  drupal_add_css(drupal_get_path('module', 'taxonomy') .'/taxonomy.css');
 
   $output = '';
 
@@ -102,7 +102,7 @@ function theme_taxonomy_term_page($tids, $result) {
   if (count($tids) == 1) {
     $term = taxonomy_get_term($tids[0]);
     if (i18ntaxonomy_vocabulary($term->vid) == I18N_TAXONOMY_LOCALIZE) {
-      $description = tt('taxonomy:term:' . $term->tid . ':description', $term->description);
+      $description = tt('taxonomy:term:'. $term->tid .':description', $term->description);
     }
     else {
       $description = $term->description;

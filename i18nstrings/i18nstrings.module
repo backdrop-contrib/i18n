@@ -26,25 +26,25 @@
 function i18nstrings_help($path, $arg) {
   switch ($path) {
     case 'admin/help#i18nstrings':
-      $output = '<p>' . t('This module adds support for other modules to translate user defined strings. Depending on which modules you have enabled that use this feature you may see different text groups to translate.') . '<p>';
+      $output = '<p>'. t('This module adds support for other modules to translate user defined strings. Depending on which modules you have enabled that use this feature you may see different text groups to translate.') .'<p>';
       $output .= '<ul>';
-      $output .= '<li>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</li>';
-      $output .= '<li>' . t('If you are missing strings to translate, use the <a href="@refresh-strings">refresh strings</a> page.', array('@refresh-strings' => url('admin/build/translate/refresh'))) . '</li>';
+      $output .= '<li>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</li>';
+      $output .= '<li>'. t('If you are missing strings to translate, use the <a href="@refresh-strings">refresh strings</a> page.', array('@refresh-strings' => url('admin/build/translate/refresh'))) .'</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('Read more on the <i>Internationalization handbook</i>: <a href="http://drupal.org/node/313293">Translating user defined strings</a>.') . '</p>';
+      $output .= '<p>'. t('Read more on the <i>Internationalization handbook</i>: <a href="http://drupal.org/node/313293">Translating user defined strings</a>.') .'</p>';
       return $output;
 
     case 'admin/build/translate/refresh':
-      $output = '<p>' . t('On this page you can refresh and update values for user defined strings.') . '</p>';
+      $output = '<p>'. t('On this page you can refresh and update values for user defined strings.') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>' . t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.') . '</li>';
-      $output .= '<li>' . t('Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings.') . '</li>';
+      $output .= '<li>'. t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.') .'</li>';
+      $output .= '<li>'. t('Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings.') .'</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
+      $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</p>';
       return $output;
 
     case 'admin/settings/language':
-      $output .= '<p>' . t('<strong>Warning</strong>: Changing the default language may have unintended effects on string translations. Read more about <a href="@i18nstrings-help">String translation</a>', array('@i18nstrings-help' => url('admin/help/i18nstrings'))) . '</p>';
+      $output .= '<p>'. t('<strong>Warning</strong>: Changing the default language may have unintended effects on string translations. Read more about <a href="@i18nstrings-help">String translation</a>', array('@i18nstrings-help' => url('admin/help/i18nstrings'))) .'</p>';
       return $output;
   }
 }
@@ -71,7 +71,7 @@ function i18nstrings_menu() {
  */
 function i18nstrings_form_alter(&$form, $form_state, $form_id) {
 
-  switch ($form_id){
+  switch ($form_id) {
     case 'locale_translate_export_po_form':
     case 'locale_translate_import_form':
       $names = locale_language_list('name', TRUE);
@@ -154,7 +154,7 @@ function ts($name, $string = '', $langcode = NULL, $update = FALSE) {
 function ttd($name, $string, $langcode = NULL, $update = FALSE) {
   $context = i18nstrings_context($name, $string);
   $context = implode('/', (array)$context);
-  return tt($name, $string, $langcode, $update).'[T:' . $string . '(' . $context . ')]';
+  return tt($name, $string, $langcode, $update).'[T:'. $string .'('. $context .')]';
 }
 
 /**
@@ -295,7 +295,7 @@ function i18nstrings_add_string($name, $string) {
     // Mysql just gets last id for latest query ?
     $source->lid = db_last_insert_id('locales_source', 'lid');
     // Clear locale cache so this string can be added in a later request.
-    cache_clear_all('locale:'.$context->textgroup.':', 'cache', TRUE);
+    cache_clear_all('locale:'. $context->textgroup .':', 'cache', TRUE);
     // Create string.
     $status = SAVED_NEW;
   }
@@ -409,7 +409,7 @@ function i18nstrings_update_context($oldname, $newname) {
   $result = db_query("SELECT s.*, i.type, i.objectid, i.property FROM {locales_source} s  LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND s.location LIKE '%s'", $oldcontext->textgroup, $location);
   while ($source = db_fetch_object($result)) {
     // Make sure we have string and context.
-    $context = i18nstrings_context($oldcontext->textgroup . ':' . $source->location);
+    $context = i18nstrings_context($oldcontext->textgroup .':'. $source->location);
     foreach ($replace as $field => $value) {
       $context->$field = $value;
     }
@@ -454,7 +454,7 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
     // perspective that is a really bad idea, so we have no user
     // interface for this. Be careful when turning this option off!
     if (variable_get('locale_cache_strings', 1) == 1) {
-      if ($cache = cache_get('locale:'.$textgroup.':'.$langcode, 'cache')) {
+      if ($cache = cache_get('locale:'. $textgroup .':'. $langcode, 'cache')) {
         $locale_t[$textgroup][$langcode] = $cache->data;
       }
       else {
@@ -465,7 +465,7 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
         while ($data = db_fetch_object($result)) {
           $locale_t[$textgroup][$langcode][$data->source] = (empty($data->translation) ? TRUE : $data->translation);
         }
-        cache_set('locale:' . $textgroup . ':' . $langcode, $locale_t[$textgroup][$langcode]);
+        cache_set('locale:'. $textgroup .':'. $langcode, $locale_t[$textgroup][$langcode]);
       }
     }
   }
@@ -485,7 +485,7 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
         // and clear cache, to include the string into caching next time. Saved version is
         // also a string-history information for later pruning of the tables.
         db_query_range("UPDATE {locales_source} SET version = '%s' WHERE lid = %d", VERSION, $translation->lid, 0, 1);
-        cache_clear_all('locale:' . $textgroup . ':', 'cache', TRUE);
+        cache_clear_all('locale:'. $textgroup .':', 'cache', TRUE);
       }
     }
     else {
@@ -493,7 +493,7 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
       db_query("INSERT INTO {locales_source} (location, source, textgroup, version) VALUES ('%s', '%s', 'default', '%s')", request_uri(), $string, VERSION);
       $locale_t[$langcode][$string] = TRUE;
       // Clear locale cache so this string can be added in a later request.
-      cache_clear_all('locale:' . $textgroup . ':', 'cache', TRUE);
+      cache_clear_all('locale:'. $textgroup .':', 'cache', TRUE);
     }
   }
 
@@ -505,13 +505,13 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
  *
  * I.e.
  *   'taxonomy:term:1:name'
- * 
+ *
  * will become a $context object where
  *   $context->textgroup = 'taxonomy';
  *   $context->type = 'term';
  *   $context->objectid = 1;
  *   $context->property = 'name';
- * 
+ *
  * Examples:
  *  'taxonomy:title' -> (taxonomy, title, 0, 0)
  *  'contenttypes:type:[type]:name'
@@ -533,7 +533,7 @@ function i18nstrings_context($context, $string = NULL) {
   }
   else {
     // We add empty fields at the end before splitting.
-    list($textgroup, $type, $objectid, $property) = split(':', $context . ':::');
+    list($textgroup, $type, $objectid, $property) = split(':', $context .':::');
     $context = (object)array(
       'textgroup' => $textgroup,
       'type' => $type,
@@ -567,7 +567,7 @@ function i18nstrings_context_query($context, $alias = 's') {
  * Returns the location for the locale table for a string context.
  */
 function i18nstrings_location($context) {
-  if (is_string($context)){
+  if (is_string($context)) {
     $context = i18nstrings_context($context);
   }
   $location[] = $context->type;
@@ -597,7 +597,7 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
         $conditions['s.textgroup'] = $value;
       }
       else {
-        $conditions['i.' . $key] = $value;
+        $conditions['i.'. $key] = $value;
       }
     }
   }
@@ -605,17 +605,17 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
   $where = $params = array();
   foreach ($conditions as $key => $value) {
     if (is_array($value)) {
-      $where[] = $key . ' IN (' . db_placeholders($value, is_int($value[0]) ? 'int' : 'string') . ')';
+      $where[] = $key .' IN ('. db_placeholders($value, is_int($value[0]) ? 'int' : 'string') .')';
       $params = array_merge($params, $value);
     }
     else {
-      $where[] = $key . ' = ' . is_int($value) ? '%d' : "'%s'";
+      $where[] = $key .' = '. is_int($value) ? '%d' : "'%s'";
       $params[] = $value;
     }
   }
   $sql = "SELECT s.textgroup, s.source, i.type, i.objectid, i.property, t.translation FROM {locales_source} s";
   $sql .=" INNER JOIN {i18n_strings} i ON s.lid = i.lid INNER JOIN {locales_target} t ON s.lid = t.lid ";
-  $sql .= implode(' ', $join) . ' ' . implode (' AND ', $where);
+  $sql .= implode(' ', $join) .' '. implode (' AND ', $where);
   $result = db_query($sql, $params);
 
   // Fetch all rows and store in cache.

@@ -27,7 +27,7 @@ function i18nstrings_admin_refresh() {
   $form['refresh'] = array(
     '#type' => 'submit',
     '#value' => t('Refresh strings'),
-    '#suffix' => '<p>' . t('This will create all the missing strings for the selected text groups.') . '</p>',
+    '#suffix' => '<p>'. t('This will create all the missing strings for the selected text groups.') .'</p>',
   );
   // Get all languages, except default language.
   $languages = locale_language_list('name', TRUE);
@@ -40,7 +40,7 @@ function i18nstrings_admin_refresh() {
   $form['update'] = array(
     '#type' => 'submit',
     '#value' => t('Update translations'),
-    '#suffix' => '<p>' . t('This will fetch all existing translations from the localization tables for the selected text groups and languages.') . '</p>',
+    '#suffix' => '<p>'. t('This will fetch all existing translations from the localization tables for the selected text groups and languages.') .'</p>',
   );
   return $form;
 }
@@ -75,7 +75,7 @@ function i18nstrings_admin_update($language, $groups) {
   $params[] = $language;
   $sql = 'SELECT g.*, t.translation, t.lid as tlid FROM {locales_source} g INNER JOIN {locales_source} s ON g.source = s.source AND s.lid <> g.lid ';
   $sql .= 'INNER JOIN {locales_target} t ON s.lid = t.lid LEFT JOIN {locales_target} t2 ON g.lid = t2.lid ';
-  $sql .= 'WHERE t2.lid IS NULL AND g.textgroup IN ('. db_placeholders($groups, 'varchar'). ") AND t.language = '%s'";
+  $sql .= 'WHERE t2.lid IS NULL AND g.textgroup IN ('. db_placeholders($groups, 'varchar') .") AND t.language = '%s'";
   $result = db_query($sql  , $params);
   $count = 0;
   while ($string = db_fetch_object($result)) {
