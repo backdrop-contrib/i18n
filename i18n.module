@@ -56,7 +56,7 @@ function i18n_help($path = 'admin/help#i18n', $arg) {
       $output .= '<p>'. t('This is the base module for several others adding different features:') .'</p>';
       $output .= '<ul>';
       $output .= '<li>'. t('Multilingual menu items') .'</li>';
-      $output .= '<li>'. t('Multilingual taxonomy Adds a language field for taxonomy vocabularies and terms') .'</li>';
+      $output .= '<li>'. t('Multilingual taxonomy adds a language field for taxonomy vocabularies and terms') .'</li>';
       $output .= '</ul>';
       $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) .'</p>';
       return $output;
