@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: German translation for i18npoll\n"
 "POT-Creation-Date: 2008-09-26 00:38+0200\n"
-"PO-Revision-Date: 2008-09-26 00:52+0100\n"
+"PO-Revision-Date: 2008-10-03 18:52+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -34,7 +34,7 @@ msgstr "Frühere Umfragen"
 
 #: i18npoll/i18npoll.module:103
 msgid "View the list of polls on this site."
-msgstr "Umfragen dieser Seite anzeigen."
+msgstr "Umfragen dieser Website anzeigen."
 
 #: i18npoll/i18npoll.module:105
 msgid "Results"

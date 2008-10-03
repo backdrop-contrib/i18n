@@ -60,7 +60,7 @@ msgid "If you are missing strings to translate, use the <a href=\"@refresh-strin
 msgstr ""
 
 #: i18nstrings/i18nstrings.module:34
-msgid "Read more on the <i>Internationalization handbook</i>: <a href=\"http://drupal.org/node/313293\">Translating user defined strings</a>."
+msgid "Read more on the <em>Internationalization handbook</em>: <a href=\"http://drupal.org/node/313293\">Translating user defined strings</a>."
 msgstr ""
 
 #: i18nstrings/i18nstrings.module:38

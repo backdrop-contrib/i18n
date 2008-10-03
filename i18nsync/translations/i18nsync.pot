@@ -44,7 +44,7 @@ msgid "Note that permissions are not checked for each node. So if someone can ed
 msgstr ""
 
 #: i18nsync/i18nsync.module:33
-msgid "To enable synchronization check content type options to select which fields to synchronize for each node type"
+msgid "To enable synchronization check content type options to select which fields to synchronize for each node type."
 msgstr ""
 
 #: i18nsync/i18nsync.module:34

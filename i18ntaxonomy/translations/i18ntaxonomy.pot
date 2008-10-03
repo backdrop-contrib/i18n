@@ -135,7 +135,7 @@ msgid "For localizable vocabularies, to have all terms available for translation
 msgstr ""
 
 #: i18ntaxonomy/i18ntaxonomy.module:342
-msgid "Language for this vocbulary. If set, it will apply to all terms in this vocabulary."
+msgid "Language for this vocabulary. If set, it will apply to all terms in this vocabulary."
 msgstr ""
 
 #: i18ntaxonomy/i18ntaxonomy.module:358

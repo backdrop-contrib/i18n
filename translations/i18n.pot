@@ -3,8 +3,8 @@
 # LANGUAGE translation of Drupal (root)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  i18n.admin.inc,v 1.2.2.4 2008/10/03 11:32:22 hass
-#  i18n.module,v 1.41.2.16 2008/10/03 11:32:22 hass
+#  i18n.admin.inc,v 1.2.2.5 2008/10/03 19:49:10 hass
+#  i18n.module,v 1.41.2.20 2008/10/03 20:06:25 hass
 #  i18n.info,v 1.5.2.4 2008/09/25 19:16:11 jareyero
 #  i18n.install,v 1.15.2.5 2008/10/03 11:32:22 hass
 #  i18nblocks/i18nblocks.info: n/a
@@ -21,7 +21,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-10-03 17:58+0200\n"
+"POT-Creation-Date: 2008-10-03 22:10+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -67,11 +67,11 @@ msgid "This module improves support for multilingual content in Drupal sites:"
 msgstr ""
 
 #: i18n.module:51
-msgid "Shows content depending on page language"
+msgid "Shows content depending on page language."
 msgstr ""
 
 #: i18n.module:52
-msgid "Handles multilingual variables"
+msgid "Handles multilingual variables."
 msgstr ""
 
 #: i18n.module:53
@@ -79,7 +79,7 @@ msgid "Extended language option for chosen content types. For these content type
 msgstr ""
 
 #: i18n.module:54
-msgid "Provides a block for language selection and two theme functions: <i>i18n_flags</i> and <i>i18n_links</i>"
+msgid "Provides a block for language selection and two theme functions: <em>i18n_flags</em> and <em>i18n_links</em>."
 msgstr ""
 
 #: i18n.module:56
@@ -87,11 +87,11 @@ msgid "This is the base module for several others adding different features:"
 msgstr ""
 
 #: i18n.module:58
-msgid "Multilingual menu items"
+msgid "Multilingual menu items."
 msgstr ""
 
 #: i18n.module:59
-msgid "Multilingual taxonomy Adds a language field for taxonomy vocabularies and terms"
+msgid "Multilingual taxonomy adds a language field for taxonomy vocabularies and terms."
 msgstr ""
 
 #: i18n.module:66

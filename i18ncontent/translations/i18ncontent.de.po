@@ -9,8 +9,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: German translation for i18ncontent\n"
-"POT-Creation-Date: 2008-09-26 00:38+0200\n"
-"PO-Revision-Date: 2008-09-26 00:50+0100\n"
+"POT-Creation-Date: 2008-10-03 17:58+0200\n"
+"PO-Revision-Date: 2008-10-03 18:26+0100\n"
 "Last-Translator: Alexander Haß\n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr ""
 
 #: i18ncontent/i18ncontent.module:22
 msgid "This module will localize all content type configuration texts."
-msgstr ""
+msgstr "Dieses Modul wird alle Konfigurationstexte der Inhaltstypen lokalisieren."
 
 #: i18ncontent/i18ncontent.module:24
 msgid "Content type names"
@@ -34,13 +34,13 @@ msgstr "Eingaberichtlinien"
 
 #: i18ncontent/i18ncontent.module:26
 msgid "Content type descriptions were previously localized so they won't be affected."
-msgstr ""
+msgstr "Die Bescheibungen der Inhaltstypen wurden vorher lokalisiert und werden deshalb nicht beeinflusst."
 
-#: i18ncontent/i18ncontent.module:45
+#: i18ncontent/i18ncontent.module:46
 msgid "Content type"
 msgstr "Inhaltstyp"
 
-#: i18ncontent/i18ncontent.module:108
+#: i18ncontent/i18ncontent.module:110
 msgid "Delete content type"
 msgstr "Inhaltstyp löschen"
 
@@ -54,5 +54,5 @@ msgstr "Inhaltstypübersetzung"
 
 #: i18ncontent/i18ncontent.info:0
 msgid "Translates content type related strings: name, description, help text..."
-msgstr ""
+msgstr "Übersetzt die Zeichenketten von Inhaltstypen: Name, Beschreibung, Hilfetext..."
 
