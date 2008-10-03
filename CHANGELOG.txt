@@ -10,6 +10,8 @@ TO DO
 
 6.x-beta4 to .......
 ----------------------
+- Uncountable code style issues have been fixed for coder module compliance and core rules.
+- Fixed: Translation issues like missing periods, typos, etc.
 - Fixed: Synchronization not happening when creating a translation, #313605
 - Added some help texts for i18nstrings and warnings about the site default language, #314035
 - Fixed: Column name conflict (oid) on PostgreSQL, #314126
