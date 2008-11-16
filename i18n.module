@@ -217,7 +217,7 @@ function i18n_translation_link_alter(&$links, $path) {
 function i18n_link_alter(&$links, $node) {
   global $language;
 
-  if ($node->tnid) {
+  if (!empty($node->tnid)) {
     foreach (array_keys(i18n_language_list('extended')) as $langcode) {
       $index = 'node_translation_'. $langcode;
       if (!empty($links[$index])) {

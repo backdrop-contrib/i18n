@@ -64,6 +64,8 @@ function i18nstrings_schema() {
  */
 function i18nstrings_update_5900() {
   i18nstrings_install();
+  // Mark next update to be skipped
+  variable_set('i18nstrings_update_skip', 1);
   return array();
 }
 
@@ -74,7 +76,10 @@ function i18nstrings_update_5900() {
  */
 function i18nstrings_update_6001() {
   $ret = array();
-  db_change_field($ret, 'i18n_strings', 'oid', 'objectid', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
-
+  if (!variable_get('i18nstrings_update_skip', 0)) {
+    db_change_field($ret, 'i18n_strings', 'oid', 'objectid', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
+  } else {
+    variable_del(i18nstrings_update_skip);
+  }
   return $ret;
 }

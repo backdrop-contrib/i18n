@@ -207,6 +207,7 @@ function i18nblocks_save($block) {
     $block['ibid'] = db_last_insert_id('i18n_blocks', 'ibid');
   }
   if (!$block['language']) {
+    // We use ibid property instead of block's delta as block id for strings
     $delta = $block['ibid'];
     tt("blocks:block:$delta:title", $block['title'], NULL, TRUE);
     tt("blocks:block:$delta:content", $block['body'], NULL, TRUE);
@@ -243,16 +244,23 @@ function i18nblocks_get_block($delta, $language) {
 
 /**
  * Translate localizable block.
+ * 
+ * @param $block
+ *   Core block object
+ * @param $info
+ *   Translation info from i18n
  */
-function i18nblocks_translate_block($block) {
+function i18nblocks_translate_block($block, $info) {
+  // The block id will be i18n's ibid instead of block delta
+  $bid = $info->ibid;
   if ($block->title) {
     // Check plain here to allow module generated titles to keep any markup.
-    $block->subject = $block->title == '<none>' ? '' : check_plain(tt("blocks:block:$block->delta:title", $block->title));
+    $block->subject = $block->title == '<none>' ? '' : check_plain(tt("blocks:block:$bid:title", $block->title));
   }
   elseif (!empty($block->subject)) {
-    $block->subject = tt("blocks:block:$block->delta:title", $block->subject);
+    $block->subject = tt("blocks:block:$bid:title", $block->subject);
   }
-  $block->content = tt("blocks:block:$block->delta:content", $block->content);
+  $block->content = tt("blocks:block:$bid:content", $block->content);
   return $block;
 }
 
@@ -294,7 +302,7 @@ function i18nblocks_theme_blocks($region) {
       // Configurable blocks, may be localizable.
       if ($block->module == 'block') {
         if (isset($i18nblocks['block'][$block->delta])) {
-          $block = i18nblocks_translate_block($block);
+          $block = i18nblocks_translate_block($block, $i18nblocks['block'][$block->delta]);
         }
       }
       elseif ($i18nmenu) {

@@ -11,6 +11,8 @@ TO DO
 
 6.x-beta4 to 6.x-beta5
 ----------------------
+- Fixed multilingual blocks not translating, #305868
+- Fixed notices, undefined variables, by eMPee584, #276161
 - Fixed some issues with strings and menu install/updates
 - Fixed typo in i18nblocks_update_2(), #317042
 - Fixed warning illegal offset type, #294278
