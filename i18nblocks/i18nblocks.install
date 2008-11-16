@@ -118,7 +118,7 @@ function i18nblocks_update_2() {
   drupal_install_schema('i18nblocks');
   // Fill in new table with old blocks but only for user defined blocks.
   // The rest will need manual update
-  $ret = update_sql("INSERT INTO {i18n_blocks} (module, delta, language) SELECT i.module, i.delta, i.language FROM {i18n_blocks_i18n} i WHERE i.module = 'block'");
+  $ret[] = update_sql("INSERT INTO {i18n_blocks} (module, delta, language) SELECT i.module, i.delta, i.language FROM {i18n_blocks_i18n} i WHERE i.module = 'block'");
 
   drupal_set_message(t('Multilingual blocks have been updated. Please, review your blocks configuration.'));
   return $ret;
