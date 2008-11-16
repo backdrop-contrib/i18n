@@ -62,13 +62,14 @@ function i18nstrings_schema() {
 /**
  * Update from 5.x version
  */
+/*
 function i18nstrings_update_5900() {
   i18nstrings_install();
   // Mark next update to be skipped
   variable_set('i18nstrings_update_skip', 1);
   return array();
 }
-
+*/
 /**
  * Drupal 6 update. Change field name, 'oid' was psql reserved name.
  *
