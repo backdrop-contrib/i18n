@@ -9,8 +9,12 @@ TO DO
 - Support for translation of some node strings, #313840
 - Better information for theme variables on settings page
 
-6.x-beta4 to 6.x-beta5
+6.x-beta6 to .........
 ----------------------
+- Implemented workaround for race condition, #277711
+
+6.x-beta4 to 6.x-beta6 (Rolled out beta5 with some errors so did a new release)
+------------------------------------------------------------------------------
 - Fixed multilingual blocks not translating, #305868
 - Fixed notices, undefined variables, by eMPee584, #276161
 - Fixed some issues with strings and menu install/updates
