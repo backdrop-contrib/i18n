@@ -3,5 +3,4 @@ description = Enables multilingual blocks and block translation.
 dependencies[] = i18n
 dependencies[] = i18nstrings
 package = Multilanguage
-version = VERSION
 core = 6.x

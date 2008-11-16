@@ -4,5 +4,4 @@ description = Extends Drupal support for multilingual features.
 dependencies[] = locale
 dependencies[] = translation
 package = Multilanguage
-version = VERSION
 core = 6.x

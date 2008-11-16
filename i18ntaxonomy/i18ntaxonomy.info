@@ -5,5 +5,4 @@ dependencies[] = i18n
 dependencies[] = taxonomy
 dependencies[] = i18nstrings
 package = Multilanguage
-version = VERSION
 core = 6.x

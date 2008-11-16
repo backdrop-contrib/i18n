@@ -3,5 +3,4 @@ name = String translation
 description = Provides support for translation of user defined strings.
 dependencies[] = locale
 package = Multilanguage
-version = VERSION
 core = 6.x

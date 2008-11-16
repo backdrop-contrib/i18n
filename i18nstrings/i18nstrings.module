@@ -26,7 +26,8 @@
 function i18nstrings_help($path, $arg) {
   switch ($path) {
     case 'admin/help#i18nstrings':
-      $output = '<p>'. t('This module adds support for other modules to translate user defined strings. Depending on which modules you have enabled that use this feature you may see different text groups to translate.') .'<p>';
+      $output = '<p>' . t('This module adds support for other modules to translate user defined strings. Depending on which modules you have enabled that use this feature you may see different text groups to translate.') .'<p>';
+      $output .= '<p>' . t('This works differently to Drupal standard localization system: The strings will be translated from the default language (which may not be English), so changing the default language may cause all these translations to be broken.') . '</p>';
       $output .= '<ul>';
       $output .= '<li>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</li>';
       $output .= '<li>'. t('If you are missing strings to translate, use the <a href="@refresh-strings">refresh strings</a> page.', array('@refresh-strings' => url('admin/build/translate/refresh'))) .'</li>';
@@ -44,7 +45,7 @@ function i18nstrings_help($path, $arg) {
       return $output;
 
     case 'admin/settings/language':
-      $output .= '<p>'. t('<strong>Warning</strong>: Changing the default language may have unintended effects on string translations. Read more about <a href="@i18nstrings-help">String translation</a>', array('@i18nstrings-help' => url('admin/help/i18nstrings'))) .'</p>';
+      $output .= '<p>'. t('<strong>Warning</strong>: Changing the default language may have unwanted effects on string translations. Read more about <a href="@i18nstrings-help">String translation</a>', array('@i18nstrings-help' => url('admin/help/i18nstrings'))) .'</p>';
       return $output;
   }
 }

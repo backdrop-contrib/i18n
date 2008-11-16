@@ -6,5 +6,4 @@ dependencies[] = menu
 dependencies[] = i18nblocks
 dependencies[] = i18nstrings
 package = Multilanguage
-version = VERSION
 core = 6.x
