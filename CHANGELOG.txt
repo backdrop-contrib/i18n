@@ -11,6 +11,7 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Tentative fix for: Story shows multiple times on front page, #334670
 - Simplified mixed content selection logic
 - Added content selection for views, by Jax, #283845
 - Implemented workaround for race condition, #277711
