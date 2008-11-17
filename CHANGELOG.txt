@@ -11,6 +11,8 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Simplified mixed content selection logic
+- Added content selection for views, by Jax, #283845
 - Implemented workaround for race condition, #277711
 
 6.x-beta4 to 6.x-beta6 (Rolled out beta5 with some errors so did a new release)

@@ -1,6 +1,6 @@
 ; $Id$
 name = Views translation
-description = Views support for i18n, translation of views strings (Experimental).
+description = Translation of views strings and content selection for views
 dependencies[] = i18nstrings
 dependencies[] = views
 dependencies[] = i18n

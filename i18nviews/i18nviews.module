@@ -149,3 +149,10 @@ function i18ntaxonomy_views_handler_field_allterms($fieldinfo, $fielddata, $valu
   }
   return $links;
 }
+
+function i18nviews_views_api() {
+  return array(
+    'api' => '2.0',
+    'path' => drupal_get_path('module', 'i18nviews') . '/includes',
+  );
+}

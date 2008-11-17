@@ -414,11 +414,13 @@ function i18n_db_rewrite_sql($query, $primary_table, $primary_key, $args = array
 
       // Mixed mode is a bit more complex, we need to join in one more table
       // and add some more conditions, but only if language is not default.
-      if ($mode == 'mixed' && i18n_get_lang() != i18n_default_language()) {
-        $result['join'] = "LEFT JOIN {node} i18n ON $primary_table.tnid = i18n.tnid AND i18n.language = '". i18n_get_lang() ."'";
+      if ($mode == 'mixed') {
         $result['where'] = i18n_db_rewrite_where($primary_table, 'node', 'simple');
-        // So we show also nodes that have default language.
-        $result['where'] .= " OR ($primary_table.language = '". i18n_default_language() ."' AND i18n.nid IS NULL)";
+        if (i18n_get_lang() != i18n_default_language()) {
+          $result['join'] = "LEFT JOIN {node} i18n ON $primary_table.tnid = i18n.tnid AND i18n.language = '". i18n_get_lang() ."'";
+          // So we show also nodes that have default language.
+          $result['where'] .= " OR ($primary_table.language = '". i18n_default_language() ."' AND i18n.nid IS NULL)";
+        }
       }
       else {
         $result['where'] = i18n_db_rewrite_where($primary_table, 'node', $mode);
