@@ -290,9 +290,13 @@ function i18nstrings_add_string($name, $string) {
       db_query("UPDATE {locales_source} SET source = '%s' WHERE lid = %d", $string, $source->lid);
       $status = SAVED_UPDATED;
     }
-    // Update metadata, safest is delete and update.
-    db_query("DELETE FROM {i18n_strings} WHERE lid = %d", $source->lid);
-    db_query("INSERT INTO {i18n_strings} (lid, type, objectid, property) VALUES(%d, '%s', %d, '%s')", $source->lid, $context->type, $context->objectid, $context->property);
+    // Update metadata.
+    db_query("UPDATE {i18n_strings} SET type = '%s', objectid = %d, property = '%s' WHERE lid = %d", $context->type, $context->objectid, $context->property, $source->lid);
+    if (!db_affected_rows()) {
+      // Drupal 6 core uses similar calls with @db_query. Not doing so yet
+      // pending further information. See issue #277711.
+      db_query("INSERT INTO {i18n_strings} (lid, type, objectid, property) VALUES(%d, '%s', %d, '%s')", $source->lid, $context->type, $context->objectid, $context->property);
+    }
   }
   else {
     db_query("INSERT INTO {locales_source} (location, source, textgroup, version) VALUES ('%s', '%s', '%s', '%s')", $location, $string, $context->textgroup, 0);
