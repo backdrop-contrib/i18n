@@ -297,29 +297,6 @@ function i18n_node_language_list($node, $translate = FALSE) {
 }
 
 /**
- * Function i18n_get_links().
- *
- * Returns an array of links for all languages, with or without names/flags.
- *
- * @param $path
- *   Drupal internal path.
- * @param $query
- *   Query string.
- * @param $names
- *   Names to use for the links. Defaults to native language names.
- */
-function i18n_get_links($path = '', $query = NULL, $names = NULL) {
-  if ($path == variable_get('site_frontpage', 'node')) {
-    $path = '';
-  }
-  $names = $names ? $names : locale_language_list('native');
-  foreach (array_keys(i18n_supported_languages()) as $lang) {
-    $links[$lang] = theme('i18n_link', $names[$lang], i18n_path($path, $lang), $lang, $query);
-  }
-  return $links;
-}
-
-/**
  * Selection mode for content.
  *
  * Warning: when used with params they need to be escaped, as some values are thrown directly in queries.

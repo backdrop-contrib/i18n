@@ -11,6 +11,10 @@ function i18nstrings_install() {
   drupal_install_schema('i18nstrings');
   // Set module weight for it to run after core modules.
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'i18nstrings' AND type = 'module'");
+
+  // Add custom index to locales_source table.
+  $ret = array();
+  db_add_index($ret, 'locales_source', 'textgroup_location', array(array('textgroup', 30), 'location'));
 }
 
 function i18nstrings_uninstall() {
@@ -18,6 +22,10 @@ function i18nstrings_uninstall() {
   drupal_uninstall_schema('i18nstrings');
   // @TODO locale table cleanup, think about it.
   // Should we drop all strings for groups other than 'default' ?
+
+  // Drop custom index.
+  $ret = array();
+  db_drop_index($ret, 'locales_source', 'textgroup_location');
 }
 
 /**
@@ -60,6 +68,14 @@ function i18nstrings_schema() {
 }
 
 /**
+ * Implementation of hook_schema_alter().
+ */
+function i18nstrings_schema_alter(&$schema) {
+  // Add index for textgroup and location to {locales_source}.
+  $schema['locales_source']['indexes']['textgroup_location'] = array(array('textgroup', 30), 'location');
+}
+
+/**
  * Update from 5.x version
  */
 /*
@@ -70,6 +86,7 @@ function i18nstrings_update_5900() {
   return array();
 }
 */
+
 /**
  * Drupal 6 update. Change field name, 'oid' was psql reserved name.
  *
@@ -84,3 +101,13 @@ function i18nstrings_update_6001() {
   }
   return $ret;
 }
+
+/**
+ * Add index to {locales_source}.
+ */
+function i18nstrings_update_6002() {
+  $ret = array();
+  db_add_index($ret, 'locales_source', 'textgroup_location', array(array('textgroup', 30), 'location'));
+  return $ret;
+}
+

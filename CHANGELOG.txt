@@ -11,6 +11,8 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Added index for locale table's location field, by sun, #349488
+- Removed deprecated i18n_get_links().
 - Tentative fix for: Story shows multiple times on front page, #334670
 - Simplified mixed content selection logic
 - Added content selection for views, by Jax, #283845
