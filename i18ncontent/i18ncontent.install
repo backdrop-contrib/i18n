@@ -27,7 +27,7 @@ function i18ncontent_disable() {
   // Remove and restore help texts.
   $langcode = language_default('language');
   foreach (node_get_types() as $type) {
-    if (!$type->help && ($help = ts("nodetype:$type->type:help", $langcode))) {
+    if (!$type->help && ($help = ts("nodetype:type:$type->type:help", $langcode))) {
       $type->help = $help;
       node_type_save($type);
     }
@@ -38,9 +38,14 @@ function i18ncontent_disable() {
 /**
  * The old module with the same name had a different approach, so the update will be full install.
  */
-function i18ncontent_update_1() {
+function i18ncontent_update_6001() {
   $ret = array();
   drupal_load('module', 'i18ncontent');
+  drupal_load('module', 'i18nstrings');
+  // Update location for existing strings for this textgroup that was wrong
+  $ret[] = update_sql("UPDATE {locales_source} SET location = CONCAT('type:', location) WHERE textgroup = 'nodetype' AND location NOT LIKE 'type:%'");
+  // Delete all indexing data, it will be recreated
+  $ret[] = update_sql("DELETE FROM {i18n_strings} WHERE lid IN (SELECT lid FROM {locales_source} WHERE textgroup = 'nodetype')");
   i18ncontent_locale_refresh();
   return $ret;
 }

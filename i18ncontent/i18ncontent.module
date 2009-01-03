@@ -8,7 +8,8 @@
  * This new module uses a pure forms/strings approach as opposed to the old one (v5)
  * which was using some dirty db rewrite tricks.
  *
- * @ TODO Handle node type changed and deleted
+ * The i18n strings created by this module are:
+ * - nodetype:type:[type]:[name,title,body,help]
  *
  * @author Jose A. Reyero, 2007
  */
@@ -31,7 +32,7 @@ function i18ncontent_help($path, $arg) {
 
   if ($arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {
     $type = str_replace('-', '_', $arg[2]);
-    if ($help = ts("nodetype:$type:help")) {
+    if ($help = ts("nodetype:type:$type:help")) {
       return '<p>'. filter_xss_admin($help) .'</p>';
     }
   }
@@ -57,11 +58,11 @@ function i18ncontent_locale($op = 'groups', $group = NULL) {
  */
 function i18ncontent_locale_refresh() {
   foreach (node_get_types() as $type) {
-    tt("nodetype:$type->type:name", $type->name, NULL, TRUE);
-    tt("nodetype:$type->type:title", $type->title_label, NULL, TRUE);
-    tt("nodetype:$type->type:title", $type->body_label, NULL, TRUE);
+    tt("nodetype:type:$type->type:name", $type->name, NULL, TRUE);
+    tt("nodetype:type:$type->type:title", $type->title_label, NULL, TRUE);
+    tt("nodetype:type:$type->type:body", $type->body_label, NULL, TRUE);
     if ($type->help) {
-      ts("nodetype:$type->type:help", $type->help, NULL, TRUE);
+      ts("nodetype:type:$type->type:help", $type->help, NULL, TRUE);
       $type->help = '';
       node_type_save($type);
     }
@@ -76,10 +77,10 @@ function i18ncontent_form_alter(&$form, $form_state, $form_id) {
   if (isset($form['#id']) && $form['#id'] == 'node-form') {
     $type = $form['#node']->type;
     if (!empty($form['title']['#title'])) {
-      $form['title']['#title'] = tt("nodetype:$type:title", $form['title']['#title']);
+      $form['title']['#title'] = tt("nodetype:type:$type:title", $form['title']['#title']);
     }
     if (!empty($form['body_field']['body']['#title'])) {
-      $form['body_field']['body']['#title'] = tt("nodetype:$type:body", $form['body_field']['body']['#title']);
+      $form['body_field']['body']['#title'] = tt("nodetype:type:$type:body", $form['body_field']['body']['#title']);
     }
   }
   // Handle submissions for node_type_forms.
@@ -90,7 +91,7 @@ function i18ncontent_form_alter(&$form, $form_state, $form_id) {
     // If we are creating a new one, just add the submission hook.
     if ($type) {
       //$form['description']['#default_value'] = ts("nodetype:$type:description");
-      $form['submission']['help']['#default_value'] = ts("nodetype:$type:help", $form['submission']['help']['#default_value'], $language);
+      $form['submission']['help']['#default_value'] = ts("nodetype:type:$type:help", $form['submission']['help']['#default_value'], $language);
     }
     $form['#submit'] = array_merge(array('i18ncontent_form_submit'), $form['#submit']);
   }
@@ -109,16 +110,16 @@ function i18ncontent_form_submit($form, &$form_state) {
   }
   elseif ($op == t('Delete content type')) {
     // Delete strings.
-    tt("nodetype:$type:name", NULL, NULL, TRUE);
-    tt("nodetype:$type:help", NULL, NULL, TRUE);
+    tt("nodetype:type:$type:name", NULL, NULL, TRUE);
+    tt("nodetype:type:$type:help", NULL, NULL, TRUE);
   }
   else {
     // Update sources if changed type id.
     if ($old_type && $old_type != $type) {
-      i18nstrings_update_context("nodetype:$old_type:*", "nodetype:$type:*");
+      i18nstrings_update_context("nodetype:type:$old_type:*", "nodetype:type:$type:*");
     }
-    tt("nodetype:$type:name", $form_state['values']['name'], $language, TRUE);
-    ts("nodetype:$type:help", $form_state['values']['help'], $language, TRUE);
+    tt("nodetype:type:$type:name", $form_state['values']['name'], $language, TRUE);
+    ts("nodetype:type:$type:help", $form_state['values']['help'], $language, TRUE);
     // We remove help text so it's not produced later by node module.
     $form_state['values']['help'] = '';
   }
@@ -134,7 +135,7 @@ function i18ncontent_menu_alter(&$menu) {
     if (!empty($item['page callback']) && $item['page callback'] == 'node_add') {
       $arg = arg(NULL, $path);
       $menu[$path]['title callback'] = 'i18nstrings_title_callback';
-      $menu[$path]['title arguments'] = array('nodetype:'. $arg[2] .':name', $item['title']);
+      $menu[$path]['title arguments'] = array('nodetype:type:'. $arg[2] .':name', $item['title']);
     }
   }
 }

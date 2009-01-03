@@ -11,6 +11,8 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Fixed multiple issues with content type strings translations, #343335
+- Added some more parameter checking for i18nviews module, #294278
 - Fixed issues with i18nstrings and menu items, by smk-ka, catch, sun, nedjo, #339057
 - Fixed i18ntaxonomy schema mismatch (missing schema_alter), #288994
 - Added index for locale table's location field, by sun, #349488

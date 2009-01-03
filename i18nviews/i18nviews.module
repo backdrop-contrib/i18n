@@ -56,7 +56,8 @@ function i18nviews_views_pre_view(&$view, &$display_id, &$args) {
   // Translate all possible display strings, step by step.
   // I.e. for a page, there seems to be a 'page' and a 'default' display.
   $fields = _i18nviews_display_fields();
-  if (!empty($view->display) && is_array($view->display)) {
+  // Also checking weird values for $display_id, see 277711
+  if (!empty($view->display) && is_array($view->display) && is_string($display_id)) {
     foreach (array($display_id, 'default') as $display) {
       if(!empty($view->display[$display])) {
         _i18nviews_localize_array($view->name, $display, $view->display[$display]->handler->options, $fields, TRUE);
