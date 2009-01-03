@@ -310,9 +310,9 @@ function i18nstrings_add_string($name, $string) {
     // Update metadata.
     db_query("UPDATE {i18n_strings} SET type = '%s', objectid = %d, property = '%s' WHERE lid = %d", $context->type, $context->objectid, $context->property, $source->lid);
     if (!db_affected_rows()) {
-      // Drupal 6 core uses similar calls with @db_query. Not doing so yet
-      // pending further information. See issue #277711.
-      db_query("INSERT INTO {i18n_strings} (lid, type, objectid, property) VALUES(%d, '%s', %d, '%s')", $source->lid, $context->type, $context->objectid, $context->property);
+      // The @db_query will prevent errors being throuwn in case the rows already exist.
+      // The problem with db_affected_rows() is that MySQL returns 0 if the update didn't change the value
+      @db_query("INSERT INTO {i18n_strings} (lid, type, objectid, property) VALUES(%d, '%s', %d, '%s')", $source->lid, $context->type, $context->objectid, $context->property);
     }
   }
   else {
