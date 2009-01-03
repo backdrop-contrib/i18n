@@ -22,6 +22,15 @@ function i18ntaxonomy_install() {
 }
 
 /**
+ * Implementation of hook_schema_alter().
+ */
+function i18ntaxonomy_schema_alter(&$schema) {
+  $schema['vocabulary']['fields']['language'] = array('type' => 'varchar', 'length' => 12, 'not null' => TRUE, 'default' => '');
+  $schema['term_data']['fields']['language'] = array('type' => 'varchar', 'length' => 12, 'not null' => TRUE, 'default' => '');
+  $schema['term_data']['fields']['trid'] = array('type' => 'int', 'not null' => TRUE, 'default' => 0);
+}
+
+/**
  * Implementation of hook_enable().
  *
  * Just add strings to locale tables.

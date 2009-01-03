@@ -28,16 +28,18 @@ function i18nmenu_locale($op = 'groups', $group = NULL) {
  * Refresh locale strings.
  */
 function i18nmenu_locale_refresh() {
+  // Rebuild menus to ensure all items are altered in i18nmenu_menu_link_alter().
+  menu_rebuild();
   foreach (menu_get_menus() as $name => $title) {
     $tree = menu_tree_all_data($name);
-    i18nmenu_localize_tree($tree);
+    i18nmenu_localize_tree($tree, TRUE);
   }
 }
 
 /**
  * Implementation of hook_menu_link_alter().
  *
- * Catch changed links, update language and refresh texts
+ * Catch changed links, update language and set alter option.
  */
 function i18nmenu_menu_link_alter(&$item, $menu) {
   // If we set option to language it causes an error with the link system
@@ -48,11 +50,28 @@ function i18nmenu_menu_link_alter(&$item, $menu) {
   elseif (isset($item['language'])) {
     unset($item['options']['langcode']);
   }
-  // @ TO DO: Refresh texts
-  //dsm($item);
-  //$original = $item['original_item'];
-  //$item['router_path'] = _menu_find_router_path($menu, $item['link_path']);
-  //i18nmenu_make_translatable($item);
+  // If we are handling custom menu items of menu module and no language is set,
+  // invoke translation via i18nstrings module.
+  if (empty($item['language']) && $item['module'] == 'menu') {
+    // Set title_callback to FALSE to avoid calling t().
+    $item['title_callback'] = FALSE;
+    // Setting the alter option to true ensures that
+    // hook_translated_menu_link_alter() will be called.
+    $item['options']['alter'] = TRUE;
+  }
+}
+
+/**
+ * Implementation of hook_translated_menu_link_alter().
+ *
+ * Translate menu links on the fly.
+ *
+ * @see i18nmenu_menu_link_alter()
+ */
+function i18nmenu_translated_menu_link_alter(&$item, $map) {
+  if ($item['module'] == 'menu') {
+    $item['title'] = _i18nmenu_get_item($item);
+  }
 }
 
 /**
@@ -88,7 +107,7 @@ function i18nmenu_translated_tree($menu_name) {
 /**
  * Localize menu tree.
  */
-function i18nmenu_localize_tree(&$tree) {
+function i18nmenu_localize_tree(&$tree, $update = FALSE) {
   global $language;
   foreach ($tree as $index => $item) {
     $link = $item['link'];
@@ -105,16 +124,29 @@ function i18nmenu_localize_tree(&$tree) {
         $router = i18nmenu_get_router($link['router_path']);
         // If the title is the same it will be localized by the menu system.
         if ($link['link_title'] != $router['title']) {
-          //$tree[$index]['link']['title'] = 'Translated';
-          $tree[$index]['link']['title'] = tt('menu:item:'. $link['mlid'] .':title', $link['link_title'], NULL, TRUE);
+          $tree[$index]['link']['title'] = _i18nmenu_get_item($link, $update);
         }
         // Localize subtree.
         if ($item['below'] !== FALSE) {
-          i18nmenu_localize_tree($tree[$index]['below']);
+          i18nmenu_localize_tree($tree[$index]['below'], $update);
         }
       }
     }
   }
+}
+
+/**
+ * Optionally insert/update and return a localized menu item title.
+ */
+function _i18nmenu_get_item($link, $update = FALSE) {
+  return tt('menu:item:'. $link['mlid'] .':title', $link['link_title'], NULL, $update);
+}
+
+/**
+ * Delete a menu item translation.
+ */
+function _i18nmenu_delete_item($mlid) {
+  i18nstrings_remove_string('menu:item:'. $mlid .':title');
 }
 
 /**
@@ -132,22 +164,102 @@ function i18nmenu_get_router($path) {
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implementation of hook_form_form_id_alter().
+ *
+ * Add a language selector to the menu_edit_item form and register a submit
+ * callback to process items.
  */
-function i18nmenu_form_alter(&$form, $form_state, $form_id) {
-  if ($form_id == 'menu_edit_item') {
-    //dsm ($form);
-    if ($form['menu']['#item'] && isset($form['menu']['#item']['options']['langcode'])) {
-      $language = $form['menu']['#item']['options']['langcode'];
-    }
-    else {
-      $language = '';
-    }
-    $form['menu']['language'] = array(
-      '#type' => 'select',
-      '#title' => t('Language'),
-      '#options' => array('' => t('All languages')) + locale_language_list('name'),
-      '#default_value' => $language,
-    );
+function i18nmenu_form_menu_edit_item_alter(&$form, $form_state) {
+  if ($form['menu']['#item'] && isset($form['menu']['#item']['options']['langcode'])) {
+    $language = $form['menu']['#item']['options']['langcode'];
+  }
+  else {
+    $language = '';
+  }
+  $form['menu']['language'] = array(
+    '#type' => 'select',
+    '#title' => t('Language'),
+    '#description' => t('Select a language for this menu item. Choose "All languages" to make the menu item translatable into different languages.'),
+    '#options' => array('' => t('All languages')) + locale_language_list('name'),
+    '#default_value' => $language,
+  );
+  $form['#submit'][] = 'i18nmenu_menu_item_update';
+}
+
+/**
+ * Submit handler for the menu_edit_item form.
+ *
+ * On menu item insert or update, save a translation record.
+ */
+function i18nmenu_menu_item_update($form, &$form_state) {
+  // Ensure we have a menu item to work with.
+  if (isset($form_state['values']['menu'])) {
+    $item = $form_state['values']['menu'];
+    _i18nmenu_update_item($item);
+  }
+}
+
+/**
+ * Update the translation data for a menu item that has been inserted
+ * or updated.
+ *
+ * @see i18nmenu_menu_item_update()
+ * @see i18nmenu_nodeapi()
+ */
+function _i18nmenu_update_item($item) {
+  list($item['menu_name'], $item['plid']) = explode(':', $item['parent']);
+  // If this was an insert, determine the ID that was set.
+  if (!isset($link['mlid'])) {
+    $item['mlid'] = db_result(db_query("SELECT MAX(mlid) FROM {menu_links} WHERE link_path = '%s' AND menu_name = '%s' AND module = 'menu' AND plid = %d AND link_title = '%s'", $item['link_path'], $item['menu_name'], $item['plid'], $item['link_title']));
+  }
+  if (!empty($item['mlid'])) {
+    _i18nmenu_get_item($item, TRUE);
+  }
+}
+
+/**
+ * Implementation of hook_form_form_id_alter().
+ *
+ * Add a submit handler to the the menu item deletion confirmation form.
+ */
+function i18nmenu_form_menu_item_delete_form_alter(&$form, $form_state) {
+  $form['#submit'][] = 'i18nmenu_item_delete_submit';
+}
+
+/**
+ * Submit function for the delete button on the menu item editing form.
+ */
+function i18nmenu_item_delete_submit($form, &$form_state) {
+  _i18nmenu_delete_item($form['#item']['mlid']);
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ *
+ * Save or delete menu item strings associated with nodes.
+ */
+function i18nmenu_nodeapi(&$node, $op) {
+  switch ($op) {
+    case 'insert':
+    case 'update':
+      if (isset($node->menu)) {
+        $item = $node->menu;
+        if (!empty($item['delete'])) {
+          _i18nmenu_delete_item($item['mlid']);
+        }
+        elseif (trim($item['link_title'])) {
+          $item['link_title'] = trim($item['link_title']);
+          $item['link_path'] = "node/$node->nid";
+          _i18nmenu_update_item($item);
+        }
+      }
+      break;
+    case 'delete':
+      // Delete all menu item link translations that point to this node.
+      $result = db_query("SELECT mlid FROM {menu_links} WHERE link_path = 'node/%d' AND module = 'menu'", $node->nid);
+      while ($m = db_fetch_array($result)) {
+        _i18nmenu_delete_item($m['mlid']);
+      }
+      break;
   }
 }

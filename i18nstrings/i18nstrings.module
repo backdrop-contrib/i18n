@@ -159,12 +159,18 @@ function ttd($name, $string, $langcode = NULL, $update = FALSE) {
 }
 
 /**
- * Translate configurable string.
+ * Get translation for user defined string.
  *
- * Support for l10n client (patch pending for l10n client).
+ * @todo Add support for latest l10n client.
  *
  * @param $name
- *   Textgroup and location glued with ':'.
+ *   Textgroup and location glued with ':'
+ * @param $string
+ *   String in default language
+ * @param $langcode
+ *   Language code to get translation for
+ * @param $update
+ *   Force update (refresh or create), to be used when updating source strings
  */
 function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
   global $language, $l10n_client_strings;
@@ -175,16 +181,21 @@ function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
     i18nstrings_update_string($context, $string);
   }
 
-  $translation = i18nstrings_get_string($context, $langcode, $string, !$update);
+  // Search for existing translation (result will be cached in this function call)
+  $translation = i18nstrings_get_string($context, $langcode);
 
   if ($translation === FALSE) {
-    // If the string is missing, create it.
+    // If the source string is missing, create it anyway.
+    // If $update it should already been created so skip this step.
     if (!$update) {
-      i18nstrings_add_string($name, $string);
-      i18nstrings_cache($context, $langcode, $string, TRUE);
+      $source = i18nstrings_get_source($context, $string);
+      if (!$source || empty($source->context)) {
+        i18nstrings_add_string($name, $string);
+      }
     }
     $translation = TRUE;
   }
+
   // If current language add to l10n list for later on page translation.
   // If language were the default one we are not supossed to reach here.
   if ($language->language == $langcode) {
@@ -235,6 +246,7 @@ function i18nstrings_to($context, &$object, $properties = array(), $langcode = N
  */
 function i18nstrings_update_string($context, $string) {
   $context = i18nstrings_context($context, $string);
+  
   if ($string) {
     $status = i18nstrings_add_string($context, $string);
   }
@@ -268,10 +280,15 @@ function i18nstrings_update_translation($context, $langcode, $translation) {
 }
 
 /**
- * Add string
+ * Add source string to the locale tables
  *
  * This function checks for already existing string without context for this textgroup.
  *
+ * @param $name
+ *   Textgroup and location glued with ':'
+ * @param $string
+ *   Source string (string in default language)
+ * 
  * @return
  *   Update status.
  */
@@ -356,6 +373,7 @@ function i18nstrings_get_source($context, $string = NULL) {
  */
 function i18nstrings_get_string($context, $langcode) {
   $context = i18nstrings_context($context);
+  
   if ($translation = i18nstrings_cache($context, $langcode)) {
     return $translation;
   }
