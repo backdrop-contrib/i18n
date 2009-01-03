@@ -308,7 +308,7 @@ function i18nstrings_add_string($name, $string) {
   if ($source) {
     if ($source->source != $string || $source->location != $location) {
       // String has changed or didnt have location.
-      db_query("UPDATE {locales_source} SET source = '%s', location = '%s' WHERE lid = %d", $string, $location, $source->lid);
+      db_query("UPDATE {locales_source} SET source = '%s', location = '%s', version = version + 1 WHERE lid = %d", $string, $location, $source->lid);
       $status = SAVED_UPDATED;
     }
     // Update metadata.
@@ -320,7 +320,7 @@ function i18nstrings_add_string($name, $string) {
     }
   }
   else {
-    db_query("INSERT INTO {locales_source} (location, source, textgroup, version) VALUES ('%s', '%s', '%s', '%s')", $location, $string, $context->textgroup, 0);
+    db_query("INSERT INTO {locales_source} (location, source, textgroup, version) VALUES ('%s', '%s', '%s', '%s')", $location, $string, $context->textgroup, 1);
     // Mysql just gets last id for latest query ?
     $source->lid = db_last_insert_id('locales_source', 'lid');
     // Update metadata, there seems to be a race condition sometimes so skip errors, #277711
@@ -427,9 +427,7 @@ function i18nstrings_update_context($oldname, $newname) {
   // Get context replacing '*' with empty string.
   $oldcontext = i18nstrings_context(str_replace('*', '', $oldname));
   $newcontext = i18nstrings_context(str_replace('*', '', $newname));
-dsm($oldcontext);
-dsm($newcontext);
-return;
+
   // Get location with placeholders.
   $location = i18nstrings_location(str_replace('*', '%', $oldname));
   foreach (array('textgroup', 'type', 'objectid', 'property') as $field) {
@@ -713,4 +711,30 @@ function i18nstrings_title_callback($name, $string, $callback = NULL) {
     $string = $callback($string);
   }
   return $string;
+}
+
+/**
+ * Refresh all user defined strings for a given text group
+ * 
+ * @param $group
+ *   Text group to refresh
+ * @param $delete
+ *   Optional, delete existing (but not refresed, strings and translations) 
+ */
+function i18nstrings_refresh_group($group, $delete = FALSE) {
+  // Delete data from i18n_strings so it is recreated
+  db_query("DELETE FROM {i18n_strings} WHERE lid IN (SELECT lid FROM {locales_source} WHERE textgroup = '%s')", $group);
+  
+  module_invoke_all('locale', 'refresh', $group);
+  
+  // Now delete all source strings that were not refreshed
+  if ($delete) {
+    $result = db_query("SELECT s.* FROM {locales_source} s LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND i.lid IS NULL", $group);
+    while ($source = db_fetch_object($result)) {    
+      db_query("DELETE FROM {locales_target} WHERE lid = %d", $source->lid);
+      db_query("DELETE FROM {locales_source} WHERE lid = %d", $source->lid);    
+    }
+  }
+  
+  cache_clear_all('locale:'. $group .':', 'cache', TRUE);
 }

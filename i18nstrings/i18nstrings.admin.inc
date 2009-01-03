@@ -55,7 +55,7 @@ function i18nstrings_admin_refresh_submit($form, &$form_state) {
 
   if ($op == t('Refresh strings') && $groups) {
     foreach ($groups as $group) {
-      module_invoke_all('locale', 'refresh', $group);
+      i18nstrings_refresh_group($group, TRUE);
     }
   }
   elseif ($op == t('Update translations') && $groups && $languages) {
