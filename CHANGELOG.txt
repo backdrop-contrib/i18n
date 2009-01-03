@@ -11,6 +11,9 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Fixed: files removed when one of the translations is deleted, #313613
+- Fixed issue with file sync list option, by nkoponen, #298327
+- Added clean up feature to i18nstrings refresh
 - Fixed multiple issues with content type strings translations, #343335
 - Added some more parameter checking for i18nviews module, #294278
 - Fixed issues with i18nstrings and menu items, by smk-ka, catch, sun, nedjo, #339057
