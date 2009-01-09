@@ -11,6 +11,8 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Fixed duplicated 'ts' function (CiviCRM), renamed to 'i18nstrings_ts', by mfb, #298154
+- Move all admin settings to one place under Language, by stella, #343557
 - CCK file fields not removed anymore when one of the translations is deleted, #313613
 - Fixed: uploaded files removed when one of the translations is deleted, #313613
 - Fixed issue with file sync list option, by nkoponen, #298327

@@ -121,11 +121,15 @@ function tt($name, $string, $langcode = NULL, $update = FALSE) {
  * Get configurable string,
  *
  * The difference with tt() is that it doesn't use a default string, it will be retrieved too.
- * This is used for source texts that we don't have stored anywhere else.
+ * 
+ * This is used for source texts that we don't have stored anywhere else. I.e. for the content
+ * types help text (i18ncontent module) there's no way we can override the default (configurable) help text
+ * so what we do is to make it blank in the configuration (so node module doesn't display it) 
+ * and then we provide that help text for *all* languages, out from the locales tables.
  *
  * As the original language string will be stored in locales too so it should be only used when updating.
  */
-function ts($name, $string = '', $langcode = NULL, $update = FALSE) {
+function i18nstrings_ts($name, $string = '', $langcode = NULL, $update = FALSE) {
   global $language;
 
   $langcode = $langcode ? $langcode : $language->language;

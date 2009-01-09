@@ -32,7 +32,7 @@ function i18ncontent_help($path, $arg) {
 
   if ($arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {
     $type = str_replace('-', '_', $arg[2]);
-    if ($help = ts("nodetype:type:$type:help")) {
+    if ($help = i18nstrings_ts("nodetype:type:$type:help")) {
       return '<p>'. filter_xss_admin($help) .'</p>';
     }
   }
@@ -62,7 +62,7 @@ function i18ncontent_locale_refresh() {
     tt("nodetype:type:$type->type:title", $type->title_label, NULL, TRUE);
     tt("nodetype:type:$type->type:body", $type->body_label, NULL, TRUE);
     if ($type->help) {
-      ts("nodetype:type:$type->type:help", $type->help, NULL, TRUE);
+      i18nstrings_ts("nodetype:type:$type->type:help", $type->help, NULL, TRUE);
       $type->help = '';
       node_type_save($type);
     }
@@ -90,8 +90,8 @@ function i18ncontent_form_alter(&$form, $form_state, $form_id) {
     $language = language_default('language');
     // If we are creating a new one, just add the submission hook.
     if ($type) {
-      //$form['description']['#default_value'] = ts("nodetype:$type:description");
-      $form['submission']['help']['#default_value'] = ts("nodetype:type:$type:help", $form['submission']['help']['#default_value'], $language);
+      //$form['description']['#default_value'] = i18nstrings_ts("nodetype:$type:description");
+      $form['submission']['help']['#default_value'] = i18nstrings_ts("nodetype:type:$type:help", $form['submission']['help']['#default_value'], $language);
     }
     $form['#submit'] = array_merge(array('i18ncontent_form_submit'), $form['#submit']);
   }
@@ -119,7 +119,7 @@ function i18ncontent_form_submit($form, &$form_state) {
       i18nstrings_update_context("nodetype:type:$old_type:*", "nodetype:type:$type:*");
     }
     tt("nodetype:type:$type:name", $form_state['values']['name'], $language, TRUE);
-    ts("nodetype:type:$type:help", $form_state['values']['help'], $language, TRUE);
+    i18nstrings_ts("nodetype:type:$type:help", $form_state['values']['help'], $language, TRUE);
     // We remove help text so it's not produced later by node module.
     $form_state['values']['help'] = '';
   }

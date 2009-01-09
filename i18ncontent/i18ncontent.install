@@ -27,7 +27,7 @@ function i18ncontent_disable() {
   // Remove and restore help texts.
   $langcode = language_default('language');
   foreach (node_get_types() as $type) {
-    if (!$type->help && ($help = ts("nodetype:type:$type->type:help", $langcode))) {
+    if (!$type->help && ($help = i18nstrings_ts("nodetype:type:$type->type:help", $langcode))) {
       $type->help = $help;
       node_type_save($type);
     }
