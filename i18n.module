@@ -17,7 +17,7 @@
 define('LANGUAGE_SUPPORT_NONE', 0);
 define('LANGUAGE_SUPPORT_NORMAL', 1);
 define('LANGUAGE_SUPPORT_EXTENDED', 2);
-
+define('LANGUAGE_SUPPORT_EXTENDED_NOT_DISPLAYED', 3);
 /**
  * Implementation of hook_init().
  *
@@ -188,24 +188,28 @@ function i18n_translation_link_alter(&$links, $path) {
 
   // Check for a node related path, and for its translations.
   if ((preg_match("!^node/([0-9]+)(/.+|)$!", $path, $matches)) && ($node = node_load((int)$matches[1])) && !empty($node->tnid)) {
-    $languages = language_list();
-    $extended = array();
-    foreach (translation_node_get_translations($node->tnid) as $langcode => $translation_node) {
-      if (!isset($links[$langcode]) && isset($languages[$langcode])) {
-        $extended[$langcode] = array(
-          'href' => 'node/'. $translation_node->nid . $matches[2],
-          'language' => $language,
-          'language_icon' => $languages[$langcode],
-          'title' => $languages[$langcode]->native,
-          'attributes' => array('class' => 'language-link'),
-        );
+    // make sure language support is set to LANUAGE_SUPPORT_EXTENDED, so links
+    // dont get added for LANGUAGE_SUPPORT_EXTENDED_NOT_DISPLAYED
+    if (variable_get('i18n_node_'. $node->type, LANGUAGE_SUPPORT_NORMAL) == LANGUAGE_SUPPORT_EXTENDED) {
+      $languages = language_list();
+      $extended = array();
+      foreach (translation_node_get_translations($node->tnid) as $langcode => $translation_node) {
+        if (!isset($links[$langcode]) && isset($languages[$langcode])) {
+          $extended[$langcode] = array(
+            'href' => 'node/'. $translation_node->nid . $matches[2],
+            'language' => $language,
+            'language_icon' => $languages[$langcode],
+            'title' => $languages[$langcode]->native,
+            'attributes' => array('class' => 'language-link'),
+          );
+        }
       }
+      // This will run after languageicon module, so we add icon in case that one is enabled.
+      if ($extended && function_exists('languageicons_translation_link_alter')) {
+        languageicons_translation_link_alter($extended, $path);
+      }
+      $links = array_merge($links, $extended);
     }
-    // This will run after languageicon module, so we add icon in case that one is enabled.
-    if ($extended && function_exists('languageicons_translation_link_alter')) {
-      languageicons_translation_link_alter($extended, $path);
-    }
-    $links = array_merge($links, $extended);
   }
 }
 
@@ -217,11 +221,27 @@ function i18n_translation_link_alter(&$links, $path) {
 function i18n_link_alter(&$links, $node) {
   global $language;
 
+  $language_support = variable_get('i18n_node_'. $node->type, LANGUAGE_SUPPORT_NORMAL);
+
+  // Hide node translation links.
+  if (variable_get('i18n_hide_translation_links', 0) == 1) {
+    foreach ($links as $module => $link) {
+      if (strpos($module, 'node_translation') === 0) {
+        unset($links[$module]);
+      }
+    }
+  }
+
   if (!empty($node->tnid)) {
     foreach (array_keys(i18n_language_list('extended')) as $langcode) {
       $index = 'node_translation_'. $langcode;
       if (!empty($links[$index])) {
-        $links[$index]['language'] = $language;
+        if ($language_support != LANGUAGE_SUPPORT_EXTENDED && $links[$index]['language']->enabled == 0) {
+          unset($links[$index]);
+        }
+        else {
+          $links[$index]['language'] = $language;
+        }
       }
     }
   }
@@ -806,6 +826,7 @@ function i18n_array_variable_set($name, $element, $value) {
 function _i18n_content_language_options() {
   return array(
     LANGUAGE_SUPPORT_NORMAL => t('Normal - All enabled languages will be allowed.'),
-    LANGUAGE_SUPPORT_EXTENDED => t('Extended - All defined languages will be allowed.')
+    LANGUAGE_SUPPORT_EXTENDED => t('Extended - All defined languages will be allowed.'),
+    LANGUAGE_SUPPORT_EXTENDED_NOT_DISPLAYED => t('Extended, but not displayed - All defined languages will be allowed for input, but not displayed in links.'),
   );
 }

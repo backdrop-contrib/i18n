@@ -29,6 +29,19 @@ function i18n_admin_settings() {
     '#options' => _i18n_selection_mode(),
     '#description' => t('Determines which content to show depending on the current page language and the default language of the site.'),
   );
+
+  // Node translation links setting.
+  $form['links'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Content translation links'),
+  );
+  $form['links']['i18n_hide_translation_links'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Hide content translation links'),
+    '#description' => t('Hide the links to translations in content body and teasers. If you choose this option, switching language will only be available from the language switcher block.'),
+    '#default_value' => variable_get('i18n_hide_translation_links', 0),
+  );
+
   return system_settings_form($form);
 }
 

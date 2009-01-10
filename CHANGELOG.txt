@@ -5,12 +5,12 @@ TO DO
 - Reimplement: Choose an existing node as a translation, http://drupal.org/node/295682
 - Taxonomy autocomplete, localized terms
 - Add language filter to search form
-- Allow hiding of *all* node language links
 - Support for translation of some node strings, #313840
 - Better information for theme variables on settings page
 
 6.x-beta6 to .........
 ----------------------
+- Added additional language support level, by stella, Roger Lopez, #349193
 - Fixed duplicated 'ts' function (CiviCRM), renamed to 'i18nstrings_ts', by mfb, #298154
 - Move all admin settings to one place under Language, by stella, #343557
 - CCK file fields not removed anymore when one of the translations is deleted, #313613
