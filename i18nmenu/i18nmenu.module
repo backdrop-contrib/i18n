@@ -234,6 +234,54 @@ function i18nmenu_item_delete_submit($form, &$form_state) {
 }
 
 /**
+ * Implementation of hook_form_alter().
+ *
+ * Add language to menu settings of the node form, as well as setting defaults
+ * to match the translated item's menu settings.
+ */
+function i18nmenu_form_alter(&$form, &$form_state, $form_id) {
+  if (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id) {
+    $node = $form['#node'];
+    
+    // Do nothing if the node already has a menu.
+    if ($node->menu->mlid) {
+      return;
+    }
+    
+    // Find the translation source node.  If creating a new node,
+    // translation_source is set.  Otherwise, node_load the tnid.
+    // New translation.
+    if (!empty($node->translation_source)) {
+      $tnode = $node->translation_source;
+    }
+    // Editing existing translation.
+    elseif (!empty($node->nid) && !empty($node->tnid) && $node->nid != $node->tnid) {
+      $tnode = node_load($node->tnid);
+    }
+    // If no translation node, return.
+    else {
+      return;
+    }
+    
+    // Prepare the tnode so the menu item will be available.
+    node_object_prepare($tnode);
+
+    if ($tnode->menu) {
+      // Set default values based on translation source's menu.
+      $form['menu']['link_title']['#default_value'] = $tnode->menu['link_title'];
+      $form['menu']['weight']['#default_value'] = $tnode->menu['weight'];
+      $form['menu']['parent']['#default_value'] = $tnode->menu['menu_name'] .':'. $tnode->menu['plid'];
+      
+      // Set menu language to node language.
+      $form['menu']['language'] = array('#type' => 'value', '#value' => $node->language);
+      
+      // Customized must be set to 1 to save language.
+      $form['menu']['customized'] = array('#type' => 'value', '#value' => 1);
+    }
+  }
+}
+
+/**
  * Implementation of hook_nodeapi().
  *
  * Save or delete menu item strings associated with nodes.
@@ -259,6 +307,15 @@ function i18nmenu_nodeapi(&$node, $op) {
       $result = db_query("SELECT mlid FROM {menu_links} WHERE link_path = 'node/%d' AND module = 'menu'", $node->nid);
       while ($m = db_fetch_array($result)) {
         _i18nmenu_delete_item($m['mlid']);
+      }
+      break;
+    case 'prepare translation':
+      if (!$node->menu->mlid && !empty($node->translation_source)) {
+        $tnode = $node->translation_source;
+        // Prepare the tnode so the menu item will be available.
+        node_object_prepare($tnode);
+        $node->menu['link_title'] = $tnode->menu['link_title'];
+        $node->menu['weight'] = $tnode->menu['weight'];
       }
       break;
   }

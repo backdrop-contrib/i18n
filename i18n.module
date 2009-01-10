@@ -27,6 +27,8 @@ define('LANGUAGE_SUPPORT_EXTENDED_NOT_DISPLAYED', 3);
  * Special fix for site_frontpage, that may have been used before the language variables are loaded.
  */
 function i18n_init() {
+  global $language;
+
   // If not in bootstrap, variable init.
   if (!_i18n_is_bootstrap()) {
     $default_frontpage = variable_get('site_frontpage', 'node');
@@ -36,6 +38,30 @@ function i18n_init() {
     // Now we check whether this is the frontpage and it should be a different one.
     if ($default_frontpage != variable_get('site_frontpage', 'node') && $_GET['q'] == drupal_get_normal_path($default_frontpage)) {
       $_GET['q'] = drupal_get_normal_path(variable_get('site_frontpage', 'node'));
+    }
+  }
+  // Add a JS file for node forms.
+  // Determine if we are either editing or translating an existing node.
+  // We can't act on regular node creation because we don't have a specified
+  // node language.
+  $node_edit = $node = menu_get_object() && arg(2) == 'edit' && isset($node->language) && !empty($node->language);
+  $node_translate = arg(0) == 'node' && arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language']);
+  if ($node_edit || $node_translate) {
+    $node_language = $node_edit ? $node->language : $_GET['language'];
+    // Only needed if the node language is different from the interface one.
+    if ($node->language != $language->language) {
+      $languages = language_list();
+      if (isset($languages[$node_language])) {
+        drupal_add_js(drupal_get_path('module', 'i18n') . '/i18n.js');
+        // Pass the interface and content language base paths.
+        // Remove any trailing forward slash. Doing so prevents a mismatch
+        // that occurs when a language has no prefix and hence gets a path
+        // with a trailing forward slash.
+        $interface = rtrim(url('', array('absolute' => TRUE)), '/');
+        $content = rtrim(url('', array('absolute' => TRUE, 'language' => $languages[$node_language])), '/');
+        $data = array('interface' => $interface, 'content' => $content);
+        drupal_add_js(array('i18n' => $data), 'setting');
+      }
     }
   }
 }
@@ -347,7 +373,7 @@ function i18n_selection_mode($mode = NULL, $params = NULL) {
           $current_mode = 'node';
           $current_value = $node->language;
         }
-        elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language']) && empty($_POST)) {
+        elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language'])) {
           $current_mode = 'translation';
           $current_value = db_escape_string($_GET['language']);
         }
