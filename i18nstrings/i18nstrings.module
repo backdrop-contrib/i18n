@@ -21,6 +21,16 @@
  */
 
 /**
+ * Translated string is current.
+ */
+define('I18NSTRINGS_STATUS_CURRENT', 0);
+
+/**
+ * Translated string needs updating as the source has been edited.
+ */
+define('I18NSTRINGS_STATUS_UPDATE', 1);
+
+/**
  * Implementation of hook_help().
  */
 function i18nstrings_help($path, $arg) {
@@ -85,6 +95,23 @@ function i18nstrings_form_alter(&$form, $form_state, $form_id) {
         }
       }
       break;
+    case 'locale_translate_edit_form':
+      $form['#submit'][] = 'i18nstrings_translate_edit_form_submit';
+  }
+}
+
+/**
+ * Process string editing form submissions.
+ *
+ * Mark translations as current.
+ */
+function i18nstrings_translate_edit_form_submit($form, &$form_state) {
+  $lid = $form_state['values']['lid'];
+  foreach ($form_state['values']['translations'] as $key => $value) {
+    if (!empty($value)) {
+      // An update has been made, so we assume the translation is now current.
+      db_query("UPDATE {locales_target} SET status = %d WHERE lid = %d AND language = '%s'", I18NSTRINGS_STATUS_CURRENT, $lid, $key);
+    }
   }
 }
 
@@ -310,9 +337,15 @@ function i18nstrings_add_string($name, $string) {
   $status = -1;
 
   if ($source) {
-    if ($source->source != $string || $source->location != $location) {
-      // String has changed or didnt have location.
-      db_query("UPDATE {locales_source} SET source = '%s', location = '%s', version = version + 1 WHERE lid = %d", $string, $location, $source->lid);
+    if ($source->source != $string) {
+      // String has changed
+      db_query("UPDATE {locales_source} SET source = '%s', location = '%s' WHERE lid = %d", $string, $location, $source->lid);
+      db_query("UPDATE {locales_target} SET status = %d WHERE lid = %d", I18NSTRINGS_STATUS_UPDATE, $source->lid);
+      $status = SAVED_UPDATED;
+    }
+    elseif ($source->location != $location) {
+      // It's not changed but it didn't have location set
+      db_query("UPDATE {locales_source} SET location = '%s' WHERE lid = %d", $location, $source->lid);
       $status = SAVED_UPDATED;
     }
     // Update metadata.

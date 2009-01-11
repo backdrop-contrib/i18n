@@ -9,22 +9,30 @@
 function i18nstrings_install() {
   // Create database tables.
   drupal_install_schema('i18nstrings');
+
   // Set module weight for it to run after core modules.
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'i18nstrings' AND type = 'module'");
 
-  // Add custom index to locales_source table.
   $ret = array();
+
+  // Add a field to track whether a translation needs updating.
+  db_add_field($ret, 'locales_target', 'status', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
+
+  // Add custom index to locales_source table.
   db_add_index($ret, 'locales_source', 'textgroup_location', array(array('textgroup', 30), 'location'));
 }
 
 function i18nstrings_uninstall() {
+  $ret = array();
+
   // Create database tables.
   drupal_uninstall_schema('i18nstrings');
   // @TODO locale table cleanup, think about it.
   // Should we drop all strings for groups other than 'default' ?
 
+  // Drop custom field.
+  db_drop_field($ret, 'locales_target', 'update');
   // Drop custom index.
-  $ret = array();
   db_drop_index($ret, 'locales_source', 'textgroup_location');
 }
 
@@ -73,6 +81,13 @@ function i18nstrings_schema() {
 function i18nstrings_schema_alter(&$schema) {
   // Add index for textgroup and location to {locales_source}.
   $schema['locales_source']['indexes']['textgroup_location'] = array(array('textgroup', 30), 'location');
+  // Add field for tracking whether translations need updating.
+  $schema['locales_target']['status'] = array(
+    'description' => t('A boolean indicating whether this translation needs to be updated.'),
+    'type' => 'int',
+    'not null' => TRUE,
+    'default' => 0,
+  );
 }
 
 /**
@@ -108,6 +123,16 @@ function i18nstrings_update_6001() {
 function i18nstrings_update_6002() {
   $ret = array();
   db_add_index($ret, 'locales_source', 'textgroup_location', array(array('textgroup', 30), 'location'));
+  return $ret;
+}
+
+/**
+ * Create i18n_strings_status schema.
+ * Add a field to track whether a translation needs updating.
+ */
+function i18nstrings_update_6003() {
+  $ret = array();
+  db_add_field($ret, 'locales_target', 'status', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
   return $ret;
 }
 
