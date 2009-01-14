@@ -22,6 +22,17 @@ function i18ntaxonomy_install() {
 }
 
 /**
+ * Implementation of hook_uninstall().
+ */
+function i18ntaxonomy_uninstall() {
+  db_drop_field($ret, 'vocabularly', 'language');
+  db_drop_field($ret, 'term_data', 'language');
+  db_drop_field($ret, 'term_data', 'trid');
+
+  variable_del('i18ntaxonomy_vocabulary');
+}
+
+/**
  * Implementation of hook_schema_alter().
  */
 function i18ntaxonomy_schema_alter(&$schema) {
