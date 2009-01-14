@@ -10,6 +10,7 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- i18ncontent tt/hook_locale() review, by catch, #356535
 - Reworked taxonomy language logic when saving terms, set node/current language for tags.
 - Added some more help text and links to the taxonomy admin pages.
 - Mark translations a outdated when source string changes, by nedjo, #355366

@@ -30,7 +30,7 @@ function i18ncontent_help($path, $arg) {
       return $output;
   }
 
-  if ($arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {
+  if (!menu_get_object() && $arg[1] == 'add' && $arg[2]) {
     $type = str_replace('-', '_', $arg[2]);
     if ($help = i18nstrings_ts("nodetype:type:$type:help")) {
       return '<p>'. filter_xss_admin($help) .'</p>';
@@ -61,6 +61,7 @@ function i18ncontent_locale_refresh() {
     tt("nodetype:type:$type->type:name", $type->name, NULL, TRUE);
     tt("nodetype:type:$type->type:title", $type->title_label, NULL, TRUE);
     tt("nodetype:type:$type->type:body", $type->body_label, NULL, TRUE);
+    tt("nodetype:type:$type->type:description", $type->description, NULL, TRUE);
     if ($type->help) {
       i18nstrings_ts("nodetype:type:$type->type:help", $type->help, NULL, TRUE);
       $type->help = '';
@@ -83,55 +84,63 @@ function i18ncontent_form_alter(&$form, $form_state, $form_id) {
       $form['body_field']['body']['#title'] = tt("nodetype:type:$type:body", $form['body_field']['body']['#title']);
     }
   }
-  // Handle submissions for node_type_forms.
+
+  // Replace the help text default value in the node type form with data from
+  // i18nstrings. Actual replacement of the help text is handled in
+  // hook_node_type() and hook_help().
   if ($form_id == 'node_type_form') {
     $type = $form['#node_type']->type;
-    // We are using default language for this.
+    // Use the default language for this.
     $language = language_default('language');
-    // If we are creating a new one, just add the submission hook.
     if ($type) {
-      //$form['description']['#default_value'] = i18nstrings_ts("nodetype:$type:description");
       $form['submission']['help']['#default_value'] = i18nstrings_ts("nodetype:type:$type:help", $form['submission']['help']['#default_value'], $language);
     }
-    $form['#submit'] = array_merge(array('i18ncontent_form_submit'), $form['#submit']);
   }
 }
 
 /**
- * Handle content type form submissions.
+ * Implementation of hook_node_type().
  */
-function i18ncontent_form_submit($form, &$form_state) {
+function i18ncontent_node_type($op, $info) {
   $language = language_default('language');
-  $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
-  $type = trim($form_state['values']['type']);
-  $old_type = isset($form_state['values']['old_type']) ? $form_state['values']['old_type'] : $type->type;
-  if ($op == t('Reset to defaults')) {
-    // Do anything?;
-  }
-  elseif ($op == t('Delete content type')) {
-    // Delete strings.
-    tt("nodetype:type:$type:name", NULL, NULL, TRUE);
-    tt("nodetype:type:$type:help", NULL, NULL, TRUE);
-  }
-  else {
-    // Update sources if changed type id.
-    if ($old_type && $old_type != $type) {
+  if ($op == 'insert' || $op == 'update') {
+    if(!empty($info->old_type) && $info->old_type != $info->type) {
       i18nstrings_update_context("nodetype:type:$old_type:*", "nodetype:type:$type:*");
     }
-    tt("nodetype:type:$type:name", $form_state['values']['name'], $language, TRUE);
-    i18nstrings_ts("nodetype:type:$type:help", $form_state['values']['help'], $language, TRUE);
-    // We remove help text so it's not produced later by node module.
-    $form_state['values']['help'] = '';
+    tt("nodetype:type:$info->type:name", $info->name, $language, TRUE);
+    tt("nodetype:type:$info->type:title", $info->title_label, $language, TRUE);
+    tt("nodetype:type:$info->type:body", $info->body_label, $language, TRUE);
+    tt("nodetype:type:$info->type:description", $info->description, $language, TRUE);
+    if (empty($info->help)) {
+      i18nstrings_remove_string("nodetype:type:$info->type:help");
+    } else {
+      i18nstrings_ts("nodetype:type:$info->type:help", $info->help, $language, TRUE);
+      // Remove the 'help' text from {node_type} to avoid both the
+      // original text and translation appearing in hook_help().
+      db_query("UPDATE node_type set help = '' WHERE type = '%s'", $info->type);
+    }
+  }
+
+  if ($op == 'delete') {
+    i18nstrings_remove_string("nodetype:type:$info->type:title");
+    i18nstrings_remove_string("nodetype:type:$info->type:name");
+    i18nstrings_remove_string("nodetype:type:$info->type:description");
+    i18nstrings_remove_string("nodetype:type:$info->type:body");
+    i18nstrings_remove_string("nodetype:type:$info->type:help");
   }
 }
+
 
 /**
  * Implementation of hook_menu_alter().
  *
  * Take over the node add pages.
  */
-function i18ncontent_menu_alter(&$menu) {
-  foreach ($menu as $path => $item) {
+function i18ncontent_menu_alter(&$callbacks) {
+  $callbacks['node/add']['page callback'] =  'i18ncontent_node_add_page';
+
+  // @TODO avoid iterating over every router path.
+  foreach ($callbacks as $path => $item) {
     if (!empty($item['page callback']) && $item['page callback'] == 'node_add') {
       $arg = arg(NULL, $path);
       $menu[$path]['title callback'] = 'i18nstrings_title_callback';
@@ -146,6 +155,19 @@ function i18ncontent_menu_alter(&$menu) {
 function i18ncontent_node_add_page() {
   $item = menu_get_item();
   $content = system_admin_menu_block($item);
-  //dsm($content);
+  // The node type isn't available in the menu path, but 'title' is equivalent
+  // to the human readable name, so check this against node_get_types() to get
+  // the correct values.
+  $types = node_get_types();
+  foreach ($content as $key => $item) {
+    foreach ($types as $node_type) {
+      if ($item['title'] == $node_type->name) {
+        $type = $node_type->type;
+      }
+    }
+    $content[$key]['title'] = tt("nodetype:type:$type:title", $item['title']);
+    $content[$key]['description'] = tt("nodetype:type:$type:description", $item['description']);
+  }
+
   return theme('node_add_list', $content);
 }

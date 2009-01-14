@@ -440,6 +440,7 @@ function i18nstrings_get_string($context, $langcode) {
  * Remove string for a given context.
  */
 function i18nstrings_remove_string($context, $string = NULL) {
+  $context = i18nstrings_context($context, $string);
   if ($source = i18nstrings_get_source($context, $string)) {
     db_query("DELETE FROM {locales_target} WHERE lid = %d", $source->lid);
     db_query("DELETE FROM {i18n_strings} WHERE lid = %d", $source->lid);
