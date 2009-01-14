@@ -31,7 +31,7 @@ function i18nstrings_uninstall() {
   // Should we drop all strings for groups other than 'default' ?
 
   // Drop custom field.
-  db_drop_field($ret, 'locales_target', 'update');
+  db_drop_field($ret, 'locales_target', 'status');
   // Drop custom index.
   db_drop_index($ret, 'locales_source', 'textgroup_location');
 }
@@ -112,7 +112,7 @@ function i18nstrings_update_6001() {
   if (!variable_get('i18nstrings_update_skip', 0)) {
     db_change_field($ret, 'i18n_strings', 'oid', 'objectid', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
   } else {
-    variable_del(i18nstrings_update_skip);
+    variable_del('i18nstrings_update_skip');
   }
   return $ret;
 }
