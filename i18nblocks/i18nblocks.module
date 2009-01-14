@@ -96,6 +96,28 @@ function i18nblocks_locale($op = 'groups', $group = NULL) {
 }
 
 /**
+ * Implementation of hook_form_FORM_ID_alter().
+ */
+function i18nblocks_form_block_box_delete_alter(&$form, $form_state) {
+  $delta = db_result(db_query('SELECT ibid FROM i18n_blocks WHERE delta = %d', arg(4)));
+  $form['delta'] = array(
+    '#type' => 'value',
+    '#value' => $delta,
+  );
+  $form['#submit'][] = 'i18nblocks_block_delete_submit';
+}
+
+/**
+ * Remove strings for deleted custom blocks.
+ */
+function i18nblocks_block_delete_submit(&$form, $form_state) {
+  $delta = $form_state['values']['delta'];
+  // Delete stored strings for the title and content fields.
+  i18nstrings_remove_string("blocks:block:$delta:title");
+  i18nstrings_remove_string("blocks:block:$delta:content");
+}
+
+/**
  * Implementation of block form_alter().
  *
  * Remove block title for multilingual blocks.
