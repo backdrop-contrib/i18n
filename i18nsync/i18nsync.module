@@ -393,6 +393,7 @@ function i18nsync_node_available_fields($type) {
   }
   // If no type defined yet, that's it.
   $fields['node']['#options'] = $options;
+  
   if (!$type) {
     return $fields;
   }

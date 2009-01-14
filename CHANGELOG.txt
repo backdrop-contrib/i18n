@@ -10,6 +10,8 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Reworked taxonomy language logic when saving terms, set node/current language for tags.
+- Added some more help text and links to the taxonomy admin pages.
 - Mark translations a outdated when source string changes, by nedjo, #355366
 - Changed default behavior: content types with multilingual support disabled are now language neutral, #270655 
 - Added i18n menu handling to node form, by Roger López, Stella, #348444
