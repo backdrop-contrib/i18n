@@ -50,7 +50,12 @@ function i18n_install() {
 
 function i18n_uninstall() {
   drupal_uninstall_schema('i18n');
+
   variable_del('i18n_hide_translation_links');
+  variable_del('i18n_selection_mode');
+  foreach (array_keys(node_get_types()) as $type) {
+    variable_del('i18n_node_'. $type);
+  }
 }
 
 /**
