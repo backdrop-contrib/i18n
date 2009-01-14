@@ -25,7 +25,7 @@ function i18ntaxonomy_install() {
  * Implementation of hook_uninstall().
  */
 function i18ntaxonomy_uninstall() {
-  db_drop_field($ret, 'vocabularly', 'language');
+  db_drop_field($ret, 'vocabulary', 'language');
   db_drop_field($ret, 'term_data', 'language');
   db_drop_field($ret, 'term_data', 'trid');
 
