@@ -339,15 +339,20 @@ function i18nsync_taxonomyfield(&$node, $source) {
  * Node attachments (CCK) that may have translation.
  */
 function i18nsync_node_translation_attached_node(&$node, &$translation, $field) {
-  if (isset($node->$field) && $attached = node_load($node->$field)) {
+  if (isset($node->$field) && ($attached = node_load($node->$field))) {
     if (translation_supported_type($attached->type)) {
       // This content type has translations, find the one.
-      if (($attachedtrans = translation_node_get_translations($attached)) && isset($attachedtrans[$translation->language])) {
+      $nid = $attached->tnid ? $attached->tnid : $attached->nid;
+      if (($attachedtrans = translation_node_get_translations($nid)) && isset($attachedtrans[$translation->language])) {
         $translation->$field = $attachedtrans[$translation->language]->nid;
+      }
+      else {
+        // No requested language found, just copy the field.
+        $translation->$field = $node->$field;
       }
     }
     else {
-      // Content type without language, just copy the nid.
+      // Content type without language, just copy the field.
       $translation->$field = $node->$field;
     }
   }

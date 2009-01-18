@@ -10,6 +10,8 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Fixed: attached nodes synchronization not working, by doq, #359987
+- Fixed: locale table growing on each request, issue with i18nstring_textgroup(), by drifter, #359249
 - Fixed: missing i18nstrings module when enabling other modules module, #358839
 - Fixed: taxonomy strings not properly synchronized (removed), by stella, #356542
 - Removed obsoleted (was commented out) i18nblocks_blocks(), #356519

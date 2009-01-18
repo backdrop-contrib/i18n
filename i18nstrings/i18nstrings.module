@@ -558,7 +558,7 @@ function i18nstrings_textgroup($textgroup, $string = NULL, $langcode = NULL) {
     }
     else {
       // We don't have the source string, cache this as untranslated.
-      db_query("INSERT INTO {locales_source} (location, source, textgroup, version) VALUES ('%s', '%s', 'default', '%s')", request_uri(), $string, VERSION);
+      db_query("INSERT INTO {locales_source} (location, source, textgroup, version) VALUES ('%s', '%s', '%s', '%s')", request_uri(), $string,  $textgroup, VERSION);
       $locale_t[$langcode][$string] = TRUE;
       // Clear locale cache so this string can be added in a later request.
       cache_clear_all('locale:'. $textgroup .':', 'cache', TRUE);
