@@ -10,6 +10,9 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Fixed: missing i18nstrings module when enabling other modules module, #358839
+- Fixed: taxonomy strings not properly synchronized (removed), by stella, #356542
+- Removed obsoleted (was commented out) i18nblocks_blocks(), #356519
 - Applied i18nblocks implementation of i18nstrings/locale_refresh(), by catch, #356520
 - Applied i18ncontent tt/hook_locale() review, by catch, #356535
 - Reworked taxonomy language logic when saving terms, set node/current language for tags.

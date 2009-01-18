@@ -10,6 +10,7 @@
  * Refresh strings when enabled.
  */
 function i18nprofile_enable() {
+  drupal_load('module', 'i18nstrings');
   i18nprofile_locale_refresh();
 }
 

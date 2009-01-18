@@ -225,6 +225,7 @@ function i18ntaxonomy_taxonomy($op, $type, $edit = NULL) {
     case 'term/update':
       switch (i18ntaxonomy_vocabulary($edit['vid'])) {          
         case I18N_TAXONOMY_LOCALIZE: // Update strings for localizable vocabulary.
+          $tid = $edit['tid'];
           tt("taxonomy:term:$tid:name", $edit['name'], NULL, TRUE);
           tt("taxonomy:term:$tid:description", $edit['description'], NULL, TRUE);
           break;
@@ -269,7 +270,19 @@ function i18ntaxonomy_taxonomy($op, $type, $edit = NULL) {
         }
       }
       break;
-    }
+
+    case 'term/delete':
+      $tid = $edit['tid'];
+      i18nstrings_remove_string("taxonomy:term:$tid:name");
+      i18nstrings_remove_string("taxonomy:term:$tid:description");
+      break;
+
+    case 'vocabulary/delete':
+      $vid = $edit['vid'];
+      i18nstrings_remove_string("taxonomy:vocabulary:$vid:name");
+      break;
+
+  }
 }
 
 /**

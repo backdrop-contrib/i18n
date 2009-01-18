@@ -388,9 +388,10 @@ function i18nsync_node_available_fields($type) {
   if (module_exists('comment')) {
     $options['comment'] = t('Comment settings');
   }
-  if (module_exists('upload') || module_exists('image')) {
+  if (module_exists('upload')) {
     $options['files'] = t('File attachments');
   }
+
   // If no type defined yet, that's it.
   $fields['node']['#options'] = $options;
   
@@ -398,13 +399,22 @@ function i18nsync_node_available_fields($type) {
     return $fields;
   }
 
+
   // Get variable for this node type.
   $fields += variable_get("i18nsync_fields_node_$type", array());
 
-  // Image attach.
-  if (variable_get('image_attach_'. $type, 0)) {
-    $fields['image']['#title'] = t('Image Attach module');
-    $fields['image']['#options']['iid'] = t('Attached image nodes');
+  // Image and image attach.
+  /** No way to synchronize images with the current image module. See 
+  if (module_exists('image') && $type == 'image') {
+    $image['images'] = t('Image files');
+  }
+  */
+  if (module_exists('image_attach') && variable_get('image_attach_'. $type, 0)) {
+    $image['iid'] = t('Attached image nodes');
+  }
+  if (!empty($image)) {
+    $fields['image']['#title'] = t('Image module');
+    $fields['image']['#options'] = $image;    
   }
   // Event fields.
   if (variable_get('event_nodeapi_'. $type, 'never') != 'never') {
