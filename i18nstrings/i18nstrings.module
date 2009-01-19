@@ -72,6 +72,13 @@ function i18nstrings_menu() {
     'file' => 'i18nstrings.admin.inc',
     'access arguments' => array('translate interface'),
   );
+  // AJAX callback path for strings.
+  $items['i18nstrings/save'] = array(
+    'title' => 'Save string',
+    'page callback' => 'i18nstrings_save_string',
+    'access arguments' => array('use on-page translation'),
+    'type' => MENU_CALLBACK,
+  );
   return $items;
 }
 
@@ -95,8 +102,14 @@ function i18nstrings_form_alter(&$form, $form_state, $form_id) {
         }
       }
       break;
+
     case 'locale_translate_edit_form':
       $form['#submit'][] = 'i18nstrings_translate_edit_form_submit';
+      break;
+
+    case 'l10n_client_form':
+      $form['#action'] = url('i18nstrings/save');
+      break;
   }
 }
 
@@ -204,7 +217,7 @@ function ttd($name, $string, $langcode = NULL, $update = FALSE) {
  *   Force update (refresh or create), to be used when updating source strings
  */
 function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
-  global $language, $l10n_client_strings;
+  global $language;
 
   $context = i18nstrings_context($name, $string);
 
@@ -227,10 +240,10 @@ function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
     $translation = TRUE;
   }
 
-  // If current language add to l10n list for later on page translation.
+  // If current language add to l10n client list for later on page translation.
   // If language were the default one we are not supossed to reach here.
-  if ($language->language == $langcode) {
-    $l10n_client_strings[$string] = $translation;
+  if ($language->language == $langcode && function_exists('l10_client_add_string_to_page')) {
+    l10_client_add_string_to_page($string, $translation, $source->textgroup);
   }
   return ($translation === TRUE) ? $string : $translation;
 }
@@ -775,4 +788,66 @@ function i18nstrings_refresh_group($group, $delete = FALSE) {
   }
   
   cache_clear_all('locale:'. $group .':', 'cache', TRUE);
+}
+
+/*** l10n client related functions ***/
+
+/**
+ * Menu callback. Saves a string translation coming as POST data.
+ */
+function i18nstrings_save_string() {
+  global $user, $language;
+  
+  if (user_access('use on-page translation')) {
+    $textgroup = !empty($_POST['textgroup']) ? $_POST['textgroup'] : 'default';
+    // Default textgroup will be handled by l10n_client module
+    if ($textgroup == 'default') {
+      l10n_client_save_string();
+    }
+    elseif (isset($_POST['source']) && isset($_POST['target']) && !empty($_POST['form_token']) && drupal_valid_token($_POST['form_token'], 'l10n_client_form')) {
+      i18nstrings_save_translation($language->language, $_POST['source'], $_POST['target'], $textgroup);
+    }
+  }
+}
+
+/**
+ * Import translation for a given textgroup 
+ * 
+ * This will update multiple strings if there are duplicated ones
+ * 
+ * @param $langcode
+ *   Language code to import string into.
+ * @param $source
+ *   Source string.
+ * @param $translation
+ *   Translation to language specified in $langcode.
+ * @param $plid
+ *   Optional plural ID to use.
+ * @param $plural
+ *   Optional plural value to use.
+ * @return
+ *   The number of strings updated
+ */
+function i18nstrings_save_translation($langcode, $source, $translation, $textgroup) {
+  include_once 'includes/locale.inc';
+  
+  if (locale_string_is_safe($translation)) {
+    $result = db_query("SELECT lid FROM {locales_source} WHERE source = '%s' AND textgroup = '%s'", $source, $textgroup);
+    $count = 0;
+    while ($source = db_fetch_object($result)) {
+      $exists = (bool) db_result(db_query("SELECT lid FROM {locales_target} WHERE lid = %d AND language = '%s'", $source->lid, $langcode));
+      if (!$exists) {
+        // No translation in this language.
+        db_query("INSERT INTO {locales_target} (lid, language, translation) VALUES (%d, '%s', '%s')", $source->lid, $langcode, $translation);
+      }
+      else {
+        // Translation exists, overwrite
+        db_query("UPDATE {locales_target} SET translation = '%s' WHERE language = '%s' AND lid = %d", $translation, $langcode, $source->lid);
+      }
+      $count ++;
+    }
+    return $count;
+  } else {
+    return FALSE;
+  }
 }
