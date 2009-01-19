@@ -132,6 +132,27 @@ function i18nprofile_form_alter(&$form, $form_state, $form_id) {
     case 'user_register':
       i18nprofile_form_translate_all($form_id, $form);
       break;
+    case 'profile_field_delete':
+      // Store all field info for further reference
+      $form['field'] = array(
+        '#type' => 'value', 
+        '#value' => db_fetch_object(db_query("SELECT * FROM {profile_fields} WHERE fid = %d", $form['fid']['#value'])),
+      );
+      $form['#submit'][] = 'i18nprofile_field_delete_submit';
+  }
+}
+
+/**
+ * Delte field profile related strings
+ */
+function i18nprofile_field_delete_submit($form, $form_state) {
+  $field = $form_state['values']['field'];
+  foreach (array('title', 'explanation', 'options') as $property) {
+    i18nstrings_remove_string("profile:field:$field->name:$property");
+  }
+  // Delete category too if no more fields in the same category
+  if (!db_result(db_query("SELECT COUNT(*) FROM {profile_fields} WHERE category = '%s'", $field->category))) {
+    i18nstrings_remove_string("profile:category", $values->category);
   }
 }
 

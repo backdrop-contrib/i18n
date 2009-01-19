@@ -10,6 +10,7 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Deleting profile strings when deleting fields, #356538
 - Fixed: attached nodes synchronization not working, by doq, #359987
 - Fixed: locale table growing on each request, issue with i18nstring_textgroup(), by drifter, #359249
 - Fixed: missing i18nstrings module when enabling other modules module, #358839
