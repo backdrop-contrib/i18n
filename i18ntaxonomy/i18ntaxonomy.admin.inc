@@ -33,6 +33,7 @@ function i18ntaxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
  */
 function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $edit = array()) {
   $languages = i18n_supported_languages();
+  
   if ($trid == 'new') {
     $translations = array();
     $form['trid'] = array(
@@ -47,21 +48,14 @@ function i18ntaxonomy_translation_term_form($form_state, $vid, $trid = NULL, $ed
     );
     $translations = i18ntaxonomy_term_get_translations(array('trid' => $trid));
   }
-  //var_dump($translations);
   $vocabulary = taxonomy_vocabulary_load($vid);
 
   // List of terms for languages.
   foreach ($languages as $lang => $langname) {
     $current = isset($translations[$lang]) ? $translations[$lang]->tid : '';
-    $list = i18ntaxonomy_vocabulary_get_terms($vid, $lang, 'all');
-    $list[''] = '--';
+    $tree = i18ntaxonomy_get_tree($vid, $lang);
     $form[$lang] = array('#type' => 'fieldset', '#tree' => TRUE);
-    $form[$lang]['tid'] = array(
-      '#type' => 'select',
-      '#title' => $langname,
-      '#default_value' => $current,
-      '#options' => $list,
-    );
+    $form[$lang]['tid'] = _i18ntaxonomy_term_select($langname, $current, $tree);
     $form[$lang]['old'] = array(
       '#type' => 'hidden',
       '#value' => $current

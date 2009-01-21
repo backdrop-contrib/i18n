@@ -371,6 +371,9 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
       break;
 
     case 'taxonomy_form_term': // Taxonomy term
+      // Check for confirmation forms
+      if (isset($form_state['confirm_delete']) || isset($form_state['confirm_parents'])) return;
+
       $vocabulary = (object)$form['#vocabulary'];
       $term = (object)$form['#term'];
       
@@ -469,7 +472,7 @@ function i18ntaxonomy_node_form(&$form) {
  * Generate a form element for selecting terms from a vocabulary.
  * Translates all translatable strings.
  */
-function i18ntaxonomy_vocabulary_form($vid, $value = 0, $help = NULL, $name = 'taxonomy') {
+function i18ntaxonomy_vocabulary_form($vid, $value = 0, $help = NULL) {
   $vocabulary = taxonomy_vocabulary_load($vid);
   $help = ($help) ? $help : tt("taxonomy:vocabulary:$vid:help", $vocabulary->help);
 
@@ -479,15 +482,18 @@ function i18ntaxonomy_vocabulary_form($vid, $value = 0, $help = NULL, $name = 't
   else {
     $blank = ($vocabulary->required) ? 0 : t('- None -');
   }
-
-  return _i18ntaxonomy_term_select(check_plain(tt("taxonomy:vocabulary:$vid:name", $vocabulary->name)), $name, $value, $vid, $help, intval($vocabulary->multiple), $blank);
+  $tree = i18n_taxonomy_localize_terms(taxonomy_get_tree($vid));
+  return _i18ntaxonomy_term_select(check_plain(tt("taxonomy:vocabulary:$vid:name", $vocabulary->name)), $value, $tree, $help, intval($vocabulary->multiple), $blank);
 }
 
 /**
- * Produces translated tree.
+ * Produces tree for taxonomy vocabularies.
+ * 
+ * The difference with _taxonomy_term_select() is that this function is passed the term tree
+ * that may be already localized or filtered by language
  */
-function _i18ntaxonomy_term_select($title, $name, $value, $vocabulary_id, $description, $multiple, $blank, $exclude = array()) {
-  $tree = taxonomy_get_tree($vocabulary_id);
+function _i18ntaxonomy_term_select($title, $value, $tree, $description = '', $multiple = FALSE, $blank = '--', $exclude = array()) {
+
   $options = array();
 
   if ($blank) {
@@ -497,7 +503,7 @@ function _i18ntaxonomy_term_select($title, $name, $value, $vocabulary_id, $descr
     foreach ($tree as $term) {
       if (!in_array($term->tid, $exclude)) {
         $choice = new stdClass();
-        $choice->option = array($term->tid => str_repeat('-', $term->depth) . tt("taxonomy:term:$term->tid:name", $term->name));
+        $choice->option = array($term->tid => str_repeat('--', $term->depth) . $term->name);
         $options[] = $choice;
       }
     }
@@ -517,6 +523,9 @@ function _i18ntaxonomy_term_select($title, $name, $value, $vocabulary_id, $descr
 }
 
 /**
+ * Helper function for 
+ */
+/**
  * Set language for a term. If no language set trid to 0 too.
  */
 function _i18ntaxonomy_term_set_lang($tid, $langcode) {
@@ -525,30 +534,6 @@ function _i18ntaxonomy_term_set_lang($tid, $langcode) {
   } else {
     db_query("UPDATE {term_data} SET language = '', trid = 0 WHERE tid = %d", $tid);    
   }
-}
-
-/**
- * Returns a list for terms for vocabulary, language.
- */
-function i18ntaxonomy_vocabulary_get_terms($vid, $lang, $status = 'all') {
-  switch ($status) {
-    case 'translated':
-      $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s' AND trid > 0", $vid, $lang);
-      break;
-
-    case 'untranslated':
-      $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s' AND trid = 0", $vid, $lang);
-      break;
-
-    default:
-      $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s'", $vid, $lang);
-      break;
-  }
-  $list = array();
-  while ($term = db_fetch_object($result)) {
-    $list[$term->tid] = $term->name;
-  }
-  return $list;
 }
 
 /**
@@ -681,6 +666,7 @@ function i18ntaxonomy_localize_terms($terms, $fields = array('name')) {
  */
 function i18ntaxonomy_vocabulary($vid = NULL, $mode = NULL) {
   $options = variable_get('i18ntaxonomy_vocabulary', array());
+  
   if ($vid && !is_null($mode)) {
     $options[$vid] = $mode;
     variable_set('i18ntaxonomy_vocabulary', $options);
@@ -694,4 +680,85 @@ function i18ntaxonomy_vocabulary($vid = NULL, $mode = NULL) {
   else {
     return $options;
   }
+}
+
+/**
+ * Returns a list for terms for vocabulary, language.
+ * 
+ * @param $vid
+ *   Vocabulary id
+ * @param $lang
+ *   Language code
+ * @param $status
+ *   'all' (default), 'translated', 'untranslated'
+ */
+function i18ntaxonomy_vocabulary_get_terms($vid, $lang, $status = 'all') {
+  switch ($status) {
+    case 'translated':
+      $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s' AND trid > 0", $vid, $lang);
+      break;
+
+    case 'untranslated':
+      $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s' AND trid = 0", $vid, $lang);
+      break;
+
+    default:
+      $result = db_query("SELECT * FROM {term_data} WHERE vid = %d AND language = '%s'", $vid, $lang);
+      break;
+  }
+  $list = array();
+  while ($term = db_fetch_object($result)) {
+    $list[$term->tid] = $term->name;
+  }
+  return $list;
+}
+
+/**
+ * Get taxonomy tree for a given language
+ * 
+ * @param $vid
+ *   Vocabulary id
+ * @param $lang
+ *   Language code
+ * @param $parent
+ *   Parent term id for the tree
+ */
+function i18ntaxonomy_get_tree($vid, $lang, $parent = 0, $depth = -1, $max_depth = NULL) {
+  static $children, $parents, $terms;
+
+  $depth++;
+
+  // We cache trees, so it's not CPU-intensive to call get_tree() on a term
+  // and its children, too.
+  if (!isset($children[$vid][$lang])) {
+    $children[$vid][$lang] = array();
+
+    $result = db_query(db_rewrite_sql("SELECT t.tid, t.*, parent FROM {term_data} t INNER JOIN {term_hierarchy} h ON t.tid = h.tid WHERE t.vid = %d AND t.language = '%s' ORDER BY weight, name", 't', 'tid'), $vid, $lang);
+    while ($term = db_fetch_object($result)) {
+      $children[$vid][$lang][$term->parent][] = $term->tid;
+      $parents[$vid][$lang][$term->tid][] = $term->parent;
+      $terms[$vid][$term->tid] = $term;
+    }
+  }
+
+  $max_depth = (is_null($max_depth)) ? count($children[$vid][$lang]) : $max_depth;
+  $tree = array();
+  if (!empty($children[$vid][$lang][$parent])) {
+    foreach ($children[$vid][$lang][$parent] as $child) {
+      if ($max_depth > $depth) {
+        $term = drupal_clone($terms[$vid][$child]);
+        $term->depth = $depth;
+        // The "parent" attribute is not useful, as it would show one parent only.
+        unset($term->parent);
+        $term->parents = $parents[$vid][$lang][$child];
+        $tree[] = $term;
+
+        if (!empty($children[$vid][$lang][$child])) {
+          $tree = array_merge($tree, i18ntaxonomy_get_tree($vid, $lang, $child, $depth, $max_depth));
+        }
+      }
+    }
+  }
+
+  return $tree;
 }

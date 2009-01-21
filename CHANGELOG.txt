@@ -10,6 +10,8 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Fixed missing table wrapper in i18nblocks, by mrfelton, #362050
+- Added: Display hierarchy when translating taxonomy, by Afief, #288086
 - Added option for switching language when translating
 - Moved admin settings to higher level tab
 - Deleting profile strings when deleting fields, #356538
