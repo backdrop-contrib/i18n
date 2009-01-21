@@ -63,7 +63,7 @@ function i18n_help($path = 'admin/help#i18n', $arg) {
       $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) .'</p>';
       return $output;
 
-    case 'admin/settings/language/configure/i18n':
+    case 'admin/settings/language/i18n':
       $output = '<ul>';
       $output .= '<li>'. t('To enable multilingual support for specific content types go to <a href="@configure_content_types">configure content types</a>.', array('@configure_content_types' => url('admin/content/types'))) .'</li>';
       $output .= '</ul>';
@@ -75,7 +75,7 @@ function i18n_help($path = 'admin/help#i18n', $arg) {
  * Implementation of hook_menu().
  */
 function i18n_menu() {
-  $items['admin/settings/language/configure/i18n'] = array(
+  $items['admin/settings/language/i18n'] = array(
     'title' => 'Multilingual system',
     'description' => 'Configure extended options for multilingual content and translations.',
     'page callback' => 'drupal_get_form',
@@ -83,6 +83,16 @@ function i18n_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'i18n.admin.inc',
     'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );  
+  $items['admin/settings/language/i18n/configure'] = array(
+    'title' => 'Multilingual system',
+    'description' => 'Configure extended options for multilingual content and translations.',
+    //'page callback' => 'drupal_get_form',
+    //'page arguments' => array('i18n_admin_settings'),
+    //'access arguments' => array('administer site configuration'),
+    'file' => 'i18n.admin.inc',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
   );
 
   return $items;
@@ -94,30 +104,9 @@ function i18n_menu() {
  * Take over the node translation page.
  */
 function i18n_menu_alter(&$items) {
-  $items['admin/settings/language/configure/negotiation'] = $items['admin/settings/language/configure'];
-  $items['admin/settings/language/configure/negotiation']['title'] = 'Language Negotiation';
-  $items['admin/settings/language/configure/negotiation']['weight'] = 0;
-  $items['admin/settings/language/configure/negotiation']['type'] = MENU_DEFAULT_LOCAL_TASK;
-  // dsm($router_items);
-  /*
   $items['node/%node/translate']['page callback'] = 'i18n_translation_node_overview';
   $items['node/%node/translate']['file'] = 'i18n.pages.inc';
   $items['node/%node/translate']['module'] = 'i18n';
-  */
-  /**
-  $items = array();
-  $items['node/%node/translate'] = array(
-    'title' => 'Translate',
-    'page callback' => 'translation_node_overview',
-    'page arguments' => array(1),
-    'access callback' => '_translation_tab_access',
-    'access arguments' => array(1),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 2,
-    'file' => 'i18n.pages.inc',
-  );
-  return $items;
-  */
 }
 
 /**

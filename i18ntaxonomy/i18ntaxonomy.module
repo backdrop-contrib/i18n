@@ -44,7 +44,7 @@ function i18ntaxonomy_help($path, $arg) {
       $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) .'</p>';
       return $output;
 
-    case 'admin/settings/language/configure/i18n':
+    case 'admin/settings/language/i18n':
       $output = '<ul>';
       $output .= '<li>'. t('To set up multilingual options for vocabularies go to <a href="@configure_taxonomy">Taxonomy configuration page</a>.', array('@configure_taxonomy' => url('admin/content/taxonomy'))) .'</li>';
       $output .= '</ul>';

@@ -41,7 +41,12 @@ function i18n_admin_settings() {
     '#description' => t('Hide the links to translations in content body and teasers. If you choose this option, switching language will only be available from the language switcher block.'),
     '#default_value' => variable_get('i18n_hide_translation_links', 0),
   );
-
+  $form['links']['i18n_translation_switch'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Switch interface for translating'),
+    '#default_value' => variable_get('i18n_translation_switch', 0),
+    '#description' => t('Switch interface language to fit node language when creating or editing a translation. If not checked the interface language will be independent from node language.'),
+  );
   return system_settings_form($form);
 }
 
