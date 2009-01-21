@@ -42,12 +42,26 @@ function i18ncontent_disable() {
  */
 function i18ncontent_update_6001() {
   $ret = array();
-  drupal_load('module', 'i18ncontent');
-  drupal_load('module', 'i18nstrings');
   // Update location for existing strings for this textgroup that was wrong
   $ret[] = update_sql("UPDATE {locales_source} SET location = CONCAT('type:', location) WHERE textgroup = 'nodetype' AND location NOT LIKE 'type:%'");
   // Delete all indexing data, it will be recreated
   $ret[] = update_sql("DELETE FROM {i18n_strings} WHERE lid IN (SELECT lid FROM {locales_source} WHERE textgroup = 'nodetype')");
-  i18ncontent_locale_refresh();
   return $ret;
+}
+
+/**
+ * Locale refresh, this will run successfully only after the i18nstrings update has run
+ */
+function i18ncontent_update_6002() {
+  $ret = array();
+  $version = (int)drupal_get_installed_schema_version('i18nstrings');
+  if ($version > 6002) {
+    drupal_load('module', 'i18ncontent');
+    drupal_load('module', 'i18nstrings');
+    i18ncontent_locale_refresh();
+  } else {
+    drupal_set_message('The i18ncontent update 6002 needs to run after i18nstrings update 6003. Re-run update.php.', 'warning');
+    $ret['#abort'] = TRUE;
+  }
+  return $ret; 
 }

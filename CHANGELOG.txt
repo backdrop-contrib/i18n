@@ -10,6 +10,7 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Fixed: Unknown column status during i18ncontent update, #361228
 - Fixed missing table wrapper in i18nblocks, by mrfelton, #362050
 - Added: Display hierarchy when translating taxonomy, by Afief, #288086
 - Added option for switching language when translating
