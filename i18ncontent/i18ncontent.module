@@ -29,7 +29,7 @@ function i18ncontent_help($path, $arg) {
       $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</p>';
       return $output;
   }
-
+  // Add translated help text for node add pages
   if (!menu_get_object() && $arg[1] == 'add' && $arg[2]) {
     $type = str_replace('-', '_', $arg[2]);
     if ($help = i18nstrings_ts("nodetype:type:$type:help")) {
@@ -136,12 +136,13 @@ function i18ncontent_node_type($op, $info) {
  *
  * Take over the node add pages.
  */
-function i18ncontent_menu_alter(&$callbacks) {
-  $callbacks['node/add']['page callback'] =  'i18ncontent_node_add_page';
+function i18ncontent_menu_alter(&$menu) {
+  $menu['node/add']['page callback'] =  'i18ncontent_node_add_page';
 
   // @TODO avoid iterating over every router path.
-  foreach ($callbacks as $path => $item) {
+  foreach ($menu as $path => $item) {
     if (!empty($item['page callback']) && $item['page callback'] == 'node_add') {
+      $menu[$path]['page callback'] = 'i18ncontent_node_add';
       $arg = arg(NULL, $path);
       $menu[$path]['title callback'] = 'i18nstrings_title_callback';
       $menu[$path]['title arguments'] = array('nodetype:type:'. $arg[2] .':name', $item['title']);
@@ -155,19 +156,39 @@ function i18ncontent_menu_alter(&$callbacks) {
 function i18ncontent_node_add_page() {
   $item = menu_get_item();
   $content = system_admin_menu_block($item);
+ 
   // The node type isn't available in the menu path, but 'title' is equivalent
   // to the human readable name, so check this against node_get_types() to get
-  // the correct values.
-  $types = node_get_types();
+  // the correct values. First we build an array of node types indexed by names
+  $type_names = array_flip(node_get_types('names'));
   foreach ($content as $key => $item) {
-    foreach ($types as $node_type) {
-      if ($item['title'] == $node_type->name) {
-        $type = $node_type->type;
-      }
+    if ($type = $type_names[$item['link_title']]){
+      // We just need to translate the description, the title is translated by the menu system
+      $content[$key]['description'] = tt("nodetype:type:$type:description", $item['description']);
     }
-    $content[$key]['title'] = tt("nodetype:type:$type:title", $item['title']);
-    $content[$key]['description'] = tt("nodetype:type:$type:description", $item['description']);
   }
 
   return theme('node_add_list', $content);
+}
+
+/**
+ * Replacement for node_add
+ * 
+ * This just calls node_add() and switches title. This has to be done here to work always
+ */
+function i18ncontent_node_add($type) {
+  global $user;
+
+  $types = node_get_types();
+  $type = isset($type) ? str_replace('-', '_', $type) : NULL;
+  // If a node type has been specified, validate its existence.
+  if (isset($types[$type]) && node_access('create', $type)) {
+    // Initialize settings:
+    $node = array('uid' => $user->uid, 'name' => (isset($user->name) ? $user->name : ''), 'type' => $type, 'language' => '');
+
+    drupal_set_title(t('Create @name', array('@name' => tt("nodetype:type:$type:name", $types[$type]->name))));
+    $output = drupal_get_form($type .'_node_form', $node);
+  }
+
+  return $output;  
 }

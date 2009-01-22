@@ -10,6 +10,8 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Fixed multiple translation issues for node/add pages, included #353912
+- Fixed Undefined function i18n_taxonomy_localize_terms(), by roborn, #362559
 - Fixed: Unknown column status during i18ncontent update, #361228
 - Fixed missing table wrapper in i18nblocks, by mrfelton, #362050
 - Added: Display hierarchy when translating taxonomy, by Afief, #288086

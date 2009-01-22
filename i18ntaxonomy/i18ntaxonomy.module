@@ -482,7 +482,7 @@ function i18ntaxonomy_vocabulary_form($vid, $value = 0, $help = NULL) {
   else {
     $blank = ($vocabulary->required) ? 0 : t('- None -');
   }
-  $tree = i18n_taxonomy_localize_terms(taxonomy_get_tree($vid));
+  $tree = i18ntaxonomy_localize_terms(taxonomy_get_tree($vid));
   return _i18ntaxonomy_term_select(check_plain(tt("taxonomy:vocabulary:$vid:name", $vocabulary->name)), $value, $tree, $help, intval($vocabulary->multiple), $blank);
 }
 
