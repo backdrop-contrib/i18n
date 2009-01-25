@@ -1,8 +1,0 @@
-; $Id$
-name = Views translation
-description = Translation of views strings and content selection for views
-dependencies[] = i18nstrings
-dependencies[] = views
-dependencies[] = i18n
-package = Multilanguage
-core = 6.x
