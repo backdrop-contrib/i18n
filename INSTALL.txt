@@ -10,7 +10,7 @@ Author: Jose A. Reyero
 ********************************************************************
 
 ********************************************************************
-Updated documentation will be kept on-line at http://drupal.org/node/67817
+Updated documentation will be kept on-line at http://drupal.org/node/133977
 ********************************************************************
 
 INSTALLATION:
@@ -22,65 +22,19 @@ INSTALLATION:
 POST-INSTALLATION/CONFIGURATION:
 ============
 - First of all review Drupal language settings and make sure you have chosen the right default language.
+- Enable the needed modules grouped under "Internationalization" package
+- Read the on-line handbook on 
 
-WARNING: Changing default language after having used i18n string translations (taxonomy, menus, blocks...)
-will result in losing some of the user defined strings and translations.
-
-- Enable the module/s in: Administer > Site building > modules
-  These modules are grouped under 'Multilanguage - i18n' package
-
-
-- Configure the modules in
-  Administer > Site Configuration > Multilingual system
-
-- Set up language for existing nodes, editing them manually.
-- Set up multilingual options for vocabularies and language for existing taxonomy terms
-  Only terms in the node's language or terms without language will show up when editing a node
-
-Language dependent variables
-============================
-  The list of variables to be made language dependent must be defined in the config file:
-
-  I.e.
-
-  $conf['i18n_variables'] = array(
-    // Site configuration
-    'site_name',
-    'site_slogan',
-    'site_mission',
-    'site_footer',
-    'anonymous',
-    // Node help
-    'blog_help',
-    'story_help',
-    // User configuration
-    'user_registration_help',
-    'user_mail_welcome_subject',
-    'user_mail_welcome_body',
-    'user_mail_approval_subject',
-    'user_mail_approval_body',
-    'user_mail_pass_subject',
-    'user_mail_pass_body',
-    // Primary and secondary links
-    'menu_primary_menu',
-    'menu_secondary_menu';
-    // Theme settings. This is an 'all or nothing' for each theme
-    // This is for 'garland' theme, for other theme it would be 'theme_[themename]_settings'
-    'theme_garland_settings',
-  );
-
-  These are only some suggested ones, but you can add as many Drupal variables as you want to the array.
-
-  You need to redefine these variables for the first time for every language, as previous values are lost and they return to defaults -they will be back if you disable i18n-.
+IMPORTANT:
+==========
+- This module requires a complex set up, make sure you read the handbook and understand the different options
+- Before creating a support request, do read the handbook: http://drupal.org/node/133977
 
 Additional Support
 ==================
 For support, please create a support request for this module's project: http://drupal.org/project/i18n
 
-If you need professional support, contact me by e-mail: freelance at reyero dot net
-
+Support questions by email to the module maintainer will be simply ignored. Use the issue tracker.
 
 ====================================================================
 Jose A. Reyero, freelance at reyero dot net, http://www.reyero.net
-
-Feedback is welcomed.
