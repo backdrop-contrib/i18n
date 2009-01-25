@@ -74,27 +74,43 @@ function i18ncontent_locale_refresh() {
  * Implementation of hook_form_alter().
  */
 function i18ncontent_form_alter(&$form, $form_state, $form_id) {
-  // Translate field names for title and body for the node edit form.
-  if (isset($form['#id']) && $form['#id'] == 'node-form') {
-    $type = $form['#node']->type;
-    if (!empty($form['title']['#title'])) {
-      $form['title']['#title'] = tt("nodetype:type:$type:title", $form['title']['#title']);
-    }
-    if (!empty($form['body_field']['body']['#title'])) {
-      $form['body_field']['body']['#title'] = tt("nodetype:type:$type:body", $form['body_field']['body']['#title']);
-    }
-  }
+  switch ($form_id) {
+    case 'node_type_form':
+      // Replace the help text default value in the node type form with data from
+      // i18nstrings. Help text is handled in hook_node_type() and hook_help().
+      $type = $form['#node_type']->type;
+      // Use the default language for this.
+      $language = language_default('language');
+      if ($type) {
+        $form['submission']['help']['#default_value'] = i18nstrings_ts("nodetype:type:$type:help", $form['submission']['help']['#default_value'], $language);
+      }
+      break; 
+    
+    case 'search_form':
+      // Advanced search form. Add language and localize content type names
+      if ($form['module']['#value'] == 'node' && !empty($form['advanced'])){
+        // @todo Handle language search conditions
+        //$form['advanced']['language'] = _i18n_language_select();
+        if (!empty($form['advanced']['type'])) {
+          foreach ($form['advanced']['type']['#options'] as $type => $name) {
+            $form['advanced']['type']['#options'][$type] = tt("nodetype:type:$type:name", $name);
+          }
+        }
+      }
+      break;
 
-  // Replace the help text default value in the node type form with data from
-  // i18nstrings. Actual replacement of the help text is handled in
-  // hook_node_type() and hook_help().
-  if ($form_id == 'node_type_form') {
-    $type = $form['#node_type']->type;
-    // Use the default language for this.
-    $language = language_default('language');
-    if ($type) {
-      $form['submission']['help']['#default_value'] = i18nstrings_ts("nodetype:type:$type:help", $form['submission']['help']['#default_value'], $language);
-    }
+    default:
+      // Translate field names for title and body for the node edit form.
+      if (isset($form['#id']) && $form['#id'] == 'node-form') {
+        $type = $form['#node']->type;
+        if (!empty($form['title']['#title'])) {
+          $form['title']['#title'] = tt("nodetype:type:$type:title", $form['title']['#title']);
+        }
+        if (!empty($form['body_field']['body']['#title'])) {
+          $form['body_field']['body']['#title'] = tt("nodetype:type:$type:body", $form['body_field']['body']['#title']);
+        }
+      }
+      break;
   }
 }
 

@@ -10,6 +10,7 @@ TO DO
 
 6.x-beta6 to .........
 ----------------------
+- Added localization for content types and taxonomy in advanced search form, #363384
 - Fixed multiple translation issues for node/add pages, included #353912
 - Fixed Undefined function i18n_taxonomy_localize_terms(), by roborn, #362559
 - Fixed: Unknown column status during i18ncontent update, #361228

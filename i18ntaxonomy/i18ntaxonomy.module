@@ -418,7 +418,12 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
           break;
       }
       break;
-
+    case 'search_form':
+      // Localize category selector in advanced search form. 
+      if (!empty($form['advanced']) && !empty($form['advanced']['category'])) {
+        i18ntaxonomy_form_all_localize($form['advanced']['category']);
+      }
+      break;
     default:
       if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id
         && ($node = $form['#node']) && isset($form['taxonomy']) ) {
@@ -426,6 +431,37 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
         i18ntaxonomy_node_form($form);
       }
   }
+}
+
+/**
+ * Localize a taxonomy_form_all() kind of control
+ * 
+ * The options array is indexed by vocabulary name and then by term id, with tree structure
+ * We just need to localize vocabulary name and localizable terms. Multilingual vocabularies
+ * should have been taken care of by query rewriting.
+ **/
+function i18ntaxonomy_form_all_localize(&$item) {
+  $options = &$item['#options'];
+  foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
+    if (!empty($options[$vocabulary->name])) {
+      // Localize vocabulary name if translated
+      $vname = tt("taxonomy:vocabulary:$vid:name", $vocabulary->name);
+      if ($vname != $vocabulary->name) {
+        $options[$vname] = $options[$vocabulary->name];
+        unset($options[$vocabulary->name]);
+      }
+      if (i18ntaxonomy_vocabulary($vid) == I18N_TAXONOMY_LOCALIZE) {
+        $tree = taxonomy_get_tree($vid);
+        if ($tree && (count($tree) > 0)) {
+          foreach ($tree as $term) {
+            if (isset($options[$vname][$term->tid])) {
+              $options[$vname][$term->tid] = str_repeat('-', $term->depth) . tt("taxonomy:term:$term->tid:name", $term->name);
+            }
+          }          
+        }
+      }
+    }
+  }  
 }
 
 /**
