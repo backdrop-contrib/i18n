@@ -1,14 +1,6 @@
 // $Id$
 
-TO DO
------
-- Reimplement: Choose an existing node as a translation, http://drupal.org/node/295682
-- Taxonomy autocomplete, localized terms
-- Add language filter to search form
-- Support for translation of some node strings, #313840
-- Better information for theme variables on settings page
-
-6.x-beta6 to .........
+6.x-beta6 to 6.x-1.0
 ----------------------
 - Added localization for content types and taxonomy in advanced search form, #363384
 - Fixed multiple translation issues for node/add pages, included #353912
