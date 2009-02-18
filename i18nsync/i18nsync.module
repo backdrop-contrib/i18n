@@ -251,7 +251,7 @@ function i18nsync_prepare_translation(&$node, $source, $field_list) {
  */
 function i18nsync_node_translation($node, $translation, $fields, $op) {
   // Load full node, we need all data here.
-  $translation = node_load($translation->nid);
+  $translation = node_load($translation->nid, NULL, TRUE);
 
   // Collect info on any CCK fields.
   $content_fields = _i18nsync_cck_fields($node->type);

@@ -341,7 +341,7 @@ function i18n_node_language_list($node, $translate = FALSE) {
   // Check if the node module manages its own language list.
   $languages = node_invoke($node, 'language_list', $translate);
   if (!$languages) {
-    if (variable_get('i18n_node_'. $node->type, 0) == LANGUAGE_SUPPORT_EXTENDED) {
+    if (variable_get('i18n_node_'. $node->type, 0) >= LANGUAGE_SUPPORT_EXTENDED) {
       $languages = locale_language_list('name', TRUE); // All defined languages
     }
     else {

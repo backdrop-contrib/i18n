@@ -1,5 +1,11 @@
 // $Id$
 
+6.x-1.0 to ........
+--------------------
+- Fixed: translation relationship broken with i18nsync, by smh67, Beban, #367118
+- Fixed: translated node forgets its menu settings, by brucepearson, #364375
+- Fixed: missing node languages for LANGUAGE_SUPPORT_EXTENDED_NOT_DISPLAYED, by Roger Lopez, #365574
+
 6.x-beta6 to 6.x-1.0
 ----------------------
 - Added localization for content types and taxonomy in advanced search form, #363384

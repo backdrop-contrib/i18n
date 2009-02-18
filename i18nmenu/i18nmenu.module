@@ -244,7 +244,7 @@ function i18nmenu_form_alter(&$form, &$form_state, $form_id) {
     $node = $form['#node'];
     
     // Do nothing if the node already has a menu.
-    if ($node->menu->mlid) {
+    if (!empty($node->menu['mlid'])) {
       return;
     }
     
