@@ -2,6 +2,8 @@
 
 6.x-1.0 to ........
 --------------------
+- Fixed typos, by ao2, #429850, dboulet, #396402
+- New feature: allow to select existing node as translation, #295682
 - Fixed: translation relationship broken with i18nsync, by smh67, Beban, #367118
 - Fixed: translated node forgets its menu settings, by brucepearson, #364375
 - Fixed: missing node languages for LANGUAGE_SUPPORT_EXTENDED_NOT_DISPLAYED, by Roger Lopez, #365574
