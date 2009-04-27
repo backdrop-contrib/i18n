@@ -2,6 +2,9 @@
 
 6.x-1.0 to ........
 --------------------
+- Fixed missing brackets around table name in query, #371429
+- Fixed incompatible table locking, using proper API, #416912
+
 - Fixed typos, by ao2, #429850, dboulet, #396402
 - New feature: allow to select existing node as translation, #295682
 - Fixed: translation relationship broken with i18nsync, by smh67, Beban, #367118
