@@ -2,6 +2,9 @@
 
 6.x-1.0 to ........
 --------------------
+- Fixed multilingual variables issues, by rfay, #451120
+- Fixed i18nstrings, wrong hook_schema_alter() implementation, by rsvelko, #466876
+
 - Added location to i18nsync fields, by zedzed, #426294
 - Added new dependence (i18ntaxonomy) and some taxonomy handling to i18nviews
 - Fixed missing brackets around table name in query, #371429

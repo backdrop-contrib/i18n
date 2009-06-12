@@ -611,9 +611,9 @@ function i18n_menu_edit_item_form_submit($form, &$form_state) {
  * Check for multilingual variables in form.
  */
 function i18n_form_alter_settings(&$form, &$variables) {
-  $result = 0;
+  $result = array();
   foreach (element_children($form) as $field) {
-    if (isset($form[$field]['#type']) && $form[$field]['#type'] == 'fieldset') {
+    if (count(element_children($form[$field])) && empty($form[$field]['#tree'])) {
       $result += i18n_form_alter_settings($form[$field], $variables);
     }
     elseif (in_array($field, $variables)) {
