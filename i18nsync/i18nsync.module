@@ -403,12 +403,10 @@ function i18nsync_node_fields($type) {
  *  - i18nsync_fields_node
  *  - i18nsync_fields_node_$type;
  * 
- * Variables can also be changed using hook_i18nsync_fields_alter($fields, $type)
+ * Fields can also be changed using hook_i18nsync_fields_alter($fields, $type)
  * 
  * @param $type
  *   Node type.
- * @param $tree
- *   Whether to return in tree form or FALSE for flat list.
  */
 function i18nsync_node_available_fields($type) {
   static $cache;
