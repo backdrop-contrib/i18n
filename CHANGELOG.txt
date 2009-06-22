@@ -1,6 +1,6 @@
 // $Id$
 
-6.x-1.0 to ........
+6.x-1.0 to 6.x-1.1
 --------------------
 - Fixed pgsql issue in i18nblocks query rewriting, by plj, #383772
 - Changed i18ntaxonomy module weight for it to run before views, by Owen Barton, #386136
