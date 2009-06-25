@@ -3,15 +3,15 @@
 # LANGUAGE translation of Drupal (i18nblocks)
 # Copyright YEAR NAME <EMAIL@ADDRESS>
 # Generated from files:
-#  i18nblocks.module,v 1.7.2.11 2008/10/03 11:40:18 hass
-#  i18nblocks.install,v 1.5.2.7 2008/10/03 11:32:23 hass
+#  i18nblocks.module,v 1.7.2.15 2009/06/12 13:35:12 jareyero
+#  i18nblocks.install,v 1.5.2.8 2008/11/16 12:26:57 jareyero
 #  i18nblocks/i18nblocks.info: n/a
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2008-10-03 17:58+0200\n"
+"POT-Creation-Date: 2009-06-26 00:43+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -48,15 +48,15 @@ msgstr ""
 msgid "Blocks"
 msgstr ""
 
-#: i18nblocks/i18nblocks.module:109;127
+#: i18nblocks/i18nblocks.module:131;149
 msgid "Multilingual settings"
 msgstr ""
 
-#: i18nblocks/i18nblocks.module:115
+#: i18nblocks/i18nblocks.module:137
 msgid "This is a translatable block."
 msgstr ""
 
-#: i18nblocks/i18nblocks.module:134
+#: i18nblocks/i18nblocks.module:156
 msgid "All languages (Translatable)"
 msgstr ""
 
