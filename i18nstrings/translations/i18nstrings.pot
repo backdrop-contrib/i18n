@@ -5,14 +5,13 @@
 # Generated from files:
 #  i18nstrings.admin.inc,v 1.1.2.6 2009/01/03 19:07:52 jareyero
 #  i18nstrings.module,v 1.8.2.31 2009/01/19 19:05:12 jareyero
-#  i18nstrings.install,v 1.2.2.11 2009/06/12 11:33:16 jareyero
 #  i18nstrings.info,v 1.2.2.4 2008/11/16 11:05:20 jareyero
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2009-06-26 00:43+0200\n"
+"POT-Creation-Date: 2009-06-26 01:08+0200\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -105,30 +104,6 @@ msgstr ""
 
 #: i18nstrings/i18nstrings.module:0
 msgid "i18nstrings"
-msgstr ""
-
-#: i18nstrings/i18nstrings.install:44
-msgid "Metadata for source strings."
-msgstr ""
-
-#: i18nstrings/i18nstrings.install:50
-msgid "Source string ID. References {locales_source}.lid."
-msgstr ""
-
-#: i18nstrings/i18nstrings.install:56
-msgid "Object ID."
-msgstr ""
-
-#: i18nstrings/i18nstrings.install:63
-msgid "Object type for this string."
-msgstr ""
-
-#: i18nstrings/i18nstrings.install:70
-msgid "Object property for this string."
-msgstr ""
-
-#: i18nstrings/i18nstrings.install:86
-msgid "A boolean indicating whether this translation needs to be updated."
 msgstr ""
 
 #: i18nstrings/i18nstrings.info:0
