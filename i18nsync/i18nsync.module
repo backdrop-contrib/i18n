@@ -59,14 +59,15 @@ function i18nsync_form_alter(&$form, $form_state, $form_id) {
     case 'node_type_form':
       $type = $form['#node_type']->type;
       $current = i18nsync_node_fields($type);
-
-      $form['workflow']['i18n']['i18nsync_nodeapi'] = array(
+      $disabled = $form['i18n']['#disabled'];
+      $form['i18n']['i18nsync_nodeapi'] = array(
         '#type' => 'fieldset',
         '#tree' => TRUE,
         '#title' => t('Synchronize translations'),
         '#collapsible' => TRUE,
         '#collapsed' => !count($current),
-        '#description' => t('Select which fields to synchronize for all translations of this content type.')
+        '#description' => t('Select which fields to synchronize for all translations of this content type.'),
+        '#disabled' => $disabled,
       );
       // Each set provides title and options. We build a big checkboxes control for it to be
       // saved as an array. Special themeing for group titles.
@@ -74,12 +75,13 @@ function i18nsync_form_alter(&$form, $form_state, $form_id) {
         $title = $data['#title'];
         if (!empty($data['#options'])) {
           foreach ($data['#options'] as $field => $name) {
-            $form['workflow']['i18n']['i18nsync_nodeapi'][$field] = array(
+            $form['i18n']['i18nsync_nodeapi'][$field] = array(
               '#group_title' => $title,
               '#title' => $name,
               '#type' => 'checkbox',
               '#default_value' => in_array($field, $current),
               '#theme' => 'i18nsync_workflow_checkbox',
+              '#disabled' => $disabled,
             );
             $title = '';
           }
