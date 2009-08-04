@@ -99,13 +99,13 @@ function i18nprofile_profile_alter(&$account) {
           // Get the value from the account because this one may have been formatted.
           if (isset($options[$account->$field])) {
             // It may be a link or a paragraph, trick for not loading the field again.
-            if ($account->content[$name][$field]['#value'] == check_markup($account->$field)) {
-              $account->content[$name][$field]['#value'] = check_markup($options[$account->$field]);
+            if (!preg_match('|^<a href="|', $account->content[$name][$field]['#value'])) {
               // Plain html
+              $account->content[$name][$field]['#value'] = check_markup($options[$account->$field]);
             }
             else {
               // Link
-              $account->content[$name][$field]['#value'] == check_markup(l($account->$field, 'profile/'. $field .'/'. $account->$field));
+              $account->content[$name][$field]['#value'] = check_markup(l($options[$account->$field], 'profile/'. $field .'/'. $account->$field));
             }
           }
         }
@@ -208,13 +208,14 @@ function i18nprofile_form_translate_field(&$form, $field) {
 function i18nprofile_field_options($field, $source = array()) {
   if ($translation = tt("profile:field:$field:options", '')) {
     // Troubles when doing the split, produces empty lines, quick fix
-    $translation = str_replace("\n\r", "\n", $translation);
-    $translation = split("[,\n]", $translation);
+    $translation = str_replace("\r", '', $translation);
+    $translation = split("\n", $translation);
     if ($source) {
       $options = $source;
     }
     elseif ($source = db_result(db_query("SELECT options FROM {profile_fields} WHERE name = '%s'", $field))) {
-      $source = split("[,\n\r]", $source);
+      $source = str_replace("\r", '', $source);
+      $source = split("\n", $source);
       $options = array();
     }
     else {
@@ -244,53 +245,4 @@ function i18nprofile_form_translate_all($form_id, &$form) {
       }
     }
   }
-}
-
-/**
- * Returns translated categories.
- *
- * @ TODO Drupal 6
- *
- * Note: weight must be minor than profile module's for them to be added first.
- *
- * @param $getraw
- *   Return the raw array of translations.
- */
-function i18nprofile_categories($getraw = FALSE) {
-  $language = i18n_get_lang();
-  if ($translation = variable_get('i18nprofile_'. $language, 0)) {
-    if ($getraw) {
-      return $translation;
-    }
-    foreach ($translation as $name => $value) {
-      $categories[] = array(
-        'name' => $name,
-        'title' => $value,
-        'weight' => 2
-      );
-    }
-    return $categories;
-  }
-  else {
-    return array();
-  }
-}
-
-/**
- * Returns field translations.
- *
- * @ TODO Drupal 6
- */
-function i18nprofile_fields($category) {
-  static $_fields;
-  $language = i18n_get_lang();
-  if (!isset($_fields[$category])) {
-    $_fields[$category] = array();
-    // Some special categories.
-    $result = db_query("SELECT p.name, p.type, t.* FROM {profile_fields} p INNER JOIN {i18n_profile_fields} t ON p.fid = t.fid WHERE LOWER(p.category) = LOWER('%s') AND t.language='%s'", $category, $language);
-    while ($field = db_fetch_object($result)) {
-      $_fields[$category][$field->name] = $field;
-    }
-  }
-  return $_fields[$category];
 }
