@@ -625,12 +625,37 @@ function i18ntaxonomy_nat_get_terms($nid) {
  *
  * Prepare node for translation.
  */
-function i18ntaxonomy_nodeapi(&$node, $op) {
+function i18ntaxonomy_nodeapi(&$node, $op, $teaser, $page) {
   switch ($op) {
     case 'view':
       // This runs after taxonomy:nodeapi, so we just localize terms here.
-      if ($op == 'view' && array_key_exists('taxonomy', $node)) {
+      if (array_key_exists('taxonomy', $node)) {
         $node->taxonomy = i18ntaxonomy_localize_terms($node->taxonomy);
+      }
+
+      if ($node->type == 'forum' && ($vid = variable_get('forum_nav_vocabulary', '')) && i18ntaxonomy_vocabulary($vid)) {
+        if ($page && taxonomy_node_get_terms_by_vocabulary($node, $vid) && $tree = taxonomy_get_tree($vid)) {
+          // Get the forum terms from the (cached) tree
+          foreach ($tree as $term) {
+            $forum_terms[] = $term->tid;
+          }
+          foreach ($node->taxonomy as $term_id => $term) {
+            if (in_array($term_id, $forum_terms)) {
+              $node->tid = $term_id;
+            }
+          }
+          // Breadcrumb navigation
+          $vocabulary = taxonomy_vocabulary_load($vid);
+          $breadcrumb[] = l(t('Home'), NULL);
+          $breadcrumb[] = l(tt("taxonomy:vocabulary:$vid:name", $vocabulary->name), 'forum');
+          if ($parents = taxonomy_get_parents_all($node->tid)) {
+            $parents = array_reverse($parents);
+            foreach ($parents as $p) {
+              $breadcrumb[] = l(tt("taxonomy:term:$term->tid:name", $p->name), 'forum/'. $p->tid);
+            }
+          }
+          drupal_set_breadcrumb($breadcrumb);
+        }
       }
       break;
 
@@ -802,4 +827,45 @@ function i18ntaxonomy_get_tree($vid, $lang, $parent = 0, $depth = -1, $max_depth
   }
 
   return $tree;
+}
+
+/**
+ * Translate forums list.
+ */
+function i18ntaxonomy_preprocess_forum_list(&$variables) {
+  $vid = variable_get('forum_nav_vocabulary', '');
+  if (i18ntaxonomy_vocabulary($vid)) {
+    foreach ($variables['forums'] as $id => $forum) {
+      $variables['forums'][$id]->description = tt('taxonomy:term:'. $forum->tid .':description', $forum->description);
+      $variables['forums'][$id]->name = tt('taxonomy:term:'. $forum->tid .':name', $forum->name);
+    }
+  }
+}
+
+/**
+ * Translate forum page.
+ */
+function i18ntaxonomy_preprocess_forums(&$variables) {
+  $vid = variable_get('forum_nav_vocabulary', '');
+  if (i18ntaxonomy_vocabulary($vid)) {
+    if (isset($variables['links']['forum'])) {
+      $variables['links']['forum']['title'] = tt('nodetype:type:forum:post_button', 'Post new Forum topic');
+    }
+
+    if ($variables['forum_description']) {
+      $variables['forum_description'] = tt('taxonomy:term:'. $variables['tid'] .':description', $variables['forum_description']);
+    }
+
+    $vocabulary = taxonomy_vocabulary_load($vid);
+    // Translate the page title.
+    $title = !empty($vocabulary->name) ? $vocabulary->name : '';
+    $title = check_plain(tt("taxonomy:vocabulary:$vid:name", $title));
+    drupal_set_title($title);
+
+    // Translate the breadcrumb.
+    $breadcrumb = array();
+    $breadcrumb[] = l(t('Home'), NULL);
+    $breadcrumb[] = l(tt("taxonomy:vocabulary:$vid:name", $vocabulary->name), 'forum');
+    drupal_set_breadcrumb($breadcrumb);
+  }
 }
