@@ -263,8 +263,11 @@ function i18nsync_node_translation($node, $translation, $fields, $op) {
     if (isset($content_fields[$field]) && isset($node->$field)) {
       switch ($content_fields[$field]['type']) {
         // TODO take type specific actions.
+        
+        // Filefields and imagefields are syncronized equally.
         case 'filefield':
         case 'imagefield':
+          i18nsync_node_translation_filefield_field($node, $translation, $field);
           break;
 
         case 'nodereference':
@@ -361,6 +364,32 @@ function i18nsync_node_translation_nodereference_field(&$node, &$translation, $f
     }
   }
   $translation->$field = $translated_references;
+}
+
+/**
+ * Translating an filefield (cck).
+ */
+function i18nsync_node_translation_filefield_field(&$node, &$translation, $field) {
+  if (is_array($node->$field)) {
+    $translated_images = array();
+    foreach ($node->$field as $file) {
+      $found = false;
+  
+      // Try to find existing translations of the filefield items and reference them.
+      foreach ($translation->$field as $translation_image) {
+        if ($file['fid'] == $translation_image['fid']) {
+          $translated_images[] = $translation_image;
+          $found = true;
+        }
+      }
+      
+      // If there was no translation found for the filefield item, just copy it.
+      if (!$found) {
+        $translated_images[] = $file;
+      }
+    }
+    $translation->$field = $translated_images;
+  }
 }
 
 /**
