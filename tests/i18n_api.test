@@ -1,0 +1,53 @@
+<?php
+// $Id$ 
+/**
+ * Class for testing messaging module.
+ *
+ * Tests basic API functions
+ */
+
+require_once 'drupal_i18n_test_case.php';
+
+class i18n_API_Tests extends Drupali18nTestCase {
+  
+  function getInfo() {
+    return array(
+      'name' => 'Internationalization API', 
+      'group' => 'Internationalization', 
+      'description' => 'Internationalization API functions'
+    );
+  }
+
+  function setUp() {
+    parent::setUp('i18n');
+    $this->addLanguage('es');
+    $this->addLanguage('de');
+    // A language with two letter code may help too
+    $this->addLanguage('pt-br');
+    // Set path languages so we can retrieve pages in different languages
+    variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH);
+    //variable_set('i18n_variables', array('site_name','site_frontpage',));
+  }
+  
+  function testBasicAPI() {
+    $this->assertEqual(i18n_get_lang(), 'en', 'Default language (en) properly set.');    
+    
+    // Set site name for each language and check pages    
+    foreach (language_list() as $lang) {
+      i18n_variable_set('site_name', "Drupal-$lang->name", $lang->language);
+    }
+    
+    // This will refresh variables on the remote site too, then we can check
+    $this->refreshVariables();
+
+    // Enable language switcher block
+    //$this->enableBlock('locale', 0);
+    //$this->dumpTable('blocks');
+    foreach (language_list() as $lang) {
+      cache_clear_all();
+      $this->drupalGet('', array('language' => $lang));
+      $this->assertText("Drupal-$lang->name", 'Checked translated site name: Drupal-' . $lang->name);
+      //$this->printPage();
+    }
+  }
+}

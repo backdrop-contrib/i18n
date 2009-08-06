@@ -1,0 +1,8 @@
+; $Id$
+name = Internationalization tests
+description = Helper module for testing i18n (do not enable manually)
+dependencies[] = locale
+dependencies[] = translation
+dependencies[] = i18n
+package = Devel
+core = 6.x
