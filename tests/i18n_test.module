@@ -15,7 +15,6 @@ _i18n_test_variable_init();
  */
 function i18n_test_init() {
   // We just implement this hook so this one is loaded always on bootstap
-  drupal_set_message('i18n_test_init');
 }
 
 /**

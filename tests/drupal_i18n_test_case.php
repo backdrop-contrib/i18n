@@ -39,6 +39,29 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   }
   
   /**
+   * Create translation set from a node
+   * 
+   * @param $source
+   *   Source node
+   * @param $languages
+   *   Optional list of language codes
+   */
+  function drupalCreateTranslations(&$source, $languages = NULL) {
+    $languages = $languages ? $languages : array_keys(language_list());
+    if (empty($source->tnid)) {
+      db_query("UPDATE {node} SET tnid = %d, translate = %d WHERE nid = %d", $source->nid, 0, $source->nid);
+      $source->tnid = $source->nid;
+    }
+    $translations[$source->language] = $source;
+    foreach ($languages as $lang) {
+      if ($lang != $source->language) {
+        $translations[$lang] = $this->drupalCreateNode(array('type' => $source->type, 'language' => $lang, 'translation_source' => $source, 'status' => $source->status, 'promote' => $source->promote, 'uid' => $source->uid));
+      }
+    }
+    return $translations;
+  }
+
+  /**
    * Enable language switcher block
    */
   function enableBlock($module, $delta, $region = 'left') {
