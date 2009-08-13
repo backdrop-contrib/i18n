@@ -103,6 +103,15 @@ function i18nstrings_update_5900() {
 */
 
 /**
+ * Add new 'oid' column to i18n_strings table.
+ */
+function i18nstrings_update_6000() {
+  $ret = array();
+  db_add_column($ret, 'i18n_strings', 'oid', 'int', array('not null' => TRUE, 'default' => 0));
+  return $ret;
+}
+
+/**
  * Drupal 6 update. Change field name, 'oid' was psql reserved name.
  *
  * ALTER TABLE `drupal6_i18n`.`i18n_strings` CHANGE COLUMN `oid` `objectid` INTEGER  NOT NULL DEFAULT 0;
@@ -111,7 +120,8 @@ function i18nstrings_update_6001() {
   $ret = array();
   if (!variable_get('i18nstrings_update_skip', 0)) {
     db_change_field($ret, 'i18n_strings', 'oid', 'objectid', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
-  } else {
+  }
+  else {
     variable_del('i18nstrings_update_skip');
   }
   return $ret;
