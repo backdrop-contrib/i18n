@@ -261,14 +261,16 @@ function _i18n_node_references($string, $match = 'contains', $params = array(), 
  */
 function theme_i18n_node_select_translation(&$elements) {
   $output = '';
-  $rows = array();
-  foreach (element_children($elements['nid']) as $lang) {
-    $rows[] = array(
-      drupal_render($elements['language'][$lang]),
-      drupal_render($elements['node'][$lang]),
-    );
+  if (isset($elements['nid'])) {
+    $rows = array();
+    foreach (element_children($elements['nid']) as $lang) {
+      $rows[] = array(
+        drupal_render($elements['language'][$lang]),
+        drupal_render($elements['node'][$lang]),
+      );
+    }
+    $output .= theme('table', array(), $rows);
+    $output .= drupal_render($elements);
   }
-  $output .= theme('table', array(), $rows);
-  $output .= drupal_render($elements);
   return $output;
 }

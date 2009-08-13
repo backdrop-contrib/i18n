@@ -67,7 +67,7 @@ function i18nviews_views_pre_view(&$view, &$display_id, &$args) {
 
   // Translate taxonomy fields.
   // @todo I don think this works at all.
-  if (module_exists('i18ntaxonomy') && is_array($view->field)) {
+  if (module_exists('i18ntaxonomy') && isset($view->field) && is_array($view->field)) {
     $translate = variable_get('i18ntaxonomy_vocabularies', array());
     foreach ($view->field as $index => $data) {
       $matches = array();

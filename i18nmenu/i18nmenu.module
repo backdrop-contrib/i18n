@@ -324,7 +324,7 @@ function i18nmenu_nodeapi(&$node, $op) {
       }
       break;
     case 'prepare translation':
-      if (!$node->menu->mlid && !empty($node->translation_source)) {
+      if (empty($node->menu['mlid']) && !empty($node->translation_source)) {
         $tnode = $node->translation_source;
         // Prepare the tnode so the menu item will be available.
         node_object_prepare($tnode);
