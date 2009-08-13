@@ -87,7 +87,7 @@ function i18nblocks_update_1() {
   if ($number = variable_get('i18nblocks_number', 0)) {
     for ($delta = 1; $delta <= $number; $delta++) {
       if ($block = variable_get('i18nblocks_'. $delta, NULL)) {
-        $update = update_sql("INSERT INTO {i18n_blocks}(delta) VALUES('". db_escape_string($delta) ."')");
+        $update = update_sql("INSERT INTO {i18n_blocks} (delta) VALUES('". db_escape_string($delta) ."')");
         $ret[] = $update;
         $metablock = array();
         if ($update['success']) {

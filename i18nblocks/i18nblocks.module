@@ -225,7 +225,7 @@ function i18nblocks_save($block) {
     db_query("UPDATE {i18n_blocks} SET language = '%s' WHERE ibid = %d", $block['language'], $block['ibid']);
   }
   else {
-    db_query("INSERT INTO {i18n_blocks}(module, delta, language) VALUES('%s', '%s', '%s')", $block['module'], $block['delta'], $block['language']);
+    db_query("INSERT INTO {i18n_blocks} (module, delta, language) VALUES('%s', '%s', '%s')", $block['module'], $block['delta'], $block['language']);
     $block['ibid'] = db_last_insert_id('i18n_blocks', 'ibid');
   }
   if (!$block['language']) {
