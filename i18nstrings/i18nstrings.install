@@ -107,7 +107,7 @@ function i18nstrings_update_5900() {
  */
 function i18nstrings_update_6000() {
   $ret = array();
-  db_add_column($ret, 'i18n_strings', 'oid', 'int', array('not null' => TRUE, 'default' => 0));
+  db_add_field($ret, 'i18n_strings', 'oid', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
   return $ret;
 }
 
@@ -143,6 +143,15 @@ function i18nstrings_update_6002() {
 function i18nstrings_update_6003() {
   $ret = array();
   db_add_field($ret, 'locales_target', 'status', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
+  return $ret;
+}
+
+/**
+ * Add new 'type' column to i18n_strings table.
+ */
+function i18nstrings_update_6004() {
+  $ret = array();
+  db_add_field($ret, 'i18n_strings', 'type', array('type' => 'varchar', 'length' => 255, 'not null' => TRUE, 'default' => ''));
   return $ret;
 }
 
