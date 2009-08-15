@@ -105,11 +105,13 @@ function i18nstrings_update_5900() {
 /**
  * Add new 'oid' column to i18n_strings table.
  */
+/*
 function i18nstrings_update_6000() {
   $ret = array();
   db_add_field($ret, 'i18n_strings', 'oid', array('type' => 'int', 'not null' => TRUE, 'default' => 0));
   return $ret;
 }
+*/
 
 /**
  * Drupal 6 update. Change field name, 'oid' was psql reserved name.
