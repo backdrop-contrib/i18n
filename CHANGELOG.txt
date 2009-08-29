@@ -53,7 +53,7 @@
 - Reworked taxonomy language logic when saving terms, set node/current language for tags.
 - Added some more help text and links to the taxonomy admin pages.
 - Mark translations a outdated when source string changes, by nedjo, #355366
-- Changed default behavior: content types with multilingual support disabled are now language neutral, #270655 
+- Changed default behavior: content types with multilingual support disabled are now language neutral, #270655
 - Added i18n menu handling to node form, by Roger López, Stella, #348444
 - Added additional language support level, by stella, Roger Lopez, #349193
 - Fixed duplicated 'ts' function (CiviCRM), renamed to 'i18nstrings_ts', by mfb, #298154

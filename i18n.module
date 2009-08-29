@@ -85,7 +85,7 @@ function i18n_menu() {
     'file' => 'i18n.admin.inc',
     'type' => MENU_LOCAL_TASK,
     'weight' => 10,
-  );  
+  );
   $items['admin/settings/language/i18n/configure'] = array(
     'title' => 'Multilingual system',
     'description' => 'Configure extended options for multilingual content and translations.',
@@ -359,7 +359,7 @@ function i18n_node_get_lang($nid, $default = '') {
 function i18n_node_language_list($node, $translate = FALSE) {
   // Check if the node module manages its own language list.
   $languages = node_invoke($node, 'language_list', $translate);
-  
+
   if (!$languages) {
     if (variable_get('i18n_node_'. $node->type, 0) >= LANGUAGE_SUPPORT_EXTENDED) {
       $languages = locale_language_list('name', TRUE); // All defined languages
@@ -380,7 +380,7 @@ function i18n_node_language_list($node, $translate = FALSE) {
     // Check language required for this type (no language neutral)
     elseif (!variable_get('i18n_required_node_' . $node->type, 0)) {
       $languages = array('' => t('Language neutral')) + $languages;
-    }    
+    }
   }
 
   return $languages;
@@ -571,7 +571,7 @@ function i18n_form_alter(&$form, $form_state, $form_id) {
       );
       // Add disabled message
       if ($disabled) {
-        $form['i18n']['#description'] .= ' <em>' . t('These will be available only when you enable Multilingual support in Workflow settings above.') . '</em>'; 
+        $form['i18n']['#description'] .= ' <em>' . t('These will be available only when you enable Multilingual support in Workflow settings above.') . '</em>';
       }
       // Some settings about node languages
       $form['i18n']['options'] = array(

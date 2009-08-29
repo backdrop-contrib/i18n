@@ -266,7 +266,7 @@ function i18nblocks_get_block($delta, $language) {
 
 /**
  * Translate localizable block.
- * 
+ *
  * @param $block
  *   Core block object
  * @param $info

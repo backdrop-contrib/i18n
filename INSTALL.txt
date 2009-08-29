@@ -23,7 +23,7 @@ POST-INSTALLATION/CONFIGURATION:
 ============
 - First of all review Drupal language settings and make sure you have chosen the right default language.
 - Enable the needed modules grouped under "Internationalization" package
-- Read the on-line handbook on 
+- Read the on-line handbook on
 
 IMPORTANT:
 ==========

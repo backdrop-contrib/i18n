@@ -20,7 +20,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
 
   /**
    * Adds a language
-   * 
+   *
    * @param $langcode
    * @param $default
    *   Whether this is the default language
@@ -37,10 +37,10 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     drupal_init_language();
     // @todo import po files for this language
   }
-  
+
   /**
    * Create translation set from a node
-   * 
+   *
    * @param $source
    *   Source node
    * @param $languages
@@ -91,7 +91,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   function setUp() {
     global $db_prefix, $user, $language; // $language (Drupal 6).
     global $install_locale;
-    
+
     // Store necessary current values before switching to prefixed database.
     $this->db_prefix_original = $db_prefix;
     $clean_url_original = variable_get('clean_url', 0);
@@ -111,7 +111,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $modules = array_unique(array_merge(drupal_verify_profile('default', $this->install_locale), $args, $i18n_modules));
     drupal_install_modules($modules);
 
-    // Install locale    
+    // Install locale
     if ($this->install_locale != 'en') {
       $this->addLanguage($this->install_locale, TRUE);
     }
@@ -153,18 +153,18 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     // Refresh theme
     $this->initTheme();
   }
-  
+
   /**
    * Delete created files and temporary files directory, delete the tables created by setUp(),
    * and reset the database prefix.
    */
   protected function tearDown() {
     parent::tearDown();
-    
+
     // Reset language list
-    language_list('language', TRUE);      
+    language_list('language', TRUE);
     drupal_init_language();
-    if (module_exists('locale')) {        
+    if (module_exists('locale')) {
       locale(NULL, NULL, TRUE);
     }
   }
@@ -180,19 +180,19 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   }
   /**
    * Debug dump object with some formatting
-   */ 
+   */
   function printObject($object, $title = 'Object') {
     $output = $this->formatTable($object);
     $this->printDebug($output, $title);
   }
-  
+
   /**
    * Print out current HTML page
    */
   function printPage() {
     $this->printDebug($this->drupalGetContent());
   }
-  
+
   // Dump table contents
   function dumpTable($table) {
     $result = db_query('SELECT * FROM {' . $table . '}');

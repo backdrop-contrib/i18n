@@ -1,5 +1,5 @@
 <?php
-// $Id$ 
+// $Id$
 /**
  * Class for testing messaging module.
  *
@@ -9,11 +9,11 @@
 require_once 'drupal_i18n_test_case.php';
 
 class i18n_API_Tests extends Drupali18nTestCase {
-  
+
   function getInfo() {
     return array(
-      'name' => 'Internationalization API', 
-      'group' => 'Internationalization', 
+      'name' => 'Internationalization API',
+      'group' => 'Internationalization',
       'description' => 'Internationalization API functions'
     );
   }
@@ -27,22 +27,22 @@ class i18n_API_Tests extends Drupali18nTestCase {
     // Set path languages so we can retrieve pages in different languages
     variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH);
     //variable_set('i18n_variables', array('site_name','site_frontpage',));
-    
+
     // Log in user with access content permission
     $user = $this->drupalCreateUser(array('access comments', 'access content'));
     $this->drupalLogin($user);
   }
-  
+
   function testBasicAPI() {
     $language_count = count(language_list());
     $this->assertTrue($language_count > 1, 'Multiple languages created: ' . $language_count);
-    $this->assertEqual(i18n_get_lang(), 'en', 'Default language (en) properly set.');    
-    
-    // Set site name for each language and check pages later    
+    $this->assertEqual(i18n_get_lang(), 'en', 'Default language (en) properly set.');
+
+    // Set site name for each language and check pages later
     foreach (language_list() as $lang) {
       i18n_variable_set('site_name', "Drupal-$lang->name", $lang->language);
     }
-    
+
     // Enable language switcher block
     //$this->enableBlock('locale', 0);
     //$this->dumpTable('blocks');
@@ -55,7 +55,7 @@ class i18n_API_Tests extends Drupali18nTestCase {
     // This fails because the _get_translations() function has static caching
     //$this->assertEqual(count(translation_node_get_translations($source->tnid)), $language_count, "Created $language_count $source->type translations.");
     $this->assertEqual(count($translations), $language_count, "Created $language_count $source->type translations.");
-    
+
     // Default selection module, only language neutral and current
     variable_set('i18n_selection_mode', 'simple');
     foreach (language_list() as $lang) {
@@ -66,9 +66,9 @@ class i18n_API_Tests extends Drupali18nTestCase {
       unset($hide[$lang->language]);
       $this->assertContent($display, $hide);
     }
-   
+
   }
-  
+
   /**
    * Check some nodes are displayed, some are not
    */
@@ -81,6 +81,6 @@ class i18n_API_Tests extends Drupali18nTestCase {
     foreach ($hide as $node) {
       $name = $node->language ? $languages[$node->language]->name : 'Language neutral';
       $this->assertNoText($node->title, 'Content not displayed for ' . $name);
-    } 
+    }
   }
 }

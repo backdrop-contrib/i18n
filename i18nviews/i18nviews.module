@@ -164,7 +164,7 @@ function i18ntaxonomy_views_handler_field_allterms($fieldinfo, $fielddata, $valu
 /**
  * Implementation of hook_form_id_alter().
  *
- * Add a submit handler to the submit button on views_ui_edit_display_form. 
+ * Add a submit handler to the submit button on views_ui_edit_display_form.
  */
 function i18nviews_form_views_ui_edit_display_form_alter(&$form, $form_state) {
   $form['buttons']['submit']['#submit'][] = 'i18nviews_views_ui_edit_display_submit';

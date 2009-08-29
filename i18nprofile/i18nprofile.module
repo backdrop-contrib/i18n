@@ -6,7 +6,7 @@
  * Internationalization (i18n) submodule: Profile translation.
  *
  * Allows translation of profile categories and fields.
- * 
+ *
  * The i18n strings created by this module are:
  * - profile:field:[name]:[title,explanation,options]
  * - profile:category (Indexed by string)
@@ -135,7 +135,7 @@ function i18nprofile_form_alter(&$form, $form_state, $form_id) {
     case 'profile_field_delete':
       // Store all field info for further reference
       $form['field'] = array(
-        '#type' => 'value', 
+        '#type' => 'value',
         '#value' => db_fetch_object(db_query("SELECT * FROM {profile_fields} WHERE fid = %d", $form['fid']['#value'])),
       );
       $form['#submit'][] = 'i18nprofile_field_delete_submit';
