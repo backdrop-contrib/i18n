@@ -248,7 +248,7 @@ function _i18n_node_references($string, $match = 'contains', $params = array(), 
   $references = array();
   while ($node = db_fetch_object($result)) {
     $references[$node->nid] = array(
-      'title' => check_plain($node->title),
+      'title' => $node->title,
       'rendered' => check_plain($node->title),
     );
   }

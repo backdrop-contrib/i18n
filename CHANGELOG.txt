@@ -2,6 +2,10 @@
 
 6.x-1.1 to .......
 ------------------
+- Fixed: Select translations autocomplete wrong filtering by hass, #557980
+- Added: Translated taxonomy tokens by Hugo Wetterberg, googletorp, #344794
+- Fixed: Global variable corruption by etzel, #580280
+- New i18ncck module by neochief
 - Got started with some unit tests and base test clase.
 - Added support for image synchronization, #329825
 - Added filefield/imagefield synchronization, by dasjo, #278426

@@ -258,14 +258,14 @@ function i18ntaxonomy_taxonomy($op, $type, $edit = NULL) {
       if (isset($edit['i18nmode'])) {
         i18ntaxonomy_vocabulary($vid, $edit['i18nmode']);
 
-        $language = isset($edit['language']) ? $edit['language'] : '';
-        db_query("UPDATE {vocabulary} SET language='%s' WHERE vid = %d", $language, $edit['vid']);
-        if ($language && $op == 'update') {
-          db_query("UPDATE {term_data} SET language='%s' WHERE vid = %d", $edit['language'], $edit['vid']);
+        $edit_lang = isset($edit['language']) ? $edit['language'] : '';
+        db_query("UPDATE {vocabulary} SET language='%s' WHERE vid = %d", $edit_lang, $edit['vid']);
+        if ($edit_lang && $op == 'update') {
+          db_query("UPDATE {term_data} SET language='%s' WHERE vid = %d", $edit_lang, $edit['vid']);
           drupal_set_message(t('Reset language for all terms.'));
         }
         // Always add vocabulary translation if !$language.
-        if (!$language) {
+        if (!$edit_lang) {
           tt("taxonomy:vocabulary:$vid:name", $edit['name'], NULL, TRUE);
         }
       }
@@ -827,6 +827,82 @@ function i18ntaxonomy_get_tree($vid, $lang, $parent = 0, $depth = -1, $max_depth
   }
 
   return $tree;
+}
+
+/**
+ * Implementation of hook_token_values().
+ */
+function i18ntaxonomy_token_values($type, $object = NULL, $options = array()) {
+  $values = array();
+  switch ($type) {
+    case 'node':
+      $node = $object;
+      // This code is copied from the token module which i adapting
+      // pathauto's handling code; it's intended for compatability with it.
+      if (!empty($node->taxonomy) && is_array($node->taxonomy)) {
+        foreach ($node->taxonomy as $term) {
+          $original_term = $term;
+          if ((object)$term) {
+            // With freetagging it's somewhat hard to get the tid, vid, name values
+            // Rather than duplicating taxonomy.module code here you should make sure your calling module
+            // has a weight of at least 1 which will run after taxonomy has saved the data which allows us to
+            // pull it out of the db here.
+            if (!isset($term->name) || !isset($term->tid)) {
+              $vid = db_result(db_query_range("SELECT t.vid FROM {term_node} r INNER JOIN {term_data} t ON r.tid = t.tid INNER JOIN {vocabulary} v ON t.vid = v.vid WHERE r.nid = %d ORDER BY v.weight, t.weight, t.name", $object->nid, 0, 1));
+              if (!$vid) {
+                continue;
+              }
+              $term = db_fetch_object(db_query_range("SELECT t.tid, t.name FROM {term_data} t INNER JOIN {term_node} r ON r.tid = t.tid WHERE t.vid = %d AND r.nid = %d ORDER BY weight", $vid, $object->nid, 0, 1));
+              $term->vid = $vid;
+            }
+
+            // Ok, if we still don't have a term name maybe this is a pre-taxonomy submit node
+            // So if it's a number we can get data from it
+            if (!isset($term->name) && is_array($original_term)) {
+              $tid = array_shift($original_term);
+              if (is_numeric($tid)) {
+                $term = taxonomy_get_term($tid);
+              }
+            }
+            $vid = $term->vid;
+            // i18ntaxonomy_vocabulary($vid) = 1 for vocabolaries that has translation enabled
+            // we only want to translate terms when for nodes that has a language selected as we
+            // wont really will be able to tell which language will be used for the token. Since
+            // it will depend on the active language of the user creating the alias and not a
+            // chosen language for the node.
+            if (i18ntaxonomy_vocabulary($vid) == 1 && $node->language) {
+              // if node is langiage neutral, language is set to NULL
+              $values['i18n-term-raw'] = tt("taxonomy:term:$term->tid:name", $term->name, $node->language);
+              $values['i18n-term'] = check_plain(tt("taxonomy:term:$term->tid:name", $term->name, $node->language));
+            }
+            else {
+              $values['i18n-term-raw'] = $term->name;
+              $values['i18n-term'] = check_plain($term->name);
+            }
+            break;
+          }
+        }
+      }
+      // It's possible to leave that block and still not have good data.
+      // So, we test for these and if not set, set them.
+      if (!isset($values['i18n-term'])) {
+        $values['i18n-term-raw'] = '';
+        $values['i18n-term'] = '';
+      }
+      break;
+  }
+  return $values;
+}
+
+/**
+ * Implementation of hook_token_list().
+ */
+function i18ntaxonomy_token_list($type = 'all') {
+  if ($type == 'node' || $type == 'all') {
+    $tokens['i18ntaxonomy']['i18n-term-raw'] = t("Unescaped term name translated using i18n");
+    $tokens['i18ntaxonomy']['i18n-term'] = t("Escaped term name translated using i18n");
+    return $tokens;
+  }
 }
 
 /**
