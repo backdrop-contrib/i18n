@@ -131,63 +131,6 @@ function i18n_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
   }
 }
 
-/*
-function i18n_nodeapi(&$node, $op, $teaser = NULL, $page = NULL) {
-  if (variable_get("i18n_node_$node->type", 0)) {
-    switch ($op) {
-      case 'load':
-        return db_fetch_array(db_query("SELECT trid, language, status AS i18n_status FROM {i18n_node} WHERE nid=%d", $node->nid));
-
-      case 'insert':
-      case 'update':
-        db_query("DELETE FROM {i18n_node} WHERE nid=%d",$node->nid);
-        if ($node->language){
-          // Assign a trid from the beginning
-          db_query("INSERT INTO {i18n_node} (nid, trid, language, status) VALUES(%d, '%d', '%s', '%d')", $node->nid, $node->trid, $node->language, $node->i18n_status);
-        }
-        // Handle menu items. Fixes duplication issue and language for menu items which happens when editing nodes in languages other than current.
-        if (isset($node->menu) && !$node->menu['delete'] && $node->menu['title']) {
-          $item = $node->menu;
-          $item['path'] = ($item['path']) ? $item['path'] : "node/$node->nid";
-          $item['type'] = $item['type'] | MENU_MODIFIED_BY_ADMIN;
-          if ($item['mid']) {
-            // Update menu item.
-            db_query("UPDATE {menu} SET pid = %d, path = '%s', title = '%s', description = '%s', weight = %d, type = %d, language = '%s' WHERE mid = %d", $item['pid'], $item['path'], $item['title'], $item['description'], $item['weight'], $item['type'], $node->language, $item['mid']);
-            drupal_set_message(t('The menu item %title has been updated with node language.', array('%title' => $item['title'])));
-          }
-          elseif (SAVED_NEW == menu_save_item($item)) {
-            // Creating new menu item with node language.
-            db_query("UPDATE {menu} SET language = '%s' WHERE mid = %d", $node->language, $item['mid']);
-            drupal_set_message(t('The menu item %title has been added with node language.',  array('%title' => $item['title'])));
-          }
-          menu_rebuild();
-          unset($node->menu); // Avoid further processing by menu module.
-        }
-        // Pathauto integration. Dynamic replacement of variables to allow different patterns per language.
-        if (module_exists('path') && module_exists('pathauto')) {
-          // Language for pathauto variables is either node language or default language.
-          $language = $node->language ? $node->language : i18n_default_language();
-          if ($language != i18n_get_lang()) {
-            i18n_variable_init($language, 'pathauto_node');
-          }
-        }
-        break;
-
-      case 'delete':
-        db_query('DELETE FROM {i18n_node} WHERE nid=%d', $node->nid);
-        break;
-
-      case 'prepare':
-        // Book pages, set the right language nodes and outlines.
-        if (arg(3) == 'parent' && is_numeric(arg(4)) && ($parent = node_load(arg(4))) && $parent->language) {
-          $node->language = $parent->language;
-          i18n_selection_mode('node', $parent->language);
-        }
-        break;
-      }
-  }
-}*/
-
 /**
  * Implementation of hook_alter_translation_link().
  *

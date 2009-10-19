@@ -632,7 +632,6 @@ function i18ntaxonomy_nodeapi(&$node, $op, $teaser, $page) {
       if (array_key_exists('taxonomy', $node)) {
         $node->taxonomy = i18ntaxonomy_localize_terms($node->taxonomy);
       }
-
       if ($node->type == 'forum' && ($vid = variable_get('forum_nav_vocabulary', '')) && i18ntaxonomy_vocabulary($vid)) {
         if ($page && taxonomy_node_get_terms_by_vocabulary($node, $vid) && $tree = taxonomy_get_tree($vid)) {
           // Get the forum terms from the (cached) tree
@@ -674,20 +673,56 @@ function i18ntaxonomy_nodeapi(&$node, $op, $teaser, $page) {
  * Translate an array of taxonomy terms.
  *
  * Translates all terms with language, just passing over terms without it.
+ * Filter out terms with a different language
+ * 
+ * @param $taxonomy
+ *   Array of term objects or tids or multiple arrays or terms indexed by vid
+ * @param $langcode
+ *   Language code of target language
+ * @param $fullterms
+ *   Whether to return full $term objects, returns tids otherwise
+ * @return
+ *   Array with translated terms: tid -> $term
+ *   Array with vid and term array
  */
-function i18ntaxonomy_translate_terms($taxonomy, $langcode) {
+function i18ntaxonomy_translate_terms($taxonomy, $langcode, $fullterms = TRUE) {
   $translation = array();
-  if (is_array($taxonomy)) {
-    foreach ($taxonomy as $index => $term) {
+  if (is_array($taxonomy) && $taxonomy) {  
+    foreach ($taxonomy as $index => $tdata) {
+      if (is_array($tdata)) {
+        // Case 1: Index is vid, $tdata is an array of terms
+        $mode = i18ntaxonomy_vocabulary($index);
+        // We translate just some vocabularies: translatable, fixed language
+        // Fixed language ones may have terms translated, though the UI doesn't support it
+        if ($mode == I18N_TAXONOMY_LANGUAGE || $mode == I18N_TAXONOMY_TRANSLATE) {
+          $translation[$index] = i18ntaxonomy_translate_terms($tdata, $langcode, $filter, $fullterms);
+        }
+        elseif ($fullterms) {
+          $translation[$index] = array_map('_i18ntaxonomy_filter_terms', $tdata);        
+        }
+        else {
+          $translation[$index] = array_map('_i18ntaxonomy_filter_tids', $tdata);
+        }
+        continue;
+      }
+      elseif (is_object($tdata)) {
+        // Case 2: This is a term object
+        $term = $tdata;
+      }
+      else {
+        // Case 3: This is a term tid, load the full term
+        $term = taxonomy_get_term((int)$tdata);    
+      }
       if ($term->language && $term->language != $langcode) {
         $translated_terms = i18ntaxonomy_term_get_translations(array('tid' => $term->tid));
-        if ($translated_terms && $newterm = $translated_terms[$langcode]) {
-          $translation[$newterm->tid] = $newterm;
+        if ($translated_terms && !empty($translated_terms[$langcode])) {
+          $newterm = $translated_terms[$langcode];
+          $translation[$newterm->tid] = $fullterms ? $newterm : $newterm->tid;
         }
       }
       else {
         // Term has no language. Should be ok.
-        $translation[$index] = $term;
+        $translation[$index] = $fullterms ? $term : $term->tid;
       }
     }
   }
@@ -943,5 +978,29 @@ function i18ntaxonomy_preprocess_forums(&$variables) {
     $breadcrumb[] = l(t('Home'), NULL);
     $breadcrumb[] = l(tt("taxonomy:vocabulary:$vid:name", $vocabulary->name), 'forum');
     drupal_set_breadcrumb($breadcrumb);
+  }
+}
+
+/**
+ * Recursive array filtering, convert all terms to 'tid'.
+ */
+function _i18ntaxonomy_filter_tids($tid) {
+  if (is_array($tid)) {
+    return array_map('_i18n_taxonomy_filter_tids', $tid);
+  }
+  else {
+    return is_object($tid) ? $tid->tid : (int)$tid;
+  }
+}
+
+/**
+ * Recursive array filtering, convert all terms to 'term object'
+ */
+function _i18ntaxonomy_filter_terms($term) {
+  if (is_array($term)) {
+    return array_map('_i18n_taxonomy_filter_terms', $term);
+  }
+  else {
+    return is_object($term) ? $term : taxonomy_get_term($term);
   }
 }

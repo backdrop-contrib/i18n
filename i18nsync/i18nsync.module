@@ -223,7 +223,7 @@ function i18nsync_prepare_translation(&$node, $source, $field_list) {
     if (empty($source->$field)) continue;
     switch ($field) {
       case 'taxonomy':
-        i18nsync_taxonomyfield($node, $source);
+        i18nsync_node_taxonomy($node, $source);
         break;
 
       default:
@@ -285,7 +285,7 @@ function i18nsync_node_translation($node, $translation, $fields, $op) {
     else {
       switch ($field) {
         case 'taxonomy': // Do nothing it has already been syncd.
-          i18nsync_taxonomyfield($translation, $node);
+          i18nsync_node_taxonomy($translation, $node);
           break;
 
         case 'parent': // Book outlines, translating parent page if exists.
@@ -339,9 +339,9 @@ function i18nsync_node_translation($node, $translation, $fields, $op) {
  *
  * Translate translatable terms, just copy over the rest.
  */
-function i18nsync_taxonomyfield(&$node, $source) {
-  if (module_exists('i18ntaxonomy')) {
-    $node->taxonomy = i18ntaxonomy_translate_terms($source->taxonomy, $node->language);
+function i18nsync_node_taxonomy(&$node, $source) {
+  if (module_exists('i18ntaxonomy') && is_array($source->taxonomy)) {
+    $node->taxonomy = i18ntaxonomy_translate_terms($source->taxonomy, $node->language, FALSE);
   }
   else {
     // If not multilingual taxonomy enabled, just copy over.

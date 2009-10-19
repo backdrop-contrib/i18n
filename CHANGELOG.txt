@@ -2,6 +2,8 @@
 
 6.x-1.1 to .......
 ------------------
+- Fixed buggy taxonomy synchronization, #365606, #365606, #379306
+- Cleaning some module dependencies and old code.
 - Fixed: Select translations autocomplete wrong filtering by hass, #557980
 - Added: Translated taxonomy tokens by Hugo Wetterberg, googletorp, #344794
 - Fixed: Global variable corruption by etzel, #580280
