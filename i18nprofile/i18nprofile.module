@@ -33,11 +33,9 @@ function i18nprofile_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('profile' => t('Profile'));
-
-    case 'refresh':
-      if ($group == 'profile') {
-        return i18nprofile_locale_refresh();
-      }
+    case 'info':
+      $info['profile']['refresh callback'] = 'i18nprofile_locale_refresh';
+      return $info;
   }
 }
 
@@ -56,6 +54,7 @@ function i18nprofile_locale_refresh() {
       $categories[$field->category] = 1;
     }
   }
+  return TRUE; // Meaning it completed with no issues
 }
 
 /**
@@ -191,6 +190,14 @@ function i18nprofile_form_translate_field(&$form, $field) {
   if (!empty($form[$field]['#title'])) {
     $form[$field]['#title'] = tt("profile:field:$field:title", $form[$field]['#title']);
   }
+  elseif (!empty($form[$field]['#value'])) {
+    // Special treating for checboxes.
+    $field_type = db_result(db_query("SELECT type FROM {profile_fields} WHERE name = '%s'", $field));
+    if ($field_type == 'checkbox') {
+      $form[$field]['#value'] = tt("profile:field:$field:title", $form[$field]['#value']);
+    }
+  }
+  
   if (!empty($form[$field]['#description'])) {
     $form[$field]['#description'] = tt("profile:field:$field:description", $form[$field]['#description']);
   }

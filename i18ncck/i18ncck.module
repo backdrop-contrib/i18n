@@ -13,11 +13,9 @@ function i18ncck_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('cck' => t('CCK'));
-
-    case 'refresh':
-      if ($group == 'cck') {
-        return i18ncck_locale_refresh();
-      }
+    case 'info':
+      $info['cck']['refresh callback'] = 'i18ncck_locale_refresh';
+      return $info;
   }
 }
 
@@ -68,6 +66,7 @@ function i18ncck_locale_refresh() {
       }
     }
   }
+  return TRUE; // Meaning it completed with no issues
 }
 
 /**

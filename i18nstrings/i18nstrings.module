@@ -771,15 +771,22 @@ function i18nstrings_title_callback($name, $string, $callback = NULL) {
  *   Text group to refresh
  * @param $delete
  *   Optional, delete existing (but not refresed, strings and translations)
+ * @return Boolean
+ *   True if the strings have been refreshed successfully. False otherwise.
  */
 function i18nstrings_refresh_group($group, $delete = FALSE) {
+  // Check for the refresh callback
+  $refresh_callback = i18nstrings_group_info($group, 'refresh callback');
+  if (!$refresh_callback) {
+    return FALSE;
+  }
   // Delete data from i18n_strings so it is recreated
   db_query("DELETE FROM {i18n_strings} WHERE lid IN (SELECT lid FROM {locales_source} WHERE textgroup = '%s')", $group);
 
-  module_invoke_all('locale', 'refresh', $group);
+  $result = call_user_func($refresh_callback);
 
   // Now delete all source strings that were not refreshed
-  if ($delete) {
+  if ($result && $delete) {
     $result = db_query("SELECT s.* FROM {locales_source} s LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND i.lid IS NULL", $group);
     while ($source = db_fetch_object($result)) {
       db_query("DELETE FROM {locales_target} WHERE lid = %d", $source->lid);
@@ -788,6 +795,32 @@ function i18nstrings_refresh_group($group, $delete = FALSE) {
   }
 
   cache_clear_all('locale:'. $group .':', 'cache', TRUE);
+  return $result;
+}
+
+/**
+ * Get refresh callback for a text group
+ * 
+ * @param $group
+ * 
+ * @return callback
+ */
+function i18nstrings_group_info($group = NULL, $property = NULL) {
+  static $info;
+  
+  if (!isset($callbacks)) {
+    $info = module_invoke_all('locale', 'info');
+  }
+
+  if ($group && $property) {
+    return isset($info[$group][$property]) ? $info[$group][$property] : NULL;
+  }
+  elseif ($group) {
+    return isset($info[$group]) ? $info[$group] : array();
+  }
+  else {
+    return $info;
+  }
 }
 
 /*** l10n client related functions ***/

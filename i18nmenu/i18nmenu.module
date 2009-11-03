@@ -16,11 +16,9 @@ function i18nmenu_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('menu' => t('Menu'));
-
-    case 'refresh':
-      if ($group == 'menu') {
-        return i18nmenu_locale_refresh();
-      }
+    case 'info':
+      $info['menu']['refresh callback'] = 'i18nmenu_locale_refresh';
+      return $info;
   }
 }
 
@@ -34,6 +32,7 @@ function i18nmenu_locale_refresh() {
     $tree = menu_tree_all_data($name);
     i18nmenu_localize_tree($tree, TRUE);
   }
+  return TRUE; // Meaning it completed with no issues
 }
 
 /**

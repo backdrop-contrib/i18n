@@ -45,11 +45,9 @@ function i18ncontent_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('nodetype' => t('Content type'));
-
-    case 'refresh':
-      if ($group == 'nodetype') {
-        return i18ncontent_locale_refresh();
-      }
+    case 'info':
+      $info['nodetype']['refresh callback'] = 'i18ncontent_locale_refresh';
+      return $info;
   }
 }
 
@@ -68,6 +66,7 @@ function i18ncontent_locale_refresh() {
       node_type_save($type);
     }
   }
+  return TRUE; // Meaning it completed with no issues
 }
 
 /**

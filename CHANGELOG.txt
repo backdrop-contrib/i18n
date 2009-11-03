@@ -2,6 +2,8 @@
 
 6.x-1.1 to .......
 ------------------
+- Fixed: Some text groups losing strings when refreshed, #442428
+- Fixed: Checkboxes fields are not translating in profile view pages, by neochief, #520692
 - Added: Translate tags vocablary name on node form, by dboulet, #494576
 - Fixed i18n Filter in Views results in SQL Error, by markus_petrux, #522162
 - Added tag support for taxonomy synchronization, #605600

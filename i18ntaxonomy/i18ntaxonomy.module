@@ -126,11 +126,9 @@ function i18ntaxonomy_locale($op = 'groups', $group = NULL) {
   switch ($op) {
     case 'groups':
       return array('taxonomy' => t('Taxonomy'));
-
-    case 'refresh':
-      if ($group == 'taxonomy') {
-        return i18ntaxonomy_locale_refresh();
-      }
+    case 'info':
+      $info['taxonomy']['refresh callback'] = 'i18ntaxonomy_locale_refresh';
+      return $info;
   }
 }
 
@@ -139,11 +137,13 @@ function i18ntaxonomy_locale($op = 'groups', $group = NULL) {
  */
 function i18ntaxonomy_locale_refresh() {
   foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
-    if (i18ntaxonomy_vocabulary($vid) == I18N_TAXONOMY_LOCALIZE) {
+    if (empty($vocabulary->language)) {
       tt("taxonomy:vocabulary:$vid:name", $vocabulary->name, NULL, TRUE);
       if ($vocabulary->help) {
         tt("taxonomy:vocabulary:$vid:help", $vocabulary->help, NULL, TRUE);
       }
+    }   
+    if (i18ntaxonomy_vocabulary($vid) == I18N_TAXONOMY_LOCALIZE) {
       foreach (taxonomy_get_tree($vid, 0) as $term) {
         tt("taxonomy:term:$term->tid:name", $term->name, NULL, TRUE);
         if ($term->description) {
@@ -152,6 +152,7 @@ function i18ntaxonomy_locale_refresh() {
       }
     }
   }
+  return TRUE; // Meaning it completed with no issues
 }
 
 /**
