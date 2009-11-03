@@ -196,19 +196,20 @@ function i18nsync_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
             }
           }
         }
-
-      case 'update':
         // Intentional no break.
+      case 'update':    
         // Let's go with field synchronization.
         if (!empty($node->tnid) && ($fields = i18nsync_node_fields($node->type)) && ($translations = _i18nsync_node_translations($node, TRUE))) {
           $i18nsync = TRUE;
+          $count = 0;
           foreach ($translations as $trnode) {
             if ($node->nid != $trnode->nid) {
               i18nsync_node_translation($node, $trnode, $fields, $op);
+              $count++;
             }
           }
           $i18nsync = FALSE;
-          drupal_set_message(format_plural(count($translations) - 1, 'One node translation has been synchronized.', 'All @count node translations have been synchronized.'));
+          drupal_set_message(format_plural($count, 'One node translation has been synchronized.', 'All @count node translations have been synchronized.'));
         }
         break;
     }
@@ -223,7 +224,7 @@ function i18nsync_prepare_translation(&$node, $source, $field_list) {
     if (empty($source->$field)) continue;
     switch ($field) {
       case 'taxonomy':
-        i18nsync_node_taxonomy($node, $source);
+        // Do nothing, this is handled by the i18ntaxonomy module
         break;
 
       default:
@@ -339,9 +340,13 @@ function i18nsync_node_translation($node, $translation, $fields, $op) {
  *
  * Translate translatable terms, just copy over the rest.
  */
-function i18nsync_node_taxonomy(&$node, $source) {
+function i18nsync_node_taxonomy(&$node, &$source) {
   if (module_exists('i18ntaxonomy') && is_array($source->taxonomy)) {
-    $node->taxonomy = i18ntaxonomy_translate_terms($source->taxonomy, $node->language, FALSE);
+    // Load clean source node taxonomy so we don't need to handle weird form input
+    if (!isset($source->i18ntaxonomy)) {
+      $source->i18ntaxonomy = i18ntaxonomy_node_get_terms($source);
+    }
+    $node->taxonomy = i18ntaxonomy_translate_terms($source->i18ntaxonomy, $node->language, FALSE);
   }
   else {
     // If not multilingual taxonomy enabled, just copy over.

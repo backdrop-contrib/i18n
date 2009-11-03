@@ -739,10 +739,10 @@ function _i18n_variable_exit() {
     $refresh = FALSE;
     // Rewritten because array_diff_assoc may fail with array variables.
     foreach ($i18n_conf as $name => $value) {
-      if ($value != $conf[$name]) {
+      if (isset($conf[$name]) && $value != $conf[$name]) {
         $refresh = TRUE;
         $i18n_conf[$name] = $conf[$name];
-        db_query("DELETE FROM {i18n_variable} WHERE name='%s' AND language='%s'", $name, $lang );
+        db_query("DELETE FROM {i18n_variable} WHERE name='%s' AND language='%s'", $name, $lang);
         db_query("INSERT INTO {i18n_variable} (language, name, value) VALUES('%s', '%s', '%s')", $lang, $name, serialize($conf[$name]));
       }
     }

@@ -670,6 +670,20 @@ function i18ntaxonomy_nodeapi(&$node, $op, $teaser, $page) {
 }
 
 /**
+ * Find all terms associated with the given node, ordered by vocabulary and term weight.
+ * 
+ * Same as taxonomy_node_get_terms() but without static caching.
+ */
+function i18ntaxonomy_node_get_terms($node, $key = 'tid') {
+  $result = db_query(db_rewrite_sql('SELECT t.* FROM {term_node} r INNER JOIN {term_data} t ON r.tid = t.tid INNER JOIN {vocabulary} v ON t.vid = v.vid WHERE r.vid = %d ORDER BY v.weight, t.weight, t.name', 't', 'tid'), $node->vid);
+  $terms = array();
+  while ($term = db_fetch_object($result)) {
+    $terms[$term->$key] = $term;
+  }
+  return $terms;
+}
+
+/**
  * Translate an array of taxonomy terms.
  *
  * Translates all terms with language, just passing over terms without it.
@@ -709,11 +723,16 @@ function i18ntaxonomy_translate_terms($taxonomy, $langcode, $fullterms = TRUE) {
         // Case 2: This is a term object
         $term = $tdata;
       }
-      else {
+      elseif (is_numeric($tdata) && ($tid = (int)$tdata)) {
         // Case 3: This is a term tid, load the full term
-        $term = taxonomy_get_term((int)$tdata);    
+        $term = taxonomy_get_term($tid);    
       }
-      if ($term->language && $term->language != $langcode) {
+      // Translate the term if we got it
+      if (empty($term)) {
+        // Couldn't identify term, pass through whatever it is
+        $translation[$index] = $tdata;
+      }
+      elseif ($term->language && $term->language != $langcode) {
         $translated_terms = i18ntaxonomy_term_get_translations(array('tid' => $term->tid));
         if ($translated_terms && !empty($translated_terms[$langcode])) {
           $newterm = $translated_terms[$langcode];
