@@ -93,14 +93,12 @@ function i18nstrings_schema_alter(&$schema) {
 /**
  * Update from 5.x version
  */
-/*
 function i18nstrings_update_5900() {
   i18nstrings_install();
   // Mark next update to be skipped
   variable_set('i18nstrings_update_skip', 1);
   return array();
 }
-*/
 
 /**
  * Add new 'oid' column to i18n_strings table.
