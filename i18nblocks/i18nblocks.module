@@ -327,13 +327,19 @@ function i18nblocks_theme_blocks($region) {
           $block = i18nblocks_translate_block($block, $i18nblocks['block'][$block->delta]);
         }
       }
-      elseif ($i18nmenu) {
+      else {
         // Replace menu blocks by their translated version.
-        if ($block->module == 'menu') {
+        if ($i18nmenu && $block->module == 'menu') {
           $block->content = i18nmenu_translated_tree($block->delta);
         }
-        elseif ($block->module == 'user' && $block->delta == 1) {
+        elseif ($i18nmenu && $block->module == 'user' && $block->delta == 1) {
           $block->content = i18nmenu_translated_tree('navigation');
+        }        
+        // This is block that isn't managed by i18nblocks but still could have a
+        // user customized title
+        if ($block->title && $block->title != '<none>') {
+          // Check plain here to allow module generated titles to keep any markup.
+          $block->subject = check_plain(tt("blocks:{$block->module}:{$block->bid}:title", $block->title));
         }
       }
       // Finally, render the block using standard theming.

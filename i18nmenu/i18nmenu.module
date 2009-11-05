@@ -135,6 +135,65 @@ function i18nmenu_localize_tree(&$tree, $update = FALSE) {
 }
 
 /**
+ * Return an array of localized links for a navigation menu.
+ */
+function i18nmenu_menu_navigation_links($menu_name, $level = 0) {
+  // Don't even bother querying the menu table if no menu is specified.
+  if (empty($menu_name)) {
+    return array();
+  }
+
+  // Get the menu hierarchy for the current page.
+  $tree = menu_tree_page_data($menu_name);
+  i18nmenu_localize_tree($tree);
+
+  // Go down the active trail until the right level is reached.
+  while ($level-- > 0 && $tree) {
+    // Loop through the current level's items until we find one that is in trail.
+    while ($item = array_shift($tree)) {
+      if ($item['link']['in_active_trail']) {
+        // If the item is in the active trail, we continue in the subtree.
+        $tree = empty($item['below']) ? array() : $item['below'];
+        break;
+      }
+    }
+  }
+
+  // Create a single level of links.
+  $links = array();
+  foreach ($tree as $item) {
+    if (!$item['link']['hidden']) {
+      $class = '';
+      $l = $item['link']['localized_options'];
+      $l['href'] = $item['link']['href'];
+      $l['title'] = $item['link']['title'];
+      if ($item['link']['in_active_trail']) {
+        $class = ' active-trail';
+      }
+      // Keyed with the unique mlid to generate classes in theme_links().
+      $links['menu-'. $item['link']['mlid'] . $class] = $l;
+    }
+  }
+  return $links;
+}
+
+/**
+ * Replace standard primary and secondary links.
+ */
+function i18nmenu_preprocess_page(&$vars) {
+  $vars['primary_links'] = i18nmenu_menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'));
+
+  // If the secondary menu source is set as the primary menu, we display the
+  // second level of the primary menu.
+  if (variable_get('menu_secondary_links_source', 'secondary-links') == variable_get('menu_primary_links_source', 'primary-links')) {
+    $vars['secondary_links'] = i18nmenu_menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'), 1);
+  }
+  else {
+    $vars['secondary_links'] = i18nmenu_menu_navigation_links(variable_get('menu_secondary_links_source', 'secondary-links'), 0);
+  }
+}
+
+/**
  * Optionally insert/update and return a localized menu item title.
  */
 function _i18nmenu_get_item($link, $update = FALSE) {
