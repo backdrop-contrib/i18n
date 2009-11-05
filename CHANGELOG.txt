@@ -2,6 +2,7 @@
 
 6.x-1.1 to 6.x-1.2
 ------------------
+- Fixed: pgsql compatibility in upgrade scripts, by jandd, #383728
 - Fixed: Translate all custom block titles (not only custom blocks), by brucepearson, #541048
 - Added: Primary and secondary links' menus translation using preprocess, by neochief, #514108
 - Changed: hook_locale(), new 'info' op, obsoleted 'refresh'
