@@ -181,15 +181,20 @@ function i18nmenu_menu_navigation_links($menu_name, $level = 0) {
  * Replace standard primary and secondary links.
  */
 function i18nmenu_preprocess_page(&$vars) {
-  $vars['primary_links'] = i18nmenu_menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'));
+  if (theme_get_setting('toggle_primary_links')) {
+    $vars['primary_links'] = i18nmenu_menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'));
+  }
 
   // If the secondary menu source is set as the primary menu, we display the
   // second level of the primary menu.
-  if (variable_get('menu_secondary_links_source', 'secondary-links') == variable_get('menu_primary_links_source', 'primary-links')) {
-    $vars['secondary_links'] = i18nmenu_menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'), 1);
-  }
-  else {
-    $vars['secondary_links'] = i18nmenu_menu_navigation_links(variable_get('menu_secondary_links_source', 'secondary-links'), 0);
+
+  if (theme_get_setting('toggle_secondary_links')) {
+    if (variable_get('menu_secondary_links_source', 'secondary-links') == variable_get('menu_primary_links_source', 'primary-links')) {
+      $vars['secondary_links'] = i18nmenu_menu_navigation_links(variable_get('menu_primary_links_source', 'primary-links'), 1);
+    }
+    else {
+      $vars['secondary_links'] = i18nmenu_menu_navigation_links(variable_get('menu_secondary_links_source', 'secondary-links'), 0);
+    }
   }
 }
 

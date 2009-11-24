@@ -2,6 +2,8 @@
 
 6.x-1.2 to
 ------------------
+- Usability: Added proper validation to vocabulary form, by andrewlevine #577066
+- Fixed: Translated primary and secondary links appear even if they are disabled, by yrocq #631388
 - Reworked i18nstrings API using proper namespaces, kept tt() for compatibility
 - Added: New plugin for views translation, by nedjo, joostvdl, #360024
 

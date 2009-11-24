@@ -348,6 +348,8 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
         $vocabulary = NULL;
         $mode =  I18N_TAXONOMY_NONE;
       }
+      drupal_add_js(drupal_get_path('module', 'i18ntaxonomy') . '/i18ntaxonomy.js');
+      drupal_add_js(array('i18ntaxonomy_vocabulary_form' => array('I18N_TAXONOMY_LANGUAGE' => I18N_TAXONOMY_LANGUAGE)), 'setting');
       $form['i18n'] = array(
         '#type' => 'fieldset',
         '#title' => t('Multilingual options'),
@@ -369,6 +371,7 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
         '#description' => t('Language for this vocabulary. If set, it will apply to all terms in this vocabulary.'),
         '#disabled' => ($vocabulary && $mode != I18N_TAXONOMY_LANGUAGE),
       );
+      $form['#validate'][] = 'i18ntaxonomy_form_vocabulary_validate';
       break;
 
     case 'taxonomy_form_term': // Taxonomy term
@@ -431,6 +434,17 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
         // Node form. Translate vocabularies.
         i18ntaxonomy_node_form($form);
       }
+  }
+}
+
+function i18ntaxonomy_form_vocabulary_validate($form, &$form_state) {
+  $language = !empty($form_state['values']['language']) ? $form_state['values']['language'] : '';
+  $mode = $form_state['values']['i18nmode'];
+  if ($mode != I18N_TAXONOMY_LANGUAGE && $language) {
+    form_set_error('language', t('Setting a vocabulary language only makes sense in the "Set language to vocabulary" translation mode. Either change to this mode or do not select a language.'));
+  }
+  elseif ($mode == I18N_TAXONOMY_LANGUAGE && !$language ) {
+    form_set_error('language', t('If selecting "Set language to vocabulary" you need to set a language to this vocabulary. Either change the translation mode or select a language.'));
   }
 }
 
