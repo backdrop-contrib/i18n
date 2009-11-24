@@ -31,6 +31,38 @@ define('I18NSTRINGS_STATUS_CURRENT', 0);
 define('I18NSTRINGS_STATUS_UPDATE', 1);
 
 /**
+ * Translate configurable string.
+ * 
+ * @param $name
+ *   Textgroup and location glued with ':'.
+ * @param $string
+ *   String in default language. Default language may or may not be English.
+ * @param $langcode
+ *   Optional language code if different from current request language.
+ * @param $update
+ *   Whether to force update/create for the string.
+ * 
+ * @return $string
+ *   Translated string, $string if not found
+ */
+function i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
+  global $language;
+
+  $langcode = $langcode ? $langcode : $language->language;
+
+  if ($update) {
+    i18nstrings_update_string($name, $string);
+  }
+  // If language is default, just return
+  if (language_default('language') == $langcode) {
+    return $string;
+  }
+  else {
+    return i18nstrings_translate_string($name, $string, $langcode, FALSE);
+  }
+}
+
+/**
  * Implementation of hook_help().
  */
 function i18nstrings_help($path, $arg) {
@@ -130,31 +162,13 @@ function i18nstrings_translate_edit_form_submit($form, &$form_state) {
 
 /**
  * Translate configurable string.
- *
- * @param $name
- *   Textgroup and location glued with ':'.
- * @param $string
- *   String in default language. Default language may or may not be English.
- * @param $langcode
- *   Optional language code if different from current request language.
- * @param $update
- *   Whether to force update/create for the string.
+ * 
+ * Obsoleted, just kept for backwards compatibility
+ * 
+ * @see i18nstrings()
  */
 function tt($name, $string, $langcode = NULL, $update = FALSE) {
-  global $language;
-
-  $langcode = $langcode ? $langcode : $language->language;
-
-  if ($update) {
-    i18nstrings_update_string($name, $string);
-  }
-  // If language is default, just return
-  if (language_default('language') == $langcode) {
-    return $string;
-  }
-  else {
-    return i18nstrings_tt($name, $string, $langcode, FALSE);
-  }
+  return i18nstrings($name, $string, $langcode, $update);
 }
 
 /**
@@ -196,10 +210,10 @@ function i18nstrings_ts($name, $string = '', $langcode = NULL, $update = FALSE) 
 /**
  * Debug util. Marks the translated strings.
  */
-function ttd($name, $string, $langcode = NULL, $update = FALSE) {
+function _i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
   $context = i18nstrings_context($name, $string);
   $context = implode('/', (array)$context);
-  return tt($name, $string, $langcode, $update) .'[T:'. $string .'('. $context .')]';
+  return i18nstrings($name, $string, $langcode, $update) .'[T:'. $string .'('. $context .')]';
 }
 
 /**
@@ -216,7 +230,7 @@ function ttd($name, $string, $langcode = NULL, $update = FALSE) {
  * @param $update
  *   Force update (refresh or create), to be used when updating source strings
  */
-function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
+function i18nstrings_translate_string($name, $string, $langcode, $update = FALSE) {
   global $language;
 
   $context = i18nstrings_context($name, $string);
@@ -250,6 +264,7 @@ function i18nstrings_tt($name, $string, $langcode, $update = FALSE) {
 
 /**
  * Translate object.
+ * 
  */
 function to($context, &$object, $properties = array(), $langcode = NULL, $update = FALSE) {
   global $language;
@@ -275,7 +290,7 @@ function i18nstrings_to($context, &$object, $properties = array(), $langcode = N
     $context->property = $property;
     $context->location = i18nstrings_location($context);
     if (!empty($object->$property)) {
-      $object->$property = i18nstrings_tt($context, $object->$property, $langcode, $update, $create);
+      $object->$property = i18nstrings_translate_string($context, $object->$property, $langcode, $update, $create);
     }
   }
 }
