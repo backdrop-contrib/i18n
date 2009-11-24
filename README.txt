@@ -14,6 +14,11 @@ These modules will build onto Drupal 6 core features enabling a full multilingua
 
 Up to date documentation will be kept on-line at http://drupal.org/node/133977
 
+SimpleTest:
+-----------
+Tests for this module will run on SimpleTest 6.x-2.8 (old version).
+About this see http://drupal.org/node/584596
+
 Additional Support
 =================
 For support, please create a support request for this module's project:

@@ -22,7 +22,7 @@ class views_plugin_localization_i18nstrings extends views_plugin_localization {
    *   view name, display_id, and a property, e.g., 'header'.
    */
   function translate($string, $keys = array()) {
-    return tt($this->stringid($keys), $string);
+    return i18nstrings($this->stringid($keys), $string);
   }
 
   /**
@@ -35,7 +35,7 @@ class views_plugin_localization_i18nstrings extends views_plugin_localization {
    *   view name, display_id, and a property, e.g., 'header'.
    */
   function save($string, $keys = array()) {
-    tt($this->stringid($keys), $string, NULL, TRUE);
+    i18nstrings_update($this->stringid($keys), $string);
     return TRUE;
   }
 
@@ -49,20 +49,8 @@ class views_plugin_localization_i18nstrings extends views_plugin_localization {
    *   view name, display_id, and a property, e.g., 'header'.
    */
   function delete($string, $keys = array()) {
-    i18nstrings_remove_string($this->stringid($keys), $string, NULL, $update);
+    i18nstrings_remove($this->stringid($keys), $string);
     return TRUE;
-  }
-  
-  /**
-   * Translate/update interface to i18nstrings
-   * 
-   * @param $keys
-   *   An array of keys to identify the string. Generally constructed from
-   *   view name, display_id, and a property, e.g., 'header'.
-   * 
-   */
-  function i18nstrings($keys, $string, $language = NULL, $update = FALSE) {
-    return tt($this->stringid($keys), $string, $language, $update);
   }
   
   /**

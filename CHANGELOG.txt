@@ -1,7 +1,12 @@
 // $Id$
 
-6.x-1.1 to 6.x-1.2
+6.x-1.2 to
 ------------------
+- Reworked i18nstrings API using proper namespaces, kept tt() for compatibility
+- Added: New plugin for views translation, by nedjo, joostvdl, #360024
+
+6.x-1.1 to 6.x-1.2
+------------------ 
 - Fixed: location fields not showing up for synchronization options, #426294
 - Fixed: pgsql compatibility in upgrade scripts, by jandd, #383728
 - Fixed: Translate all custom block titles (not only custom blocks), by brucepearson, #541048

@@ -31,38 +31,6 @@ define('I18NSTRINGS_STATUS_CURRENT', 0);
 define('I18NSTRINGS_STATUS_UPDATE', 1);
 
 /**
- * Translate configurable string.
- * 
- * @param $name
- *   Textgroup and location glued with ':'.
- * @param $string
- *   String in default language. Default language may or may not be English.
- * @param $langcode
- *   Optional language code if different from current request language.
- * @param $update
- *   Whether to force update/create for the string.
- * 
- * @return $string
- *   Translated string, $string if not found
- */
-function i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
-  global $language;
-
-  $langcode = $langcode ? $langcode : $language->language;
-
-  if ($update) {
-    i18nstrings_update_string($name, $string);
-  }
-  // If language is default, just return
-  if (language_default('language') == $langcode) {
-    return $string;
-  }
-  else {
-    return i18nstrings_translate_string($name, $string, $langcode, FALSE);
-  }
-}
-
-/**
  * Implementation of hook_help().
  */
 function i18nstrings_help($path, $arg) {
@@ -161,20 +129,9 @@ function i18nstrings_translate_edit_form_submit($form, &$form_state) {
 }
 
 /**
- * Translate configurable string.
- * 
- * Obsoleted, just kept for backwards compatibility
- * 
- * @see i18nstrings()
- */
-function tt($name, $string, $langcode = NULL, $update = FALSE) {
-  return i18nstrings($name, $string, $langcode, $update);
-}
-
-/**
  * Get configurable string,
  *
- * The difference with tt() is that it doesn't use a default string, it will be retrieved too.
+ * The difference with i18nstrings() is that it doesn't use a default string, it will be retrieved too.
  *
  * This is used for source texts that we don't have stored anywhere else. I.e. for the content
  * types help text (i18ncontent module) there's no way we can override the default (configurable) help text
@@ -208,7 +165,7 @@ function i18nstrings_ts($name, $string = '', $langcode = NULL, $update = FALSE) 
 }
 
 /**
- * Debug util. Marks the translated strings.
+ * Debug utility. Marks the translated strings.
  */
 function _i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
   $context = i18nstrings_context($name, $string);
@@ -263,10 +220,9 @@ function i18nstrings_translate_string($name, $string, $langcode, $update = FALSE
 }
 
 /**
- * Translate object.
- * 
+ * Translate object properties.
  */
-function to($context, &$object, $properties = array(), $langcode = NULL, $update = FALSE) {
+function i18nstrings_translate_object($context, &$object, $properties = array(), $langcode = NULL, $update = FALSE, $create = TRUE) {
   global $language;
 
   $langcode = $langcode ? $langcode : $language->language;
@@ -275,15 +231,7 @@ function to($context, &$object, $properties = array(), $langcode = NULL, $update
   if (language_default('language') == $langcode && !$update) {
     return $object;
   }
-  else {
-    i18nstrings_to($context, $object, $properties, $langcode, $update);
-  }
-}
-
-/**
- * Translate object properties.
- */
-function i18nstrings_to($context, &$object, $properties = array(), $langcode = NULL, $update = FALSE, $create = TRUE) {
+  // Otherwise, translate requested object properties
   $context = i18nstrings_context($context);
   // @ TODO Object prefetch
   foreach ($properties as $property) {
@@ -302,31 +250,18 @@ function i18nstrings_to($context, &$object, $properties = array(), $langcode = N
  *   String context.
  * @pram $string
  *   New value of string for update/create. May be empty for removing.
+ * @return status
+ *   SAVED_UPDATED | SAVED_NEW | SAVED_DELETED
  */
 function i18nstrings_update_string($context, $string) {
   $context = i18nstrings_context($context, $string);
 
   if ($string) {
-    $status = i18nstrings_add_string($context, $string);
+    return i18nstrings_add_string($context, $string);
   }
   else {
-    $status = i18nstrings_remove_string($context);
+    return i18nstrings_remove_string($context);
   }
-  $params = array(
-    '%location' => i18nstrings_location($context),
-    '%textgroup' => $context->textgroup,
-    '%string' => $string,
-  );
-  switch ($status) {
-    case SAVED_UPDATED:
-      drupal_set_message(t('Updated string %location for textgroup %textgroup: %string', $params));
-      break;
-
-    case SAVED_NEW:
-      drupal_set_message(t('Created string %location for text group %textgroup: %string', $params));
-      break;
-  }
-  return $status;
 }
 
 /**
@@ -645,6 +580,17 @@ function i18nstrings_context($context, $string = NULL) {
 }
 
 /**
+ * Get message parameters from context and string
+ */
+function i18nstrings_params($context, $string = NULL) {
+  return array(
+    '%location' => i18nstrings_location($context),
+    '%textgroup' => $context->textgroup,
+    '%string' => $string ? $string : t('[empty string]'),
+  );
+}
+
+/**
  * Get query conditions for this context.
  */
 function i18nstrings_context_query($context, $alias = 's') {
@@ -898,4 +844,115 @@ function i18nstrings_save_translation($langcode, $source, $translation, $textgro
   } else {
     return FALSE;
   }
+}
+
+/**
+ * @ingroup i18napi
+ * @{
+ */
+
+/**
+ * Translate user defined string.
+ * 
+ * @param $name
+ *   Textgroup and location glued with ':'.
+ * @param $string
+ *   String in default language. Default language may or may not be English.
+ * @param $langcode
+ *   Optional language code if different from current request language.
+ * @param $update
+ *   Whether to force update/create for the string.
+ * 
+ * @return $string
+ *   Translated string, $string if not found
+ */
+function i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
+  global $language;
+
+  $langcode = $langcode ? $langcode : $language->language;
+
+  if ($update) {
+    i18nstrings_update_string($name, $string);
+  }
+  // If language is default, just return
+  if (language_default('language') == $langcode) {
+    return $string;
+  }
+  else {
+    return i18nstrings_translate_string($name, $string, $langcode, FALSE);
+  }
+}
+
+/**
+ * Update / create translation source for user defined strings.
+ * 
+ * @param $name
+ *   Textgroup and location glued with ':'.
+ * @param $string
+ *   Source string in default language. Default language may or may not be English.
+ */
+function i18nstrings_update($name, $string) {
+  $context = i18nstrings_context($name, $string);
+  $status = i18nstrings_update_string($context, $string);
+  
+  // Log status message
+  $params = i18nstrings_params($context, $string);
+  switch ($status) {
+    case SAVED_UPDATED:
+      watchdog('i18nstrings', 'Updated string %location for textgroup %textgroup: %string', $params);
+      break;
+    case SAVED_NEW:
+      watchdog('i18nstrings', 'Created string %location for text group %textgroup: %string', $params);
+      break;
+  }
+  return $status;
+}
+
+/**
+ * Remove source and translations for user defined string.
+ * 
+ * Though for most strings the 'name' or 'string id' uniquely identifies that string,
+ * there are some exceptions (like profile categories) for which we need to use the
+ * source string itself as a search key.
+ * 
+ * @param $name
+ *   Textgroup and location glued with ':'.
+ * @param $string
+ *   Optional source string (string in default language). 
+ */
+function i18nstrings_remove($name, $string = NULL) {
+  $status = i18nstrings_remove_string($name, $string);
+  // Log status message
+  $params = i18nstrings_params($context, $string);
+  switch ($status) {
+    case SAVED_DELETED;
+      watchdog('i18nstrings', 'Deleted string %location for textgroup %textgroup: %string', $params);
+  }
+  return $status;
+}
+
+/**
+ * @} End of "ingroup i18napi".
+ */
+
+/**
+ * Translate configurable string.
+ * 
+ * Obsoleted, just kept for backwards compatibility
+ * 
+ * @see i18nstrings()
+ */
+function tt($name, $string, $langcode = NULL, $update = FALSE) {
+  return i18nstrings($name, $string, $langcode, $update);
+}
+
+/**
+ * Translate object.
+ * 
+ * Obsoleted, just kept for backards compatibility
+ * 
+ * @see i18nstrings_translate_object()
+ */
+function to($context, &$object, $properties = array(), $langcode = NULL, $update = FALSE) {
+  i18nstrings_translate_object($context, $object, $properties, $langcode, $update);
 }

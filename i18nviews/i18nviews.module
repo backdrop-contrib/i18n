@@ -30,8 +30,12 @@ function i18nviews_locale($op = 'groups', $group = NULL) {
     case 'groups':
       return array('views' => t('Views'));
     case 'info':
-      $info['views']['refresh callback'] = 'i18nviews_locale_refresh';
-      return $info;
+      // Only when i18nstrings is used as views localization plugin
+      if (variable_get('views_localization_plugin', 'core') == 'i18nstrings') {
+        $info['views']['refresh callback'] = 'i18nviews_locale_refresh';
+        return $info;
+      }
+      break;
   }
 }
 
