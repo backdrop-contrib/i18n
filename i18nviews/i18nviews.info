@@ -2,7 +2,6 @@
 name = Views translation
 description = Translation of views strings and content selection for views
 dependencies[] = views
-dependencies[] = i18n
 dependencies[] = i18nstrings
 dependencies[] = i18ntaxonomy
 package = Multilanguage
