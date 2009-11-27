@@ -382,10 +382,10 @@ function i18nstrings_add_string($name, $string, $format = 0) {
  */
 function i18nstrings_save_context($context) {
   if (db_result(db_query('SELECT lid FROM {i18n_strings} WHERE lid = %d', $context->lid))) {
-    @db_query("INSERT INTO {i18n_strings} (lid, type, objectid, objectindex, property, format) VALUES(%d, '%s', '%s', %d, '%s', %d)", $context->lid, $context->type, $context->objectid, (int)$context->objectid, $context->property, $context->format);
+    @db_query("UPDATE {i18n_strings} SET type = '%s', objectid = '%s', objectindex = %d, property = '%s', format = %d WHERE lid = %d", $context->type, $context->objectid, (int)$context->objectid, $context->property, $context->format, $context->lid);
   }
   else {
-    @db_query("UPDATE {i18n_strings} SET type = '%s', objectid = '%s', objectindex = %d, property = '%s', format = %d WHERE lid = %d", $context->type, $context->objectid, (int)$context->objectid, $context->property, $context->format, $context->lid);
+    @db_query("INSERT INTO {i18n_strings} (lid, type, objectid, objectindex, property, format) VALUES(%d, '%s', '%s', %d, '%s', %d)", $context->lid, $context->type, $context->objectid, (int)$context->objectid, $context->property, $context->format);    
   }
 }
 
