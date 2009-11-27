@@ -21,35 +21,29 @@ class views_plugin_localization_i18nstrings extends views_plugin_localization {
    *   An array of keys to identify the string. Generally constructed from
    *   view name, display_id, and a property, e.g., 'header'.
    */
-  function translate($string, $keys = array()) {
+  function translate_string($string, $keys = array()) {
     return i18nstrings($this->stringid($keys), $string);
   }
 
   /**
    * Save a string for translation.
    *
-   * @param $string
-   *   The string to be saved.
-   * @param $keys
-   *   An array of keys to identify the string. Generally constructed from
-   *   view name, display_id, and a property, e.g., 'header'.
+   * @param $source
+   *   Full data for the string to be translated.
    */
-  function save($string, $keys = array()) {
-    i18nstrings_update($this->stringid($keys), $string);
+  function save($source) {
+    i18nstrings_update($this->stringid($source['keys']), $source['value'], $source['format']);
     return TRUE;
   }
 
   /**
    * Delete a string.
    *
-   * @param $string
-   *   The string to be deleted.
-   * @param $keys
-   *   An array of keys to identify the string. Generally constructed from
-   *   view name, display_id, and a property, e.g., 'header'.
+   * @param $source
+   *   Full data for the string to be translated.
    */
-  function delete($string, $keys = array()) {
-    i18nstrings_remove($this->stringid($keys), $string);
+  function delete($source) {
+    i18nstrings_remove($this->stringid($source['keys']), $source['value']);
     return TRUE;
   }
   
@@ -57,10 +51,7 @@ class views_plugin_localization_i18nstrings extends views_plugin_localization {
    * Get string id for i18n
    *
    * @param $keys
-   *   An array of keys to identify the string. Generally constructed from
-   *   view name, display_id, and a property, e.g., 'header'.
-   * @return $string
-   *   String id for i18nstrins
+   *   Array of keys for the string to be translated.
    */
   function stringid($keys) {
     return 'views:' . implode(':', $keys);

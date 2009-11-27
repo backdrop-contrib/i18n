@@ -1,12 +1,14 @@
 <?php
 // $Id$
 
+// Load locale library
+include_once './includes/locale.inc';
+
 /**
  * @file
  * Admin page callbacks for the i18nstrings module.
  */
 function i18nstrings_admin_refresh_page() {
-  include_once './includes/locale.inc';
   $output = '';
   $output .= drupal_get_form('i18nstrings_admin_refresh');
   return $output;
