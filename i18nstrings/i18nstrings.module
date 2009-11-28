@@ -122,7 +122,7 @@ function i18nstrings_form_alter(&$form, $form_state, $form_id) {
         $format = filter_formats($context->format);
         $disabled = !filter_access($context->format);
         if ($disabled) {
-          drupal_set_message(t('You are not allowed to translate or edit texts with this input format.'), 'warning');
+          drupal_set_message(t('This string uses the %name input format. You are not allowed to translate or edit texts with this format.', array('%name' => $format->name)), 'warning');
         }
         
         foreach (element_children($form['translations']) as $langcode) {
