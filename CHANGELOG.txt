@@ -1,7 +1,8 @@
 // $Id$
 
 6.x-1.2 to
-------------------
+-------------------
+- Fixed: Multiple issues with file synchronization, new files, other modules, #363065
 - Usability: Added proper validation to vocabulary form, by andrewlevine #577066
 - Fixed: Translated primary and secondary links appear even if they are disabled, by yrocq #631388
 - Reworked i18nstrings API using proper namespaces, kept tt() for compatibility
