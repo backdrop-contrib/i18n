@@ -27,10 +27,10 @@ function i18nprofile_update_2() {
   $result = db_query("SELECT * FROM {profile_fields}");
   while ($field = db_fetch_object($result)) {
     // Store strings to translate: title, explanation, options.
-    to("profile:field:$field->name", $field, array('title', 'explanation', 'options'), NULL, TRUE);
+    i18nstrings_update_object("profile:field:$field->name", $field, array('title', 'explanation', 'options'));
     if (!in_array($field->category, $categories)) {
       $categories[] = $field->category;
-      tt("profile:category", $field->category, NULL, TRUE);
+      i18nstrings_update("profile:category", $field->category);
     }
   }
   // Category translations from variables.

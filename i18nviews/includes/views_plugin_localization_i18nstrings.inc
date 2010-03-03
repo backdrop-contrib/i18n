@@ -6,7 +6,7 @@
  */
 
 /**
- * Localization plugin to pass translatable strings through tt().
+ * Localization plugin to pass translatable strings through i18nstrings().
  *
  * @ingroup views_localization_plugins
  */

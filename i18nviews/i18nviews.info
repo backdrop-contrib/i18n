@@ -1,6 +1,6 @@
 ; $Id$
 name = Views translation
-description = Translation of views strings and content selection for views
+description = Translation of views strings and content selection for views. Requires Views 3.x
 dependencies[] = views
 dependencies[] = i18nstrings
 dependencies[] = i18ntaxonomy

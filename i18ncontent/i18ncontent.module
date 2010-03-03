@@ -47,6 +47,7 @@ function i18ncontent_locale($op = 'groups', $group = NULL) {
       return array('nodetype' => t('Content type'));
     case 'info':
       $info['nodetype']['refresh callback'] = 'i18ncontent_locale_refresh';
+      $info['nodetype']['format'] = FALSE;
       return $info;
   }
 }
@@ -122,10 +123,10 @@ function i18ncontent_node_type($op, $info) {
     if(!empty($info->old_type) && $info->old_type != $info->type) {
       i18nstrings_update_context("nodetype:type:$old_type:*", "nodetype:type:$type:*");
     }
-    tt("nodetype:type:$info->type:name", $info->name, $language, TRUE);
-    tt("nodetype:type:$info->type:title", $info->title_label, $language, TRUE);
-    tt("nodetype:type:$info->type:body", $info->body_label, $language, TRUE);
-    tt("nodetype:type:$info->type:description", $info->description, $language, TRUE);
+    i18nstrings_update("nodetype:type:$info->type:name", $info->name);
+    i18nstrings_update("nodetype:type:$info->type:title", $info->title_label);
+    i18nstrings_update("nodetype:type:$info->type:body", $info->body_label);
+    i18nstrings_update("nodetype:type:$info->type:description", $info->description);
     if (empty($info->help)) {
       i18nstrings_remove("nodetype:type:$info->type:help");
     } else {

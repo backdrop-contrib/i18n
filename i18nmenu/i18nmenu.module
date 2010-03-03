@@ -18,6 +18,7 @@ function i18nmenu_locale($op = 'groups', $group = NULL) {
       return array('menu' => t('Menu'));
     case 'info':
       $info['menu']['refresh callback'] = 'i18nmenu_locale_refresh';
+      $info['menu']['format'] = FALSE;
       return $info;
   }
 }
@@ -202,7 +203,11 @@ function i18nmenu_preprocess_page(&$vars) {
  * Optionally insert/update and return a localized menu item title.
  */
 function _i18nmenu_get_item($link, $update = FALSE) {
-  return tt('menu:item:'. $link['mlid'] .':title', $link['link_title'], NULL, $update);
+  $key = 'menu:item:'. $link['mlid'] .':title';
+  if ($update) {
+    i18nstrings_update($key, $link['link_title']);
+  }
+  return i18nstrings($key, $link['link_title']);
 }
 
 /**
