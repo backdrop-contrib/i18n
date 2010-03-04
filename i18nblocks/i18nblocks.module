@@ -309,70 +309,40 @@ function i18nblocks_translate_block($block, $info) {
 }
 
 /**
- * Implementation of hook_theme().
+ * Implementation of hook_preprocess_block().
  *
- * This will be used to override the theme_blocks() definition.
- */
-function i18nblocks_theme() {
-  return array(
-    'i18nblocks' => array(
-      'function' => 'i18nblocks_theme_blocks',
-      'arguments' => array('region' => NULL),
-    ),
-  );
-}
-
-/**
- * Implementation of hook theme_registry_alter().
+ * Translate blocks.
  *
- * Replace theme_blocks with theme_i18nblocks. There may be a better way to do this but
- * I cannot figure out an easier way to build the whole registry entry.
- *
- * Warning: this can mess with themes implementing the _blocks function.
+ * @see block.tpl.php
  */
-function i18nblocks_theme_registry_alter(&$theme_registry) {
-  $theme_registry['blocks'] = $theme_registry['i18nblocks'];
-}
-
-/**
- * Overrides theme_blocks() and translates blocks on the go.
- */
-function i18nblocks_theme_blocks($region) {
-  $output = '';
+function i18nblocks_preprocess_block(&$variables) {
+  $block = $variables['block'];
   $i18nmenu = module_exists('i18nmenu');
   $i18nblocks = _i18nblocks_list();
-  if ($list = block_list($region)) {
-    foreach ($list as $key => $block) {
-      // Configurable blocks, may be localizable.
-      if ($block->module == 'block') {
-        if (isset($i18nblocks['block'][$block->delta])) {
-          $block = i18nblocks_translate_block($block, $i18nblocks['block'][$block->delta]);
-        }
-      }
-      else {
-        // Replace menu blocks by their translated version.
-        if ($i18nmenu && $block->module == 'menu') {
-          $block->content = i18nmenu_translated_tree($block->delta);
-        }
-        elseif ($i18nmenu && $block->module == 'user' && $block->delta == 1) {
-          $block->content = i18nmenu_translated_tree('navigation');
-        }        
-        // This is block that isn't managed by i18nblocks but still could have a
-        // user customized title
-        if ($block->title && $block->title != '<none>') {
-          // Check plain here to allow module generated titles to keep any markup.
-          $block->subject = check_plain(i18nstrings("blocks:{$block->module}:{$block->bid}:title", $block->title));
-        }
-      }
-      // Finally, render the block using standard theming.
-      $output .= theme('block', $block);
+
+  // Configurable blocks, may be localizable.
+  if ($block->module == 'block') {
+    if (isset($i18nblocks['block'][$block->delta])) {
+      $block = i18nblocks_translate_block($block, $i18nblocks['block'][$block->delta]);
+    }
+  }
+  else {
+    // Replace menu blocks by their translated version.
+    if ($i18nmenu && $block->module == 'menu') {
+      $block->content = i18nmenu_translated_tree($block->delta);
+    }
+    elseif ($i18nmenu && $block->module == 'user' && $block->delta == 1) {
+      $block->content = i18nmenu_translated_tree('navigation');
+    }
+    // This is block that isn't managed by i18nblocks but still could have a
+    // user customized title
+    if ($block->title && $block->title != '<none>') {
+      // Check plain here to allow module generated titles to keep any markup.
+      $block->subject = check_plain(i18nstrings("blocks:{$block->module}:{$block->bid}:title", $block->title));
     }
   }
 
-  // Add any content assigned to this region through drupal_set_content() calls.
-  $output .= drupal_get_content($region);
-
-  return $output;
+  $variables['block'] = $block;
 }
 
 /**

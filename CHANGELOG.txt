@@ -2,6 +2,12 @@
 
 6.x-1.3 to .......
 ------------------
+- Fixed: i18nblocks conflicts with modules and themes, by JohnAlbin, #457512
+- Some clean up to i18nstrings API: Dropped update option from i18nstrings_translate()
+- Disable content selection during synchronization, by Pisco, #648348
+- Add CSS class to body tag based on language, by Garrett Albright, #661448
+- Added compatibility with ctools page manager, by Kars-T, #698942
+- Added support for taxonomy_override_selector, by hefox, #619726
 - Fixed: Configure string translation tab not showing up, #732368
 - Fixed: Views content negotiation filter not working, by markus_petrux, #650552
 - PHP 5.3 compatibiliby issue, by Berdir, #623138

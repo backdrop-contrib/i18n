@@ -158,7 +158,6 @@ function i18nstrings_form_alter(&$form, $form_state, $form_id) {
         if ($disabled) {
           drupal_set_message(t('This string uses the %name input format. You are not allowed to translate or edit texts with this format.', array('%name' => $format->name)), 'warning');
         }
-        
         foreach (element_children($form['translations']) as $langcode) {
           $form['translations'][$langcode]['#disabled'] = $disabled;
         }
@@ -174,7 +173,6 @@ function i18nstrings_form_alter(&$form, $form_state, $form_id) {
       // Aditional submit callback
       $form['#submit'][] = 'i18nstrings_translate_edit_form_submit';
       break;
-
     case 'l10n_client_form':
       $form['#action'] = url('i18nstrings/save');
       break;
@@ -264,33 +262,13 @@ function _i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
  *   String in default language
  * @param $langcode
  *   Language code to get translation for
- * @param $update
- *   Force update (refresh or create), to be used when updating source strings
  */
-function i18nstrings_translate_string($name, $string, $langcode, $update = FALSE) {
+function i18nstrings_translate_string($name, $string, $langcode) {
   global $language;
 
   $context = i18nstrings_context($name, $string);
-
-  if ($update) {
-    i18nstrings_update_string($context, $string);
-  }
-
   // Search for existing translation (result will be cached in this function call)
   $translation = i18nstrings_get_string($context, $langcode);
-
-  if ($translation === FALSE) {
-    // If the source string is missing, create it anyway.
-    // If $update it should already been created so skip this step.
-    if (!$update) {
-      $source = i18nstrings_get_source($context, $string);
-      if (!$source || empty($source->context)) {
-        i18nstrings_add_string($name, $string);
-      }
-    }
-    $translation = TRUE;
-  }
-
   // If current language add to l10n client list for later on page translation.
   // If language were the default one we are not supossed to reach here.
   if ($language->language == $langcode && function_exists('l10_client_add_string_to_page')) {
@@ -302,7 +280,7 @@ function i18nstrings_translate_string($name, $string, $langcode, $update = FALSE
       l10_client_add_string_to_page($string, $translation, $source->textgroup);
     }
   }
-  return ($translation === TRUE) ? $string : $translation;
+  return $translation ? $translation : $string;
 }
 
 /**
@@ -512,14 +490,14 @@ function i18nstrings_get_source($context, $string = NULL) {
  *
  * @return
  *   - Translation if found.
- *   - TRUE if not found and cached.
- *   - FALSE if not even cached.
+ *   - FALSE if no translation
  *
  */
 function i18nstrings_get_string($context, $langcode) {
   $context = i18nstrings_context($context);
-
-  if ($translation = i18nstrings_cache($context, $langcode)) {
+  // First try the cache
+  $translation = i18nstrings_cache($context, $langcode);
+  if (isset($translation)) {
     return $translation;
   }
   else {
@@ -534,7 +512,7 @@ function i18nstrings_get_string($context, $langcode) {
       return $text->translation;
     }
     else {
-      i18nstrings_cache($context, $langcode, NULL, TRUE);
+      i18nstrings_cache($context, $langcode, NULL, FALSE);
       return $text ? NULL : FALSE ;
     }
   }
@@ -816,6 +794,19 @@ function i18nstrings_prefetch($context, $langcode = NULL, $join = array(), $cond
 
 /**
  * Retrieves and stores translations in page (static variable) cache.
+ * 
+ * @param $context
+ *   String id or context object
+ * @param $langcode
+ *   Language code to translate to
+ * @param $string
+ *   Source string when available
+ * @param $translation
+ *   Translated string to store into the cache
+ *   
+ * @return
+ *   - Translation if chached (may be false if no translation)
+ *   - NULL if no value cached
  */
 function i18nstrings_cache($context, $langcode, $string = NULL, $translation = NULL) {
   static $strings;
@@ -827,7 +818,7 @@ function i18nstrings_cache($context, $langcode, $string = NULL, $translation = N
     $context->objectid = $context->source;
   }
   // At this point context must have at least textgroup and type.
-  if ($translation) {
+  if (isset($translation)) {
     if ($context->property) {
       $strings[$langcode][$context->textgroup][$context->type][$context->objectid][$context->property] = $translation;
     }
@@ -1018,13 +1009,12 @@ function i18nstrings_save_translation($langcode, $source, $translation, $textgro
  * @param $langcode
  *   Optional language code if different from current request language.
  * @param $update
- *   DEPRECATED: Use i18nstrings_update() instead.
- *   Whether to force update/create for the string.
+ *   Create source string if it doesn't exist
  * 
  * @return $string
  *   Translated string, $string if not found
  */
-function i18nstrings($name, $string, $langcode = NULL) {
+function i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
   global $language;
   $langcode = $langcode ? $langcode : $language->language;
   // If language is default, just return
@@ -1032,7 +1022,7 @@ function i18nstrings($name, $string, $langcode = NULL) {
     return $string;
   }
   else {
-    return i18nstrings_translate_string($name, $string, $langcode, FALSE);
+    return i18nstrings_translate_string($name, $string, $langcode, $update);
   }
 }
 
