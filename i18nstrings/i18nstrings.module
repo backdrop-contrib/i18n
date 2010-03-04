@@ -98,6 +98,16 @@ function i18nstrings_menu() {
     'file' => 'i18nstrings.admin.inc',
     'access arguments' => array('translate interface'),
   );
+  // Direct copy of the Configure tab from locale module to
+  // make space for the "Localization sharing" tab below.
+  $items['admin/settings/language/configure/language'] = array(
+    'title' => 'Language negotiation',
+    'page callback' => 'locale_inc_callback',
+    'page arguments' => array('drupal_get_form', 'locale_languages_configure_form'),
+    'access arguments' => array('administer languages'),
+    'weight' => -10,
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
   $items['admin/settings/language/configure/strings'] = array(
     'title' => 'String translation',
     'weight' => 20,
@@ -853,6 +863,13 @@ function i18nstrings_cache($context, $langcode, $string = NULL, $translation = N
 
 /**
  * Callback for menu title translation.
+ * 
+ * @param $name
+ *   String id
+ * @param $string
+ *   Default string, title in default language
+ * @param $callback
+ *   Aditional callback to be run after this one
  */
 function i18nstrings_title_callback($name, $string, $callback = NULL) {
   $string = i18nstrings($name, $string);

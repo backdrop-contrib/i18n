@@ -259,7 +259,7 @@ function _i18n_node_references($string, $match = 'contains', $params = array(), 
  * Theme select translation form
  * @ingroup themeable
  */
-function theme_i18n_node_select_translation(&$elements) {
+function theme_i18n_node_select_translation($elements) {
   $output = '';
   if (isset($elements['nid'])) {
     $rows = array();
