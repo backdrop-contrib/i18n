@@ -101,10 +101,13 @@ function i18ntaxonomy_menu() {
  * Take over the taxonomy pages
  */
 function i18ntaxonomy_menu_alter(&$items) {
-  // Taxonomy term page. Localize terms.
-  $items['taxonomy/term/%']['module'] = 'i18ntaxonomy';
-  $items['taxonomy/term/%']['page callback'] = 'i18ntaxonomy_term_page';
-  $items['taxonomy/term/%']['file'] = 'i18ntaxonomy.pages.inc';
+  // If ctool's page manager is active for the path skip this modules override.
+  if (variable_get('page_manager_term_view_disabled', TRUE)) {
+    // Taxonomy term page. Localize terms.
+    $items['taxonomy/term/%']['module'] = 'i18ntaxonomy';
+    $items['taxonomy/term/%']['page callback'] = 'i18ntaxonomy_term_page';
+    $items['taxonomy/term/%']['file'] = 'i18ntaxonomy.pages.inc';
+  }
 
   // Localize autocomplete
   $items['taxonomy/autocomplete']['module'] = 'i18ntaxonomy';
@@ -431,7 +434,7 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
       break;
     default:
       if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id
-        && ($node = $form['#node']) && isset($form['taxonomy']) ) {
+        && ($node = $form['#node']) && isset($form['taxonomy']) && !variable_get('taxonomy_override_selector', FALSE)) {
         // Node form. Translate vocabularies.
         i18ntaxonomy_node_form($form);
       }

@@ -487,6 +487,20 @@ function i18n_db_rewrite_where($alias, $type, $mode = NULL) {
 }
 
 /**
+ * Implementation of hook_preprocess_page().
+ *
+ * Add the language code to the classes for the <body> tag. Unfortunately, some
+ * themes will not respect the variable we're modifying to achieve this - in
+ * particular, Garland and Minelli do not.
+ */
+function i18n_preprocess_page(&$variables) {
+  if (isset($variables['body_classes'])) {
+    global $language;
+    $variables['body_classes'] .= ' i18n-' . $language->language;
+  }
+}
+
+/**
  * Implementation of hook_exit().
  */
 function i18n_exit() {
