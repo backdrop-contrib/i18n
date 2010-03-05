@@ -117,7 +117,6 @@ function i18nmenu_localize_tree(&$tree, $update = FALSE) {
       if (!empty($link['options']['langcode'])) {
         if ($link['options']['langcode'] != $language->language) {
           unset($tree[$index]);
-          //dsm("Removed because language:".$link['title'].' language='.$link['options']['langcode']);
         }
       }
       else {

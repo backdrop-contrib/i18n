@@ -245,10 +245,10 @@ function i18nstrings_ts($name, $string = '', $langcode = NULL, $update = FALSE) 
 /**
  * Debug utility. Marks the translated strings.
  */
-function _i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
+function _i18nstrings($name, $string, $langcode = NULL) {
   $context = i18nstrings_context($name, $string);
   $context = implode('/', (array)$context);
-  return i18nstrings($name, $string, $langcode, $update) .'[T:'. $string .'('. $context .')]';
+  return i18nstrings($name, $string, $langcode) .'[T:'. $string .'('. $context .')]';
 }
 
 /**
@@ -404,8 +404,7 @@ function i18nstrings_add_string($name, $string, $format = NULL) {
   else {
     db_query("INSERT INTO {locales_source} (location, source, textgroup, version) VALUES ('%s', '%s', '%s', '%s')", $location, $string, $context->textgroup, 1);
     // Mysql just gets last id for latest query
-    $context->lid = db_last_insert_id('locales_source', 'lid');
-    
+    $context->lid = db_last_insert_id('locales_source', 'lid');   
     // Clear locale cache so this string can be added in a later request.
     cache_clear_all('locale:'. $context->textgroup .':', 'cache', TRUE);
     // Create string.
@@ -1008,13 +1007,11 @@ function i18nstrings_save_translation($langcode, $source, $translation, $textgro
  *   String in default language. Default language may or may not be English.
  * @param $langcode
  *   Optional language code if different from current request language.
- * @param $update
- *   Create source string if it doesn't exist
  * 
  * @return $string
  *   Translated string, $string if not found
  */
-function i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
+function i18nstrings($name, $string, $langcode = NULL) {
   global $language;
   $langcode = $langcode ? $langcode : $language->language;
   // If language is default, just return
@@ -1022,7 +1019,7 @@ function i18nstrings($name, $string, $langcode = NULL, $update = FALSE) {
     return $string;
   }
   else {
-    return i18nstrings_translate_string($name, $string, $langcode, $update);
+    return i18nstrings_translate_string($name, $string, $langcode);
   }
 }
 

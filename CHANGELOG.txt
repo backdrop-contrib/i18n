@@ -2,6 +2,7 @@
 
 6.x-1.3 to .......
 ------------------
+- Fixed: warning in node form causes PHP notice, by swentel, #664944
 - Fixed: i18nblocks conflicts with modules and themes, by JohnAlbin, #457512
 - Some clean up to i18nstrings API: Dropped update option from i18nstrings_translate()
 - Disable content selection during synchronization, by Pisco, #648348

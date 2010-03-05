@@ -433,7 +433,7 @@ function i18ntaxonomy_form_alter(&$form, $form_state, $form_id) {
       }
       break;
     default:
-      if (isset($form['type']) && $form['type']['#value'] .'_node_form' == $form_id
+      if (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id
         && ($node = $form['#node']) && isset($form['taxonomy']) && !variable_get('taxonomy_override_selector', FALSE)) {
         // Node form. Translate vocabularies.
         i18ntaxonomy_node_form($form);
