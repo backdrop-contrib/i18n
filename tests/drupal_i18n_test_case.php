@@ -152,6 +152,8 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     require_once 'includes/language.inc';
     // Refresh theme
     $this->initTheme();
+    // Set path languages so we can retrieve pages in different languages
+    variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH);
   }
 
   /**
@@ -169,6 +171,67 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     }
   }
 
+  /**
+   * Retrieves a Drupal path or an absolute path with language
+   */
+  protected function i18nGet($langcode, $path, array $options = array(), array $headers = array()) {
+    $options += array('language' => $this->getLanguage($langcode));
+    return $this->drupalGet($path, $options, $headers);
+  }
+  /**
+   * Get language object for langcode
+   */
+  public function getLanguage($langcode) {
+    if (is_object($langcode)) {
+      return $langcode;
+    }
+    else {
+      $language_list = language_list();
+      return $language_list[$langcode];
+    }
+  }
+  /**
+   * Switch global language
+   */
+  public function switchLanguage($newlang = NULL) {
+    $newlang = $newlang ? $newlang : $this->install_locale;
+    $GLOBALS['language'] = $this->getLanguage($newlang); 
+  }
+  
+  /**
+   * Get all languages that are not default
+   */
+  public function getOtherLanguages() {
+    $languages = language_list();
+    unset($languages[language_default('language')]);
+    return $languages;
+  }
+  /**
+   * Create and store one translation into the db
+   */
+  public function i18nstringsCreateTranslation($name, $lang, $length = 20) {
+    $translation = $this->randomName($length);
+    $count = self::i18nstringsSaveTranslation($name, $lang, $translation);
+    $this->assertTrue($count, "A translation($lang) has been created for string $name");
+    return $translation;
+  }
+  /**
+   * Translate one string into the db
+   */
+  public static function i18nstringsSaveTranslation($name, $lang, $translation, $update = FALSE) {
+    $source = i18nstrings_get_source($name);
+    if ($source) {
+      if ($update) {
+        db_query("UPDATE {locales_target} SET translation = '%s' WHERE lid = %d AND language = '%s'", $translation, $source->lid, $lang);    
+      } else {
+        db_query("INSERT INTO {locales_target} (translation, lid, language) VALUES ('%s', %d, '%s')", $translation, $source->lid, $lang);
+      }
+      return db_affected_rows();
+    }
+    else {
+      return 0;
+    }
+  }
   /**
    * Print out a variable for debugging
    */

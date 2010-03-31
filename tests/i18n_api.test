@@ -24,8 +24,7 @@ class i18n_API_Tests extends Drupali18nTestCase {
     $this->addLanguage('de');
     // A language with two letter code may help too
     $this->addLanguage('pt-br');
-    // Set path languages so we can retrieve pages in different languages
-    variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH);
+
     //variable_set('i18n_variables', array('site_name','site_frontpage',));
 
     // Log in user with access content permission

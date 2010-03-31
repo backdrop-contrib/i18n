@@ -1,0 +1,88 @@
+<?php
+// $Id$
+/**
+ * Class for testing messaging module.
+ *
+ * Tests basic API functions
+ */
+
+require_once 'i18n_strings.test';
+
+class i18n_Blocks_Test extends Drupali18nTestCase {
+
+  function getInfo() {
+    return array(
+      'name' => 'Block translation',
+      'group' => 'Internationalization',
+      'description' => 'Block translation functions'
+    );
+  }
+
+  function setUp() {
+    parent::setUp('i18nstrings', 'i18nblocks');
+    $this->addLanguage('es');
+    $this->addLanguage('de');
+     // Create and login user
+    $admin_user = $this->drupalCreateUser(array('administer blocks'));
+    $this->drupalLogin($admin_user);
+  }
+
+  function testBlockTranslation() {
+    // Create a translatable block
+    $box = $this->i18nCreateBox(array('language' => I18N_BLOCK_LOCALIZE));
+    $i18nblock = i18nblocks_load('block', $box->bid);
+    $this->assertTrue($i18nblock->ibid && $i18nblock->language === I18N_BLOCK_LOCALIZE, "The block has been created with the right i18n settings.");
+    // Create translations for title and body, source strings should be already there
+    foreach ($this->getOtherLanguages() as $language) {
+      foreach (array('title', 'content') as $key) {
+        $text[$key] = $this->i18nstringsCreateTranslation("blocks:block:$i18nblock->ibid:$key", $language->language);
+      }
+      // Now check translated strings display on page
+      $this->i18nGet($language->language, '');
+      $this->assertText($text['title']);
+      $this->assertText($text['content']);
+    }
+  }
+ 
+  /**
+   * Test creating custom block (i.e. box), moving it to a specific region and then deleting it.
+   */
+  function i18nCreateBox($box = array(), $region = 'left') {
+    // Add a new box by filling out the input form on the admin/build/block/add page.
+    $box += array(
+      'info' => $this->randomName(8),
+      'title' => $this->randomName(8),
+      'body' => $this->randomName(32),
+    );
+    $this->drupalPost('admin/build/block/add', $box, t('Save block'));
+
+    // Confirm that the box has been created, and then query the created bid.
+    $this->assertText(t('The block has been created.'), 'Box successfully created.');
+    $bid = db_result(db_query("SELECT bid FROM {boxes} WHERE info = '%s'", array($box['info'])));
+
+    // Check to see if the box was created by checking that it's in the database..
+    $this->assertNotNull($bid, 'Box found in database');
+
+    // Set the created box to a specific region.
+    // TODO: Implement full region checking.
+    $edit = array();
+    $edit['block_'. $bid .'[region]'] = $region;
+    $this->drupalPost('admin/build/block', $edit, t('Save blocks'));
+
+    // Confirm that the box was moved to the proper region.
+    $this->assertText(t('The block settings have been updated.'), "Box successfully moved to $region region.");
+
+    // Confirm that the box is being displayed.
+    $this->assertText(t($box['title']), 'Box successfully being displayed on the page.');
+    return block_box_get($bid);
+  }
+  /**
+   * Delete block
+   */
+  function i18nDeleteBlock($bid) {
+    // Delete the created box & verify that it's been deleted and no longer appearing on the page.
+    $this->drupalPost('admin/build/block/delete/'. $bid, array(), t('Delete'));
+    $this->assertRaw(t('The block %title has been removed.', array('%title' => $box['info'])), t('Box successfully deleted.'));
+    $this->assertNoText(t($box['title']), t('Box no longer appears on page.'));
+  }
+}   
