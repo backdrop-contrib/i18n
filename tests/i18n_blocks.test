@@ -31,19 +31,60 @@ class i18n_Blocks_Test extends Drupali18nTestCase {
     // Create a translatable block
     $box = $this->i18nCreateBox(array('language' => I18N_BLOCK_LOCALIZE));
     $i18nblock = i18nblocks_load('block', $box->bid);
-    $this->assertTrue($i18nblock->ibid && $i18nblock->language === I18N_BLOCK_LOCALIZE, "The block has been created with the right i18n settings.");
+    $this->assertTrue($i18nblock->ibid && $i18nblock->language == I18N_BLOCK_LOCALIZE, "The block has been created with the right i18n settings.");
     // Create translations for title and body, source strings should be already there
+    $translations = $this->i18nTranslateBlock('block', $box-bid, array('title', 'body'));
+    // Now set a language for the block and confirm it shows just for that one (without translation)
+    $languages = $this->getOtherLanguages();
+    $setlanguage = array_shift($languages);
+    $otherlanguage = array_shift($languages);
+    $this->i18nUpdateBlock('block', $box->bid, array('language' => $setlanguage->language));
+    // Do not show in default language
+    $this->drupalGet('');
+    $this->assertNoText($box->title);
+    // Show in block's language but not translated
+    $this->i18nGet($setlanguage);
+    $this->assertText($box->title);
+    // Do not show in the other language
+    $this->i18nGet($otherlanguage);
+    $this->assertNoText($box->title);
+    $this->assertNoText($translations[$otherlanguage->language]['title']);
+    
+    // Add a custom title to any other block: Navigation (user, 1)
+    $title = $this->randomName(10);
+    $this->i18nUpdateBlock('user', 1, array('title' => $title));
+    $this->assertText($title, "The new custom title is displayed on the home page.");
+    $translate = $this->i18nTranslateBlock('user', 1, array('title'));
+    $this->drupalGet('');
+    
+    // Refresh block strings, the ones for the first box should be gone. Not the others
+    $box2 = $this->i18nCreateBox(array('language' => I18N_BLOCK_LOCALIZE));
+    $translations = $this->i18nTranslateBlock('block', $box2->bid, array('title', 'body'));
+    i18nstrings_refresh_group('blocks', TRUE);
+    $this->assertFalse(i18nstrings_get_source("blocks:block:$box->bid:title", $box->title), "The string for the box title is gone.");
+    $this->assertFalse(i18nstrings_get_source("blocks:block:$box->bid:body", $box->body), "The string for the box body is gone.");
+    $this->assertTrue(i18nstrings_get_source("blocks:user:1:title"), "We have a string for the Navigation block title");
+    $this->assertTrue(i18nstrings_get_source("blocks:block:$box2->bid:title", $box2->title), "The string for the second box title is still there.");
+    $this->assertTrue(i18nstrings_get_source("blocks:block:$box2->bid:body", $box2->body), "The string for the second box body is still there.");
+  }
+ 
+  /**
+   * Translate block fields to all languages
+   */
+  function i18nTranslateBlock($module, $delta, $fields = array('title', 'body')) {
     foreach ($this->getOtherLanguages() as $language) {
-      foreach (array('title', 'content') as $key) {
-        $text[$key] = $this->i18nstringsCreateTranslation("blocks:block:$i18nblock->ibid:$key", $language->language);
+      foreach ($fields as $key) {
+        $text[$key] = $this->i18nstringsCreateTranslation("blocks:$module:$delta:$key", $language->language);
       }
       // Now check translated strings display on page
       $this->i18nGet($language->language, '');
-      $this->assertText($text['title']);
-      $this->assertText($text['content']);
-    }
+      foreach ($text as $string) {
+        $this->assertText($string);
+      }
+      $translations[$language->language] = $text;
+    } 
+    return $translations;   
   }
- 
   /**
    * Test creating custom block (i.e. box), moving it to a specific region and then deleting it.
    */
@@ -55,26 +96,36 @@ class i18n_Blocks_Test extends Drupali18nTestCase {
       'body' => $this->randomName(32),
     );
     $this->drupalPost('admin/build/block/add', $box, t('Save block'));
-
     // Confirm that the box has been created, and then query the created bid.
     $this->assertText(t('The block has been created.'), 'Box successfully created.');
     $bid = db_result(db_query("SELECT bid FROM {boxes} WHERE info = '%s'", array($box['info'])));
-
     // Check to see if the box was created by checking that it's in the database..
     $this->assertNotNull($bid, 'Box found in database');
-
+    // Display the block on left region
+    $this->i18nUpdateBlockRegion('block', $bid, $region);
+    // Confirm that the box is being displayed.
+    $this->assertText(t($box['title']), 'Box successfully being displayed on the page.');
+    $box['bid'] = $bid;
+    return (object)$box;
+  }
+  /**
+   * Update block
+   */
+  function i18nUpdateBlock($module, $delta, $update = array()) {
+    $this->drupalPost("admin/build/block/configure/$module/$delta", $update, t('Save block'));
+    $this->assertText(t('The block configuration has been saved.'));
+  }
+  /**
+   * Update block region
+   */
+  function i18nUpdateBlockRegion($module, $delta, $region) {
     // Set the created box to a specific region.
     // TODO: Implement full region checking.
     $edit = array();
-    $edit['block_'. $bid .'[region]'] = $region;
+    $edit[$module . '_'. $delta .'[region]'] = $region;
     $this->drupalPost('admin/build/block', $edit, t('Save blocks'));
-
     // Confirm that the box was moved to the proper region.
     $this->assertText(t('The block settings have been updated.'), "Box successfully moved to $region region.");
-
-    // Confirm that the box is being displayed.
-    $this->assertText(t($box['title']), 'Box successfully being displayed on the page.');
-    return block_box_get($bid);
   }
   /**
    * Delete block

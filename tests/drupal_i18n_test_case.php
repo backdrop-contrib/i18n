@@ -174,7 +174,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   /**
    * Retrieves a Drupal path or an absolute path with language
    */
-  protected function i18nGet($langcode, $path, array $options = array(), array $headers = array()) {
+  protected function i18nGet($langcode, $path = '', array $options = array(), array $headers = array()) {
     $options += array('language' => $this->getLanguage($langcode));
     return $this->drupalGet($path, $options, $headers);
   }
@@ -210,7 +210,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
    * Create and store one translation into the db
    */
   public function i18nstringsCreateTranslation($name, $lang, $length = 20) {
-    $translation = $this->randomName($length);
+    $translation = $this->randomName($length, "i18n-$lang-");
     $count = self::i18nstringsSaveTranslation($name, $lang, $translation);
     $this->assertTrue($count, "A translation($lang) has been created for string $name");
     return $translation;
