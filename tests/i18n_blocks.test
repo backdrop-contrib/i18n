@@ -19,7 +19,7 @@ class i18n_Blocks_Test extends Drupali18nTestCase {
   }
 
   function setUp() {
-    parent::setUp('i18nstrings', 'i18nblocks');
+    parent::setUp('118n', 'locale', 'i18nstrings', 'i18nblocks');
     $this->addLanguage('es');
     $this->addLanguage('de');
      // Create and login user
@@ -66,6 +66,25 @@ class i18n_Blocks_Test extends Drupali18nTestCase {
     $this->assertTrue(i18nstrings_get_source("blocks:user:1:title"), "We have a string for the Navigation block title");
     $this->assertTrue(i18nstrings_get_source("blocks:block:$box2->bid:title", $box2->title), "The string for the second box title is still there.");
     $this->assertTrue(i18nstrings_get_source("blocks:block:$box2->bid:body", $box2->body), "The string for the second box body is still there.");
+    // Test a block with filtering and input formats
+    $box3 = $this->i18nCreateBox(array(
+      'title' => '<div><script>alert(0)</script>Title</script>',
+      'body' => "One line\nTwo lines<script>alert(1)</script>",
+      'language' => I18N_BLOCK_LOCALIZE,
+    ));
+    $language = current($this->getOtherLanguages());
+    // We add language name to the title just to make sure we get the right translation later
+    $this->i18nstringsSaveTranslation("blocks:block:$box3->bid:title", $language->language, $box3->title . $language->name);
+    $this->i18nstringsSaveTranslation("blocks:block:$box3->bid:body", $language->language, $box3->body);
+    // This should be the actual HTML displayed
+    $title = check_plain($box3->title);
+    $body = check_markup($box3->body);
+    $this->drupalGet('');
+    $this->assertRaw($title, "Title being displayed for default language: " . $title);
+    $this->assertRaw($body, "Body being displayed for default language: " . check_plain($body));
+    $this->i18nGet($language);
+    $this->assertRaw($title . $language->name, "Translated title displayed with right filtering.");
+    $this->assertRaw($body, "Translated body displayed with right filtering.");
   }
  
   /**
@@ -83,12 +102,12 @@ class i18n_Blocks_Test extends Drupali18nTestCase {
       }
       $translations[$language->language] = $text;
     } 
-    return $translations;   
+    return $translations;
   }
   /**
    * Test creating custom block (i.e. box), moving it to a specific region and then deleting it.
    */
-  function i18nCreateBox($box = array(), $region = 'left') {
+  function i18nCreateBox($box = array(), $region = 'left', $check_display = TRUE) {
     // Add a new box by filling out the input form on the admin/build/block/add page.
     $box += array(
       'info' => $this->randomName(8),
@@ -103,9 +122,12 @@ class i18n_Blocks_Test extends Drupali18nTestCase {
     $this->assertNotNull($bid, 'Box found in database');
     // Display the block on left region
     $this->i18nUpdateBlockRegion('block', $bid, $region);
-    // Confirm that the box is being displayed.
-    $this->assertText(t($box['title']), 'Box successfully being displayed on the page.');
-    $box['bid'] = $bid;
+    if ($check_display) {
+      // Confirm that the box is being displayed.
+      $this->assertText(check_plain($box['title']), 'Box successfully being displayed on the page.');
+    }
+    $box['bid'] = $block['delta'] = $bid;
+    $box['module'] = 'block';
     return (object)$box;
   }
   /**

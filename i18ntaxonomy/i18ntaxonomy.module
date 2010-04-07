@@ -1001,7 +1001,7 @@ function i18ntaxonomy_preprocess_forums(&$variables) {
     if (isset($variables['links']['forum'])) {
       $variables['links']['forum']['title'] = i18nstrings('nodetype:type:forum:post_button', 'Post new Forum topic');
     }
-
+    // This one is from advanced forum, http://drupal.org/project/advanced_forum
     if ($variables['forum_description']) {
       $variables['forum_description'] = i18nstrings('taxonomy:term:'. $variables['tid'] .':description', $variables['forum_description']);
     }
