@@ -201,9 +201,9 @@ function i18nblocks_save($block) {
       drupal_write_record('i18n_blocks', $block);
     }
   }
-  elseif (!empty($values['ibid'])) {
+  else {
     // No language, delete all i18n information.
-    db_query("DELETE FROM {i18n_blocks} WHERE ibid = %d", $values['ibid']);
+    db_query("DELETE FROM {i18n_blocks} WHERE module = '%s' AND delta = '%s'", $block['module'], $block['delta']);
   }
   // If localize block or block without language
   if (!$block['language']) {

@@ -1125,34 +1125,3 @@ function i18nstrings_remove($name, $string = NULL) {
 /**
  * @} End of "ingroup i18napi".
  */
-
-/**
- * Translate configurable string, for plain strings without format.
- * 
- * Obsoleted, just kept for backwards compatibility
- * 
- * @see i18nstrings()
- */
-function tt($name, $string, $langcode = NULL, $update = FALSE) {
-  $context = i18nstrings_context($name, $string);
-  // Just update if this textgroup has no input formats, otherwise that module
-  // cannot use this function for updating strings.
-  if ($update && i18nstrings_allowed_format(NULL, $context->textgroup)) {
-    i18nstrings_update_string($name, $string);
-  }
-  return i18nstrings($name, $string, $langcode);
-}
-
-/**
- * Translate object.
- * 
- * Obsoleted, just kept for backards compatibility
- * 
- * @see i18nstrings_translate_object()
- */
-function to($context, $object, $properties = array(), $langcode = NULL, $update = FALSE) {
-  if ($update) {
-    i18nstrings_update_object($context, $object, $properties);
-  }
-  return i18nstrings_translate_object($context, $object, $properties, $langcode);
-}
