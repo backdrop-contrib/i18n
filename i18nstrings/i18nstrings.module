@@ -1021,6 +1021,18 @@ function i18nstrings_save_translation($langcode, $source, $translation, $textgro
 
 /**
  * Translate or update user defined string.
+ *
+ * DEPRECATED, just kept for backwards compatibility.
+ *
+ * @todo Remove tt() for Drupal 7.
+ * @see i18nstrings()
+ */
+function tt($name, $string, $langcode = NULL) {
+  return i18nstrings($name, $string, $langcode);
+}
+
+/**
+ * Translate or update user defined string.
  * 
  * @param $name
  *   Textgroup and location glued with ':'.

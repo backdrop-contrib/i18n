@@ -4,6 +4,7 @@
 ------------------
 - Fixed: The "All languages" option can't save back on blocks, #766678
 - Deleted obsolete functions tt() and to(). Replaced by i18nstrings() and i18nstrings_update()
+- Restore back function tt() to prevent "Fatal error: Call to undefined function tt()" in other modules, by markus_petrux, #358839
 
 6.x-1.3 to 6.x-1.4
 ------------------
