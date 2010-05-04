@@ -26,6 +26,12 @@
  * Default language
  * - Default language may be English or not. It will be the language set as default.
  *   Source strings will be stored in default language.
+ * - In the traditional i18n use case you shouldn't change the default language once defined.
+ *
+ * Default language changes
+ * - You might result in the need to change the default language at a later point.
+ * - Enabling translation of default language will curcumvent previous limitations.
+ * - Check i18nstrings_translate_langcode() for more details.
  *
  * The API other modules to translate/update/remove user defined strings consists of
  * 
@@ -33,8 +39,6 @@
  * @see i18nstrings_update($name, $string, $format)
  * @see i18nstrings_remove($name, $string)
  * 
- * @ TO DO: Handle default language changes.
- *
  * @author Jose A. Reyero, 2007
  */
 
@@ -215,6 +219,28 @@ function i18nstrings_translate_edit_form_submit($form, &$form_state) {
 }
 
 /**
+ * Check if translation is required.
+ * 
+ * Translation is required when default language is different from the given
+ * language, or when default language translation is explicitly enabled.
+ *
+ * No UI is provided to enable translation of default language. On the other
+ * hand, you can enable this feature adding the following to your settings.php
+ *
+ * @code
+ *   // Enable translation of default language.
+ *   $conf['i18nstrings_translate_default'] = TRUE;
+ * @endcode
+ */
+function i18nstrings_translate_langcode($langcode) {
+  static $translate = array();
+  if (!isset($translate[$langcode])) {
+    $translate[$langcode] = (language_default('language') != $langcode || variable_get('i18nstrings_translate_default', 0));
+  }
+  return $translate[$langcode];
+}
+
+/**
  * Get configurable string,
  *
  * The difference with i18nstrings() is that it doesn't use a default string, it will be retrieved too.
@@ -236,7 +262,7 @@ function i18nstrings_ts($name, $string = '', $langcode = NULL, $update = FALSE) 
     i18nstrings_update_string($name, $string);
   }
   // if language is default look in sources table
-  if (language_default('language') != $langcode) {
+  if (i18nstrings_translate_langcode($langcode)) {
     $translation = i18nstrings_get_string($name, $langcode);
   }
   if (!$translation) {
@@ -299,7 +325,7 @@ function i18nstrings_translate_object($context, &$object, $properties = array(),
 
   $langcode = $langcode ? $langcode : $language->language;
   // If language is default, just return.
-  if (language_default('language') != $langcode) {
+  if (i18nstrings_translate_langcode($langcode)) {
     $context = i18nstrings_context($context);
     // @ TODO Object prefetch
     foreach ($properties as $property) {
@@ -1048,12 +1074,10 @@ function i18nstrings($name, $string, $langcode = NULL) {
   global $language;
   $langcode = $langcode ? $langcode : $language->language;
   // If language is default, just return
-  if (language_default('language') == $langcode) {
-    return $string;
-  }
-  else {
+  if (i18nstrings_translate_langcode($langcode)) {
     return i18nstrings_translate_string($name, $string, $langcode);
   }
+  return $string;
 }
 
 /**
@@ -1072,12 +1096,10 @@ function i18nstrings_text($name, $default, $langcode = NULL) {
   global $language;
   $langcode = $langcode ? $langcode : $language->language;
   // If language is default or we don't have translation, just return default string
-  if ((language_default('language') != $langcode) && ($translation = i18nstrings_get_translation($name, $langcode))) {
+  if (i18nstrings_translate_langcode($langcode) && ($translation = i18nstrings_get_translation($name, $langcode))) {
     return check_markup($translation->translation, $translation->format, FALSE);
   }
-  else {
-    return $default;
-  }  
+  return $default;
 }
 
 /**
