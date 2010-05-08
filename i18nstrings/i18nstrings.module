@@ -133,7 +133,7 @@ function i18nstrings_menu() {
 }
 
 /**
- * Implementation of hook_form_alter();
+ * Implementation of hook_form_alter().
  *
  * Add English language in some string forms when it is not the default.
  */
@@ -186,7 +186,7 @@ function i18nstrings_form_alter(&$form, $form_state, $form_id) {
 }
 
 /**
- * Process string editing form validations
+ * Process string editing form validations.
  *
  * If it is an allowed format, skip default validation, the text will be filtered later
  */
@@ -241,7 +241,7 @@ function i18nstrings_translate_langcode($langcode) {
 }
 
 /**
- * Get configurable string,
+ * Get configurable string.
  *
  * The difference with i18nstrings() is that it doesn't use a default string, it will be retrieved too.
  *
@@ -339,7 +339,7 @@ function i18nstrings_translate_object($context, &$object, $properties = array(),
 }
 
 /**
- * Update / create object properties
+ * Update / create object properties.
  */
 function i18nstrings_update_object($context, $object, $properties = array()) {
   $context = i18nstrings_context($context);
@@ -353,7 +353,7 @@ function i18nstrings_update_object($context, $object, $properties = array()) {
 }
 
 /**
- * Update / create / remove string
+ * Update / create / remove string.
  *
  * @param $context
  *   String context.
@@ -450,7 +450,7 @@ function i18nstrings_add_string($name, $string, $format = NULL) {
 }
 
 /**
- * Check if input format is allowed for translation or whether a textgroup is 'safe'
+ * Check if input format is allowed for translation or whether a textgroup is 'safe'.
  * 
  * @param $format
  *   Input format key or NULL if not format (will be allowed)
@@ -473,7 +473,7 @@ function i18nstrings_allowed_format($format = NULL, $textgroup = NULL) {
 }
 
 /**
- * Save/update context metadata
+ * Save / update context metadata.
  * 
  * There seems to be a race condition sometimes so skip errors, #277711
  */
@@ -551,7 +551,7 @@ function i18nstrings_get_string($context, $langcode) {
 }
 
 /**
- * Get translation from the database. Full object with input format
+ * Get translation from the database. Full object with input format.
  *
  * This one doesn't return anything if we don't have the full i18n strings data there
  * to prevent missing data resulting in missing input formats
@@ -752,7 +752,7 @@ function i18nstrings_context($context, $string = NULL, $format = 0) {
 }
 
 /**
- * Get message parameters from context and string
+ * Get message parameters from context and string.
  */
 function i18nstrings_params($context, $string = NULL) {
   return array(
@@ -919,7 +919,7 @@ function i18nstrings_title_callback($name, $string, $callback = NULL) {
 }
 
 /**
- * Refresh all user defined strings for a given text group
+ * Refresh all user defined strings for a given text group.
  *
  * @param $group
  *   Text group to refresh
@@ -953,7 +953,7 @@ function i18nstrings_refresh_group($group, $delete = FALSE) {
 }
 
 /**
- * Get refresh callback for a text group
+ * Get refresh callback for a text group.
  * 
  * @param $group
  * 
@@ -998,7 +998,7 @@ function i18nstrings_save_string() {
 }
 
 /**
- * Import translation for a given textgroup
+ * Import translation for a given textgroup.
  * 
  * @TODO Check string format properly
  * 
@@ -1058,7 +1058,7 @@ function tt($name, $string, $langcode = NULL) {
 }
 
 /**
- * Translate or update user defined string.
+ * Translate user defined string.
  * 
  * @param $name
  *   Textgroup and location glued with ':'.
@@ -1081,7 +1081,7 @@ function i18nstrings($name, $string, $langcode = NULL) {
 }
 
 /**
- * Get filtered translation
+ * Get filtered translation.
  * 
  * This function is intended to return translations for strings that have an input format
  * 
