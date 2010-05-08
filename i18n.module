@@ -3,7 +3,7 @@
 
 /**
  * @file
- * Internationalization (i18n) module
+ * Internationalization (i18n) module.
  *
  * This module extends multilingual support being the base module for the i18n package.
  * - Multilingual variables
@@ -606,7 +606,7 @@ function i18n_perm() {
 }
 
 /**
- * Implementation of hook_theme()
+ * Implementation of hook_theme().
  */
 function i18n_theme() {
   return array(
@@ -699,7 +699,7 @@ function i18n_variable_init($langcode = NULL, $prefix = '') {
 }
 
 /**
- * Get language from context
+ * Get language from context.
  */
 function _i18n_get_context_lang() {
   // Node language when loading specific nodes or creating translations.
@@ -772,14 +772,15 @@ function _i18n_variable_exit() {
 }
 
 /**
- * Check whether we are in bootstrap mode
+ * Check whether we are in bootstrap mode.
  */
 function _i18n_is_bootstrap() {
   return !function_exists('drupal_get_headers');
 }
 
 /**
- * Drupal 6, backwards compatibility layer
+ * Drupal 6, backwards compatibility layer.
+ *
  * @ TO DO Fully upgrade all the modules and remove
  */
 
@@ -798,7 +799,7 @@ function i18n_get_lang() {
  */
 
 /**
- * Returns language lists
+ * Returns language lists.
  */
 function i18n_language_list($type = 'enabled', $field = 'name') {
   switch ($type) {
