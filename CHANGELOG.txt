@@ -2,8 +2,11 @@
 
 6.x-1.4 to ......
 ------------------
+- Fixed update issues, for i18nstrings, #79644
+- New feature: Optionally translate default language in tt(), by miro_dietiker and markus_petrux, #676002
+- Moved i18n_test module to "Testing" package, #799730
 - Fixed: The "All languages" option can't save back on blocks, #766678
-- Deleted obsolete functions tt() and to(). Replaced by i18nstrings() and i18nstrings_update()
+- Marked obsolete functions tt() and to(). Replaced by i18nstrings() and i18nstrings_update()
 - Restore back function tt() to prevent "Fatal error: Call to undefined function tt()" in other modules, by markus_petrux, #358839
 - Added support for optional default language translation, by Miro Dietiker, #676002
 
