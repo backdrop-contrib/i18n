@@ -2,6 +2,8 @@
 
 6.x-1.4 to ......
 ------------------
+- Moved i18nviews module to new project,http://drupal.org/project/i18nviews, #788290
+- Fixed: errors when taxonomy not set, #743492
 - Fixed update issues, for i18nstrings, #79644
 - New feature: Optionally translate default language in tt(), by miro_dietiker and markus_petrux, #676002
 - Moved i18n_test module to "Testing" package, #799730
