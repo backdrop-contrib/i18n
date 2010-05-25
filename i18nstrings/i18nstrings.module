@@ -1103,6 +1103,28 @@ function i18nstrings_text($name, $default, $langcode = NULL) {
 }
 
 /**
+ * Translation for plain string. In case it finds a translation it applies check_plain() to it
+ * 
+ * @param $name
+ *   Full string id
+ * @param $default
+ *   Default string to return if not found
+ * @param $langcode
+ *   Optional language code if different from current request language.
+ * @param $filter_default
+ *   Whether to filter (check_plain) the default too if it is retrieved
+ */
+function i18nstrings_string($name, $default, $langcode = NULL, $filter_default = FALSE) {
+  $translation = i18nstrings($name, NULL, $langcode);
+  if (isset($translation)) {
+    return check_plain($translation);
+  }
+  else {
+    return $filter_default ? check_plain($default) : $default;
+  }
+}
+
+/**
  * Update / create translation source for user defined strings.
  * 
  * @param $name
