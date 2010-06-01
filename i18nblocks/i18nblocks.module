@@ -95,7 +95,7 @@ function i18nblocks_locale_refresh() {
  * Implementation of hook_form_FORM_ID_alter().
  */
 function i18nblocks_form_block_box_delete_alter(&$form, $form_state) {
-  $delta = db_result(db_query('SELECT ibid FROM {i18n_blocks} WHERE delta = %d', arg(4)));
+  $delta = db_result(db_query("SELECT ibid FROM {i18n_blocks} WHERE delta = '%d'", arg(4)));
   $form['delta'] = array(
     '#type' => 'value',
     '#value' => $delta,

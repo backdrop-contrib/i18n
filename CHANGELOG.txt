@@ -2,6 +2,10 @@
 
 6.x-1.4 to ......
 ------------------
+- Fixed i18n_init not run early enough, inconsistent menu items, #614548
+- Fixed wrong data type in query for i18n_blocks (pgsql), by jmpoure, #709272
+- Added i18nstrings_string() for 'plain strings', don't do unneeded filtering.
+- Fixed: Make menu title translatable (blocks), by moritzz, #356375
 - Moved i18nviews module to new project,http://drupal.org/project/i18nviews, #788290
 - Fixed: errors when taxonomy not set, #743492
 - Fixed update issues, for i18nstrings, #79644
