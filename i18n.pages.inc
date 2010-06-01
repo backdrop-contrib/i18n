@@ -87,6 +87,7 @@ function i18n_node_select_translation($form_state, $node, $translations) {
       $form['translations']['language'][$language->language] = array('#value' => $language->name);
       $form['translations']['node'][$language->language] = array(
         '#type' => 'textfield',
+        '#maxlength' => 255,
         '#autocomplete_path' => 'i18n/node/autocomplete/' . $node->type . '/' . $language->language,
         '#default_value' => $trans_nid ? i18n_node_nid2autocomplete($trans_nid) : '',
       );

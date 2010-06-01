@@ -601,20 +601,23 @@ function i18nstrings_update_context($oldname, $newname) {
       $replace[$field] = $newcontext->$field;
     }
   }
-  // Query and replace.
-  $result = db_query("SELECT s.*, i.type, i.objectid, i.property FROM {locales_source} s  LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND s.location LIKE '%s'", $oldcontext->textgroup, $location);
-  while ($source = db_fetch_object($result)) {
-    // Make sure we have string and context.
-    $context = i18nstrings_context($oldcontext->textgroup .':'. $source->location);
-    foreach ($replace as $field => $value) {
-      $context->$field = $value;
+
+  // Query and replace if there are any fields. It is possible that under some circumstances fields are the same
+  if (!empty($replace)) {
+    $result = db_query("SELECT s.*, i.type, i.objectid, i.property FROM {locales_source} s  LEFT JOIN {i18n_strings} i ON s.lid = i.lid WHERE s.textgroup = '%s' AND s.location LIKE '%s'", $oldcontext->textgroup, $location);
+    while ($source = db_fetch_object($result)) {
+      // Make sure we have string and context.
+      $context = i18nstrings_context($oldcontext->textgroup .':'. $source->location);
+      foreach ($replace as $field => $value) {
+        $context->$field = $value;
+      }
+      // Update source string.
+      db_query("UPDATE {locales_source} SET textgroup = '%s', location = '%s' WHERE lid = %d", $context->textgroup, i18nstrings_location($context), $source->lid);
+      // Update object data.
+      db_query("UPDATE {i18n_strings} SET type = '%s', objectid = '%s', property = '%s' WHERE lid = %d", $context->type, $context->objectid, $context->property, $source->lid);
     }
-    // Update source string.
-    db_query("UPDATE {locales_source} SET textgroup = '%s', location = '%s' WHERE lid = %d", $context->textgroup, i18nstrings_location($context), $source->lid);
-    // Update object data.
-    db_query("UPDATE {i18n_strings} SET type = '%s', objectid = '%s', property = '%s' WHERE lid = %d", $context->type, $context->objectid, $context->property, $source->lid);
+    drupal_set_message(t('Updating string names from %oldname to %newname.', array('%oldname' => $oldname, '%newname' => $newname)));
   }
-  drupal_set_message(t('Updating string names from %oldname to %newname.', array('%oldname' => $oldname, '%newname' => $newname)));
 }
 
 /**

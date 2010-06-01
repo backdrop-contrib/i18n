@@ -2,6 +2,8 @@
 
 6.x-1.4 to ......
 ------------------
+- Fixed warning during update script (possibly ids are the same), #783978
+- Fixed maxlength, for node translation autocomplete, by cedrid, #802418
 - Fixed i18n_init not run early enough, inconsistent menu items, #614548
 - Fixed wrong data type in query for i18n_blocks (pgsql), by jmpoure, #709272
 - Added i18nstrings_string() for 'plain strings', don't do unneeded filtering.
