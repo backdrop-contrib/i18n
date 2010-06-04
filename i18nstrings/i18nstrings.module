@@ -281,7 +281,7 @@ function _i18nstrings($name, $string, $langcode = NULL) {
 /**
  * Get translation for user defined string.
  *
- * @todo Add support for latest l10n client.
+ * This function is intended to return translations for plain strings that have NO input format
  *
  * @param $name
  *   Textgroup and location glued with ':'
@@ -296,18 +296,45 @@ function i18nstrings_translate_string($name, $string, $langcode) {
   $context = i18nstrings_context($name, $string);
   // Search for existing translation (result will be cached in this function call)
   $translation = i18nstrings_get_string($context, $langcode);
+  // Add for l10n client if available
+  i18nstrings_add_l10n_client($langcode, $string, $translation, $context, FALSE);
+
+  return $translation ? $translation : $string;
+}
+
+/**
+ * Add string to l10n strings if enabled and allowed for this string
+ * 
+ * @param $langcode
+ *   Language code to translate to
+ * @param $string
+ *   Original string to be translated (usually in default language)
+ * @param $translation
+ *   Translated string if found
+ * @param $context
+ *   Context object that must contain 'textgroup' property
+ * @param $source
+ *   Source string object that must contain 'format' property
+ *   FALSE for not checking the source format
+ */
+function i18nstrings_add_l10n_client($langcode, $string, $translation, $context, $source = NULL) {
+  global $language;
+
   // If current language add to l10n client list for later on page translation.
   // If langcode translation was disabled we are not supossed to reach here.
   if ($language->language == $langcode && function_exists('l10_client_add_string_to_page')) {
-    // Additional checking for input format, if its a dangerous one we ignore the string
-    if (empty($source)) {
-      $source = i18nstrings_get_source($context, $string);
+    if ($source === FALSE) {
+      // This means it is a plain string, we don't need to check the format
+      l10_client_add_string_to_page($string, $translation, $context->textgroup);
     }
-    if ($source && i18nstrings_allowed_format($source->format) || filter_access($source->format)) {
-      l10_client_add_string_to_page($string, $translation, $source->textgroup);
+    else {
+      // Additional checking for input format, if its a dangerous one we ignore the string
+      $source = $source ? $source : i18nstrings_get_source($context, $string);
+      if ($source && (i18nstrings_allowed_format($source->format) || filter_access($source->format))) {
+        l10_client_add_string_to_page($string, $translation, $context->textgroup);
+      }
     }
   }
-  return $translation ? $translation : $string;
 }
 
 /**
@@ -1096,23 +1123,17 @@ function i18nstrings_text($name, $default, $langcode = NULL) {
 
   // If language is default or we don't have translation, just return default string
   if (i18nstrings_translate_langcode($langcode) && ($translation = i18nstrings_get_translation($name, $langcode))) {
-    $translation = check_markup($translation->translation, $translation->format, FALSE);
+    $translated = check_markup($translation->translation, $translation->format, FALSE);
+    // Add for l10n client if available, we pass translation object that contains the format
+    i18nstrings_add_l10n_client($langcode, $default, $translated, $context, $translation);
   }
   else {
-    $translation = $default;
+    $translated = $default;
+    // Add for l10n client if available
+    i18nstrings_add_l10n_client($langcode, $default, $translated, $context);
   }
 
-  // If current language add to l10n client list for later on page translation.
-  if ($language->language == $langcode && function_exists('l10_client_add_string_to_page')) {
-    // Additional checking for input format, if its a dangerous one we ignore the string
-    if (empty($source)) {
-      $source = i18nstrings_get_source($context, $default);
-    }
-    if ($source && i18nstrings_allowed_format($source->format) || filter_access($source->format)) {
-      l10_client_add_string_to_page($default, $translation, $source->textgroup);
-    }
-  }
-  return $translation;
+  return $translated;
 }
 
 /**
