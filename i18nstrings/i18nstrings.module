@@ -219,23 +219,26 @@ function i18nstrings_translate_edit_form_submit($form, &$form_state) {
 }
 
 /**
- * Check if translation is required.
+ * Check if translation is required for this language code.
  * 
  * Translation is required when default language is different from the given
  * language, or when default language translation is explicitly enabled.
  *
  * No UI is provided to enable translation of default language. On the other
- * hand, you can enable this feature adding the following to your settings.php
+ * hand, you can enable/disable translation for a specific language by adding
+ * the following to your settings.php
  *
  * @code
- *   // Enable translation of default language.
- *   $conf['i18nstrings_translate_default'] = TRUE;
+ *   // Enable translation of specific language. Language code is 'xx'
+ *   $conf['i18nstrings_translate_langcode_xx'] = TRUE;
+ *   // Disable translation of specific language. Language code is 'yy'
+ *   $conf['i18nstrings_translate_langcode_yy'] = FALSE;
  * @endcode
  */
 function i18nstrings_translate_langcode($langcode) {
   static $translate = array();
   if (!isset($translate[$langcode])) {
-    $translate[$langcode] = (language_default('language') != $langcode || variable_get('i18nstrings_translate_default', 0));
+    $translate[$langcode] = variable_get('i18nstrings_translate_langcode_' . $langcode, language_default('language') != $langcode);
   }
   return $translate[$langcode];
 }
