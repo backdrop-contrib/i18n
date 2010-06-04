@@ -323,6 +323,7 @@ function i18nstrings_add_l10n_client($langcode, $string, $translation, $context,
   // If current language add to l10n client list for later on page translation.
   // If langcode translation was disabled we are not supossed to reach here.
   if ($language->language == $langcode && function_exists('l10_client_add_string_to_page')) {
+    $translation = $translation ? $translation : TRUE;
     if ($source === FALSE) {
       // This means it is a plain string, we don't need to check the format
       l10_client_add_string_to_page($string, $translation, $context->textgroup);
