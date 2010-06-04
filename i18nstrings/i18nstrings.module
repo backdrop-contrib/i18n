@@ -264,18 +264,8 @@ function i18nstrings_ts($name, $string = '', $langcode = NULL, $update = FALSE) 
   if ($update) {
     i18nstrings_update_string($name, $string);
   }
-  // if language is default look in sources table
-  if (i18nstrings_translate_langcode($langcode)) {
-    $translation = i18nstrings_get_string($name, $langcode);
-  }
-  if (!$translation) {
-    if ($source = i18nstrings_get_source($name)) {
-      $translation = $source->source;
-    }
-    else {
-      $translation = '';
-    }
-  }
+
+  $translation = i18nstrings_translate_string($name, $string, $langcode);
   return $translation;
 }
 
@@ -307,9 +297,9 @@ function i18nstrings_translate_string($name, $string, $langcode) {
   // Search for existing translation (result will be cached in this function call)
   $translation = i18nstrings_get_string($context, $langcode);
   // If current language add to l10n client list for later on page translation.
-  // If language were the default one we are not supossed to reach here.
+  // If langcode translation was disabled we are not supossed to reach here.
   if ($language->language == $langcode && function_exists('l10_client_add_string_to_page')) {
-    // Aditional checking for input format, if its a dangerous one we ignore the string
+    // Additional checking for input format, if its a dangerous one we ignore the string
     if (empty($source)) {
       $source = i18nstrings_get_source($context, $string);
     }
@@ -1101,11 +1091,28 @@ function i18nstrings($name, $string, $langcode = NULL) {
 function i18nstrings_text($name, $default, $langcode = NULL) {
   global $language;
   $langcode = $langcode ? $langcode : $language->language;
+
+  $context = i18nstrings_context($name, $default);
+
   // If language is default or we don't have translation, just return default string
   if (i18nstrings_translate_langcode($langcode) && ($translation = i18nstrings_get_translation($name, $langcode))) {
-    return check_markup($translation->translation, $translation->format, FALSE);
+    $translation = check_markup($translation->translation, $translation->format, FALSE);
   }
-  return $default;
+  else {
+    $translation = $default;
+  }
+
+  // If current language add to l10n client list for later on page translation.
+  if ($language->language == $langcode && function_exists('l10_client_add_string_to_page')) {
+    // Additional checking for input format, if its a dangerous one we ignore the string
+    if (empty($source)) {
+      $source = i18nstrings_get_source($context, $default);
+    }
+    if ($source && i18nstrings_allowed_format($source->format) || filter_access($source->format)) {
+      l10_client_add_string_to_page($default, $translation, $source->textgroup);
+    }
+  }
+  return $translation;
 }
 
 /**

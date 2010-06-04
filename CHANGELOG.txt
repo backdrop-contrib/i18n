@@ -2,6 +2,8 @@
 
 6.x-1.4 to ......
 ------------------
+- Fixed l10n_client support, added missing strings for translation, by miro_dietiker, khaled.zaidan, #304434
+- Fixed duplicates in locales source, by Dippers, #782036
 - Fixed warning during update script (possibly ids are the same), #783978
 - Fixed maxlength, for node translation autocomplete, by cedrid, #802418
 - Fixed i18n_init not run early enough, inconsistent menu items, #614548
