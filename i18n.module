@@ -20,17 +20,24 @@ define('LANGUAGE_SUPPORT_EXTENDED', 2);
 define('LANGUAGE_SUPPORT_EXTENDED_NOT_DISPLAYED', 3);
 
 /**
+ * Implementation of hook_boot()
+ * 
+ * Initialize variables, that will be used to decide on site_frontpage
+ */
+function i18n_boot() {
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_LANGUAGE);
+  _i18n_init();  
+}
+
+/**
  * Implementation of hook_init().
- *
- * Will initialize language dependent variables.
- * Modify rewriting conditions when viewing specific nodes.
  *
  * Special fix for site_frontpage, that may have been used before the language variables are loaded.
  */
 function i18n_init() {
-  // If not in bootstrap, variable init.
+  // If not in bootstrap, variable init. Otherwise we are serving a cached page so we don't need anything else.
   if (!_i18n_is_bootstrap()) {
-    _i18n_init();
+    _i18n_init(TRUE);
     _i18n_init_mode();
   }
 }
@@ -40,7 +47,7 @@ function i18n_init() {
  * 
  * Special fix for site_frontpage, that may have been used before the language variables are loaded.
  */
-function _i18n_init() {
+function _i18n_init($check_frontpage = FALSE) {
   static $done;
   
   // Prevent this function from running twice;
@@ -50,8 +57,9 @@ function _i18n_init() {
 
     i18n_variable_init();
 
-    // Now we check whether this is the frontpage and it should be a different one.
-    if ($default_frontpage != variable_get('site_frontpage', 'node') && $_GET['q'] == drupal_get_normal_path($default_frontpage)) {
+    // We do aditional frontpage check if this has run after first bootstrap phase.
+    // But if this runs in hook_boot we should be ok
+    if ($check_frontpage && $default_frontpage != variable_get('site_frontpage', 'node') && $_GET['q'] == drupal_get_normal_path($default_frontpage)) {
       $_GET['q'] = drupal_get_normal_path(variable_get('site_frontpage', 'node'));
     }
   }

@@ -2,6 +2,7 @@
 
 6.x-1.4 to ......
 ------------------
+- Reworked variable initialization to fox static cache issues with Drupal 6.17 (drupal_is_front_page), #817164
 - Fixed l10n_client support, added missing strings for translation, by miro_dietiker, khaled.zaidan, #304434
 - Fixed duplicates in locales source, by Dippers, #782036
 - Fixed warning during update script (possibly ids are the same), #783978
