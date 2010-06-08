@@ -1,6 +1,6 @@
 // $Id$
 
-6.x-1.4 to ......
+6.x-1.4 to 6.x-1.5
 ------------------
 - Disabled language selection when editing menu items, by swentel, #694680
 - Reworked variable initialization to fox static cache issues with Drupal 6.17 (drupal_is_front_page), #817164

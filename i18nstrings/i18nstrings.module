@@ -768,7 +768,7 @@ function i18nstrings_context($context, $string = NULL, $format = 0) {
     $context->format = $format;
     $context->location = i18nstrings_location($context);
     // The value may be zero so we check first with is_numeric()
-    if (!is_numeric($context->objectid) || !$context->objectid && !$context->property && $string) {
+    if (!is_numeric($context->objectid) && !$context->objectid && !$context->property && $string) {
       $context->source = $string;
     }
     return $context;
