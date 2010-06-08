@@ -500,8 +500,12 @@ function i18ntaxonomy_node_form(&$form) {
     if ($vid == 'tags') {
       // Special treatment for tags, add some help texts
       foreach (element_children($form['taxonomy']['tags']) as $vid) {
-        if (i18ntaxonomy_vocabulary($vid) == I18N_TAXONOMY_LOCALIZE) {
-          $form['taxonomy']['tags'][$vid]['#title'] = check_plain(i18nstrings("taxonomy:vocabulary:$vid:name", $form['taxonomy']['tags'][$vid]['#title']));
+        $type = i18ntaxonomy_vocabulary($vid);
+        if ($type == I18N_TAXONOMY_LOCALIZE || $type == I18N_TAXONOMY_TRANSLATE) {
+          $form['taxonomy']['tags'][$vid]['#title'] = i18nstrings_string("taxonomy:vocabulary:$vid:name", $form['taxonomy']['tags'][$vid]['#title']);
+          $form['taxonomy']['tags'][$vid]['#description'] = i18nstrings("taxonomy:vocabulary:$vid:help", $form['taxonomy']['tags'][$vid]['#description']);    
+        }
+        if ($type == I18N_TAXONOMY_LOCALIZE) {
           $form['taxonomy']['tags'][$vid]['#description'] .= ' '. t('This is a localizable vocabulary, so only terms in %language are allowed here.', array('%language' => language_default('name')));
         }
       }
@@ -516,10 +520,16 @@ function i18ntaxonomy_node_form(&$form) {
           $default_terms[$term->tid] = $term;
         }
       }
-
       $form['taxonomy'][$vid] = i18ntaxonomy_vocabulary_form($vocabulary->vid, array_keys($default_terms));
       $form['taxonomy'][$vid]['#weight'] = $vocabulary->weight;
       $form['taxonomy'][$vid]['#required'] = $vocabulary->required;
+      $form['taxonomy'][$vid]['#description'] = i18nstrings("taxonomy:vocabulary:$vid:help", $vocabulary->help);
+    }
+    elseif (is_numeric($vid) && i18ntaxonomy_vocabulary($vid) == I18N_TAXONOMY_TRANSLATE) {
+      // Rebuild this vocabulary's form.
+      $vocabulary = taxonomy_vocabulary_load($vid);
+      $form['taxonomy'][$vid]['#title'] = i18nstrings_string("taxonomy:vocabulary:$vid:name", $vocabulary->name);
+      $form['taxonomy'][$vid]['#description'] = i18nstrings("taxonomy:vocabulary:$vid:help", $vocabulary->help);
     }
   }
 }
