@@ -85,7 +85,7 @@ function _i18n_init_mode() {
         // No restrictions for administration pages.
         i18n_selection_mode('off');
       }
-      elseif (arg(1) == 'build' && arg(2) == 'menu-customize') {
+      elseif (arg(1) == 'build' && (arg(2) == 'menu-customize' || arg(2) == 'menu')) {
         // All nodes available when editing custom menu items.
         i18n_selection_mode('off');
       }
