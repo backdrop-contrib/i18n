@@ -1,5 +1,10 @@
 // $Id$
 
+6.x-1.5 to ......
+-----------------
+- Reworked variable initialization to fix multiple issues (front page, etc), #826774
+- Some changes to variables API, added new function: i18n_variable_get()
+
 6.x-1.4 to 6.x-1.5
 ------------------
 - Fixed: taxonomy name/help not translated, by miro_dietiker, #686896
