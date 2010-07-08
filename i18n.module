@@ -877,10 +877,11 @@ function i18n_supported_languages($all = FALSE) {
 function i18n_variable_set($name, $value, $langcode) {
   global $conf, $i18n_conf;
 
-  db_lock_table('i18n_variable');
-  db_query("DELETE FROM {i18n_variable} WHERE name = '%s' AND language='%s'", $name, $langcode);
-  db_query("INSERT INTO {i18n_variable} (name, language, value) VALUES ('%s', '%s', '%s')", $name, $langcode, serialize($value));
-  db_unlock_tables();
+  $serialized_value = serialize($value);
+  db_query("UPDATE {i18n_variable} SET value = '%s' WHERE name = '%s' AND language = '%s'", $serialized_value, $name, $langcode);
+  if (!db_affected_rows()) {
+    @db_query("INSERT INTO {i18n_variable} (name, language, value) VALUES ('%s', '%s', '%s')", $name, $langcode, $serialized_value);
+  }
 
   cache_clear_all('variables:'. $langcode, 'cache');
 
