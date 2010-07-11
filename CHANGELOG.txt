@@ -2,6 +2,7 @@
 
 6.x-1.5 to ......
 -----------------
+- Some improvements to i18nmenu API, by plach, #386372 
 - Renamed theme_taxonomy_term_page() to theme_i18ntaxonomy_term_page() to avoid namespace conflicts
 - Added some taxonomy API functions: i18ntaxonomy_translate_term_name()....
 - Fixed: Access denied to database query (LOCK TABLES) on i18n_variable_set(), #769260
