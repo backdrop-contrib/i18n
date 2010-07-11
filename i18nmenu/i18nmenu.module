@@ -70,7 +70,8 @@ function i18nmenu_menu_link_alter(&$item, $menu) {
  */
 function i18nmenu_translated_menu_link_alter(&$item, $map) {
   if ($item['module'] == 'menu') {
-    $item['title'] = _i18nmenu_get_item($item);
+    $item['title'] = _i18nmenu_get_item_title($item);
+    $item['localized_options']['attributes']['title'] = _i18nmenu_get_item_description($item);
   }
 }
 
@@ -123,8 +124,9 @@ function i18nmenu_localize_tree(&$tree, $update = FALSE) {
         $router = i18nmenu_get_router($link['router_path']);
         // If the title is the same it will be localized by the menu system.
         if ($link['link_title'] != $router['title']) {
-          $tree[$index]['link']['title'] = _i18nmenu_get_item($link, $update);
+          $tree[$index]['link']['title'] = _i18nmenu_get_item_title($link, $update);
         }
+        $tree[$index]['link']['localized_options']['attributes']['title'] = _i18nmenu_get_item_description($link, $update);
         // Localize subtree.
         if ($item['below'] !== FALSE) {
           i18nmenu_localize_tree($tree[$index]['below'], $update);
@@ -201,12 +203,27 @@ function i18nmenu_preprocess_page(&$vars) {
 /**
  * Optionally insert/update and return a localized menu item title.
  */
-function _i18nmenu_get_item($link, $update = FALSE) {
+function _i18nmenu_get_item_title($link, $update = FALSE) {
   $key = 'menu:item:'. $link['mlid'] .':title';
   if ($update) {
     i18nstrings_update($key, $link['link_title']);
   }
   return i18nstrings($key, $link['link_title']);
+}
+
+/**
+ * Optionally insert/update and return a localized menu item description.
+ */
+function _i18nmenu_get_item_description($link, $update = FALSE) {
+  if (empty($link['options']['attributes']['title'])) {
+    return;
+  }
+  $key = 'menu:item:'. $link['mlid'] .':description';
+  $description = $link['options']['attributes']['title'];
+  if ($update) {
+    i18nstrings_update($key, $description);
+  }
+  return i18nstrings($key, $description);
 }
 
 /**
@@ -320,7 +337,8 @@ function _i18nmenu_update_item($item) {
     $item['mlid'] = db_result(db_query("SELECT MAX(mlid) FROM {menu_links} WHERE link_path = '%s' AND menu_name = '%s' AND module = 'menu' AND plid = %d AND link_title = '%s'", $item['link_path'], $item['menu_name'], $item['plid'], $item['link_title']));
   }
   if (!empty($item['mlid'])) {
-    _i18nmenu_get_item($item, TRUE);
+    _i18nmenu_get_item_title($item, TRUE);
+    _i18nmenu_get_item_description($item, TRUE);
   }
 }
 
