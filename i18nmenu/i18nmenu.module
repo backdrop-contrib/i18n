@@ -223,7 +223,7 @@ function _i18nmenu_get_item_description($link, $update = FALSE, $langcode = NULL
   if ($update) {
     i18nstrings_update($key, $description);
   }
-  return i18nstrings($key, $description, $langcode = NULL);
+  return i18nstrings($key, $description, $langcode);
 }
 
 /**
