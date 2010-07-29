@@ -208,7 +208,7 @@ function _i18nmenu_get_item_title($link, $update = FALSE, $langcode = NULL) {
   if ($update) {
     i18nstrings_update($key, $link['link_title']);
   }
-  return i18nstrings($key, $link['link_title'], $langcode = NULL);
+  return i18nstrings($key, $link['link_title'], $langcode);
 }
 
 /**
