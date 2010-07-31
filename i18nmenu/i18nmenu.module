@@ -231,6 +231,7 @@ function _i18nmenu_get_item_description($link, $update = FALSE, $langcode = NULL
  */
 function _i18nmenu_delete_item($mlid) {
   i18nstrings_remove_string('menu:item:'. $mlid .':title');
+  i18nstrings_remove_string('menu:item:'. $mlid .':description');
 }
 
 /**
