@@ -212,7 +212,7 @@ function i18ntaxonomy_translate_term_name($tid, $name = '', $langcode = NULL) {
  * @param $name
  *   Filtered default(untranslated) name
  */
-function i18ntaxonomy_translate_vocabulary_name($vid, $name = '', $langcode = NUL) {
+function i18ntaxonomy_translate_vocabulary_name($vid, $name = '', $langcode = NULL) {
   return is_object($vid) ? i18nstrings_string("taxonomy:vocabulary:$vid->vid:name", $vid->name, $langcode, TRUE) : i18nstrings_string("taxonomy:vocabulary:$vid:name", $name, $langcode);
 }
 
