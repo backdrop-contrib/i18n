@@ -530,6 +530,9 @@ function i18ntaxonomy_form_all_localize(&$item) {
  */
 function i18ntaxonomy_node_form(&$form) {
   $node = $form['#node'];
+  if (!isset($node->vid)) {
+    return;
+  }
   if (!isset($node->taxonomy)) {
     $terms = taxonomy_node_get_terms($node);
   }

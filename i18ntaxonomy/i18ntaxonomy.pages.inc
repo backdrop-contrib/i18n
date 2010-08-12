@@ -55,6 +55,7 @@ function i18ntaxonomy_term_page($str_tids = '', $depth = 0, $op = 'page') {
           if (count($tids) == 1) {
             $terms = array(taxonomy_get_term($tids[0]));
             $terms = i18ntaxonomy_localize_terms($terms, array('description'));
+            $terms['operator'] = 'or';
             // HTML will be removed from feed description, so no need to filter here.
             $channel['description'] = $terms[0]->description;
           }
