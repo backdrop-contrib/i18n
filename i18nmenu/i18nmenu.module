@@ -376,6 +376,13 @@ function i18nmenu_form_alter(&$form, &$form_state, $form_id) {
   if (isset($form['type']) && isset($form['#node']) && $form['type']['#value'] .'_node_form' == $form_id) {
     $node = $form['#node'];
 
+    if (!empty($form['menu'])) {
+      // Set menu language to node language.
+      $form['menu']['language'] = array('#type' => 'value', '#value' => $node->language);
+      // Customized must be set to 1 to save language.
+      $form['menu']['customized'] = array('#type' => 'value', '#value' => 1);
+    }
+
     // Do nothing if the node already has a menu.
     if (!empty($node->menu['mlid'])) {
       return;
@@ -404,12 +411,6 @@ function i18nmenu_form_alter(&$form, &$form_state, $form_id) {
       $form['menu']['link_title']['#default_value'] = $tnode->menu['link_title'];
       $form['menu']['weight']['#default_value'] = $tnode->menu['weight'];
       $form['menu']['parent']['#default_value'] = $tnode->menu['menu_name'] .':'. $tnode->menu['plid'];
-
-      // Set menu language to node language.
-      $form['menu']['language'] = array('#type' => 'value', '#value' => $node->language);
-
-      // Customized must be set to 1 to save language.
-      $form['menu']['customized'] = array('#type' => 'value', '#value' => 1);
     }
   }
 }
