@@ -1,7 +1,12 @@
 // $Id$
 
-6.x-1.5 to ......
+6.x-1.5 to 6.x-1.6
 -----------------
+- Fixed: issues with i18nvariables, do not check anymore i18n_variables on initialization, by Jose, #850708
+- Fixed: Menu item's language is lost after node update, by neochief, #514630
+- Fixed: PHP notices, by eMPee584, #769318
+- Delete description on menu item delete, #844208 by plach
+- Fixed: Node type help not translated, by NaX, #685788
 - Some improvements to i18nmenu API, by plach, #386372 
 - Renamed theme_taxonomy_term_page() to theme_i18ntaxonomy_term_page() to avoid namespace conflicts
 - Added some taxonomy API functions: i18ntaxonomy_translate_term_name()....

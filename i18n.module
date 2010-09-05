@@ -699,30 +699,21 @@ function i18n_variable_form_submit($form, &$form_state) {
 /**
  * Initialization of multilingual variables.
  *
- * @param $language
+ * @param $langcode
  *   Language to retrieve variables. Defaults to current language.
- * @param $i18n_variables
- *   Optional variable list to initialize
  */
-function i18n_variable_init($langcode = NULL, $i18n_variables = NULL) {
+function i18n_variable_init($langcode = NULL) {
   global $conf;
   global $i18n_conf;
 
   $langcode = $langcode ? $langcode : i18n_get_lang();
-  $i18n_variables = $i18n_variables ? $i18n_variables : variable_get('i18n_variables', '');
-
-  if ($i18n_variables) {
-    $i18n_add = array();
-    if (!$i18n_conf) {
-      $i18n_conf = array();
-    }
-    $variables = _i18n_variable_init($langcode);
-    foreach ($i18n_variables as $name) {
-      $i18n_add[$name] = isset($variables[$name]) ? $variables[$name] : (isset($conf[$name]) ? $conf[$name] : NULL);
-    }
-
-    $conf = array_merge($conf, $i18n_add);
-    $i18n_conf = array_merge($i18n_conf, $i18n_add);
+  if (isset($i18n_conf[$langcode])) {
+    // If this language was previously set, just switch the array
+    $conf = $i18n_conf[$langcode];
+  }
+  elseif ($variables = _i18n_variable_init($langcode)) {
+    $conf = array_merge($conf, $variables);
+    $i18n_conf[$langcode] = $conf;
   }
 }
 
@@ -784,22 +775,22 @@ function _i18n_variable_init($langcode) {
  * Save multilingual variables that may have been changed by other methods than settings pages.
  */
 function _i18n_variable_exit() {
-  global $i18n_conf;
-  global $conf;
-  if ($i18n_conf) {
-    $lang = i18n_get_lang();
+  global $conf, $i18n_conf;
+
+  $langcode = i18n_get_lang();
+  if (isset($i18n_conf[$langcode])) {  
     $refresh = FALSE;
     // Rewritten because array_diff_assoc may fail with array variables.
-    foreach ($i18n_conf as $name => $value) {
+    foreach ($i18n_conf[$langcode] as $name => $value) {
       if (isset($conf[$name]) && $value != $conf[$name]) {
         $refresh = TRUE;
-        $i18n_conf[$name] = $conf[$name];
-        db_query("DELETE FROM {i18n_variable} WHERE name='%s' AND language='%s'", $name, $lang);
-        db_query("INSERT INTO {i18n_variable} (language, name, value) VALUES('%s', '%s', '%s')", $lang, $name, serialize($conf[$name]));
+        $i18n_conf[$langcode][$name] = $conf[$name];
+        db_query("DELETE FROM {i18n_variable} WHERE name='%s' AND language='%s'", $name, $langcode);
+        db_query("INSERT INTO {i18n_variable} (language, name, value) VALUES('%s', '%s', '%s')", $langcode, $name, serialize($conf[$name]));
       }
     }
     if ($refresh) {
-      cache_set('variables:'. $lang, $i18n_conf);
+      cache_set('variables:'. $langcode, $i18n_conf[$langcode]);
     }
   }
 }
