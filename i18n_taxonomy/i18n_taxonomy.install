@@ -1,0 +1,57 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Installation file for i18n_taxonomy module.
+ */
+
+/**
+ * Set language field in its own table.
+ * Do not drop node.language now, just in case.
+ * TO-DO: Drop old tables, fields
+ */
+function i18n_taxonomy_install() {
+  module_load_install('i18n');
+  i18n_install_create_fields('taxonomy_vocabulary', array('language', 'i18n_mode'));
+  i18n_install_create_fields('taxonomy_term_data', array('language', 'trid'));
+  // Set module weight for it to run after core modules, but before views.
+  db_query("UPDATE {system} SET weight = 5 WHERE name = 'i18n_taxonomy' AND type = 'module'");
+  // Set vocabulary mode
+  i18n_taxonomy_update_7000();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function i18n_taxonomy_uninstall() {
+  db_drop_field('taxonomy_vocabulary', 'language');
+  db_drop_field('taxonomy_vocabulary', 'i18n_mode');
+  db_drop_field('taxonomy_term_data', 'language');
+  db_drop_field('taxonomy_term_data', 'trid');
+  variable_del('i18n_taxonomy_vocabulary');
+}
+
+/**
+ * Implements hook_schema_alter().
+ */
+function i18n_taxonomy_schema_alter(&$schema) {
+  $schema['taxonomy_vocabulary']['fields']['language'] = array('type' => 'varchar', 'length' => 12, 'not null' => TRUE, 'default' => '');
+  $schema['taxonomy_vocabulary']['fields']['i18n_mode'] = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0);
+  $schema['taxonomy_term_data']['fields']['language'] = array('type' => 'varchar', 'length' => 12, 'not null' => TRUE, 'default' => '');
+  $schema['taxonomy_term_data']['fields']['trid'] = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0);
+}
+
+/**
+ * Set vocabulary modes from D6 variable
+ */
+function i18n_taxonomy_update_7000() {
+  if ($options = variable_get('i18ntaxonomy_vocabulary')) {
+    foreach ($options as $vid => $mode) {
+      db_update('taxononomy_vocabulary')
+        ->fields(array('i18n_mode' => $mode))
+        ->condition('vid', $vid)
+        ->execute();
+    }
+  }
+}

@@ -131,7 +131,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
 //    drupal_save_session(FALSE);
 //    $user = user_load(1);
     session_save_session(FALSE);
-    $user = user_load(array('uid' => 1));
+    $user = user_load(1);
 
     // Restore necessary variables.
     variable_set('install_profile', 'default');
@@ -146,7 +146,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     // Create the files directory.
     file_check_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
 
-    set_time_limit($this->timeLimit);
+    drupal_set_time_limit($this->timeLimit);
 
     // Some more includes
     require_once 'includes/language.inc';
@@ -195,9 +195,9 @@ class Drupali18nTestCase extends DrupalWebTestCase {
    */
   public function switchLanguage($newlang = NULL) {
     $newlang = $newlang ? $newlang : $this->install_locale;
-    $GLOBALS['language'] = $this->getLanguage($newlang); 
+    $GLOBALS['language'] = $this->getLanguage($newlang);
   }
-  
+
   /**
    * Get all languages that are not default
    */
@@ -209,20 +209,20 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   /**
    * Create and store one translation into the db
    */
-  public function i18nstringsCreateTranslation($name, $lang, $length = 20) {
+  public function i18n_stringCreateTranslation($name, $lang, $length = 20) {
     $translation = $this->randomName($length, "i18n-$lang-");
-    $count = self::i18nstringsSaveTranslation($name, $lang, $translation);
+    $count = self::i18n_stringSaveTranslation($name, $lang, $translation);
     $this->assertTrue($count, "A translation($lang) has been created for string $name");
     return $translation;
   }
   /**
    * Translate one string into the db
    */
-  public static function i18nstringsSaveTranslation($name, $lang, $translation, $update = FALSE) {
-    $source = i18nstrings_get_source($name);
+  public static function i18n_stringSaveTranslation($name, $lang, $translation, $update = FALSE) {
+    $source = i18n_string_get_source($name);
     if ($source) {
       if ($update) {
-        db_query("UPDATE {locales_target} SET translation = '%s' WHERE lid = %d AND language = '%s'", $translation, $source->lid, $lang);    
+        db_query("UPDATE {locales_target} SET translation = '%s' WHERE lid = %d AND language = '%s'", $translation, $source->lid, $lang);
       } else {
         db_query("INSERT INTO {locales_target} (translation, lid, language) VALUES ('%s', %d, '%s')", $translation, $source->lid, $lang);
       }

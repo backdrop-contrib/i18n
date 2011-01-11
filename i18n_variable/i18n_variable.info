@@ -1,0 +1,7 @@
+; $Id$
+name = Multilingual variables
+description = API module for multilingual variables
+dependencies[] = locale
+dependencies[] = i18n
+package = Multilanguage
+core = 7.x

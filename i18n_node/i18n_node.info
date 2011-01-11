@@ -1,0 +1,7 @@
+; $Id$
+name = Multilingual content
+description = Extended node options for multilingual content
+dependencies[] = translation
+dependencies[] = i18n
+package = Multilanguage
+core = 7.x

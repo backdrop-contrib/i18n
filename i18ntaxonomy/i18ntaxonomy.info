@@ -1,8 +1,0 @@
-; $Id$
-name = Taxonomy translation
-description = Enables multilingual taxonomy.
-dependencies[] = i18n
-dependencies[] = taxonomy
-dependencies[] = i18nstrings
-package = Multilanguage
-core = 6.x

@@ -1,8 +1,0 @@
-; $Id$
-name = CCK translation
-description = Supports translatable custom CCK fields and fieldgroups.
-dependencies[] = i18n
-dependencies[] = content
-dependencies[] = i18nstrings
-package = Multilanguage
-core = 6.x

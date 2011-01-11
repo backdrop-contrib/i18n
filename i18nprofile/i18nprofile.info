@@ -1,7 +1,0 @@
-; $Id$
-name = Profile translation
-description = Enables multilingual profile fields.
-dependencies[] = profile
-dependencies[] = i18nstrings
-package = Multilanguage
-core = 6.x

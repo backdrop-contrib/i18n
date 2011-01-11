@@ -1,0 +1,11 @@
+; $Id$
+name = Taxonomy translation
+description = Enables multilingual taxonomy.
+dependencies[] = i18n
+dependencies[] = taxonomy
+dependencies[] = i18n_string
+package = Multilanguage
+core = 7.x
+
+files[] = i18n_taxonomy.pages.inc
+files[] = i18n_taxonomy.admin.inc
