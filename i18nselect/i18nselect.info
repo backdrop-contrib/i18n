@@ -1,7 +1,0 @@
-; $Id$
-
-name = Multilingual select
-description = API module for multilingual content selection
-dependencies[] = locale
-package = Multilanguage
-core = 7.x
