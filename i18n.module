@@ -13,32 +13,48 @@
  * @author Jose A. Reyero, 2004
  */
 
-// Some constants. Language support modes for content
-define('LANGUAGE_SUPPORT_NONE', 0);
-define('LANGUAGE_SUPPORT_NORMAL', 1);
-define('LANGUAGE_SUPPORT_EXTENDED', 2);
-define('LANGUAGE_SUPPORT_EXTENDED_NOT_DISPLAYED', 3);
-
+// All multilingual options disabled 
+define('I18N_LANGUAGE_DISABLED', 0);
 // Language list will include all enabled languages
-define('I18N_LANGUAGE_ENABLED', 0);
+define('I18N_LANGUAGE_ENABLED', 1);
 // Language list will include also disabled languages
-define('I18N_LANGUAGE_EXTENDED', 1);
+define('I18N_LANGUAGE_EXTENDED', 4);
+// Disabled languages will be hidden when possible
+define('I18N_LANGUAGE_HIDDEN', 8);
+// All defined languages will be allowed but hidden when possible
+define('I18N_LANGUAGE_EXTENDED_NOT_DISPLAYED', I18N_LANGUAGE_EXTENDED | I18N_LANGUAGE_HIDDEN);
+
+// No multilingual options
+define('I18N_MODE_NONE', 0);
+// Localizable object. Run through the localization system
+define('I18N_MODE_LOCALIZE', 1);
+// Predefined language for this object and all related ones.
+define('I18N_MODE_LANGUAGE', 2);
+// Multilingual objects, translatable but not localizable.
+define('I18N_MODE_TRANSLATE', 4);
 
 /**
  * Implements hook_boot()
- * 
- * Initialize variables, that will be used to decide on site_frontpage
  */
 function i18n_boot() {
   // Just make sure the module is loaded for boot and the API is available.
 }
 
 /**
- * Get global language, make sure it is initialized
+ * Get global language object, make sure it is initialized
+ * 
+ * @param $language
+ *   Language code or language object to convert to valid language object
  */
 function i18n_language($language = NULL) {
   if ($language) {
-    return $language;
+    if (is_object($language)) {
+      return $language;
+    }
+    else {
+      $list = language_list();
+      return isset($list[$language]) ? $list[$language] : i18n_language();
+    }
   }
   else {
     if (empty($GLOBALS['language'])) {
@@ -54,8 +70,9 @@ function i18n_language($language = NULL) {
  * 
  * @todo See about creating a permission for seeing disabled languages
  */
-function i18n_language_list($field = 'name') {
-  return locale_language_list($field, I18N_LANGUAGE_EXTENDED & variable_get('i18n_language_list', I18N_LANGUAGE_ENABLED));
+function i18n_language_list($field = 'name', $mode = NULL) {
+  $mode = isset($mode) ? $mode : variable_get('i18n_language_list', I18N_LANGUAGE_ENABLED);
+  return locale_language_list($field, I18N_LANGUAGE_EXTENDED & $mode);
 }
 
 /**
@@ -84,48 +101,6 @@ function i18n_language_name($lang) {
  */
 function i18n_langcode($langcode = NULL) {
   return $langcode && $langcode !== LANGUAGE_NONE ? $langcode : i18n_language()->language;  
-}
-
-/**
- * Implements hook_init().
- *
- * Special fix for site_frontpage, that may have been used before the language variables are loaded.
- */
-/*
-function i18n_init() {
-  // If not in bootstrap, variable init. Otherwise we are serving a cached page so we don't need anything else.
-  if (!_i18n_is_bootstrap()) {
-    _i18n_init_mode();
-  }
-}
-*/
-
-/**
- * Initialize selection mode
- */
-function _i18n_init_mode() {
-  if (i18n_selection_mode() != 'off') {
-    // Node language when loading specific nodes or creating translations.
-    if (arg(0) == 'node' ) {
-      if (($node = menu_get_object('node')) && $node->language) {
-        i18n_selection_mode('node', $node->language);
-      }
-      elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language'])) {
-        i18n_selection_mode('translation', db_escape_string($_GET['language']));
-      }
-    }
-    elseif (arg(0) == 'admin') {
-      // There are some exceptions for admin pages.
-      if (arg(1) == 'content' && user_access('administer all languages')) {
-        // No restrictions for administration pages.
-        i18n_selection_mode('off');
-      }
-      elseif (arg(1) == 'build' && (arg(2) == 'menu-customize' || arg(2) == 'menu')) {
-        // All nodes available when editing custom menu items.
-        i18n_selection_mode('off');
-      }
-    }
-  }
 }
 
 /**
@@ -199,20 +174,19 @@ function i18n_modules_installed($modules) {
 }
 
 /**
- * Implements hook_user_login().
- *
- * Switch to user's language after login.
- */
-function i18n_user_login(&$edit, &$account) {
-  if ($account->language) {
-    $_SESSION['language'] = $account->language;
-    i18n_get_lang($account->language);
-  }
-}
-
-/**
  * Simple i18n API
  */
+
+/**
+ * Switch select Mode on off if enabled
+ */
+function i18n_select($value = NULL) {
+  static $mode;
+  if (isset($value)) {
+    $mode = $value;
+  }
+  return $mode;
+}
 
 /**
  * Get language properties.
@@ -228,148 +202,11 @@ function i18n_language_property($code, $property) {
 }
 
 /**
- * Selection mode for content.
- *
- * Warning: when used with params they need to be escaped, as some values are thrown directly in queries.
- *
- * Allows several modes for query rewriting and to change them programatically.
- *  off = No language conditions inserted.
- *  simple = Only current language and no language.
- *  mixed = Only current and default languages.
- *  strict = Only current language.
- *  default = Only default language.
- *  user = User defined, in the module's settings page.
- *  params = Gets the stored params.
- *  reset = Returns to previous.
- *  custom = add custom where clause, like "%alias.language = 'en'".
- *
- * @param $reset
- *   Whether to reset the internal cache for the selection mode.
+ * Implements hook_preprocess_html().
  */
-function i18n_selection_mode($mode = NULL, $params = NULL, $reset = FALSE) {
-  $current_mode = &drupal_static(__FUNCTION__ . '_mode', NULL, $reset);
-  $current_mode = &drupal_static(__FUNCTION__ . '_value', '', $reset);
-  $store = &drupal_static(__FUNCTION__ . '_store', '', $reset);
-
-  // Initialization, first time this runs
-  if (!isset($current_mode)) {
-    $current_mode = variable_get('i18n_selection_mode', 'simple');
-  }
-
-  if (!$mode) {
-    return $current_mode;
-  }
-  elseif ($mode == 'params') {
-    return $current_value;
-  }
-  elseif ($mode == 'reset') {
-    list($current_mode, $current_value) = array_pop($store);
-  }
-  else {
-    array_push($store, array($current_mode, $current_value));
-    $current_mode = $mode;
-    $current_value = $params;
-  }
-}
-
-/**
- * Rewrites queries depending on rewriting mode.
- *
- * @return DatabaseCondition
- */
-function i18n_db_rewrite_where($alias, $type, $mode = NULL) {
-  if (!$mode) {
-    // Some exceptions for query rewrites.
-    $mode = i18n_selection_mode();
-  }
-
-  // Get languages to simplify query building.
-  $current = i18n_language()->language;
-  $default = language_default('language');
-
-  if ($mode == 'strict' && $type != 'node') {
-    // Special case. Selection mode is 'strict' but this should be only for node queries.
-    $mode = 'simple';
-  }
-  elseif ($mode == 'mixed' && $current == $default) {
-    // If mode is mixed but current = default, is the same as 'simple'.
-    $mode = 'simple';
-  }
-
-  switch ($mode) {
-    case 'off':
-      return '';
-
-    case 'simple':
-      return db_condition('OR')
-        ->condition($alias . '.language', $current)
-        ->condition($alias . '.language', '')
-        ->condition($alias . '.language', NULL);
-
-    case 'mixed':
-      return db_condition('OR')
-        ->condition($alias . '.language', $current)
-        ->condition($alias . '.language', $default)
-        ->condition($alias . '.language', '')
-        ->condition($alias . '.language', NULL);
-
-    case 'strict':
-      return db_condition('AND')->condition($alias . '.language', $current);
-
-    case 'node':
-    case 'translation':
-      return db_condition('OR')
-        ->condition($alias . '.language', i18n_selection_mode('params'))
-        ->condition($alias . '.language', '')
-        ->condition($alias . '.language', NULL);
-
-    case 'default':
-      return db_condition('OR')
-        ->condition($alias . '.language', $default)
-        ->condition($alias . '.language', '')
-        ->condition($alias . '.language', NULL);
-
-    case 'custom':
-      return str_replace('%alias', $alias, i18n_selection_mode('params'));
-  }
-}
-
-/**
- * Implements hook_preprocess_page().
- *
- * Add the language code to the classes for the <body> tag. Unfortunately, some
- * themes will not respect the variable we're modifying to achieve this - in
- * particular, Garland and Minelli do not.
- */
-function i18n_preprocess_page(&$variables) {
-  if (isset($variables['body_classes'])) {
-    global $language;
-    $variables['body_classes'] .= ' i18n-' . $language->language;
-  }
-}
-
-
-/**
- * Implements hook_permission().
- *
- * Permissions defined
- * - administer all languages
- *   Disables language conditions for administration pages, so the user can view objects for all languages at the same time.
- *   This applies for: menu items, taxonomy
- * - administer translations
- *   Will allow to add/remove existing nodes to/from translation sets.
- */
-function i18n_permission() {
-  return array(
-    'administer all languages' => array(
-        'title' => t('Administer all languages'),
-        'description' => t('Administer all languages.'),
-    ),
-    'administer translations' => array(
-      'title' => t('Administer translations'),
-      'description' => t('Administer translations.'),
-    ),
-  );
+function i18n_preprocess_html(&$variables) {
+  global $language;
+  $variables['classes_array'][] = 'i18n-' . $language->language;
 }
 
 /**
@@ -403,15 +240,15 @@ function i18n_string($name, $string, $options = array()) {
 
 /**
  * Get language from context.
+ * 
+ * Depending on the page content we may need to use a different language for some operations.
  */
-function _i18n_get_context_lang() {
-  // Node language when loading specific nodes or creating translations.
-  if (arg(0) == 'node' ) {
-    if (($node = menu_get_object('node')) && $node->language) {
-      return $node->language;
-    }
-    elseif (arg(1) == 'add' && !empty($_GET['translation']) && !empty($_GET['language'])) {
-      return $_GET['language'];
+function i18n_context_language() {
+  // Get language from the first module that provides it
+  foreach (module_implements('i18n_context_language') as $module) {
+    if ($language = module_invoke($module, 'i18n_context_language')) {
+      return $language;
     }
   }
+  return i18n_language();
 }

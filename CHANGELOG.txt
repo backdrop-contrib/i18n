@@ -1,13 +1,5 @@
 // $Id$
 
--6.x-1.6 to 6.x-1.7
--------------------
--- Fixed: Missing function i18n_taxonomy_translate_term_name(), by srobert72, #870366
--- Fixed: Parameter 1 to menu_nodeapi() expected to be a reference (php5.3), by setvik, #886700
--- Fixed: Multilingual variables cache being rebuilt every page load, by patrick2000, #905428
--- Improved variable api, added i18n_variable(), extended i18n_variable_del()
--- Improved variable settings, variables for default language are now set to main table
-
 6.x-1.5 to 6.x-1.6
 -----------------
 - Fixed: issues with i18nvariables, do not check anymore i18n_variables on initialization, by Jose, #850708
@@ -15,9 +7,9 @@
 - Fixed: PHP notices, by eMPee584, #769318
 - Delete description on menu item delete, #844208 by plach
 - Fixed: Node type help not translated, by NaX, #685788
-- Some improvements to i18nmenu API, by plach, #386372 
-- Renamed theme_taxonomy_term_page() to theme_i18ntaxonomy_term_page() to avoid namespace conflicts
-- Added some taxonomy API functions: i18ntaxonomy_translate_term_name()....
+- Some improvements to i18n_menu API, by plach, #386372 
+- Renamed theme_taxonomy_term_page() to theme_i18n_taxonomy_term_page() to avoid namespace conflicts
+- Added some taxonomy API functions: i18n_taxonomy_translate_term_name()....
 - Fixed: Access denied to database query (LOCK TABLES) on i18n_variable_set(), #769260
 - Reworked variable initialization to fix multiple issues (front page, etc), #826774
 - Some changes to variables API, added new function: i18n_variable_get()
