@@ -66,6 +66,23 @@ function i18n_node_add_page() {
 }
 
 /**
+ * Implements hook_menu().
+ */
+function i18n_node_menu() {
+  $items['admin/config/regional/i18n/node'] = array(
+    'title' => 'Node options',
+    'description' => 'Configure extended options for multilingual content and translations.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('i18n_node_admin_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'i18n_node.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+  return $items;
+}
+
+/**
  * Implements hook_block_view_MODULE_DELTA_alter().
  * 
  * Set translated help text for node/add pages, replace node_help() text.
@@ -225,10 +242,10 @@ function i18n_node_language_mode($type) {
 /**
  * Implements hook_node_prepare().
  */
-function i18n_node_nodeapi($node) {
+function i18n_node_node_prepare($node) {
   global $language;
 
-  if (variable_get('language_content_type_' . $node->type, 0) && empty($node->nid) && empty($node->language) && variable_get('i18n_newnode_current_' . $node->type, 0)) {
+  if (variable_get('language_content_type_' . $node->type, 0) && empty($node->nid) && (empty($node->language) OR $node->language == 'und') && variable_get('i18n_newnode_current_' . $node->type, 0)) {
     // Set current language for new nodes if option enabled
     $node->language = $language->language;
   }
@@ -290,37 +307,32 @@ function i18n_node_translation_link_alter(&$links, $path) {
   }
 }
 
-
 /**
- * Implements hook_link_alter().
+ * Implements hook_node_view_alter().
  *
  * Handles links for extended languages. Sets current interface language.
- * 
- * @todo Update D7
  */
-function i18n_node_link_alter(&$links, $node) {
+function i18n_node_node_view_alter(&$build) {
   global $language;
-
+  $node = $build['#node'];
+  
   $language_support = i18n_node_language_mode($node);
-
+  
   // Hide node translation links.
   if (variable_get('i18n_hide_translation_links', 0) == 1) {
-    foreach ($links as $module => $link) {
-      if (strpos($module, 'node_translation') === 0) {
-        unset($links[$module]);
-      }
-    }
+    unset($build['links']['translation']);
   }
-
+  //dpm($build);
   if (!empty($node->tnid)) {
-    foreach (i18n_node_language_list($node) as $langcode) {
-      $index = 'node_translation_'. $langcode;
+    $links = $build['links']['translation']['#links'];
+    foreach (i18n_node_language_list($node) as $langcode => $langname) {
+      $index = 'translation_'. $langcode;
       if (!empty($links[$index])) {
         if (!($language_support & I18N_LANGUAGE_EXTENDED) && $links[$index]['language']->enabled == 0) {
-          unset($links[$index]);
+          unset($build['links']['translation']['#links'][$index]);
         }
         else {
-          $links[$index]['language'] = $language;
+          $build['links']['translation']['#links'][$index]['language'] = $language;
         }
       }
     }
@@ -342,11 +354,11 @@ function i18n_node_node_type_update($info) {
     if(!empty($info->old_type) && $info->old_type != $info->type) {
       i18n_string_update_context("nodetype:type:$old_type:*", "nodetype:type:$type:*");
     }
-    i18n_string_update(array('node', 'type', $type->type), array(
-      'name' => $type->name,
-      'title_label' => $type->title_label, 
-      'description' => $type->description,
-      'help' => $type->help,
+    i18n_string_update(array('node', 'type', $info->type), array(
+      'name' => $info->name,
+      'title_label' => $info->title_label, 
+      'description' => $info->description,
+      'help' => $info->help,
     ));
   }
 }
@@ -497,6 +509,26 @@ function i18n_node_form_node_type_form_alter(&$form, &$form_state) {
  * Implements hook_form_BASE_FORM_ID_alter().
  */
 function i18n_node_form_node_form_alter(&$form, $form_state) {
+  /**
+   * i18n has to override locale.module
+   * drupal_alter() fails to order modules correctly in some cases
+   * for example specific hooks like hook_form_BASE_FORM_ID_alter
+   *
+   * its not possbile to reorder hook_form_BASE_FORM_ID_alter with
+   * hook_module_implements_alter
+   *
+   * @see http://drupal.org/node/765860
+  */
+  
+  // call a 'private' implemenation of i18n_node_form_node_form_alter()
+  $form['#after_build'][] = '_i18n_node_form_node_form_alter';
+}
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter().
+ * Called by i18n_node_form_node_form_alter
+ */
+function _i18n_node_form_node_form_alter($form, $form_state) {
   $node = $form['#node'];
   if (variable_get('language_content_type_'. $node->type, 0)) {
     if (!empty($form['language']['#options'])) {
@@ -515,6 +547,8 @@ function i18n_node_form_node_form_alter(&$form, $form_state) {
   if (!empty($form['body_field']['body']['#title'])) {
     $form['body_field']['body']['#title'] = i18n_node_translate_type($type, 'body', $form['body_field']['body']['#title']);
   }
+
+  return $form;
 }
 
 /**
