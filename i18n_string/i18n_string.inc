@@ -361,7 +361,7 @@ class i18n_string_default {
       $string->objectindex = (int)$string->objectid;
     }
     if (!isset($string->format)) {
-      $string->format = 0;
+      $string->format = '';
     }
     $status = db_merge('i18n_strings')
       ->key(array('lid' => $string->lid))
@@ -468,6 +468,29 @@ class i18n_string_default {
       return $i18nstring;
     }
   }
+  
+  /**
+   * Translate object properties
+   */
+  public function translate_object($type, $object, $options = array()) {
+    $info = i18n_object_info($type);
+    $key = $info['key'];
+    $properties = array_keys($info['string translation']['properties']);
+    foreach ($properties as $field) {
+      if (!empty($object->$field)) {
+        $strings[$field] = $object->$field;
+      }
+    }
+    if (!empty($strings)) {
+      $context = array($info['string translation']['type'], $object->$key, '*');
+      $translations = $this->multiple_translate($context, $strings, $options);
+      foreach ($translation as $field => $value) {
+        $object->$field = i18n_string_format($value, $options);
+      }
+    }
+    return $object;
+  }
+
   /**
    * Update / create translation source for user defined strings.
    *
@@ -538,6 +561,91 @@ class i18n_string_default {
           'translation' => $translation,
         ))
         ->execute();
+    }
+  }
+
+  /**
+   * Update object properties
+   */
+  public function update_object($type, $object, $options = array()) {
+    $info = i18n_object_info($type);
+    $key = $info['key'];
+    foreach ($info['string translation']['properties'] as $field => $property) {
+      if (isset($object->$field)) {
+        $context = array($info['string translation']['type'], $object->$key, $field);
+        $field_options = is_array($property) && !empty($property['format']) ? array('format' => $object->{$property['format']}) : array();
+        $this->update($context, $object->$field, $field_options + $options);
+      }
+    }
+  }
+
+  /**
+   * Update context for strings.
+   *
+   * As some string locations depend on configurable values, the field needs sometimes to be updated
+   * without losing existing translations. I.e:
+   * - profile fields indexed by field name.
+   * - content types indexted by low level content type name.
+   *
+   * Example:
+   *  'profile:field:oldfield:*' -> 'profile:field:newfield:*'
+   */
+  public static function update_context($oldname, $newname) {
+    // Get context replacing '*' with empty string.
+    $oldcontext = explode(':', $oldname);
+    $newcontext = explode(':', $newname);
+    /*
+    i18n_string_context(str_replace('*', '', $oldname));
+    $newcontext = i18n_string_context(str_replace('*', '', $newname));
+    */
+    // Get location with placeholders.
+    foreach (array('textgroup', 'type', 'objectid', 'property') as $index => $field) {
+      if ($oldcontext[$index] != $newcontext[$index]) {
+        $replace[$field] = $newcontext[$index];
+      }
+    }
+  
+    // Query and replace if there are any fields. It is possible that under some circumstances fields are the same
+    if (!empty($replace)) {
+      $textgroup = array_shift($oldcontext);
+      $context = str_replace('*', '%', implode(':', $oldcontext));
+      $count = 0;
+      $query = db_select('i18n_strings', 's')
+        ->fields('s')
+        ->condition('s.textgroup', $textgroup)
+        ->condition('s.context', $context, 'LIKE');
+  
+      foreach ($query->execute()->fetchAll() as $source) {
+        foreach ($replace as $field => $value) {
+          $source->$field = $value;
+        }
+        // Recalculate location, context, objectindex
+        $source->context = $source->type . ':' . $source->objectid . ':' . $source->property;
+        $source->location = $source->textgroup . ':' . $source->context;
+        $source->objectindex = (int)$source->objectid; 
+        // Update source string.
+        $update = array(
+          'textgroup' => $source->textgroup,
+          'context' => $source->context,
+        );
+        db_update('locales_source')
+          ->fields($update + array('location' => $source->location))
+          ->condition('lid', $source->lid)
+          ->execute();
+  
+        // Update object data.
+        db_update('i18n_strings')
+        ->fields($update + array(
+          'type' => $source->type,
+          'objectid' => $source->objectid,
+          'property' => $source->property,
+          'objectindex' => $source->objectindex,
+        ))
+        ->condition('lid', $source->lid)
+        ->execute();
+        $count++;
+      }
+      drupal_set_message(t('Updated @count string names from %oldname to %newname.', array('@count' => $count, '%oldname' => $oldname, '%newname' => $newname)));
     }
   }
 }
@@ -630,66 +738,4 @@ function i18n_string_save_translation($context) {
   return $count;
 }
 
-/**
- * Update context for strings.
- *
- * As some string locations depend on configurable values, the field needs sometimes to be updated
- * without losing existing translations. I.e:
- * - profile fields indexed by field name.
- * - content types indexted by low level content type name.
- *
- * Example:
- *  'profile:field:oldfield:*' -> 'profile:field:newfield:*'
- */
-function i18n_string_update_context($oldname, $newname) {
-  // Get context replacing '*' with empty string.
-  $oldcontext = i18n_string_context(str_replace('*', '', $oldname));
-  $newcontext = i18n_string_context(str_replace('*', '', $newname));
 
-  // Get location with placeholders.
-  $location = i18n_string_location(str_replace('*', '%', $oldname));
-  foreach (array('textgroup', 'type', 'objectid', 'property') as $field) {
-    if ((!empty($oldcontext->$field) || !empty($newcontext->$field)) && $oldcontext->$field != $newcontext->$field) {
-      $replace[$field] = $newcontext->$field;
-    }
-  }
-
-  // Query and replace if there are any fields. It is possible that under some circumstances fields are the same
-  if (!empty($replace)) {
-    $query = db_select('locales_source', 's')
-      ->fields('s')
-      ->fields('i', array('type', 'objectid', 'property'))
-      ->condition('s.textgroup', $oldcontext->textgroup)
-      ->condition('s.location', $location, 'LIKE');
-    $query->leftJoin('i18n_strings', 'i', 's.lid = i.lid');
-    $result = $query->execute()->fetchAll(PDO::FETCH_OBJ);
-
-    foreach ($result as $source) {
-      // Make sure we have string and context.
-      $context = i18n_string_context($oldcontext->textgroup .':'. $source->location);
-      foreach ($replace as $field => $value) {
-        $context->$field = $value;
-      }
-
-      // Update source string.
-      db_update('locales_source')
-        ->fields(array(
-          'textgroup' => $context->textgroup,
-          'location' => i18n_string_location($context),
-        ))
-        ->condition('lid', $source->lid)
-        ->execute();
-
-      // Update object data.
-      db_update('i18n_strings')
-      ->fields(array(
-        'type' => $context->type,
-        'objectid' => $context->objectid,
-        'property' => $context->property,
-      ))
-      ->condition('lid', $source->lid)
-      ->execute();
-    }
-    drupal_set_message(t('Updating string names from %oldname to %newname.', array('%oldname' => $oldname, '%newname' => $newname)));
-  }
-}

@@ -2,42 +2,23 @@
 // $Id$
 
 function i18n_select_admin_settings() {
-  // Content selection options.
-  $form['selection'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Language content filtering'),
+  $form['mode'] = array(
+    '#type' => 'variable_fieldset',
+    '#title' => t('Content selection mode'),
+    '#variable_list' => array('i18n_select_missing_translation'),
   );
-  
-  $form['selection']['mode'] = array(
-    '#type' => 'markup',
-    '#markup' => '<strong>' . t('Content selection mode') . '</strong>',
+  $form['types'] = array(
+    '#type' => 'variable_fieldset',
+    '#title' => t('Content to filter by language'),
+    '#variable_list' => array('i18n_select_nodes', 'i18n_select_taxonomy', 'i18n_select_blocks'),
   );
-  $form['selection']['i18n_select_missing_translation'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('When translation is missing, show content in the default language'),
-    '#default_value' => variable_get('i18n_select_missing_translation', FALSE),
+  // Enable for specific pages. This works pretty much like block visibility
+  // Note this page requires 'administer site configuration' so we don't need to check permissions
+  $form['pages'] = array(
+    '#type' => 'variable_fieldset',
+    '#title' => t('Enable for specific pages'),
+    '#variable_list' => array('i18n_select_page_mode', 'i18n_select_page_list', 'i18n_select_page_block'),
   );
-
-  $form['selection']['types'] = array(
-    '#type' => 'markup',
-    '#markup' => '<strong>' . t('Content to filter by language') . '</strong>',
-  );
-  $form['selection']['i18n_select_nodes'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Nodes'),
-    '#default_value' => variable_get('i18n_select_nodes', TRUE),
-  );
-  $form['selection']['i18n_select_blocks'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Blocks (not implemented)'),
-    '#default_value' => variable_get('i18n_select_blocks', TRUE),
-  );
-  $form['selection']['i18n_select_taxonomy'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Taxonomy'),
-    '#default_value' => variable_get('i18n_select_taxonomy', TRUE),
-  );
-
   return system_settings_form($form);
 }
 

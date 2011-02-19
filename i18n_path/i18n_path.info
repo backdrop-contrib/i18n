@@ -1,6 +1,8 @@
 ; $Id$
 name = Path translation
 description = Define translations for generic paths
-dependencies[] = i18n
+dependencies[] = i18n_translation
 package = Multilanguage
 core = 7.x
+
+files[] = i18n_path.inc

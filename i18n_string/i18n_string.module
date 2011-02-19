@@ -278,44 +278,6 @@ function i18n_string_translate_langcode($langcode, $reset = FALSE) {
 }
 
 /**
- * Translate object properties.
- * 
- * @param $options
- *   An associative array of additional options
- */
-function i18n_string_translate_object($context, &$object, $properties = array(), $options = array()) {
-  global $language;
-
-  $langcode = $langcode ? $langcode : $language->language;
-  // If language is default, just return.
-  if (i18n_string_translate_langcode($langcode)) {
-    $context = i18n_string_context($context);
-    // @ TODO Object prefetch
-    foreach ($properties as $property) {
-      $context->property = $property;
-      $context->location = i18n_string_location($context);
-      if (!empty($object->$property)) {
-        $object->$property = i18n_string_translate_string($context, $object->$property, $langcode);
-      }
-    }
-  }
-}
-
-/**
- * Update / create object properties.
- */
-function i18n_string_update_object($context, $object, $properties = array()) {
-  $context = i18n_string_context($context);
-  foreach ($properties as $property) {
-    $context->property = $property;
-    $context->location = i18n_string_location($context);
-    if (!empty($object->$property)) {
-      i18n_string_update_string($context, $object->$property);
-    }
-  }
-}
-
-/**
  * Update / create translation source for user defined strings.
  *
  * @param $name
@@ -339,6 +301,21 @@ function i18n_string_update($name, $string, $options = array()) {
 }
 
 /**
+ * Update context for strings.
+ *
+ * As some string locations depend on configurable values, the field needs sometimes to be updated
+ * without losing existing translations. I.e:
+ * - profile fields indexed by field name.
+ * - content types indexted by low level content type name.
+ *
+ * Example:
+ *  'profile:field:oldfield:*' -> 'profile:field:newfield:*'
+ */
+function i18n_string_update_context($oldname, $newname) {
+  return i18n_string_default::update_context($oldname, $newname);
+}
+
+/**
  * Convert string name into textgroup and string context
  * 
  * @param $name
@@ -346,6 +323,10 @@ function i18n_string_update($name, $string, $options = array()) {
  * @param $replace
  *   Parameter to replace the placeholder ('*') if we are dealing with multiple strings
  *   Or parameter to append to context if there's no placeholder
+ * 
+ * @return array
+ *   The first element will be the text group name
+ *   The second one will be an array with string name elements, without textgroup
  */
 function i18n_string_context($name, $replace = NULL) {
   $parts = is_array($name) ? $name : explode(':', $name);
@@ -501,13 +482,14 @@ function i18n_string_format($i18nstring, $options = array()) {
   if (!isset($debug)) {
     $debug = variable_get('i18n_string_debug', FALSE);
   }
+  $options += array('sanitize' => TRUE, 'cache' => FALSE);
   if (is_string($i18nstring)) {
     $string = $i18nstring;
   }
   elseif (!empty($i18nstring->translation)) {
     $string = $i18nstring->translation;
     if (!empty($i18nstring->format)) {
-      $string = check_markup($string, $i18nstring->format, $options['langcode'], FALSE);
+      $options += array('format' => $i18nstring->format);
     }
     if (isset($options['filter'])) {
       $string = call_user_func($options['filter'], $string);
@@ -516,9 +498,14 @@ function i18n_string_format($i18nstring, $options = array()) {
   else {
     $string = isset($i18nstring->source) ? $i18nstring->source : '';
   }
-  // Apply callback to any of the strings
-  if ($string && isset($options['callback'])) {
-    $string = call_user_func($options['callback'], $string);
+  // Apply filter and callback to any of the strings
+  if ($string) {
+    if (!empty($options['format']) && !empty($options['sanitize'])) {
+      $string = check_markup($string, $options['format'], $options['langcode'], $options['cache']);
+    }
+    if (isset($options['callback'])) {
+      $string = call_user_func($options['callback'], $string);
+    }
   }
   // Add debug information if enabled
   if ($debug && is_object($i18nstring)) {
@@ -544,7 +531,7 @@ function i18n_string_format($i18nstring, $options = array()) {
  *   Array with additional options.
  */
 function i18n_string_text($name, $default, $options = array()) {
-  $options += array('format' => filter_fallback_format());
+  $options += array('format' => filter_fallback_format(), 'sanitize' => TRUE);
   return i18n_string_translate($name, $default, $options);
 }
 
@@ -613,8 +600,6 @@ function i18n_string_remove($name, $string = NULL, $options = array()) {
   }
 }
 
-
-
 /**
  * @} End of "ingroup i18napi".
  */
@@ -645,5 +630,60 @@ function i18n_string_l10n_client_add($context, $options) {
         l10_client_add_string_to_page($string, $translation, $context->textgroup);
       }
     }
+  }
+}
+
+/**
+ * Translate object properties
+ * 
+ * We clone the object previously so we don't risk translated properties being saved
+ * 
+ * @param $type
+ *   Object type
+ * @param $object
+ *   Object or array
+ */
+function i18n_string_object_translate($type, $object, $options = array()) {
+  // If the object is marked as translation do nothing
+  if (is_object($object) && !empty($object->i18n_string) || is_array($object) && !empty($object['i18n_string'])) {
+    return $object;
+  }
+  $info = i18n_object_info($type);
+  if ($info && !empty($info['string translation'])) {
+    $translate = is_object($object) ? clone $object : (object)$object;
+    $translate->i18n_string = TRUE;
+    $result = i18n_string_textgroup($info['string translation']['textgroup'])->translate_object($type, $translate, $options);
+    return is_array($object) ? (array)$result : $result;
+  }
+  else {
+    return $object;
+  }
+}
+
+/**
+ * Remove object strings, because object is deleted
+ * 
+ * @param $type
+ *   Object type
+ * @param $object
+ *   Object or array
+ */
+function i18n_string_object_remove($type, $object, $options = array()) {
+  $info = i18n_object_info($type);
+  if ($info && !empty($info['string translation'])) {
+    $string_info = $info['string translation'];
+    $object = is_array($object) ? (object)$object : $object;
+    return i18n_string_remove(array($string_info['textgroup'], $string_info['type'], $object->{$info['key']}, '*'), array_keys($string_info['properties']), $options);
+  }  
+}
+
+/**
+ * Update object properties
+ */
+function i18n_string_object_update($type, $object) {
+  $info = i18n_object_info($type);
+  if ($info && !empty($info['string translation'])) {
+    $object = is_array($object) ? (object)$object : $object;
+    return i18n_string_textgroup($info['string translation']['textgroup'])->update_object($type, $object);
   }
 }

@@ -66,6 +66,20 @@ function i18n_node_add_page() {
 }
 
 /**
+ * Implements hook_field_extra_fields().
+ */
+function i18n_node_field_extra_fields() {
+  $return = array();
+  $info = entity_get_info('node');
+  foreach (array_keys($info['bundles']) as $bundle) {  
+    if (i18n_node_type_enabled($bundle)) {
+      $return['node'][$bundle] = i18n_language_field_extra();
+    }
+  }
+  return $return;
+}
+
+/**
  * Implements hook_menu().
  */
 function i18n_node_menu() {
@@ -73,9 +87,8 @@ function i18n_node_menu() {
     'title' => 'Node options',
     'description' => 'Configure extended options for multilingual content and translations.',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('i18n_node_admin_settings'),
+    'page arguments' => array('variable_module_form', 'i18n_node'),
     'access arguments' => array('administer site configuration'),
-    'file' => 'i18n_node.admin.inc',
     'type' => MENU_LOCAL_TASK,
     'weight' => 10,
   );
@@ -163,6 +176,27 @@ function i18n_node_i18n_string_list($group) {
 }
 
 /**
+ * Implements hook i18n_object_info()
+ */
+function i18n_node_i18n_object_info() {
+  $info['node_type'] = array(
+    'title' => t('Node type'),
+    'key' => 'type',
+    'string translation' => array(
+      'textgroup' => 'node',
+      'type' => 'type',
+      'properties' => array(
+        'name' => t('Name'),
+        'title_label' => t('Title label'), 
+        'description' => t('Description'),
+        'help' => t('Help text'),
+      ),
+    )
+  );
+  return $info;
+}
+
+/**
  * Implements hook_menu_alter().
  *
  * Take over the node translation page.
@@ -245,7 +279,7 @@ function i18n_node_language_mode($type) {
 function i18n_node_node_prepare($node) {
   global $language;
 
-  if (variable_get('language_content_type_' . $node->type, 0) && empty($node->nid) && (empty($node->language) OR $node->language == 'und') && variable_get('i18n_newnode_current_' . $node->type, 0)) {
+  if (i18n_node_type_enabled($node) && empty($node->nid) && (empty($node->language) OR $node->language == 'und') && variable_get('i18n_newnode_current_' . $node->type, 0)) {
     // Set current language for new nodes if option enabled
     $node->language = $language->language;
   }
@@ -308,6 +342,19 @@ function i18n_node_translation_link_alter(&$links, $path) {
 }
 
 /**
+ * Implements hook_node_view()
+ */
+function i18n_node_node_view($node) {
+  if (i18n_node_type_enabled($node)) {
+    $node->content['language'] = array(
+      '#type' => 'item',
+      '#title' => t('Language'),
+      '#markup' => i18n_language_name($node->language),
+    );
+  }
+}
+
+/**
  * Implements hook_node_view_alter().
  *
  * Handles links for extended languages. Sets current interface language.
@@ -352,14 +399,9 @@ function i18n_node_node_type_insert($info) {
 function i18n_node_node_type_update($info) {
   if (module_exists('i18n_string')) {
     if(!empty($info->old_type) && $info->old_type != $info->type) {
-      i18n_string_update_context("nodetype:type:$old_type:*", "nodetype:type:$type:*");
+      i18n_string_update_context("node:type:$info->old_type:*", "node:type:$info->type:*");
     }
-    i18n_string_update(array('node', 'type', $info->type), array(
-      'name' => $info->name,
-      'title_label' => $info->title_label, 
-      'description' => $info->description,
-      'help' => $info->help,
-    ));
+    i18n_string_object_update('node_type', $info);
   }
 }
 
@@ -367,10 +409,7 @@ function i18n_node_node_type_update($info) {
  * Implements hook_node_type_delete()
  */
 function i18n_node_node_type_delete($info) {
-  module_invoke('i18n_string', 'remove', 
-    array('node', 'type', $info->type), 
-    array('title', 'name', 'description', 'help')
-  );
+  i18n_string_object_remove('node_type', $info);
 }
 
 /**
@@ -452,7 +491,7 @@ function i18n_node_form_search_form_alter(&$form, &$form_state) {
  */
 function i18n_node_form_node_type_form_alter(&$form, &$form_state) {
   if (isset($form['type'])) {
-    $disabled = !variable_get('language_content_type_'. $form['#node_type']->type, 0);
+    $disabled = !i18n_node_type_enabled($form['#node_type']);
     $form['i18n'] = array(
       '#type' => 'fieldset',
       '#title' => t('Multilingual settings'),
@@ -530,7 +569,7 @@ function i18n_node_form_node_form_alter(&$form, $form_state) {
  */
 function _i18n_node_form_node_form_alter($form, $form_state) {
   $node = $form['#node'];
-  if (variable_get('language_content_type_'. $node->type, 0)) {
+  if (i18n_node_type_enabled($node)) {
     if (!empty($form['language']['#options'])) {
       $form['language']['#options'] = i18n_node_language_list($node, TRUE);
     }
@@ -542,7 +581,7 @@ function _i18n_node_form_node_form_alter($form, $form_state) {
   // Translate field names for title and body for the node edit form.
   $type = $form['#node']->type;
   if (!empty($form['title']['#title'])) {
-    $form['title']['#title'] = i18n_node_translate_type($type, 'title', $form['title']['#title']);
+    $form['title']['#title'] = i18n_node_translate_type($type, 'title_label', $form['title']['#title']);
   }
   if (!empty($form['body_field']['body']['#title'])) {
     $form['body_field']['body']['#title'] = i18n_node_translate_type($type, 'body', $form['body_field']['body']['#title']);
@@ -580,7 +619,7 @@ function _i18n_node_language_options() {
  * @param $type
  *   Node type name or full object
  */
-function i18n_node_translate_type($type, $property, $source = NULL, $options = array()) {
+function i18n_node_translate_type($type, $property = 'name', $source = NULL, $options = array()) {
   if (is_object($type)) {
     $source = $type->$property;
     $type = $type->type;
@@ -591,4 +630,16 @@ function i18n_node_translate_type($type, $property, $source = NULL, $options = a
   else {
     return $source;
   }
+}
+
+
+/**
+ * Check whether this is a language enabled node type
+ * 
+ * @param $type
+ *   Node, node type object, or node type name
+ */
+function i18n_node_type_enabled($type) {
+  $type = is_object($type) ? $type->type : $type;
+  return (bool)variable_get('language_content_type_'. $type, FALSE);
 }
