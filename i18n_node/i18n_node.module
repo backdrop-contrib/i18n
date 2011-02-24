@@ -197,6 +197,18 @@ function i18n_node_i18n_object_info() {
 }
 
 /**
+ * Implements hook_i18n_translate_path()
+ */
+function i18n_node_i18n_translate_path($path, $language) {
+  if (preg_match("!^node/(\d+)(/.+|)!", $path, $matches) && ($node = node_load((int) $matches[1])) && i18n_object_langcode($node) && !empty($node->tnid)) {
+    $translations = translation_node_get_translations($node->tnid);
+    if (!empty($translations[$language->language])) {
+      return 'node/' . $translations[$language->language]->nid . $matches[2];
+    }
+  } 
+}
+
+/**
  * Implements hook_menu_alter().
  *
  * Take over the node translation page.
@@ -211,12 +223,14 @@ function i18n_node_menu_alter(&$items) {
   if (module_exists('i18n_string')) {
     $items['node/add']['page callback'] =  'i18n_node_add_page';
     // @TODO avoid iterating over every router path.
-    foreach ($items as $path => $item) {
-      if (!empty($item['page callback']) && $item['page callback'] == 'node_add') {
-        $items[$path]['page callback'] = 'i18n_node_add';
-        $arg = arg(NULL, $path);
-        $items[$path]['title callback'] = 'i18n_node_translate_type';
-        $items[$path]['title arguments'] = array($arg[2], 'name', $item['title']);
+    foreach (node_type_get_types() as $type) {
+      $path = 'node/add/' . str_replace('_', '-', $type->type);
+      if (isset($items[$path])) {
+        if (!empty($items[$path]['page callback']) && $items[$path]['page callback'] == 'node_add') {
+          $items[$path]['page callback'] = 'i18n_node_add';
+        }
+        $items[$path]['title callback'] = 'i18n_node_type_name';
+        $items[$path]['title arguments'] = array($type->type, $type->name);
       }
     }
   }  
@@ -258,7 +272,7 @@ function i18n_node_language_list($node, $translate = FALSE) {
     }
     // Check language required for this type (no language neutral)
     elseif (!variable_get('i18n_required_node_' . $node->type, 0)) {
-      $languages = array('' => t('Language neutral')) + $languages;
+      $languages = array(LANGUAGE_NONE => t('Language neutral')) + $languages;
     }
   }
 
@@ -366,16 +380,19 @@ function i18n_node_node_view_alter(&$build) {
   $language_support = i18n_node_language_mode($node);
   
   // Hide node translation links.
-  if (variable_get('i18n_hide_translation_links', 0) == 1) {
-    unset($build['links']['translation']);
+  if (variable_get('i18n_hide_translation_links', 0)) {
+    if (isset($build['links']['translation'])) {
+      unset($build['links']['translation']);
+    }
   }
-  //dpm($build);
-  if (!empty($node->tnid)) {
+  elseif (!empty($node->tnid) && !empty($build['links']['translation'])) {
+    // Set the right languages depending on language mode (extended)
     $links = $build['links']['translation']['#links'];
     foreach (i18n_node_language_list($node) as $langcode => $langname) {
       $index = 'translation_'. $langcode;
-      if (!empty($links[$index])) {
+      if ($langcode != $node->language && !empty($links[$index])) {
         if (!($language_support & I18N_LANGUAGE_EXTENDED) && $links[$index]['language']->enabled == 0) {
+          // Remove disabled language if not language extended
           unset($build['links']['translation']['#links'][$index]);
         }
         else {
@@ -574,10 +591,7 @@ function _i18n_node_form_node_form_alter($form, $form_state) {
       $form['language']['#options'] = i18n_node_language_list($node, TRUE);
     }
   }
-  elseif (!isset($node->nid)) {
-    // Set language to empty for not multilingual nodes when creating
-    $form['language'] = array('#type' => 'value', '#value' => '');
-  }
+
   // Translate field names for title and body for the node edit form.
   $type = $form['#node']->type;
   if (!empty($form['title']['#title'])) {
@@ -632,6 +646,17 @@ function i18n_node_translate_type($type, $property = 'name', $source = NULL, $op
   }
 }
 
+/**
+ * Translate node type name (filtered)
+ */
+function i18n_node_type_name($type, $name) {
+  if (function_exists('i18n_string_translate')) {
+    return check_plain(i18n_string_translate(array('node', 'type', $type, 'name'), $name));
+  } 
+  else {
+    return check_plain($name);
+  } 
+}
 
 /**
  * Check whether this is a language enabled node type

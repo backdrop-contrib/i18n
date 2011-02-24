@@ -350,6 +350,15 @@ function i18n_taxonomy_i18n_string_info() {
 }
 
 /**
+ * Implements hook_i18n_translate_path()
+ */
+function i18n_taxonomy_i18n_translate_path($path, $language) {
+  if ($translations = i18n_taxonomy_translate_path($path, array($language->language))) {
+    return reset($translations);
+  }
+}
+
+/**
  * Refresh strings.
  */
 function i18n_taxonomy_i18n_string_refresh($group) {
@@ -374,13 +383,35 @@ function i18n_taxonomy_i18n_string_refresh($group) {
  * Replaces links with pointers to translated versions of the content.
  */
 function i18n_taxonomy_language_switch_links_alter(array &$links, $type, $path) {
-  if (preg_match("/^(taxonomy\/term\/)([^\/]*)(.*)$/", $path, $matches)) { //or at a taxonomy-listing?
-    foreach ($links as $langcode => $link) {
-      if ($str_tids = i18n_taxonomy_translation_tids($matches[2], $langcode)) {
-        $links[$langcode]['href'] = "taxonomy/term/$str_tids". $matches[3];
-      }
+  if ($translations = i18n_taxonomy_translate_path($path, array_keys($links))) { //or at a taxonomy-listing?
+    foreach ($translations as $langcode => $translated_path) {
+        $links[$langcode]['href'] = $translated_path;
     }
   }  
+}
+
+/**
+ * Translate path to languages
+ * 
+ * @param $path
+ *   Path to translate
+ * @param $languages
+ *   Language codes
+ */
+function i18n_taxonomy_translate_path($path, $languages) {
+  $cache = &drupal_static(__FUNCTION__);
+  if (preg_match("/^(taxonomy\/term\/)([^\/]*)(.*)$/", $path, $matches)) { //or at a taxonomy-listing?
+    $translations = array();
+    foreach ($languages as $langcode) {
+      if (isset($cache[$path][$langcode])) {
+        $translations[$langcode] = $cache[$path][$langcode];
+      }
+      elseif ($str_tids = i18n_taxonomy_translation_tids($matches[2], $langcode)) {
+        $translations[$langcode] = $cache[$path][$langcode] = "taxonomy/term/$str_tids". $matches[3];
+      }
+    }
+    return $translations;
+  }    
 }
 
 /**
@@ -559,13 +590,9 @@ function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state)
     '#description' => t('For localizable vocabularies, to have all terms available for translation visit the <a href="@locale-refresh">translation refresh</a> page.', array('@locale-refresh' => url('admin/build/translate/refresh'))),
   );
   $form['i18n']['language'] = array(
-    '#type' => 'select',
-    '#title' => t('Language'),
-    '#default_value' => !empty($vocabulary->language) ? $vocabulary->language : LANGUAGE_NONE,
-    '#options' => array(LANGUAGE_NONE => '') + i18n_language_list(),
     '#description' => t('Language for this vocabulary. If set, it will apply to all terms in this vocabulary.'),
     '#disabled' => $vocabulary && !i18n_taxonomy_vocabulary_mode($vocabulary, I18N_MODE_LANGUAGE),
-  );
+  ) + i18n_element_language_select($vocabulary);
   $form['#validate'][] = 'i18n_taxonomy_form_vocabulary_validate';
 }
 
@@ -586,12 +613,8 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
   switch (i18n_taxonomy_vocabulary_mode($vocabulary->vid)) {
     case I18N_MODE_TRANSLATE:
       $form['language'] = array(
-        '#type' => 'select',
-        '#title' => t('Language'),
-        '#default_value' => isset($term) && !empty($term->language) ? $term->language : '',
-        '#options' => array('' => '') + i18n_language_list(),
         '#description' => t('This term belongs to a multilingual vocabulary. You can set a language for it.'),
-      );
+      ) + i18n_element_language_select($term);
       break;
 
     case I18N_MODE_LANGUAGE:
@@ -734,30 +757,6 @@ function i18n_taxonomy_term_get_translations($params, $getall = TRUE) {
 }
 
 /**
- * Implements hook_node_view().
- * 
- * Localize breadcrumb for forum nodes.
- */
-function i18n_taxonomy_node_view($node, $view_mode, $langcode) {
-  if (_forum_node_check_node_type($node)) {
-    if ($view_mode == 'full' && node_is_page($node)) {
-      $vid = variable_get('forum_nav_vocabulary', 0);
-      $vocabulary = taxonomy_vocabulary_load($vid);
-      // Breadcrumb navigation
-      $breadcrumb[] = l(t('Home'), NULL);
-      $breadcrumb[] = l(i18n_taxonomy_vocabulary_name($vocabulary), 'forum');
-      if ($parents = taxonomy_get_parents_all($node->forum_tid)) {
-        $parents = array_reverse($parents);
-        foreach ($parents as $parent) {
-          $breadcrumb[] = l(i18n_taxonomy_term_name($parent), 'forum/' . $parent->tid);
-        }
-      }
-      drupal_set_breadcrumb($breadcrumb);
-    }
-  }
-}
-
-/**
  * Implements hook_node_prepare().
  */
 function i18n_taxonomy_node_prepare($node) {
@@ -883,7 +882,7 @@ function i18n_taxonomy_localize_terms($terms, $fields = array('name')) {
 function i18n_taxonomy_vocabulary_mode($vid, $mode = NULL) {
   $modes = &drupal_static(__FUNCTION__);
   if (is_object($vid)) {
-    $vid_mode = isset($vid->i18n_mode) ? $vid->i18n_mode : I18N_MODE_NONE;
+    $vid_mode = i18n_object_field($vid, 'i18n_mode', I18N_MODE_NONE);
     return isset($mode) ? $mode & $vid_mode : $vid_mode;
   }
   else {
@@ -1033,46 +1032,6 @@ function i18n_taxonomy_get_tree($vid, $langcode, $parent = 0, $max_depth = NULL,
 }
 
 /**
- * Translate forums list.
- */
-function i18n_taxonomy_preprocess_forum_list(&$variables) {
-  $vid = variable_get('forum_nav_vocabulary', '');
-  if (i18n_taxonomy_vocabulary_mode($vid)) {
-    foreach ($variables['forums'] as $id => $forum) {
-      $variables['forums'][$id]->description = i18n_string('taxonomy:term:'. $forum->tid .':description', $forum->description);
-      $variables['forums'][$id]->name = i18n_string('taxonomy:term:'. $forum->tid .':name', $forum->name);
-    }
-  }
-}
-
-/**
- * Translate forum page.
- */
-function i18n_taxonomy_preprocess_forums(&$variables) {
-  $vid = variable_get('forum_nav_vocabulary', '');
-  if (i18n_taxonomy_vocabulary_mode($vid)) {
-    if (isset($variables['links']['forum'])) {
-      $variables['links']['forum']['title'] = i18n_string('nodetype:type:forum:post_button', 'Post new Forum topic');
-    }
-    // This one is from advanced forum, http://drupal.org/project/advanced_forum
-    if ($variables['forum_description']) {
-      $variables['forum_description'] = i18n_string('taxonomy:term:'. $variables['tid'] .':description', $variables['forum_description']);
-    }
-
-    $vocabulary = taxonomy_vocabulary_load($vid);
-    // Translate the page title.
-    $title = !empty($vocabulary->name) ? i18n_taxonomy_vocabulary_name($vocabulary) : '';
-    drupal_set_title($title);
-
-    // Translate the breadcrumb.
-    $breadcrumb = array();
-    $breadcrumb[] = l(t('Home'), NULL);
-    $breadcrumb[] = l($title, 'forum');
-    drupal_set_breadcrumb($breadcrumb);
-  }
-}
-
-/**
  * Recursive array filtering, convert all terms to 'tid'.
  */
 function _i18n_taxonomy_filter_tids($tid) {
@@ -1108,6 +1067,7 @@ function i18n_taxonomy_i18n_object_info() {
       'class' => 'i18n_taxonomy_translation_set',
       'table' => 'taxonomy_term_data',
       'field' => 'i18n_tsid',
+      'parent' => 'taxonomy_vocabulary',
     ),
     'string translation' => array(
       'textgroup' => 'taxonomy',
