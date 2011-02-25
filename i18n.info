@@ -1,4 +1,3 @@
-; $Id$
 name = Internationalization
 description = Extends Drupal support for multilingual features.
 dependencies[] = locale

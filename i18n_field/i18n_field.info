@@ -1,4 +1,3 @@
-; $Id$
 name = Field translation
 description = Translate field properties
 dependencies[] = field

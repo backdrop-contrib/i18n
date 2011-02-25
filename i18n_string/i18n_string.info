@@ -1,4 +1,3 @@
-; $Id$
 name = String translation
 description = Provides support for translation of user defined strings.
 dependencies[] = locale

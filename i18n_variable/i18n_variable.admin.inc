@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Administration pages for multilingual variables. Internationalization (i18n) package.

@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 // Load locale library
 include_once './includes/locale.inc';

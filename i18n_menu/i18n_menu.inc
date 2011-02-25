@@ -1,5 +1,4 @@
 <?php
-// $Id$
 /**
  * @file
  * Internationalization (i18n) module - Translation set

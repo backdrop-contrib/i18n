@@ -1,5 +1,4 @@
 <?php
-// $Id$
 // Core: Id: drupal_web_test_case.php,v 1.96 2009/04/22 09:57:10 dries Exp
 /**
  * @file

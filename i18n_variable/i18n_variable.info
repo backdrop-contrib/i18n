@@ -1,4 +1,3 @@
-; $Id$
 name = Multilingual variables
 description = Multilingual variables that switch language depending on page language.
 dependencies[] = i18n

@@ -1,4 +1,3 @@
-; $Id$
 name = Translation redirect
 description = Redirect to translated page when available. SEO optimization for multilingual sites
 dependencies[] = i18n

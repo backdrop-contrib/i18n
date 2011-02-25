@@ -1,5 +1,4 @@
 <?php
-// $Id$
 
 function i18n_select_admin_settings() {
   $form['types'] = array(
