@@ -90,7 +90,7 @@ function i18n_string_help($path, $arg) {
       $output .= '<p>' . t('Read more on the <em>Internationalization handbook</em>: <a href="http://drupal.org/node/313293">Translating user defined strings</a>.') . '</p>';
       return $output;
 
-    case 'admin/build/translate/refresh':
+    case 'admin/config/regional/translate/i18n_string':
       $output = '<p>' . t('On this page you can refresh and update values for user defined strings.') . '</p>';
       $output .= '<ul>';
       $output .= '<li>' . t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.') . '</li>';
@@ -100,7 +100,7 @@ function i18n_string_help($path, $arg) {
       $output .= '<p>' . t('<strong>Important:</strong> To configure which text formats are safe for translation, visit the <a href="@configure-strings">configure strings</a> page before refreshing your strings.', array('@configure-strings' => url('admin/config/regional/i18n/strings'))) . '</p>';
       return $output;
 
-    case 'admin/config/language':
+    case 'admin/config/regional/language':
       $output = '<p>' . t('<strong>Warning</strong>: Changing the default language may have unwanted effects on string translations. Read more about <a href="@i18n_string-help">String translation</a>', array('@i18n_string-help' => url('admin/help/i18n_string'))) . '</p>';
       return $output;
     case 'admin/config/regional/i18n/strings':

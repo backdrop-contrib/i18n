@@ -64,7 +64,7 @@ function i18n_block_help($path, $arg) {
       $output .= '<li>' . t('Blocks with a language will be displayed only in pages with that language.') . '</li>';
       $output .= '<li>' . t('Translatable blocks can be translated using the localization interface.') . '</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) . '</p>';
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
       return $output;
   }
 }

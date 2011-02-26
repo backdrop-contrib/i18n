@@ -27,21 +27,21 @@ function i18n_taxonomy_help($path, $arg) {
       $output .= '<li>'. t('Different terms for each language with translation relationships.') .'</li>';
       $output .= '<li>'. t('Terms can be common to all languages, but may be localized.') .'</li>';
       $output .= '</ul>';
-      $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/build/translate'))) .'</p>';
+      $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) .'</p>';
       $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) .'</p>';
       return $output;
 
-    case 'admin/settings/language/i18n':
+    case 'admin/config/regional/i18n':
       $output = '<ul>';
-      $output .= '<li>'. t('To set up multilingual options for vocabularies go to <a href="@configure_taxonomy">Taxonomy configuration page</a>.', array('@configure_taxonomy' => url('admin/content/taxonomy'))) .'</li>';
+      $output .= '<li>'. t('To set up multilingual options for vocabularies go to <a href="@configure_taxonomy">Taxonomy configuration page</a>.', array('@configure_taxonomy' => url('admin/structure/taxonomy'))) .'</li>';
       $output .= '</ul>';
       return $output;
 
-    case 'admin/content/taxonomy/%':
-      $vocabulary = taxonomy_vocabulary_load($arg[3]);
-      switch (i18n_taxonomy_vocabulary_mode($vocabulary->vid)) {
+    case 'admin/structure/taxonomy/%':
+      $vocabulary = taxonomy_vocabulary_machine_name_load($arg[3]);
+      switch (i18n_taxonomy_vocabulary_mode($vocabulary)) {
         case I18N_MODE_LOCALIZE:
-          return '<p>'. t('%capital_name is a localizable vocabulary. You will be able to translate term names and descriptions using the <a href="@translate-interface">translate interface</a> pages.', array('%capital_name' => drupal_ucfirst($vocabulary->name), '%name' => $vocabulary->name, '@translate-interface' => url('admin/build/translate'))) .'</p>';
+          return '<p>'. t('%capital_name is a localizable vocabulary. You will be able to translate term names and descriptions using the <a href="@translate-interface">translate interface</a> pages.', array('%capital_name' => drupal_ucfirst($vocabulary->name), '%name' => $vocabulary->name, '@translate-interface' => url('admin/config/regional/translate'))) .'</p>';
 
         case I18N_MODE_LANGUAGE:
           return '<p>'. t('%capital_name is a vocabulary with a fixed language. All the terms in this vocabulary will have %language language.', array('%capital_name' => drupal_ucfirst($vocabulary->name), '%name' => $vocabulary->name, '%language' => i18n_language_property($vocabulary->language, 'name'))) .'</p>';
@@ -49,6 +49,7 @@ function i18n_taxonomy_help($path, $arg) {
         case I18N_MODE_TRANSLATE:
           return '<p>'. t('%capital_name is a full multilingual vocabulary. You will be able to set a language for each term and create translation relationships.', array('%capital_name' => drupal_ucfirst($vocabulary->name))) .'</p>';
       }
+      break;
 
   }
 }
