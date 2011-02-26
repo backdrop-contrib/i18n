@@ -4,6 +4,7 @@ dependencies[] = i18n
 dependencies[] = menu
 dependencies[] = i18n_block
 dependencies[] = i18n_string
+dependencies[] = i18n_translation
 package = Multilingual
 core = 7.x
 
