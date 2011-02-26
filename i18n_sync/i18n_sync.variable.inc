@@ -11,7 +11,7 @@ function i18n_sync_variable_info($options = array()) {
   $variables['i18n_sync_node_type_[node_type]'] = array(
     'title' => t('Synchronize fields for node type.', array(), $options),
     'type' => 'multiple',
-    'multiple values' => array(
+    'repeat' => array(
       'type' => 'array',
     ),
     'group' => 'i18n',
