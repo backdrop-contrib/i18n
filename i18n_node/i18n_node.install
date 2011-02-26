@@ -33,4 +33,7 @@ function i18n_node_uninstall() {
  */
 function i18n_node_update_7000() {
   // @todo Update from D6 i18n
+  // Variables:
+  // i18n_newnode_current, i18n_required_node, i18n_lock_node => i18n_node_options_[node_type]
+  // i18n_node => 'i18n_node_extended_[node_type]' 
 }

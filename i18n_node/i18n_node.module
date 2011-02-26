@@ -283,18 +283,17 @@ function i18n_node_language_list($node, $translate = FALSE) {
  */
 function i18n_node_language_mode($type) {
   $type = is_object($type) ? $type->type : $type;
-  return variable_get('i18n_node_'. $type, I18N_LANGUAGE_ENABLED);
+  return variable_get('i18n_node_extended_'. $type, I18N_LANGUAGE_ENABLED);
 }
 
 /**
  * Implements hook_node_prepare().
  */
 function i18n_node_node_prepare($node) {
-  global $language;
-
-  if (i18n_node_type_enabled($node) && empty($node->nid) && (empty($node->language) OR $node->language == 'und') && variable_get('i18n_newnode_current_' . $node->type, 0)) {
+  $options = variable_get('i18n_node_options_' . $node->type, array());
+  if (i18n_node_type_enabled($node) && empty($node->nid) && !i18n_object_langcode($node) && in_array('current', $options)) {
     // Set current language for new nodes if option enabled
-    $node->language = $language->language;
+    $node->language = i18n_langcode();
   }
 }
 
@@ -520,43 +519,17 @@ function i18n_node_form_node_type_form_alter(&$form, &$form_state) {
       '#description' => t('Extended multilingual options provided by Internationalization module.'),
       '#disabled' => $disabled,
     );
+
+    // Some settings about node languages. Add variables for node type from variable definition
+    variable_type_include('node_type');
+    $form['i18n'] += node_variable_type_subform($form['#node_type']->type, array('i18n_node_options', 'i18n_node_extended'));
     // Add disabled message
     if ($disabled) {
       $form['i18n']['#description'] .= ' <em>' . t('These will be available only when you enable Multilingual support in Workflow settings above.') . '</em>';
+      foreach (element_children($form['i18n']) as $key) {
+        $form['i18n'][$key]['#disabled'] = TRUE;
+      }
     }
-    // Some settings about node languages
-    $form['i18n']['options'] = array(
-      '#title' => t('Options for node language'),
-      '#type' => 'fieldset',
-      '#disabled' => $disabled,
-    );
-    $form['i18n']['options']['i18n_newnode_current'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Set current language as default for new content.'),
-      '#default_value' => variable_get('i18n_newnode_current_' . $form['#node_type']->type, 0),
-      '#disabled' => $disabled,
-    );
-    $form['i18n']['options']['i18n_required_node'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Require language (Do not allow Language Neutral).'),
-      '#default_value' => variable_get('i18n_required_node_' . $form['#node_type']->type, 0),
-      '#disabled' => $disabled,
-    );
-    $form['i18n']['options']['i18n_lock_node'] = array(
-      '#type' => 'checkbox',
-      '#title' => t('Lock language (Cannot be changed).'),
-      '#default_value' => variable_get('i18n_lock_node_' . $form['#node_type']->type, 0),
-      '#disabled' => $disabled,
-    );
-    // Add extended language support option to content type form.
-    $form['i18n']['i18n_node'] = array(
-      '#type' => 'radios',
-      '#title' => t('Extended language support'),
-      '#default_value' => i18n_node_language_mode($form['#node_type']->type),
-      '#options' => _i18n_node_language_options(),
-      '#description' => t('If enabled, all defined languages will be allowed for this content type in addition to only enabled ones. This is useful to have more languages for content than for the interface.'),
-      '#disabled' => $disabled,
-    );
   }
 }
 
@@ -612,17 +585,6 @@ function i18n_node_theme() {
       'arguments' => array('element' => NULL),
       'file' => 'i18n_node.pages.inc',
     ),
-  );
-}
-
-/**
- * List of language support modes for content.
- */
-function _i18n_node_language_options() {
-  return array(
-    I18N_LANGUAGE_ENABLED => t('Normal - All enabled languages will be allowed.'),
-    I18N_LANGUAGE_EXTENDED => t('Extended - All defined languages will be allowed.'),
-    I18N_LANGUAGE_EXTENDED | I18N_LANGUAGE_HIDDEN => t('Extended, but not displayed - All defined languages will be allowed for input, but not displayed in links.'),
   );
 }
 
