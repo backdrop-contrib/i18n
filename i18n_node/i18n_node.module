@@ -101,7 +101,7 @@ function i18n_node_menu() {
  */
 function i18n_node_block_view_system_help_alter(&$block) {
   $arg = drupal_help_arg(arg(NULL));
-  if (module_exists('i18n_string') && $arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {
+  if ($arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {
     if (($type = node_type_get_type(str_replace('-', '_', $arg[2]))) && !empty($type->help)) {
       $help = i18n_node_translate_type($type, 'help');
       if ($help !== $type->help) {
@@ -219,20 +219,18 @@ function i18n_node_menu_alter(&$items) {
     $items['node/%node/translate']['module'] = 'i18n_node';
   }
   // Take over node/add pages for string translation
-  if (module_exists('i18n_string')) {
-    $items['node/add']['page callback'] =  'i18n_node_add_page';
-    // @TODO avoid iterating over every router path.
-    foreach (node_type_get_types() as $type) {
-      $path = 'node/add/' . str_replace('_', '-', $type->type);
-      if (isset($items[$path])) {
-        if (!empty($items[$path]['page callback']) && $items[$path]['page callback'] == 'node_add') {
-          $items[$path]['page callback'] = 'i18n_node_add';
-        }
-        $items[$path]['title callback'] = 'i18n_node_type_name';
-        $items[$path]['title arguments'] = array($type->type, $type->name);
+  $items['node/add']['page callback'] =  'i18n_node_add_page';
+  // @TODO avoid iterating over every router path.
+  foreach (node_type_get_types() as $type) {
+    $path = 'node/add/' . str_replace('_', '-', $type->type);
+    if (isset($items[$path])) {
+      if (!empty($items[$path]['page callback']) && $items[$path]['page callback'] == 'node_add') {
+        $items[$path]['page callback'] = 'i18n_node_add';
       }
+      $items[$path]['title callback'] = 'i18n_node_type_name';
+      $items[$path]['title arguments'] = array($type->type, $type->name);
     }
-  }  
+  }
 }
 
 /**
@@ -412,12 +410,10 @@ function i18n_node_node_type_insert($info) {
  * Implements hook_node_type_update()
  */
 function i18n_node_node_type_update($info) {
-  if (module_exists('i18n_string')) {
-    if(!empty($info->old_type) && $info->old_type != $info->type) {
-      i18n_string_update_context("node:type:$info->old_type:*", "node:type:$info->type:*");
-    }
-    i18n_string_object_update('node_type', $info);
+  if(!empty($info->old_type) && $info->old_type != $info->type) {
+    i18n_string_update_context("node:type:$info->old_type:*", "node:type:$info->type:*");
   }
+  i18n_string_object_update('node_type', $info);
 }
 
 /**
@@ -599,24 +595,14 @@ function i18n_node_translate_type($type, $property = 'name', $source = NULL, $op
     $source = $type->$property;
     $type = $type->type;
   }
-  if (function_exists('i18n_string_translate')) {
-    return i18n_string_translate(array('node', 'type', $type, $property), $source, $options);
-  }
-  else {
-    return $source;
-  }
+  return i18n_string_translate(array('node', 'type', $type, $property), $source, $options);
 }
 
 /**
  * Translate node type name (filtered)
  */
 function i18n_node_type_name($type, $name) {
-  if (function_exists('i18n_string_translate')) {
-    return check_plain(i18n_string_translate(array('node', 'type', $type, 'name'), $name));
-  } 
-  else {
-    return check_plain($name);
-  } 
+  return check_plain(i18n_string_translate(array('node', 'type', $type, 'name'), $name)); 
 }
 
 /**

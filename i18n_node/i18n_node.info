@@ -2,6 +2,7 @@ name = Multilingual content
 description = Extended node options for multilingual content
 dependencies[] = translation
 dependencies[] = i18n
+dependencies[] = i18n_string
 package = Multilingual
 core = 7.x
 configure = admin/config/regional/i18n/node
