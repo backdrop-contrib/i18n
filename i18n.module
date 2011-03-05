@@ -331,3 +331,24 @@ function i18n_translation_link($path, $langcode, $link = array()) {
   }
   return $link;
 }
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function i18n_form_block_admin_display_form_alter(&$form, &$form_state) {
+  $form['#submit'][] = 'i18n_form_block_admin_display_form_submit';
+}
+
+/**
+ * Display a help message when enabling the language switcher block.
+ */
+function i18n_form_block_admin_display_form_submit($form, &$form_state) {
+  foreach ($form_state['values']['blocks'] as $key => $block) {
+    $previous = $form['blocks'][$key]['region']['#default_value'];
+    if (empty($previous) && $block['region'] != -1 && $block['module'] == 'locale') {
+      $message = t('The language switcher will appear only after configuring <a href="!url">language detection</a>. You need to enable at least one method that alters URLs like <em>URL</em> or <em>Session</em>.', array('!url' => url('admin/config/regional/language/configure')));
+      drupal_set_message($message, 'warning', FALSE);
+      break;
+    }
+  }
+}
