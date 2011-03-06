@@ -323,43 +323,6 @@ function i18n_node_permission() {
 }
 
 /**
- * Implements hook_alter_translation_link().
- *
- * Handles links for extended language. The links will have current language.
- * 
- * @todo Update D7
- */
-function i18n_node_translation_link_alter(&$links, $path) {
-  global $language;
-
-  // Check for a node related path, and for its translations.
-  if ((preg_match("!^node/([0-9]+)(/.+|)$!", $path, $matches)) && ($node = node_load((int)$matches[1])) && !empty($node->tnid)) {
-    // make sure language support is set to I18N_LANGUAGE_EXTENDED, so links
-    // dont get added for I18N_LANGUAGE_EXTENDED_NOT_DISPLAYED
-    if (!(i18n_node_languabe_mode($node->type) & I18N_LANGUAGE_HIDDEN)) {
-      $languages = language_list();
-      $extended = array();
-      foreach (translation_node_get_translations($node->tnid) as $langcode => $translation_node) {
-        if (!isset($links[$langcode]) && isset($languages[$langcode])) {
-          $extended[$langcode] = array(
-            'href' => 'node/'. $translation_node->nid . $matches[2],
-            'language' => $language,
-            'language_icon' => $languages[$langcode],
-            'title' => $languages[$langcode]->native,
-            'attributes' => array('class' => 'language-link'),
-          );
-        }
-      }
-      // This will run after languageicon module, so we add icon in case that one is enabled.
-      if ($extended && function_exists('languageicons_translation_link_alter')) {
-        languageicons_translation_link_alter($extended, $path);
-      }
-      $links = array_merge($links, $extended);
-    }
-  }
-}
-
-/**
  * Implements hook_node_view()
  */
 function i18n_node_node_view($node) {
@@ -378,30 +341,33 @@ function i18n_node_node_view($node) {
  * Handles links for extended languages. Sets current interface language.
  */
 function i18n_node_node_view_alter(&$build) {
-  global $language;
-  $node = $build['#node'];
-  
-  $language_support = i18n_node_language_mode($node);
-  
+  $node = $build['#node'];  
   // Hide node translation links.
   if (variable_get('i18n_hide_translation_links', 0)) {
     if (isset($build['links']['translation'])) {
       unset($build['links']['translation']);
     }
   }
-  elseif (!empty($node->tnid) && !empty($build['links']['translation'])) {
-    // Set the right languages depending on language mode (extended)
-    $links = $build['links']['translation']['#links'];
+  elseif (!empty($node->tnid) && !empty($build['links']['translation']) && i18n_node_language_mode($node) == I18N_LANGUAGE_EXTENDED) {
+    // We only get links for translations for enabled languages
+    // Set the right languages if language support is extended but not visible.
+    $links = &$build['links']['translation']['#links'];
+    $translations = translation_node_get_translations($node->tnid);
     foreach (i18n_node_language_list($node) as $langcode => $langname) {
       $index = 'translation_'. $langcode;
-      if ($langcode != $node->language && !empty($links[$index])) {
-        if (!($language_support & I18N_LANGUAGE_EXTENDED) && $links[$index]['language']->enabled == 0) {
-          // Remove disabled language if not language extended
-          unset($build['links']['translation']['#links'][$index]);
-        }
-        else {
-          $build['links']['translation']['#links'][$index]['language'] = $language;
-        }
+      if ($langcode != $node->language && isset($translations[$langcode]) && $translations[$langcode]->status && !isset($links[$index])) {
+        // This a published translation to a disabled language. As the node is language extended, display the linkso
+        // These links shouldn't switch the interface, though they have a language so the right language icon will be added
+        $language = i18n_language($langcode);
+        $links[$index] = array(
+      		'href' => 'node/' . $translations[$langcode]->nid,
+          'title' => $language->native,
+          'language' => $language,
+          'attributes' => array(
+        		'title' => $translations[$langcode]->title,
+        		'class' => array('translation-link'),               
+          ),
+        );
       }
     }
   }
