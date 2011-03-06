@@ -68,7 +68,7 @@ function i18n_language($language = NULL) {
  * Get language selector form element
  */
 function i18n_element_language_select($default = LANGUAGE_NONE) {
-  if (is_object($default)) {
+  if (is_object($default) || is_array($default)) {
     $default = i18n_object_langcode($default, LANGUAGE_NONE);
   }
   return array(

@@ -625,13 +625,16 @@ function i18n_menu_item_get_language($item) {
  */
 function i18n_menu_form_node_form_alter(&$form, &$form_state, $form_id) {
   $node = $form['#node'];
-
-  if (!empty($form['menu'])) {
-    // Set menu language to node language.
-    $form['menu']['language'] = array('#type' => 'value', '#value' => $node->language);
-    // Customized must be set to 1 to save language.
-    $form['menu']['customized'] = array('#type' => 'value', '#value' => 1);
+  $link = $form['#node']->menu;
+  if (!empty($link['mlid'])) {
+    $form['menu']['link']['language'] = array('#type' => 'value', '#value' => $link['language']);
   }
+  else {
+    // Set menu language to node language.
+    $form['menu']['link']['language'] = array('#type' => 'value', '#value' => $node->language);
+  }
+  // Customized must be set to 1 to save language.
+  $form['menu']['link']['customized'] = array('#type' => 'value', '#value' => 1);
 }
 
 /**
@@ -640,8 +643,8 @@ function i18n_menu_form_node_form_alter(&$form, &$form_state, $form_id) {
  * Set menu link language to node language
  */
 function i18n_menu_node_presave($node) {
-  if (!empty($node->menu) && isset($node->language)) {
-    $node->menu['language'] = $node->language && $node->language !== LANGUAGE_NONE ? $node->language : '';
+  if (!empty($node->menu) && isset($node->language) && !isset($node->menu['language'])) {
+    $node->menu['language'] = i18n_object_langcode($node);
   }
 }
 
