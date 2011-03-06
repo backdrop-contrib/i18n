@@ -517,11 +517,13 @@ function i18n_node_form_node_type_form_alter(&$form, &$form_state) {
     );
 
     // Some settings about node languages. Add variables for node type from variable definition
-    variable_type_include('node_type');
-    $form['i18n'] += node_variable_type_subform($form['#node_type']->type, array('i18n_node_options', 'i18n_node_extended'));
+    if ($form['#node_type']->type) {
+      variable_type_include('node_type');
+      $form['i18n'] += node_variable_type_subform($form['#node_type']->type, array('i18n_node_options', 'i18n_node_extended'));
+    }
     // Add disabled message
     if ($disabled) {
-      $form['i18n']['#description'] .= ' <em>' . t('These will be available only when you enable Multilingual support in Workflow settings above.') . '</em>';
+      $form['i18n']['#description'] .= ' <em>' . t('These will be available only when you enable Multilingual support in Publishing options above.') . '</em>';
       foreach (element_children($form['i18n']) as $key) {
         $form['i18n'][$key]['#disabled'] = TRUE;
       }
