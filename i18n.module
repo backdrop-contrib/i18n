@@ -133,7 +133,7 @@ function i18n_language_name($lang) {
 }
 
 /**
- * Get valid language code for current page
+ * Get valid language code for current page or check whether the code is a defined language
  */
 function i18n_langcode($langcode = NULL) {
   return $langcode && $langcode !== LANGUAGE_NONE ? $langcode : i18n_language()->language;  

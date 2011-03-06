@@ -551,14 +551,16 @@ function i18n_menu_form_menu_edit_menu_alter(&$form, &$form_state) {
 function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
   $item = &$form['original_item']['#value'];
   $item['language'] = i18n_menu_item_get_language($item);
-
-  if (i18n_menu_mode($item['menu_name'], I18N_MODE_TRANSLATE)) {
-    $form['language'] = array(
+  // Check whether this item belongs to a node object
+  $node_item = isset($item['router_path']) && $item['router_path'] == 'node/%';
+  if (!$node_item && i18n_menu_mode($item['menu_name'], I18N_MODE_TRANSLATE)) {
+    //$form['i18n'] = array('#type' => 'fieldset');
+    $form['i18n']['language'] = array(
       '#description' => t('This item belongs to a multilingual menu. You can set a language for it.'),
     ) + i18n_element_language_select($item);
-    $form['translations'] = i18n_translation_set_element('menu_link', $item);
+    $form['i18n']['translations'] = i18n_translation_set_element('menu_link', $item);
     if (!empty($item['mlid']) && i18n_object_langcode($item)) {
-      $form['translations']['add']['#markup'] = l(t('Add translations'), 'admin/structure/menu/item/' . $item['mlid'] . '/translate');
+      $form['i18n']['translations']['#suffix'] = l(t('Add translations'), 'admin/structure/menu/item/' . $item['mlid'] . '/translate');
     }
   }
   else {
@@ -567,9 +569,17 @@ function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
       '#value' => $item['language'],
     );
   }
-  if (i18n_menu_mode($item['menu_name'], I18N_MODE_LOCALIZE)) {
-      i18n_string_element_mark($form['link_title']);
-      i18n_string_element_mark($form['description']);
+  if ($node_item && i18n_langcode($item['language'])) {
+    $form['i18n']['message'] = array(
+      '#type' => 'item',
+      '#title' => t('Language'),
+      '#markup' => i18n_language_name($item['language']),
+      '#description' => t('This menu item belongs to a node, so it will have the same language as the node and cannot be localized.'),
+    );
+  }
+  elseif (i18n_menu_mode($item['menu_name'], I18N_MODE_LOCALIZE)) {
+    i18n_string_element_mark($form['link_title']);
+    i18n_string_element_mark($form['description']);
   }
   array_unshift($form['#validate'], 'i18n_menu_menu_item_prepare_normal_path');
 }
@@ -643,7 +653,7 @@ function i18n_menu_form_node_form_alter(&$form, &$form_state, $form_id) {
  * Set menu link language to node language
  */
 function i18n_menu_node_presave($node) {
-  if (!empty($node->menu) && isset($node->language) && !isset($node->menu['language'])) {
+  if (!empty($node->menu) && isset($node->language)) {
     $node->menu['language'] = i18n_object_langcode($node);
   }
 }
