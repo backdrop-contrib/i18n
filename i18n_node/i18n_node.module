@@ -264,16 +264,24 @@ function i18n_node_language_list($node, $translate = FALSE) {
       }
     }
     // Language may be locked for this node type, restrict options to current one
-    if (variable_get('i18n_lock_node_' . $node->type, 0) && !empty($node->language) && !empty($languages[$node->language])) {
+    if (i18n_node_language_options($node, 'lock') && !empty($node->language) && !empty($languages[$node->language])) {
       $languages = array($node->language => $languages[$node->language]);
     }
     // Check language required for this type (no language neutral)
-    elseif (!variable_get('i18n_required_node_' . $node->type, 0)) {
+    elseif (!i18n_node_language_options($node, 'required')) {
       $languages = array(LANGUAGE_NONE => t('Language neutral')) + $languages;
     }
   }
 
   return $languages;
+}
+
+/**
+ * Check options for node language
+ */
+function i18n_node_language_options($node, $option) {
+  $options = variable_get('i18n_node_options_' . $node->type, array());
+  return in_array($option, $options, TRUE);
 }
 
 /**

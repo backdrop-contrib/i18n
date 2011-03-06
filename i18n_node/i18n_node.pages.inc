@@ -27,10 +27,9 @@ function i18n_node_translation_overview($node) {
 
   $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
   $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
-
-  foreach (language_list() as $langcode => $language) {
+  // Modes have different allowed languages
+  foreach (i18n_node_language_list($node) as $langcode => $language_name) {
     $options = array();
-    $language_name = $language->name;
     if (isset($translations[$langcode])) {
       // Existing translation in the translation set: display status.
       // We load the full node to check whether the user can edit it.
