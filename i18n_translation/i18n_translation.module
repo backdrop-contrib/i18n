@@ -85,6 +85,39 @@ function i18n_translation_menu() {
 }
 
 /**
+ * Get form element for translation mode and language
+ * 
+ * @param $i18n_mode
+ *   Current or default translation mode
+ * @param $langcode
+ *   Current or default language code
+ * @param $options
+ *   Restricted list of translation modes if we don't want all of them
+ */
+function i18n_translation_mode_element($i18n_mode = I18N_MODE_NONE, $langcode = LANGUAGE_NONE, $options = NULL) {
+  $form['i18n_translation'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Multilingual options'),
+    '#collapsible' => TRUE,
+  );
+  $form['i18n_translation']['i18n_mode'] = array(
+    '#type' => 'radios',
+    '#title' => t('Translation mode'),
+    '#options' => i18n_translation_options($options),
+    '#default_value' => $i18n_mode,
+    '#description' => t('For localizable elements, to have all items available for translation visit the <a href="@locale-refresh">translation refresh</a> page.', array('@locale-refresh' => url('admin/build/translate/refresh'))),
+  );
+  $form['i18n_translation']['language'] = array(
+    '#default_value' => $langcode ? $langcode : LANGUAGE_NONE,
+    '#description' => t('Predefined language. If set, it will apply to all items.'),
+    '#states' => array(
+      'visible' => array('input[name="i18n_mode"]' => array('value' => (string)I18N_MODE_LANGUAGE)),
+    ),
+  ) + i18n_element_language_select();
+  return $form;
+}
+
+/**
  * Get list of translation modes
  * 
  * @param $options

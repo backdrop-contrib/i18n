@@ -214,6 +214,9 @@ function i18n_menu_menu_insert($menu) {
  * Implements hook_menu_update()
  */
 function i18n_menu_menu_update($menu) {
+  if (!($menu['i18n_mode'] & I18N_MODE_LANGUAGE)) {
+    $menu['language'] = LANGUAGE_NONE;
+  }
   db_update('menu_custom')
     ->fields(array('language' => $menu['language'], 'i18n_mode' => $menu['i18n_mode']))
     ->condition('menu_name', $menu['menu_name'])
@@ -522,24 +525,8 @@ function i18n_menu_get_router($path, $reset = FALSE) {
 function i18n_menu_form_menu_edit_menu_alter(&$form, &$form_state) {
   $menu = menu_load($form['old_name']['#value']);
   $i18n_mode = $menu && isset($menu['i18n_mode']) ? $menu['i18n_mode'] : I18N_MODE_NONE;
-  $form['i18n'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Multilingual options'),
-    '#collapsible' => TRUE,
-    '#weight' => 10,
-  );
-  $form['i18n']['i18n_mode'] = array(
-    '#type' => 'radios',
-    '#title' => t('Translation mode'),
-    '#options' => i18n_translation_options(array(I18N_MODE_NONE, I18N_MODE_MULTIPLE, I18N_MODE_LANGUAGE)),
-    '#default_value' => $i18n_mode,
-    '#description' => t('For localizable menus, to have all items available for translation visit the <a href="@locale-refresh">translation refresh</a> page.', array('@locale-refresh' => url('admin/build/translate/refresh'))),
-  );
-  $form['i18n']['language'] = array(
-    '#default_value' => $menu && isset($menu['language']) ? $menu['language'] : LANGUAGE_NONE,
-    '#description' => t('Language for this menu. If set, it will apply to all items in this menu.'),
-    '#disabled' => !($i18n_mode & I18N_MODE_LANGUAGE),
-  ) + i18n_element_language_select();  
+  $langcode = $menu && isset($menu['language']) ? $menu['language'] : LANGUAGE_NONE;
+  $form += i18n_translation_mode_element($i18n_mode, $langcode, array(I18N_MODE_NONE, I18N_MODE_MULTIPLE, I18N_MODE_LANGUAGE));
 }
 
 /**

@@ -574,25 +574,11 @@ function i18n_taxonomy_taxonomy_term_presave($term) {
  */
 function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
   $vocabulary = $form_state['vocabulary'];
-  drupal_add_js(drupal_get_path('module', 'i18n_taxonomy') . '/i18n_taxonomy.js');
-  drupal_add_js(array('i18n_taxonomy_vocabulary_form' => array('I18N_MODE_LANGUAGE' => I18N_MODE_LANGUAGE)), 'setting');
-  $form['i18n'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Multilingual options'),
-    '#collapsible' => TRUE,
-    '#weight' => 0,
-  );
-  $form['i18n']['i18n_mode'] = array(
-    '#type' => 'radios',
-    '#title' => t('Translation mode'),
-    '#options' => _i18n_taxonomy_vocabulary_options(),
-    '#default_value' => i18n_taxonomy_vocabulary_mode($vocabulary),
-    '#description' => t('For localizable vocabularies, to have all terms available for translation visit the <a href="@locale-refresh">translation refresh</a> page.', array('@locale-refresh' => url('admin/build/translate/refresh'))),
-  );
-  $form['i18n']['language'] = array(
-    '#description' => t('Language for this vocabulary. If set, it will apply to all terms in this vocabulary.'),
-    '#disabled' => $vocabulary && !i18n_taxonomy_vocabulary_mode($vocabulary, I18N_MODE_LANGUAGE),
-  ) + i18n_element_language_select($vocabulary);
+  $i18n_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
+  $langcode = i18n_object_langcode($vocabulary, LANGUAGE_NONE);
+  $form += i18n_translation_mode_element($i18n_mode, $langcode);
+  // Override options with proper description
+  $form['i18n_translation']['i18n_mode']['#options'] = _i18n_taxonomy_vocabulary_options();
   $form['#validate'][] = 'i18n_taxonomy_form_vocabulary_validate';
 }
 
@@ -685,13 +671,13 @@ function i18n_taxonomy_form_alter(&$form, $form_state, $form_id) {
  * Validate multilingual options for vocabulary form
  */
 function i18n_taxonomy_form_vocabulary_validate($form, &$form_state) {
-  $language = i18n_object_langcode($form_state['values']['language']);
-  $mode = $form_state['values']['i18n_mode'];
-  if ($mode != I18N_MODE_LANGUAGE && $language) {
-    form_set_error('language', t('Setting a vocabulary language only makes sense in the "Set language to vocabulary" translation mode. Either change to this mode or do not select a language.'));
+  if ($form_state['values']['i18n_mode'] & I18N_MODE_LANGUAGE) {
+    if ($form_state['values']['language'] == LANGUAGE_NONE) {
+      form_set_error('language', t('If selecting "Set language to vocabulary" you need to set a language to this vocabulary. Either change the translation mode or select a language.'));
+    }
   }
-  elseif ($mode == I18N_MODE_LANGUAGE && !$language ) {
-    form_set_error('language', t('If selecting "Set language to vocabulary" you need to set a language to this vocabulary. Either change the translation mode or select a language.'));
+  else {
+    $form_state['values']['language'] = LANGUAGE_NONE;
   }
 }
 
