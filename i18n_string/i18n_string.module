@@ -171,7 +171,7 @@ function i18n_string_form_alter(&$form, &$form_state, $form_id) {
 
     case 'locale_translate_edit_form':
       // Restrict filter permissions and handle validation and submission for i18n strings
-      $context = db_select('i18n_strings', 'i18ns')
+      $context = db_select('i18n_string', 'i18ns')
         ->fields('i18ns')
         ->condition('lid', $form['lid']['#value'])
         ->execute()

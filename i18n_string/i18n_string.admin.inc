@@ -83,7 +83,7 @@ function i18n_string_admin_update($language, $groups) {
   $query->join('locales_source', 's', 'g.source = s.source AND s.lid <> g.lid');
   $query->join('locales_target', 't', 's.lid = t.lid');
   $query->join('locales_target', 't2', 'g.lid = t2.lid');
-  $query->join('i18n_strings', 'i', 'i.lid = g.lid');
+  $query->join('i18n_string', 'i', 'i.lid = g.lid');
   $result = $query->execute()->fetchAll(PDO::FETCH_OBJ);
 
   $count = 0;
@@ -151,7 +151,7 @@ function i18n_string_refresh_group($group, $delete = FALSE) {
   // Invoke refresh hook
   $result = $result || module_invoke_all('i18n_string_refresh', $group);
 
-  // Now delete all source strings that were not refreshed (they don't have a row in i18n_strings)
+  // Now delete all source strings that were not refreshed (they don't have a row in i18n_string)
   if ($result && $delete) {
     $lids = db_select('locales_source', 's')
       ->fields('s', array('lid'))
@@ -164,7 +164,7 @@ function i18n_string_refresh_group($group, $delete = FALSE) {
       drupal_set_message(t('Performing cleanup for text group %textgroup, deleting @count left over strings.', array('%textgroup' => $group, '@count' => count($lids))));
       db_delete('locales_target')->condition('lid', $lids)->execute();
       db_delete('locales_source')->condition('lid', $lids)->execute();
-      db_delete('i18n_strings')->condition('lid', $lids)->execute();    
+      db_delete('i18n_string')->condition('lid', $lids)->execute();    
     }
   }
   return $result;

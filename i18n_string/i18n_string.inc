@@ -63,7 +63,7 @@ class i18n_string_default {
   /**
    * Add source string to the locale tables for translation.
    *
-   * It will also add data into i18n_strings table for faster retrieval and indexing of groups of strings.
+   * It will also add data into i18n_string table for faster retrieval and indexing of groups of strings.
    * Some string context doesn't have a numeric oid (I.e. content types), it will be set to zero.
    *
    * This function checks for already existing string without context for this textgroup and updates it accordingly.
@@ -278,11 +278,11 @@ class i18n_string_default {
   }
   
   /**
-   * Build query for i18n_strings table
+   * Build query for i18n_string table
    */
   protected static function query_string($context) {
     // Search the database using lid if we've got it or textgroup, context otherwise
-    $query = db_select('i18n_strings', 's')->fields('s');
+    $query = db_select('i18n_string', 's')->fields('s');
     if (!empty($context->lid)) {
       $query->condition('s.lid', $context->lid);
     }
@@ -332,7 +332,7 @@ class i18n_string_default {
     $options += array('watchdog' => TRUE);
     if ($source = $this->get_source($i18nstring)) {
       db_delete('locales_target')->condition('lid', $source->lid)->execute();
-      db_delete('i18n_strings')->condition('lid', $source->lid)->execute();
+      db_delete('i18n_string')->condition('lid', $source->lid)->execute();
       db_delete('locales_source')->condition('lid', $source->lid)->execute();
       if ($options['watchdog']) {
         watchdog('i18n_string', 'Deleted string %location for textgroup %textgroup: %string', $this->string_params($i18nstring));
@@ -366,7 +366,7 @@ class i18n_string_default {
     if (!isset($string->format)) {
       $string->format = '';
     }
-    $status = db_merge('i18n_strings')
+    $status = db_merge('i18n_string')
       ->key(array('lid' => $string->lid))
       ->fields(array(
           'textgroup' => $string->textgroup,
@@ -613,7 +613,7 @@ class i18n_string_default {
       $textgroup = array_shift($oldcontext);
       $context = str_replace('*', '%', implode(':', $oldcontext));
       $count = 0;
-      $query = db_select('i18n_strings', 's')
+      $query = db_select('i18n_string', 's')
         ->fields('s')
         ->condition('s.textgroup', $textgroup)
         ->condition('s.context', $context, 'LIKE');
@@ -637,7 +637,7 @@ class i18n_string_default {
           ->execute();
   
         // Update object data.
-        db_update('i18n_strings')
+        db_update('i18n_string')
         ->fields($update + array(
           'type' => $source->type,
           'objectid' => $source->objectid,
@@ -704,7 +704,7 @@ function i18n_string_save_translation($context) {
     ->fields('i', array('format'))
     ->condition('s.source', $context->source)
     ->condition('s.textgroup', $context->textgroup);
-  $query->leftJoin('i18n_strings', 'i', 's.lid = i.lid');
+  $query->leftJoin('i18n_string', 'i', 's.lid = i.lid');
   $result->execute()->fetchAll(PDO::FETCH_OBJ);
 
   $count = 0;

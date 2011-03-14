@@ -41,7 +41,7 @@ function i18n_string_uninstall() {
  * Implements hook_schema().
  */
 function i18n_string_schema() {
-  $schema['i18n_strings'] = array(
+  $schema['i18n_string'] = array(
     'description' => 'Metadata for source strings.',
     'fields' => array(
       'lid' => array(
@@ -126,7 +126,15 @@ function i18n_string_schema_alter(&$schema) {
 function i18n_string_update_7000() {
   // @todo Update from d6
   variable_del('i18nstrings_allowed_textgroups');
-  
+  // If we've got old table from D6, move data to new one
+}
+
+/**
+ * Rename i18n_strings table to i18n_string to avoid clashes when upgrading
+ */
+function i18n_string_update_7001() {
+  db_rename_table('i18n_strings', 'i18n_string');
+  drupal_get_schema(NULL, TRUE);
 }
 
 /**
