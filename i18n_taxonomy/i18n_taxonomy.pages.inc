@@ -99,35 +99,59 @@ function theme_i18n_taxonomy_term_page($tids, $result) {
 }
 
 /**
+ * Helper function for autocompletion. Replacement for taxonomy_autocomplete
+ */
+function i18n_taxonomy_autocomplete_field($field_name, $tags_typed = '') {
+  // Part of the criteria for the query come from the field's own settings.
+  $field = field_info_field($field_name);
+  $vids = array();
+  $vocabularies = taxonomy_vocabulary_get_names();
+  foreach ($field['settings']['allowed_values'] as $tree) {
+    $vids[] = $vocabularies[$tree['vocabulary']]->vid;
+  }
+  // This has been redirected from taxonomy module so we add current language and no language
+  // Because some of the vocabularies may not have language
+  $langcode = array(i18n_langcode(), LANGUAGE_NONE);
+  return _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed);
+}
+
+/**
+ * Helper function for autocompletion. Select by language
+ */
+function i18n_taxonomy_autocomplete_language($langcode, $vocabulary, $tags_typed = '') {
+  $vids = $vocabulary ? array($vocabulary->vid) : NULL;
+  return _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed);
+}
+
+/**
  * Helper function for autocompletion
  */
-function i18n_taxonomy_autocomplete($vocabulary, $langcode, $tags_typed = '') {
-
+function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
   // The user enters a comma-separated list of tags. We only autocomplete the last tag.
   $tags_typed = drupal_explode_tags($tags_typed);
   $tag_last = drupal_strtolower(array_pop($tags_typed));
 
   $matches = array();
-  if ($vocabulary && $langcode && $tag_last != '') {
-
-    // Part of the criteria for the query come from the field's own settings.
-    $vids = array($vocabulary->vid);
-
-    $query = db_select('taxonomy_term_data', 't');
+  if ($langcode && $tag_last != '') {
+    $query = db_select('taxonomy_term_data', 't')
+      ->fields('t', array('tid', 'name'));
     $query->addTag('translatable');
     $query->addTag('term_access');
-    
+    // Disable i18n_select for this query
+    $query->addTag('i18n_select');
     // Add language condition
-    $query->condition('t.language', i18n_langcode($langcode));
+    $query->condition('t.language', $langcode);
     
     // Do not select already entered terms.
     if (!empty($tags_typed)) {
       $query->condition('t.name', $tags_typed, 'NOT IN');
     }
+    // There may be vocabulary restrictions
+    if ($vids) {
+      $query->condition('t.vid', $vids);
+    }
     // Select rows that match by term name.
     $tags_return = $query
-      ->fields('t', array('tid', 'name'))
-      ->condition('t.vid', $vids)
       ->condition('t.name', '%' . db_like($tag_last) . '%', 'LIKE')
       ->range(0, 10)
       ->execute()

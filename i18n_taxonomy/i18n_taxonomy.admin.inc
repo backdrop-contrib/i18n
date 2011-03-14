@@ -34,14 +34,19 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
   $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);  
   $translations = $translation_set ? $translation_set->get_translations() : array();
   $form['vocabulary'] = array('#type' => 'value', '#value' => $vocabulary);
-  $form['translations'] = array('#tree' => TRUE);
+  $form['translations'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Select translations'),
+    '#description' => t('Select existing terms or type new ones that will be created for each language.'),
+  	'#tree' => TRUE
+  );
   // List of terms for languages.
   foreach (i18n_language_list() as $lang => $langname) {
     $form['translations'][$lang] = array(
       '#title' => $langname,
       '#type' => 'textfield',
       '#default_value' => isset($translations[$lang]) ? $translations[$lang]->name : '',
-      '#autocomplete_path' => 'i18n/taxonomy/autocomplete/' . $vocabulary->machine_name . '/' . $lang,
+      '#autocomplete_path' => 'i18n/taxonomy/autocomplete/vocabulary/' . $vocabulary->machine_name . '/' . $lang,
       '#langcode' => $lang,
       '#size' => 80,
       '#maxlength' => 1024,
