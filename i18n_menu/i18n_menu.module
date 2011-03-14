@@ -359,8 +359,8 @@ function i18n_menu_localize_tree($tree, $langcode = NULL) {
     if ($link['customized'] && !empty($link['access']) && empty($link['hidden']) && empty($link['i18n_menu'])) {
       // Remove links for other languages than current.
       // Links with language wont be localized.
-      if (!empty($link['language'])) {
-        if ($link['language'] != $langcode) {
+      if ($menulang = i18n_object_langcode($link)) {
+        if ($menulang != $langcode) {
           unset($tree[$index]);
         }
       }
