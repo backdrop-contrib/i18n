@@ -261,7 +261,7 @@ function i18n_menu_menu_link_update($link) {
       ->condition('mlid', $link['mlid'])
       ->execute();
   }
-  if (!empty($link['customized']) && empty($link['language'])) {
+  if (!empty($link['customized']) && i18n_menu_mode($link['menu_name'], I18N_MODE_LOCALIZE) && !i18n_object_langcode($link)) {
     i18n_string_update(array('menu', 'item', $link['mlid']), array(
       'title' => $link['link_title'],
       'description' => $link['options']['attributes']['title'],
@@ -531,7 +531,7 @@ function i18n_menu_form_menu_edit_menu_alter(&$form, &$form_state) {
   $form['i18n']['i18n_mode'] = array(
     '#type' => 'radios',
     '#title' => t('Translation mode'),
-    '#options' => i18n_translation_options(),
+    '#options' => i18n_translation_options(array(I18N_MODE_NONE, I18N_MODE_MULTIPLE, I18N_MODE_LANGUAGE)),
     '#default_value' => $i18n_mode,
     '#description' => t('For localizable menus, to have all items available for translation visit the <a href="@locale-refresh">translation refresh</a> page.', array('@locale-refresh' => url('admin/build/translate/refresh'))),
   );

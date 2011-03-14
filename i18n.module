@@ -31,6 +31,8 @@ define('I18N_MODE_LOCALIZE', 1);
 define('I18N_MODE_LANGUAGE', 2);
 // Multilingual objects, translatable but not localizable.
 define('I18N_MODE_TRANSLATE', 4);
+// Objects are translatable (if they have language or localizable if not)
+define('I18N_MODE_MULTIPLE', I18N_MODE_LOCALIZE | I18N_MODE_TRANSLATE);
 
 /**
  * Implements hook_boot()

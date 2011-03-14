@@ -20,7 +20,7 @@ function i18n_menu_translation_overview($menu) {
     return drupal_get_form('i18n_translation_set_overview', 'menu_link', $tsids);
   }
   else {
-    return t('No translations for this menu items.');
+    return t('No translations for this menu item.');
   }
 }
 
@@ -39,7 +39,7 @@ function i18n_menu_translation_form($form, $form_state, $menu = NULL, $item = NU
     '#title' => t('Title'),
     '#type' => 'textfield',
     '#default_value' => $translation_set ? $translation_set->title : '',
-    '#description' => t('Optional descriptive name for this set.'),
+    '#description' => t('Optional descriptive name for this translation set.'),
   );
   $form['translations'] = array(
     '#type' => 'fieldset',
