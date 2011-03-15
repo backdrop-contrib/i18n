@@ -90,7 +90,7 @@ class i18n_translation_set {
     if ($table && $field) {
       $query = db_update($table)
         ->fields(array($field => 0))
-        ->condition($table . '.' . $field, $this->tsid);
+        ->condition($field, $this->tsid);
       if ($translations = $this->get_translations()) {  
         $query->condition('language', array_keys($translations), 'NOT IN');
       }
@@ -253,9 +253,9 @@ class i18n_translation_set {
   public function load_translations() {
     list($table, $field) = $this->table_field();
     if ($table && $field) {
-      return db_select($table)
-        ->fields($table)
-        ->condition($table . '.' . $field, $this->tsid)
+      return db_select($table, 't')
+        ->fields('t')
+        ->condition('t.' . $field, $this->tsid)
         ->execute()
         ->fetchAllAssoc('language');
     }
