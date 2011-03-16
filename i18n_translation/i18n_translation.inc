@@ -86,8 +86,7 @@ class i18n_translation_set {
    * Unlink other items (not current translations from this translation set)
    */
   public function clean_translations() {
-    list($table, $field) = $this->table_field();
-    if ($table && $field) {
+    if (($table = $this->get_table()) && ($field = $this->get_field())) {
       $query = db_update($table)
         ->fields(array($field => 0))
         ->condition($field, $this->tsid);
@@ -101,8 +100,7 @@ class i18n_translation_set {
    * Save translations in this translation set
    */
   public function save_translations() {
-    list($table, $field) = $this->table_field();
-    if ($table && $field) {
+    if (($table = $this->get_table()) && ($field = $this->get_field())) {
       if ($keys = $this->get_translations_keys()) {
         return db_update($table)
           ->fields(array($field => $this->tsid))
@@ -121,8 +119,7 @@ class i18n_translation_set {
    * It won't delete objects, just unlink them from translation set
    */
   public function delete_translations() {
-    list($table, $field) = $this->table_field();
-    if ($table && $field) {
+    if (($table = $this->get_table()) && ($field = $this->get_field())) {
       return db_update($table)
         ->fields(array($field => 0))
         ->condition($field, $this->tsid)
@@ -161,6 +158,14 @@ class i18n_translation_set {
       return '';
     }
   }
+
+  /**
+   * Get field on translations table that stores the translation set id (tsid)
+   */
+  protected function get_field() {
+    return $this->get_info('field');
+  }
+
   /**
    * Get property from translation set info
    */
@@ -168,6 +173,14 @@ class i18n_translation_set {
     $info = i18n_translation_set_info($this->type);
     return $info && isset($info['translation set'][$property]) ? $info['translation set'][$property] : $default;
   }
+
+  /**
+   * Get table name, where translation items are stored.
+   */
+  protected function get_table() {
+    return $this->get_info('table');
+  }
+
   /**
    * Get title for this set
    */
@@ -185,6 +198,7 @@ class i18n_translation_set {
       return t('Undefined');
     }
   }
+
   /**
    * Get title from item
    */
@@ -238,7 +252,7 @@ class i18n_translation_set {
    * Check item has translation set property
    */
   public function check_item($item) {
-    list($table, $field) = $this->table_field();
+    $field = $this->get_field();
     if (is_object($item)) {
       $item->$field = $this->tsid;
     }
@@ -251,8 +265,7 @@ class i18n_translation_set {
    * Load all translations as objects indexed by language
    */
   public function load_translations() {
-    list($table, $field) = $this->table_field();
-    if ($table && $field) {
+    if (($table = $this->get_table()) && ($field = $this->get_field())) {
       return db_select($table, 't')
         ->fields('t')
         ->condition('t.' . $field, $this->tsid)
@@ -264,12 +277,6 @@ class i18n_translation_set {
     }
   }
 
-  /**
-   * Get table / field for this translation type
-   */
-  protected function table_field() {
-    return array($this->get_info('table'), $this->get_info('field'));
-  }
   /**
    * Get key field for this translation items
    */
