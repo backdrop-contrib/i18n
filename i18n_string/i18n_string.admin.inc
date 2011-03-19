@@ -19,6 +19,11 @@ function i18n_string_admin_refresh_form() {
     '#options' => $groups,
     '#description' => t('If a text group is no showing up here it means this feature is not implemented for it.'),
   );
+  $form['delete'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Clean up left over strings.'),
+    '#default_value' => TRUE,
+  );
   $form['refresh'] = array(
     '#type' => 'submit',
     '#value' => t('Refresh strings'),
@@ -49,7 +54,7 @@ function i18n_string_admin_refresh_form_submit($form, &$form_state) {
   $languages = array_filter($form_state['values']['languages']);
   $group_names = module_invoke_all('locale', 'groups');
   if ($op == t('Refresh strings') && $groups) {
-    $batch = i18n_string_refresh_batch($groups);
+    $batch = i18n_string_refresh_batch($groups, $form_state['values']['delete']);
     batch_set($batch);
   }
   elseif ($op == t('Update translations') && $groups && $languages) {
@@ -161,7 +166,11 @@ function i18n_string_refresh_cleanup($group) {
     drupal_set_message(t('Performing cleanup for text group %textgroup, deleting @count left over strings.', array('%textgroup' => $group, '@count' => count($lids))));
     db_delete('locales_target')->condition('lid', $lids)->execute();
     db_delete('locales_source')->condition('lid', $lids)->execute();
-    db_delete('i18n_string')->condition('lid', $lids)->execute();    
+    db_delete('i18n_string')->condition('lid', $lids)->execute();
+    return count($lids);
+  }
+  else {
+    return 0;
   }
 }
 
@@ -174,6 +183,7 @@ function i18n_string_refresh_reset($group) {
     ->fields(array('version' => 0))
     ->condition('textgroup', $group)
     ->execute();
+  return (int)db_query("SELECT COUNT(*) FROM {locales_source} WHERE textgroup = :textgroup", array(':textgroup' => $group))->fetchField();
 }
 
 /**
@@ -212,6 +222,7 @@ function i18n_string_refresh_string_list($strings) {
 function i18n_string_refresh_batch($groups, $delete = FALSE) {
   $operations = array();
   foreach ($groups as $group) {
+    $operations[] = array('_i18n_string_batch_refresh_prepare', array($group));
     // First try to find string list
     $operations[] = array('_i18n_string_batch_refresh_list', array($group));
     // Then invoke refresh callback 
@@ -233,22 +244,13 @@ function i18n_string_refresh_batch($groups, $delete = FALSE) {
 }
 
 /**
- * Batch callback, delete old strings
+ * Prepare group for refreshing
  */
-function _i18n_string_batch_refresh_cleanup($group, &$context) {
-  i18n_string_refresh_group($group);
-}
-
-/**
- * Batch operation: Invoke i18n_string_refresh
- */
-function _i18n_string_batch_refresh_callback($group, &$context) {
-  $result = module_invoke_all('i18n_string_refresh', $group);
-  $count = $result ? array_sum($result) : 0;
-  $context['results'][$group]['count'] += $count;
-  if ($count) {
-    $context['results'][$group]['result'] = TRUE;
-  }
+function _i18n_string_batch_refresh_prepare($group, &$context) {
+  $context['results'][$group] = array(
+    'count' => i18n_string_refresh_reset($group),
+    'result' => FALSE,
+  );
 }
 
 /**
@@ -260,7 +262,29 @@ function _i18n_string_batch_refresh_list($group, &$context) {
     $count = i18n_string_refresh_string_list($strings);
     $context['results'][$group]['result'] = TRUE;
   }
-  $context['results'][$group]['count'] = $count;
+  $context['results'][$group]['refresh'] = $count;
+}
+
+/**
+ * Batch operation: Invoke i18n_string_refresh
+ */
+function _i18n_string_batch_refresh_callback($group, &$context) {
+  $result = module_invoke_all('i18n_string_refresh', $group);
+  $count = $result ? array_sum($result) : 0;
+  $context['results'][$group]['refresh'] += $count;
+  if ($count) {
+    $context['results'][$group]['result'] = TRUE;
+  }
+}
+
+
+/**
+ * Batch callback, delete old strings
+ */
+function _i18n_string_batch_refresh_cleanup($group, &$context) {
+  if (!empty($context[$group]['result'])) {
+    $context['results'][$group]['deleted'] = i18n_string_refresh_cleanup($group);
+  }
 }
 
 /**
@@ -268,9 +292,13 @@ function _i18n_string_batch_refresh_list($group, &$context) {
  */
 function _i18n_string_batch_refresh_summary($group, &$context) {
   if ($context['results'][$group]['result']) {
-    drupal_set_message(t("Successfully refreshed @count strings for %group", array('@count' => $context['results'][$group]['count'], '%group' => i18n_string_group_info($group, 'title'))));
+    drupal_set_message(t("Successfully refreshed @count strings for %group", array('@count' => $context['results'][$group]['refresh'], '%group' => i18n_string_group_info($group, 'title'))));
+    if (!empty($context['results'][$group]['deleted'])) {
+      drupal_set_message(t('Deleted @count left over strings.', array('@count' => $context['results'][$group]['deleted'])));
+    }  
   }
   else {
     drupal_set_message(t("Cannot refresh strings for %group.", array('%group' => i18n_string_group_info($group, 'title'))), 'warning');
-  }  
+  }
+
 }
