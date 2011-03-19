@@ -361,7 +361,7 @@ class i18n_string_default {
       }
     }
     if (!isset($string->objectkey)) {
-      $string->objectindex = (int)$string->objectid;
+      $string->objectkey = (int)$string->objectid;
     }
     if (!isset($string->format)) {
       $string->format = '';
@@ -649,6 +649,22 @@ class i18n_string_default {
         $count++;
       }
       drupal_set_message(t('Updated @count string names from %oldname to %newname.', array('@count' => $count, '%oldname' => $oldname, '%newname' => $newname)));
+    }
+  }
+  
+  /**
+   * Recheck strings after update
+   */
+  public function update_check() {
+    // Find strings in locales_source that have no data in i18n_string
+    $query = db_select('locales_source', 'l')
+    ->fields('l')
+    ->condition('l.textgroup', $this->textgroup);
+    $alias = $query->leftJoin('i18n_string', 's', 'l.lid = s.lid');
+    $query->condition('s.lid', NULL);
+    foreach ($query->execute()->fetchAll() as $string) {
+      list($string->type, $string->objectid, $string->property) = explode(':', $string->context);
+      $this->save_string($string);
     }
   }
 }
