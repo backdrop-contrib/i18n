@@ -150,63 +150,64 @@ function i18n_string_menu() {
 }
 
 /**
- * Implements hook_form_alter().
- *
- * Add English language in some string forms when it is not the default.
+ * Implements hook_form_FORM_ID_alter() 
  */
-function i18n_string_form_alter(&$form, &$form_state, $form_id) {
-  switch ($form_id) {
-    case 'locale_translate_export_po_form':
-    case 'locale_translate_import_form':
-      $names = locale_language_list('name', TRUE);
-      if (language_default('language') != 'en' && array_key_exists('en', $names)) {
-        if (isset($form['export'])) {
-          $form['export']['langcode']['#options']['en'] = $names['en'];
-        }
-        else {
-          $form['import']['langcode']['#options'][t('Already added languages')]['en'] = $names['en'];
-        }
+function i18n_string_form_locale_translate_edit_form_alter(&$form, &$form_state) {
+  // Restrict filter permissions and handle validation and submission for i18n strings
+  $context = db_select('i18n_string', 'i18ns')
+    ->fields('i18ns')
+    ->condition('lid', $form['lid']['#value'])
+    ->execute()
+    ->fetchObject();
+  if ($context) {
+    $form['i18n_string_context'] = array('#type' => 'value', '#value' => $context);
+    // Replace validate callback
+    $form['#validate'] = array('i18n_string_translate_edit_form_validate');
+    if ($context->format) {
+      $formats = filter_formats();
+      $format = $formats[$context->format];
+      $disabled = !filter_access($format);
+      if ($disabled) {
+        drupal_set_message(t('This string uses the %name text format. You are not allowed to translate or edit texts with this format.', array('%name' => $format->name)), 'warning');
       }
-      break;
-
-    case 'locale_translate_edit_form':
-      // Restrict filter permissions and handle validation and submission for i18n strings
-      $context = db_select('i18n_string', 'i18ns')
-        ->fields('i18ns')
-        ->condition('lid', $form['lid']['#value'])
-        ->execute()
-        ->fetchObject();
-      if ($context) {
-        $form['i18n_string_context'] = array('#type' => 'value', '#value' => $context);
-        // Replace validate callback
-        $form['#validate'] = array('i18n_string_translate_edit_form_validate');
-        if ($context->format) {
-          $formats = filter_formats();
-          $format = $formats[$context->format];
-          $disabled = !filter_access($format);
-          if ($disabled) {
-            drupal_set_message(t('This string uses the %name text format. You are not allowed to translate or edit texts with this format.', array('%name' => $format->name)), 'warning');
-          }
-          foreach (element_children($form['translations']) as $langcode) {
-            $form['translations'][$langcode]['#disabled'] = $disabled;
-          }
-          $form['translations']['format_help'] = array(
-            '#type' => 'item',
-            '#title' => t('Text format: @name', array('@name' => $format->name)),
-            '#value' => theme('filter_tips', _filter_tips($context->format, FALSE))
-          );
-          $form['submit']['#disabled'] = $disabled;
-        }
+      foreach (element_children($form['translations']) as $langcode) {
+        $form['translations'][$langcode]['#disabled'] = $disabled;
       }
-      // Aditional submit callback
-      $form['#submit'][] = 'i18n_string_translate_edit_form_submit';
-      break;
-    /*
-    case 'l10n_client_form':
-      $form['#action'] = url('i18n_string/save');
-      break;
-      */
+      $form['translations']['format_help'] = array(
+        '#type' => 'item',
+        '#title' => t('Text format: @name', array('@name' => $format->name)),
+        '#value' => theme('filter_tips', _filter_tips($context->format, FALSE))
+      );
+      $form['submit']['#disabled'] = $disabled;
+    }
   }
+  // Aditional submit callback
+  $form['#submit'][] = 'i18n_string_translate_edit_form_submit';
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() 
+ */
+function i18n_string_form_locale_translate_export_po_form_alter(&$form, $form_state) {
+  $names = locale_language_list('name', TRUE);
+  if (language_default('language') != 'en' && array_key_exists('en', $names)) {
+    $form['langcode']['#options']['en'] = $names['en'];
+  }  
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() 
+ */
+function i18n_string_form_locale_translate_import_form_alter(&$form, $form_state) {
+  if (language_default('language') != 'en') {
+    $names = locale_language_list('name', TRUE);
+    if (array_key_exists('en', $names)) {
+      $form['import']['langcode']['#options'][t('Already added languages')]['en'] = $names['en'];
+    }
+    else {
+      $form['import']['langcode']['#options'][t('Languages not yet added')]['en'] = t('English');
+    }
+  }  
 }
 
 /**
