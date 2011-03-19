@@ -121,12 +121,31 @@ function i18n_string_schema_alter(&$schema) {
 }
 
 /**
+ * Helper function to upate strings
+ */
+function i18n_string_install_update_string($string) {
+  $string->context = $string->type . ':' . $string->objectid . ':' . $string->property;
+  $string->location = $string->textgroup . ':' . $string->context;
+  $string->objectindex = (int)$string->objectid;
+  drupal_write_record('i18n_string', $string, 'lid');
+  drupal_write_record('locales_source', $string, 'lid');  
+}
+
+/**
  * Populate fields from old locale table (textgroup, location) and drop indexes from locales_source
  */
 function i18n_string_update_7000() {
   // @todo Update from d6
   variable_del('i18nstrings_allowed_textgroups');
   // If we've got old table from D6, move data to new one
+  if (db_table_exists('i18n_strings')) {
+    db_query("INSERT INTO {i18n_string}(lid, objectid, type, property, objectindex, format) SELECT lid, objectid, type, property, objectindex, format FROM {i18n_strings}");
+    // Update and populate textgroup field
+    db_query("UPDATE {i18n_string} s SET s.textgroup = (SELECT l.textgroup FROM {locales_source} l WHERE l.lid = s.lid)");
+    // Populate context field. We could use CONCAT_WS but I guess this is more standard.
+    db_query("UPDATE {i18n_string} SET context = CONCAT(type, ':', objectid, ':', property)");
+    db_query("UPDATE {locales_source} s SET s.context = (SELECT l.context FROM {i18n_string} l WHERE l.lid = s.lid)");    
+  }
 }
 
 /**
