@@ -1,13 +1,11 @@
 <?php
 /**
- * Class for testing messaging module.
- *
- * Tests basic API functions
+ * @file
+ * Test case for multilingual taxonomy
  */
 
-require_once 'i18n_strings.test';
 
-class i18n_Taxonomy_Test extends Drupali18nTestCase {
+class i18nTaxonomyTestCase extends Drupali18nTestCase {
 
   function getInfo() {
     return array(
@@ -19,8 +17,7 @@ class i18n_Taxonomy_Test extends Drupali18nTestCase {
 
   function setUp() {
     parent::setUp('i18n_string', 'taxonomy', 'i18n_taxonomy');
-    $this->addLanguage('es');
-    $this->addLanguage('de');
+    parent::setUpLanguages();
   }
 
   function testTaxonomyTranslationAPI() {
@@ -42,7 +39,7 @@ class i18n_Taxonomy_Test extends Drupali18nTestCase {
   // Create vocabulary with given fields
   function drupalCreateVocabulary($vocab = array()) {
     $vocab += array('name' => $this->randomName(10), 'description' => $this->randomName(20));
-    taxonomy_save_vocabulary($vocab);
+    taxonomy_vocabulary_save($vocab);
     return (object)$vocab;
   }
   // Create term with given fields
@@ -50,7 +47,7 @@ class i18n_Taxonomy_Test extends Drupali18nTestCase {
     $list = array();
     for ($i = 1; $i <= $number ; $i++ ) {
       $term = $data + array('name' => $this->randomName(10), 'description' => $this->randomName(20));
-      taxonomy_save_term($term);
+      taxonomy_term_save($term);
       $list[] = (object)$term;
     }
     return $list;  

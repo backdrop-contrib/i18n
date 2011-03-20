@@ -1,42 +1,91 @@
 <?php
-// Core: Id: drupal_web_test_case.php,v 1.96 2009/04/22 09:57:10 dries Exp
+// $Id: Exp $
+
 /**
  * @file
- * Provide required modifications to Drupal 7 core DrupalWebTestCase in order
- * for it to function properly in Drupal 6.
- *
- * Copyright 2008-2009 by Jimmy Berry ("boombatower", http://drupal.org/user/214218)
- */
-
-require_once drupal_get_path('module', 'simpletest') . '/drupal_web_test_case.php';
-
-/**
- * Test case for typical Drupal tests.
+ * Base class for Internationalization tests
  */
 class Drupali18nTestCase extends DrupalWebTestCase {
-  // We may want to install the site in a different language
-  var $install_locale = 'en';
 
-  /**
-   * Adds a language
-   *
-   * @param $langcode
-   * @param $default
-   *   Whether this is the default language
-   * @param $load
-   *   Whether to load available translations for that language
-   */
-  function addLanguage($langcode, $default = FALSE, $load = TRUE) {
-    require_once './includes/locale.inc';
-    // Enable installation language as default site language.
-    locale_add_language($langcode, NULL, NULL, NULL, NULL, NULL, 1, $default);
-    // Reset language list
-    language_list('language', TRUE);
-    // We may need to refresh default language
-    drupal_init_language();
-    // @todo import po files for this language
+  function setUpLanguages() {
+    // Setup users.
+    $this->admin_user = $this->drupalCreateUser(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'administer blocks', 'access administration pages'));
+    $this->translator = $this->drupalCreateUser(array('create page content', 'edit own page content', 'translate content'));
+
+    $this->drupalLogin($this->admin_user);
+
+    // Add languages.
+    $this->addLanguage('en');
+    $this->addLanguage('es');
+    $this->addLanguage('it');
+    // A language with two letter code may help too
+    $this->addLanguage('pt-br');
+
+    // Disable Italian to test the translation behavior with disabled languages.
+    $edit = array('enabled[it]' => FALSE);
+    $this->drupalPost('admin/config/regional/language', $edit, t('Save configuration'));
+
+    // Set "Basic page" content type to use multilingual support with
+    // translation.
+    $this->drupalGet('admin/structure/types/manage/page');
+    $edit = array();
+    $edit['language_content_type'] = 2;
+    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
+    $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Basic page')), t('Basic page content type has been updated.'));
+
+    // Enable the language switcher block.
+    $language_type = LANGUAGE_TYPE_INTERFACE;
+    $edit = array("blocks[locale_$language_type][region]" => 'sidebar_first');
+    $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
+
+    // Enable URL language detection and selection to make the language switcher
+    // block appear.
+    $edit = array('language[enabled][locale-url]' => TRUE);
+    $this->drupalPost('admin/config/regional/language/configure', $edit, t('Save settings'));
+    $this->assertRaw(t('Language negotiation configuration saved.'), t('URL language detection enabled.'));
+    $this->resetCaches();
+
+    $this->drupalLogin($this->translator);
   }
 
+  /**
+   * Install a the specified language if it has not been already. Otherwise make sure that
+   * the language is enabled.
+   *
+   * @param $language_code
+   *   The language code the check.
+   */
+  function addLanguage($language_code) {
+    // Check to make sure that language has not already been installed.
+    $this->drupalGet('admin/config/regional/language');
+
+    if (strpos($this->drupalGetContent(), 'enabled[' . $language_code . ']') === FALSE) {
+      // Doesn't have language installed so add it.
+      $edit = array();
+      $edit['langcode'] = $language_code;
+      $this->drupalPost('admin/config/regional/language/add', $edit, t('Add language'));
+
+      // Make sure we are not using a stale list.
+      drupal_static_reset('language_list');
+      $languages = language_list('language');
+      $this->assertTrue(array_key_exists($language_code, $languages), t('Language was installed successfully.'));
+
+      if (array_key_exists($language_code, $languages)) {
+        $this->assertRaw(t('The language %language has been created and can now be used. More information is available on the <a href="@locale-help">help screen</a>.', array('%language' => $languages[$language_code]->name, '@locale-help' => url('admin/help/locale'))), t('Language has been created.'));
+      }
+    }
+    elseif ($this->xpath('//input[@type="checkbox" and @name=:name and @checked="checked"]', array(':name' => 'enabled[' . $language_code . ']'))) {
+      // It's installed and enabled. No need to do anything.
+      $this->assertTrue(true, 'Language [' . $language_code . '] already installed and enabled.');
+    }
+    else {
+      // It's installed but not enabled. Enable it.
+      $this->assertTrue(true, 'Language [' . $language_code . '] already installed.');
+      $this->drupalPost(NULL, array('enabled[' . $language_code . ']' => TRUE), t('Save configuration'));
+      $this->assertRaw(t('Configuration saved.'), t('Language successfully enabled.'));
+    }
+  }
+  
   /**
    * Create translation set from a node
    *
@@ -45,129 +94,83 @@ class Drupali18nTestCase extends DrupalWebTestCase {
    * @param $languages
    *   Optional list of language codes
    */
-  function drupalCreateTranslations(&$source, $languages = NULL) {
+  function createNodeTranslationSet(&$source, $languages = NULL) {
     $languages = $languages ? $languages : array_keys(language_list());
     if (empty($source->tnid)) {
-      db_query("UPDATE {node} SET tnid = %d, translate = %d WHERE nid = %d", $source->nid, 0, $source->nid);
       $source->tnid = $source->nid;
     }
     $translations[$source->language] = $source;
     foreach ($languages as $lang) {
       if ($lang != $source->language) {
-        $translations[$lang] = $this->drupalCreateNode(array('type' => $source->type, 'language' => $lang, 'translation_source' => $source, 'status' => $source->status, 'promote' => $source->promote, 'uid' => $source->uid));
+        // Append language code to source title and body
+        $title = $source->title . $lang;
+        $body = $source->body . $lang;
+        $translations[$lang] = $this->createNodeTranslation($source, $lang);
       }
     }
     return $translations;
   }
 
   /**
-   * Enable language switcher block
-   */
-  function enableBlock($module, $delta, $region = 'left') {
-    db_query("UPDATE {blocks} SET status = %d, weight = %d, region = '%s', throttle = %d WHERE module = '%s' AND delta = '%s' AND theme = '%s'", 1, 0, $region, 0, $module, $delta, variable_get('theme_default', 'garland'));
-    cache_clear_all();
-  }
-  /**
-   * Reset theme to default so we can play with blocks
-   */
-  function initTheme() {
-    global $theme, $theme_key;
-    unset($theme);
-    unset($theme_key);
-    init_theme();
-    _block_rehash();
-  }
-  /**
-   * Generates a random database prefix, runs the install scripts on the
-   * prefixed database and enable the specified modules. After installation
-   * many caches are flushed and the internal browser is setup so that the
-   * page requests will run on the new prefix. A temporary files directory
-   * is created with the same name as the database prefix.
+   * Create a "Basic page" in the specified language.
    *
-   * @param ...
-   *   List of modules to enable for the duration of the test.
+   * @param $title
+   *   Title of basic page in specified language.
+   * @param $body
+   *   Body of basic page in specified language.
+   * @param
+   *   $language Language code.
    */
-  function setUp() {
-    global $db_prefix, $user, $language; // $language (Drupal 6).
-    global $install_locale;
+  function createNode($type, $title, $body, $language) {
+    $edit = array();
+    $langcode = LANGUAGE_NONE;
+    $edit["title"] = $title;
+    $edit["body[$langcode][0][value]"] = $body;
+    $edit['language'] = $language;
+    $this->drupalPost('node/add/' . $type, $edit, t('Save'));
+    $this->assertRaw(t('Basic node %title has been created.', array('%title' => $title)), t('Basic page created.'));
 
-    // Store necessary current values before switching to prefixed database.
-    $this->db_prefix_original = $db_prefix;
-    $clean_url_original = variable_get('clean_url', 0);
+    // Check to make sure the node was created.
+    $node = $this->drupalGetNodeByTitle($title);
+    $this->assertTrue($node, t('Node found in database.'));
 
-    // Generate temporary prefixed database to ensure that tests have a clean starting point.
-    $db_prefix = 'simpletest' . mt_rand(1000, 1000000);
-
-    include_once './includes/install.inc';
-
-    drupal_install_system();
-
-    // Add the specified modules to the list of modules in the default profile.
-    $args = func_get_args();
-    // Add language and basic i18n modules
-    $install_locale = $this->install_locale;
-    $i18n_modules = array('locale', 'translation', 'i18n', 'i18n_test');
-    $modules = array_unique(array_merge(drupal_verify_profile('default', $this->install_locale), $args, $i18n_modules));
-    drupal_install_modules($modules);
-
-    // Install locale
-    if ($this->install_locale != 'en') {
-      $this->addLanguage($this->install_locale, TRUE);
-    }
-    // Run default profile tasks.
-    $task = 'profile';
-    default_profile_tasks($task, '');
-
-    // Rebuild caches.
-    actions_synchronize();
-    _drupal_flush_css_js();
-    $this->refreshVariables();
-    $this->checkPermissions(array(), TRUE);
-    user_access(NULL, NULL, TRUE); // Drupal 6.
-
-    // Log in with a clean $user.
-    $this->originalUser = $user;
-//    drupal_save_session(FALSE);
-//    $user = user_load(1);
-    session_save_session(FALSE);
-    $user = user_load(1);
-
-    // Restore necessary variables.
-    variable_set('install_profile', 'default');
-    variable_set('install_task', 'profile-finished');
-    variable_set('clean_url', $clean_url_original);
-    variable_set('site_mail', 'simpletest@example.com');
-
-    // Use temporary files directory with the same prefix as database.
-    $this->originalFileDirectory = file_directory_path();
-    variable_set('file_directory_path', file_directory_path() . '/' . $db_prefix);
-    $directory = file_directory_path();
-    // Create the files directory.
-    file_check_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
-
-    drupal_set_time_limit($this->timeLimit);
-
-    // Some more includes
-    require_once 'includes/language.inc';
-    // Refresh theme
-    $this->initTheme();
-    // Set path languages so we can retrieve pages in different languages
-    variable_set('language_negotiation', LANGUAGE_NEGOTIATION_PATH);
+    return $node;
   }
 
   /**
-   * Delete created files and temporary files directory, delete the tables created by setUp(),
-   * and reset the database prefix.
+   * Create a translation for the specified basic page in the specified
+   * language.
+   *
+   * @param $node
+   *   The basic page to create translation for.
+   * @param $title
+   *   Title of basic page in specified language.
+   * @param $body
+   *   Body of basic page in specified language.
+   * @param $language
+   *   Language code.
    */
-  protected function tearDown() {
-    parent::tearDown();
+  function createNodeTranslation($node, $language) {
+    $body = $this->randomName();
+    $title = $this->randomName();
+    $this->drupalGet('node/add/page', array('query' => array('translation' => $node->nid, 'target' => $language)));
 
-    // Reset language list
-    language_list('language', TRUE);
-    drupal_init_language();
-    if (module_exists('locale')) {
-      locale(NULL, NULL, TRUE);
-    }
+    $body_key = "body[$language][0][value]";
+    $this->assertFieldByXPath('//input[@id="edit-title"]', $node->title, "Original title value correctly populated.");
+    $this->assertFieldByXPath("//textarea[@name='$body_key']", $node->body[$node->language][0]['value'], "Original body value correctly populated.");
+
+    $edit = array();
+    $edit["title"] = $title;
+    $edit[$body_key] = $body;
+    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->assertRaw(t('Basic page %title has been created.', array('%title' => $title)), t('Translation created.'));
+
+    // Check to make sure that translation was successful.
+    $translation = $this->drupalGetNodeByTitle($title);
+    $this->assertTrue($translation, t('Node found in database.'));
+    $this->assertTrue($translation->tnid == $node->nid, t('Translation set id correctly stored.'));
+
+    return $translation;
   }
 
   /**
@@ -205,6 +208,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     unset($languages[language_default('language')]);
     return $languages;
   }
+
   /**
    * Create and store one translation into the db
    */
@@ -231,6 +235,63 @@ class Drupali18nTestCase extends DrupalWebTestCase {
       return 0;
     }
   }
+
+  /**
+   * Create translation for string in textgroup
+   * 
+   * @param $translations
+   *   Optional array of langcode => translation. If not present, it will be generated.
+   */
+  function createStringTranslation($textgroup, $string, $translations = NULL) {
+    // Generate translations if not found, they will be the same length as source string
+    if (!$translations) {
+      $length = strlen($string);
+      foreach ($this->getOtherLanguages() as $language) {
+        $translations[$language->language] = $this->randomName($length);
+      }
+    }
+    // Search for the name and translate it.
+    $this->drupalLogin($this->translator);
+    $search = array(
+      'string' => $name,
+      'language' => 'all',
+      'translation' => 'all',
+      'group' => $textgroup,
+    );
+    $this->drupalPost('admin/config/regional/translate/translate', $search, t('Filter'));
+    // assertText() seems to remove the input field where $name always could be
+    // found, so this is not a false assert. See how assertNoText succeeds
+    // later.
+    $this->assertText($name, t('Search found the name.'));
+    $this->assertRaw($language_indicator, t('Name is untranslated.'));
+    // Assume this is the only result, given the random name.
+    $this->clickLink(t('edit'));
+    // We save the lid from the path.
+    $matches = array();
+    preg_match('!admin/config/regional/translate/edit/(\d+)!', $this->getUrl(), $matches);
+    $lid = $matches[1];
+    // No t() here, it's surely not translated yet.
+    $this->assertText($name, t('name found on edit screen.'));
+    foreach ($translations as $langcode => $translation) {
+      $edit["translations[$langcode]"] = $translation;
+    }
+    $this->drupalPost(NULL, $edit, t('Save translations'));
+    $this->assertText(t('The string has been saved.'), t('The string has been saved.'));
+    $this->assertEqual($this->getUrl(), url('admin/config/regional/translate/translate', array('absolute' => TRUE)), t('Correct page redirection.'));
+    $this->assertTrue($name != $translation && t($name, array(), array('langcode' => $langcode)) == $translation, t('t() works.'));
+    $this->drupalPost('admin/config/regional/translate/translate', $search, t('Filter'));
+    // The indicator should not be here.
+    $this->assertNoRaw($language_indicator, t('String is translated.'));
+    return $translations;
+  }
+
+  /**
+   * Reset static caches to make the test code match the client site behavior.
+   */
+  function resetCaches() {
+    drupal_static_reset('locale_url_outbound_alter');
+  }
+  
   /**
    * Print out a variable for debugging
    */
@@ -284,7 +345,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
       );
     }
     if (!empty($rows)) {
-      return theme('table', array(), $rows);
+      return theme('table', array('rows' => $rows));
     }
     else {
       return 'No properties';

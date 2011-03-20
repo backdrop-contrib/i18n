@@ -1,13 +1,10 @@
 <?php
 /**
- * Class for testing messaging module.
- *
- * Tests basic API functions
+ * @file 
+ * Test case for multilingual blocks
  */
 
-require_once 'i18n_strings.test';
-
-class i18n_Blocks_Test extends Drupali18nTestCase {
+class i18nBlocksTestCase extends Drupali18nTestCase {
 
   function getInfo() {
     return array(
@@ -19,9 +16,7 @@ class i18n_Blocks_Test extends Drupali18nTestCase {
 
   function setUp() {
     parent::setUp('118n', 'locale', 'i18n_string', 'i18nblocks');
-    $this->addLanguage('es');
-    $this->addLanguage('de');
-     // Create and login user
+    parent::setUpLanguages();
     $admin_user = $this->drupalCreateUser(array('administer blocks'));
     $this->drupalLogin($admin_user);
   }

@@ -4,3 +4,4 @@ dependencies[] = i18n
 package = Multilingual
 core = 7.x
 configure = admin/config/regional/i18n/select
+files[] = i18n_select.test

@@ -3,3 +3,4 @@ description = Enables language selector for blocks and optional block translatio
 dependencies[] = i18n
 package = Multilingual
 core = 7.x
+files[] = i18n_block.test
