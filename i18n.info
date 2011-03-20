@@ -5,8 +5,7 @@ dependencies[] = variable
 package = Multilingual
 core = 7.x
 
-files[] = i18n.module
 files[] = i18n.install
 files[] = i18n.admin.inc
-files[] = i18n.module
+files[] = i18n.test
 configure = admin/config/regional/i18n
