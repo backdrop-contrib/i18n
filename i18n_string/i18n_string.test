@@ -17,7 +17,8 @@ class i18nStringTestCase extends Drupali18nTestCase {
   }
 
   function setUp() {
-    parent::setUp('i18n', 'locale', 'i18n_string');
+    // We can use any of the modules that define a text group, to use it for testing
+    parent::setUp('i18n_string', 'i18n_menu');
     parent::setUpLanguages();
   }
 
@@ -25,25 +26,24 @@ class i18nStringTestCase extends Drupali18nTestCase {
    * Test base i18n_string API
    */
   function testStringsAPI() {
-    // Create a bunch of strings for three languages
-    $strings = $this->stringCreateAll(10);
- 
+    // Create a bunch of strings for all languages
+    $textgroup = 'menu';
+    $strings = $this->stringCreateArray(2);
+    $translations = array();
     // Save source strings and store translations
-    foreach ($strings['en'] as $key => $string) {
-      $name = "test:string:$key:name";
+    foreach ($strings as $key => $string) {
+      $name = "$textgroup:item:$key:title";
       i18n_string_update($name, $string);
-      $count = $this->stringSaveTranslation($name, 'es', $strings['es'][$key]);
-      $count += $this->stringSaveTranslation($name, 'pt-br', $strings['pt-br'][$key]);
-      $this->assertEqual($count, 2, "Two translatins have been saved");
+      $translations[$key] = $this->createStringTranslation($textgroup, $string);
     }
-    // Check translations
-    $language_list = language_list();
-    foreach (array('pt-br', 'es') as $lang) {
-      $language = $language_list[$lang];
-      foreach ($strings[$lang] as $key => $value) {
-        $name = "test:string:$key:name";
-        $translation = i18n_string($name, 'NOT FOUND', $lang);
-        $this->assertEqual($translation, $value, "The right $language->language translation has been retrieved for $name, $translation");
+    // Reset cache for text group
+    i18n_string_textgroup($textgroup)->cache_reset();
+    // Check translations using the API
+    foreach ($this->getOtherLanguages() as $language) {
+      foreach ($strings as $key => $value) {
+        $name = "$textgroup:item:$key:title";
+        $translation = i18n_string_translate($name, 'NOT FOUND', array('langcode' => $language->language));
+        $this->assertEqual($translation, $translations[$key][$language->language], "The right $language->name ($language->language) translation has been retrieved for $name, $translation");
       }
     }
   }
@@ -78,18 +78,9 @@ class i18nStringTestCase extends Drupali18nTestCase {
   /**
    * Translate one string into the db
    */
-  public static function stringSaveTranslation($name, $lang, $translation, $update = FALSE) {
+  public static function stringSaveTranslation($name, $lang, $translation) {
+    list($textgroup, $context) = i18n_string_context($name);
+    i18n_string_textgroup($textgroup)->update_translation($context, $lang, $translation);
     $source = i18n_string_get_source($name);
-    if ($source) {
-      if ($update) {
-        db_query("UPDATE {locales_target} SET translation = '%s' WHERE lid = %d AND language = '%s'", $translation, $source->lid, $lang);    
-      } else {
-        db_query("INSERT INTO {locales_target} (translation, lid, language) VALUES ('%s', %d, '%s')", $translation, $source->lid, $lang);
-      }
-      return db_affected_rows();
-    }
-    else {
-      return 0;
-    }
   }
 }

@@ -122,6 +122,7 @@ class i18n_string_default {
     }  
     return $status;
   }
+
   /**
    * Set string object into cache
    */
@@ -162,7 +163,16 @@ class i18n_string_default {
         $string->translation = FALSE;
       }
     }
-  }  
+  }
+  
+  /**
+   * Reset cache, needed for tests
+   */
+  public function cache_reset() {
+    $this->string_map = array();
+    $this->string_format = array();
+  }
+
   /**
    * Check if string is ok for translation
    */
@@ -557,12 +567,9 @@ class i18n_string_default {
    */
   function update_translation($context, $langcode, $translation) {
     if ($source = $this->get_source($context, $translation)) {
-      db_insert('locales_target')
-        ->fields(array(
-          'lid' => $source->lid,
-          'language' => $langcode,
-          'translation' => $translation,
-        ))
+      db_merge('locales_target')
+        ->key(array('lid' => $source->lid, 'language' => $langcode))
+        ->fields(array('translation' => $translation))
         ->execute();
     }
   }

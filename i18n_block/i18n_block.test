@@ -15,7 +15,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
   }
 
   function setUp() {
-    parent::setUp('118n', 'locale', 'i18n_string', 'i18nblocks');
+    parent::setUp('i18n_block');
     parent::setUpLanguages();
     $admin_user = $this->drupalCreateUser(array('administer blocks'));
     $this->drupalLogin($admin_user);

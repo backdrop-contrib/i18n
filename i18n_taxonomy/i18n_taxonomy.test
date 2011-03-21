@@ -16,7 +16,7 @@ class i18nTaxonomyTestCase extends Drupali18nTestCase {
   }
 
   function setUp() {
-    parent::setUp('i18n_string', 'taxonomy', 'i18n_taxonomy');
+    parent::setUp('i18n_taxonomy');
     parent::setUpLanguages();
   }
 

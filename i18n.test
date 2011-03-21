@@ -10,7 +10,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   function setUpLanguages() {
     // Setup users.
     $this->admin_user = $this->drupalCreateUser(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'administer blocks', 'access administration pages'));
-    $this->translator = $this->drupalCreateUser(array('create page content', 'edit own page content', 'translate content'));
+    $this->translator = $this->drupalCreateUser(array('translate interface'));
 
     $this->drupalLogin($this->admin_user);
 
@@ -25,6 +25,20 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $edit = array('enabled[it]' => FALSE);
     $this->drupalPost('admin/config/regional/language', $edit, t('Save configuration'));
 
+    // Enable URL language detection and selection to make the language switcher
+    // block appear.
+    $edit = array('language[enabled][locale-url]' => TRUE);
+    $this->drupalPost('admin/config/regional/language/configure', $edit, t('Save settings'));
+    $this->assertRaw(t('Language negotiation configuration saved.'), t('URL language detection enabled.'));
+    $this->resetCaches();
+  }
+
+  /**
+   * Set up translation for content type (page)
+   */
+  function setUpContentTranslation() {
+    $this->translator = $this->drupalCreateUser(array('create page content', 'edit own page content', 'translate content'));
+
     // Set "Basic page" content type to use multilingual support with
     // translation.
     $this->drupalGet('admin/structure/types/manage/page');
@@ -38,14 +52,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $edit = array("blocks[locale_$language_type][region]" => 'sidebar_first');
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
 
-    // Enable URL language detection and selection to make the language switcher
-    // block appear.
-    $edit = array('language[enabled][locale-url]' => TRUE);
-    $this->drupalPost('admin/config/regional/language/configure', $edit, t('Save settings'));
-    $this->assertRaw(t('Language negotiation configuration saved.'), t('URL language detection enabled.'));
-    $this->resetCaches();
-
-    $this->drupalLogin($this->translator);
+    $this->drupalLogin($this->translator); 
   }
 
   /**
@@ -210,46 +217,22 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Create and store one translation into the db
-   */
-  public function i18n_stringCreateTranslation($name, $lang, $length = 20) {
-    $translation = $this->randomName($length, "i18n-$lang-");
-    $count = self::i18n_stringSaveTranslation($name, $lang, $translation);
-    $this->assertTrue($count, "A translation($lang) has been created for string $name");
-    return $translation;
-  }
-  /**
-   * Translate one string into the db
-   */
-  public static function i18n_stringSaveTranslation($name, $lang, $translation, $update = FALSE) {
-    $source = i18n_string_get_source($name);
-    if ($source) {
-      if ($update) {
-        db_query("UPDATE {locales_target} SET translation = '%s' WHERE lid = %d AND language = '%s'", $translation, $source->lid, $lang);
-      } else {
-        db_query("INSERT INTO {locales_target} (translation, lid, language) VALUES ('%s', %d, '%s')", $translation, $source->lid, $lang);
-      }
-      return db_affected_rows();
-    }
-    else {
-      return 0;
-    }
-  }
-
-  /**
    * Create translation for string in textgroup
    * 
    * @param $translations
    *   Optional array of langcode => translation. If not present, it will be generated.
    */
-  function createStringTranslation($textgroup, $string, $translations = NULL) {
+  function createStringTranslation($textgroup, $name, $translations = NULL) {
     // Generate translations if not found, they will be the same length as source string
     if (!$translations) {
-      $length = strlen($string);
+      $length = strlen($name);
       foreach ($this->getOtherLanguages() as $language) {
         $translations[$language->language] = $this->randomName($length);
       }
     }
+    // This is the language indicator on the translation search screen for
+    // untranslated strings. Copied straight from locale.inc.
+    $language_indicator = "<em class=\"locale-untranslated\">";
     // Search for the name and translate it.
     $this->drupalLogin($this->translator);
     $search = array(
@@ -278,7 +261,6 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $this->drupalPost(NULL, $edit, t('Save translations'));
     $this->assertText(t('The string has been saved.'), t('The string has been saved.'));
     $this->assertEqual($this->getUrl(), url('admin/config/regional/translate/translate', array('absolute' => TRUE)), t('Correct page redirection.'));
-    $this->assertTrue($name != $translation && t($name, array(), array('langcode' => $langcode)) == $translation, t('t() works.'));
     $this->drupalPost('admin/config/regional/translate/translate', $search, t('Filter'));
     // The indicator should not be here.
     $this->assertNoRaw($language_indicator, t('String is translated.'));
@@ -295,11 +277,13 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   /**
    * Print out a variable for debugging
    */
-  function printDebug($data, $title = '') {
-    $string = is_array($data) || is_object($data) ? print_r($data, TRUE) : $data;
-    $output = $title ? $title . ':' . $string : $string;
+  function printDebug($data, $title = 'Debug') {
+    $output = '<h2>' . $title . '<h2 />';
+    $output .= '<pre>';
+    $output .= is_array($data) || is_object($data) ? print_r($data, TRUE) : $data;
+    $output .= '<pre>';
     //$this->assertTrue(TRUE, $output);
-    $this->assertTrue(TRUE, $output, 'Debug');
+    $this->verbose($output);
   }
   /**
    * Debug dump object with some formatting
@@ -316,22 +300,32 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $this->printDebug($this->drupalGetContent());
   }
 
-  // Dump table contents
-  function dumpTable($table) {
-    $result = db_query('SELECT * FROM {' . $table . '}');
-    $output = 'Table dump <strong>' . $table . '</strong>:';
-    while ($row = db_fetch_array($result)) {
-      $rows[] = $row;
-      if (empty($header)) {
-        $header = array_keys($row);
+  /**
+   * Dump table contents
+   * 
+   * @params $table1, $table2..
+   *   One or more table names
+   */ 
+  function dumpTable() {
+    $output = '';
+    foreach (func_get_args() as $table) {
+      $header = $rows = array();
+      $result = db_query('SELECT * FROM {' . $table . '}');
+      $output .= '<h2>Table dump <i>' . $table . '</i>:</h2>';
+      while ($row = $result->fetchAssoc()) {
+        $rows[] = $row;
+        if (empty($header)) {
+          $header = array_keys($row);
+        }
       }
+      if (!empty($rows)) {
+        $output .= theme('table', array('header' => $header, 'rows' => $rows));
+      } else {
+        $output .= ' No rows';
+      }
+      $output .= '<br />';
     }
-    if (!empty($rows)) {
-      $output .= theme('table', $header, $rows);
-    } else {
-      $output .= ' No rows';
-    }
-    $this->assertTrue(TRUE, $output);
+    $this->verbose($output);
   }
 
   /**
