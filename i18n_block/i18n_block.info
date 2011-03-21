@@ -1,6 +1,7 @@
 name = Block languages
 description = Enables language selector for blocks and optional block translation.
-dependencies[] = i18n
+dependencies[] = block
+dependencies[] = i18n_string
 package = Multilingual
 core = 7.x
 files[] = i18n_block.test
