@@ -38,12 +38,15 @@ class Drupali18nTestCase extends DrupalWebTestCase {
    */
   function setUpContentTranslation() {
     $this->translator = $this->drupalCreateUser(array('create page content', 'edit own page content', 'translate content'));
-
+    $this->drupalLogin($this->admin_user);
     // Set "Basic page" content type to use multilingual support with
     // translation.
     $this->drupalGet('admin/structure/types/manage/page');
     $edit = array();
     $edit['language_content_type'] = 2;
+    // Mark status and promoted
+    $edit['node_options[status]'] = 1;
+    $edit['node_options[promote]'] = 1;
     $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
     $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Basic page')), t('Basic page content type has been updated.'));
 
@@ -51,8 +54,6 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $language_type = LANGUAGE_TYPE_INTERFACE;
     $edit = array("blocks[locale_$language_type][region]" => 'sidebar_first');
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
-
-    $this->drupalLogin($this->translator); 
   }
 
   /**
@@ -102,17 +103,13 @@ class Drupali18nTestCase extends DrupalWebTestCase {
    *   Optional list of language codes
    */
   function createNodeTranslationSet(&$source, $languages = NULL) {
-    $languages = $languages ? $languages : array_keys(language_list());
     if (empty($source->tnid)) {
       $source->tnid = $source->nid;
     }
     $translations[$source->language] = $source;
-    foreach ($languages as $lang) {
-      if ($lang != $source->language) {
-        // Append language code to source title and body
-        $title = $source->title . $lang;
-        $body = $source->body . $lang;
-        $translations[$lang] = $this->createNodeTranslation($source, $lang);
+    foreach (language_list() as $language) {
+      if ($language->language != $source->language) {
+        $translations[$language->language] = $this->createNodeTranslation($source, $language);
       }
     }
     return $translations;
@@ -157,12 +154,12 @@ class Drupali18nTestCase extends DrupalWebTestCase {
    * @param $language
    *   Language code.
    */
-  function createNodeTranslation($node, $language) {
-    $body = $this->randomName();
-    $title = $this->randomName();
-    $this->drupalGet('node/add/page', array('query' => array('translation' => $node->nid, 'target' => $language)));
+  function createNodeTranslation($node, $language, $title = NULL, $body = NULL) {
+    $body = $body ? $body : $this->randomName();
+    $title = $title ? $title : $this->randomName();
+    $this->drupalGet('node/add/' . $node->type, array('query' => array('translation' => $node->nid, 'target' => $language->language)));
 
-    $body_key = "body[$language][0][value]";
+    $body_key = "body[$language->language][0][value]";
     $this->assertFieldByXPath('//input[@id="edit-title"]', $node->title, "Original title value correctly populated.");
     $this->assertFieldByXPath("//textarea[@name='$body_key']", $node->body[$node->language][0]['value'], "Original body value correctly populated.");
 
@@ -182,10 +179,22 @@ class Drupali18nTestCase extends DrupalWebTestCase {
 
   /**
    * Retrieves a Drupal path or an absolute path with language
+   * 
+   * @param $language
+   *   Language code or language object
    */
-  protected function i18nGet($langcode, $path = '', array $options = array(), array $headers = array()) {
-    $options += array('language' => $this->getLanguage($langcode));
+  protected function i18nGet($language, $path = '', array $options = array(), array $headers = array()) {
+    $options['language'] = $this->getLanguage($language);
     return $this->drupalGet($path, $options, $headers);
+  }
+  /**
+   * Create node with language
+   */
+  protected function i18nCreateNode($language, $settings = array()) {
+    $language = $this->getLanguage($language);
+    $settings += array('language'  => $language->language, 'body' => array());
+    $settings['body'] += array($language->language => array(array()));
+    return $this->drupalCreateNode($settings);
   }
   /**
    * Get language object for langcode
