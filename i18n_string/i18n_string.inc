@@ -171,6 +171,7 @@ class i18n_string_default {
   public function cache_reset() {
     $this->string_map = array();
     $this->string_format = array();
+    $this->translations = array();
   }
 
   /**
@@ -392,6 +393,20 @@ class i18n_string_default {
   }
 
   /**
+   * Save translation to the db
+   * 
+   * @param $string
+   *   Full string object with translation data (language, translation)
+   */
+  protected function save_translation($string) {
+    db_merge('locales_target')
+      ->key(array('lid' => $string->lid, 'language' => $string->language))
+      ->fields(array('translation' => $string->translation))
+      ->execute();
+    $this->cache_set($string);  
+  }
+
+  /**
    * Save source string (create / update)
    */
   protected static function save_source($source) {
@@ -567,10 +582,10 @@ class i18n_string_default {
    */
   function update_translation($context, $langcode, $translation) {
     if ($source = $this->get_source($context, $translation)) {
-      db_merge('locales_target')
-        ->key(array('lid' => $source->lid, 'language' => $langcode))
-        ->fields(array('translation' => $translation))
-        ->execute();
+      $source->language = $langcode;
+      $source->translation = $translation;
+      $this->save_translation($source);
+      return $source;
     }
   }
 

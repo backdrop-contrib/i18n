@@ -80,7 +80,6 @@ class i18nStringTestCase extends Drupali18nTestCase {
    */
   public static function stringSaveTranslation($name, $lang, $translation) {
     list($textgroup, $context) = i18n_string_context($name);
-    i18n_string_textgroup($textgroup)->update_translation($context, $lang, $translation);
-    $source = i18n_string_get_source($name);
+    return i18n_string_textgroup($textgroup)->update_translation($context, $lang, $translation);
   }
 }
