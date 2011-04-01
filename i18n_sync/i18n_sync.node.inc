@@ -206,8 +206,9 @@ function i18n_sync_node_translation_field_field($node, $translation, $field, $fi
       break;
     default:
       // For fields that don't need special handling, just copy it over if defined.
-      if (isset($node->$field)) {
-        $translation->$field = $node->$field;
-      }      
+      if (isset($node->{$field}[$node->language])) {
+        $translation->{$field}[$translation->language] = $node->{$field}[$node->language];
+      }
+      break;   
   } 
 }
