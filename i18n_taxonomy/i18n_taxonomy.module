@@ -657,7 +657,8 @@ function i18n_taxonomy_form_alter(&$form, $form_state, $form_id) {
       break;
 
     case 'taxonomy_overview_terms':
-      if (i18n_taxonomy_vocabulary_mode($form['#vocabulary']->vid) & I18N_MODE_TRANSLATE) {
+      // We check for vocabulary object first, because when confirming alphabetical ordering it uses the same form
+      if (!empty($form['#vocabulary']) && i18n_taxonomy_vocabulary_mode($form['#vocabulary']->vid) & I18N_MODE_TRANSLATE) {
         foreach (element_children($form) as $key) {
           if (isset($form[$key]['#term']) && ($lang = i18n_object_langcode($form[$key]['#term']))) {
             $form[$key]['view']['#suffix'] = ' ('. i18n_language_name($lang) .')';
