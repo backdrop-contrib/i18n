@@ -43,28 +43,6 @@ function i18n_node_add($type) {
 }
 
 /**
- * Replacement for node_add_page.
- */
-function i18n_node_add_page() {
-  $item = menu_get_item();
-  $content = system_admin_menu_block($item);
-  // Bypass the node/add listing if only one content type is available.
-  if (count($content) == 1) {
-    $item = array_shift($content);
-    drupal_goto($item['href']);
-  }
-  foreach ($content as &$item) {
-    // Type machine name will be the third part of the path
-    $parts = explode('/', $item['path']);
-    $type = $parts[2];
-    // We just need to translate the description, the title is translated by the menu system
-    // The string will be filtered (xss_admin) on the theme layer
-    $item['description'] = i18n_node_translate_type($type, 'description', $item['description']);
-  }
-  return theme('node_add_list', array('content' => $content));
-}
-
-/**
  * Implements hook_field_extra_fields().
  */
 function i18n_node_field_extra_fields() {
@@ -220,6 +198,8 @@ function i18n_node_menu_alter(&$items) {
   }
   // Take over node/add pages for string translation
   $items['node/add']['page callback'] =  'i18n_node_add_page';
+  $items['node/add']['file'] = 'i18n_node.pages.inc';
+  $items['node/add']['file path'] = drupal_get_path('module', 'i18n_node');
   // @TODO avoid iterating over every router path.
   foreach (node_type_get_types() as $type) {
     $path = 'node/add/' . str_replace('_', '-', $type->type);

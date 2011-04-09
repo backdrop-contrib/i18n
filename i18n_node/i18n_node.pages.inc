@@ -5,6 +5,29 @@
  * User page callbacks for the translation module.
  */
 
+
+/**
+ * Replacement for node_add_page.
+ */
+function i18n_node_add_page() {
+  $item = menu_get_item();
+  $content = system_admin_menu_block($item);
+  // Bypass the node/add listing if only one content type is available.
+  if (count($content) == 1) {
+    $item = array_shift($content);
+    drupal_goto($item['href']);
+  }
+  foreach ($content as &$item) {
+    // Type machine name will be the third part of the path
+    $parts = explode('/', $item['path']);
+    $type = $parts[2];
+    // We just need to translate the description, the title is translated by the menu system
+    // The string will be filtered (xss_admin) on the theme layer
+    $item['description'] = i18n_node_translate_type($type, 'description', $item['description']);
+  }
+  return theme('node_add_list', array('content' => $content));
+}
+
 /**
  * Overview page for a node's translations.
  *
