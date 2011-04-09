@@ -1,5 +1,5 @@
 name = Translation redirect
 description = Redirect to translated page when available. SEO for multilingual sites.
 dependencies[] = i18n
-package = Multilingual
+package = Multilingual - Internationalization
 core = 7.x

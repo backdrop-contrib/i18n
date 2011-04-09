@@ -2,7 +2,7 @@ name = String translation
 description = Provides support for translation of user defined strings.
 dependencies[] = locale
 dependencies[] = i18n
-package = Multilingual
+package = Multilingual - Internationalization
 core = 7.x
 
 files[] = i18n_string.admin.inc

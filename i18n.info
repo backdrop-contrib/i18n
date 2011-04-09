@@ -2,7 +2,7 @@ name = Internationalization
 description = Extends Drupal support for multilingual features.
 dependencies[] = locale
 dependencies[] = variable
-package = Multilingual
+package = Multilingual - Internationalization
 core = 7.x
 
 files[] = i18n.install

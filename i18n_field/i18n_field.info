@@ -2,5 +2,5 @@ name = Field translation
 description = Translate field properties
 dependencies[] = field
 dependencies[] = i18n_string
-package = Multilingual
+package = Multilingual - Internationalization
 core = 7.x

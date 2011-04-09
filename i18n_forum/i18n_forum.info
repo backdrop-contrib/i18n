@@ -2,6 +2,6 @@ name = Multilingual forum
 description = Enables multilingual forum, translates names and containers.
 dependencies[] = forum
 dependencies[] = i18n_taxonomy
-package = Multilingual
+package = Multilingual - Internationalization
 core = 7.x
 
