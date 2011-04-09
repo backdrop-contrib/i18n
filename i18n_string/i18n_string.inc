@@ -721,38 +721,30 @@ function i18n_string_l10n_client_save_string() {
  *
  * This will update multiple strings if there are duplicated ones
  *
- * @param $langcode
- *   Language code to import string into.
- * @param $source
- *   Source string.
  * @param $translation
- *   Translation to language specified in $langcode.
- * @param $plid
- *   Optional plural ID to use.
- * @param $plural
- *   Optional plural value to use.
+ *   Srtring object with textgroup, langcode, source, translation, format properties
  * @return
  *   The number of strings updated
  */
-function i18n_string_save_translation($context) {
+function i18n_string_save_translation($translation) {
   include_once 'includes/locale.inc';
 
   $query = db_select('locales_source', 's')
     ->fields('s', array('lid'))
     ->fields('i', array('format'))
-    ->condition('s.source', $context->source)
-    ->condition('s.textgroup', $context->textgroup);
+    ->condition('s.source', $translation->source)
+    ->condition('s.textgroup', $translation->textgroup);
   $query->leftJoin('i18n_string', 'i', 's.lid = i.lid');
-  $result->execute()->fetchAll(PDO::FETCH_OBJ);
+  $result = $query->execute()->fetchAll(PDO::FETCH_OBJ);
 
   $count = 0;
   foreach ($result as $source) {
     // If we have a format, check format access. Otherwise do regular check.
-    if ($source->format ? filter_access($source->format) : locale_string_is_safe($translation)) {
+    if ($source->format ? filter_access($source->format) : locale_string_is_safe($translation->translation)) {
       $exists = (bool) db_select('locales_target', 'l')
         ->fields('l', array('lid'))
         ->condition('lid', $source->lid)
-        ->condition('language', $langcode)
+        ->condition('language', $translation->langcode)
         ->execute()
         ->fetchColumn();
       if (!$exists) {
@@ -760,16 +752,16 @@ function i18n_string_save_translation($context) {
         db_insert('locales_target')
           ->fields(array(
             'lid' => $source->lid,
-            'language' => $langcode,
-            'translation' => $translation,
+            'language' => $translation->langcode,
+            'translation' => $translation->translation,
           ))
           ->execute();
       }
       else {
         // Translation exists, overwrite
         db_update('locales_target')
-          ->fields(array('translation' => $translation))
-          ->condition('language', $langcode)
+          ->fields(array('translation' => $translation->translation))
+          ->condition('language', $translation->langcode)
           ->condition('lid', $source->lid)
           ->execute();
       }
