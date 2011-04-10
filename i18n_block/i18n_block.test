@@ -17,21 +17,24 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
   function setUp() {
     parent::setUp('i18n_block');
     parent::setUpLanguages();
+    
+    $format = filter_default_format();
+    variable_set('i18n_string_allowed_formats', array($format => $format));
+    $this->i18nLogin($this->admin_user);
+    // Display Language switcher block
+    $this->moveBlockToRegion(array('module' => 'locale', 'delta' => 'language', 'title' => t('Languages')));
   }
 
   function testBlockTranslation() {
     // Create a translatable block
-    $block = $this->i18nCreateBlock(I18N_BLOCK_LOCALIZE);
+    $block = $this->i18nCreateBlock();
 
     // Now set a language for the block and confirm it shows just for that one (without translation)
-    $languages = $this->getOtherLanguages();
+    $languages = $this->getEnabledLanguages();
     $setlanguage = array_shift($languages);
     $otherlanguage = array_shift($languages);
-    $this->sebBlockLanguages($block['module'], $block['delta'], array(setlanguage->language));
-    
-    // Do not show in default language
-    $this->drupalGet('');
-    $this->assertNoText($block['title']);
+    $this->setBlockLanguages($block, array($setlanguage->language));
+
     // Show in block's language but not translated
     $this->i18nGet($setlanguage);
     $this->assertText($block['title']);
@@ -39,70 +42,73 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $this->i18nGet($otherlanguage);
     $this->assertNoText($block['title']);
 
-    // Create translations for title and body, source strings should be already there
-    $translations = $this->i18nTranslateBlock($block);
-    
     // Add a custom title to any other block: Navigation (user, 1)
     $title = $this->randomName(10);
-    $this->i18nUpdateBlock('user', 1, array('title' => $title));
+    $user_block = array('module' => 'system', 'delta' => 'navigation');
+    $this->updateBlock($user_block, array('title' => $title, 'i18n_mode' => I18N_MODE_LOCALIZE));
     $this->assertText($title, "The new custom title is displayed on the home page.");
-    $translate = $this->i18nTranslateBlock('user', 1, array('title'));
-    $this->drupalGet('');
-    
-    // Refresh block strings, the ones for the first box should be gone. Not the others
-    $box2 = $this->i18nCreateBox(array('language' => I18N_BLOCK_LOCALIZE));
-    $translations = $this->i18nTranslateBlock('block', $box2->bid, array('title', 'body'));
-    i18n_string_refresh_group('blocks', TRUE);
-    $this->assertFalse(i18n_string_get_source("blocks:block:$box->bid:title", $box->title), "The string for the box title is gone.");
-    $this->assertFalse(i18n_string_get_source("blocks:block:$box->bid:body", $box->body), "The string for the box body is gone.");
-    $this->assertTrue(i18n_string_get_source("blocks:user:1:title"), "We have a string for the Navigation block title");
-    $this->assertTrue(i18n_string_get_source("blocks:block:$box2->bid:title", $box2->title), "The string for the second box title is still there.");
-    $this->assertTrue(i18n_string_get_source("blocks:block:$box2->bid:body", $box2->body), "The string for the second box body is still there.");
+    $translations = $this->createStringTranslation('blocks', $title);
+    $this->i18nAssertTranslations($translations);
+
+    // Create a new block, translate it and check the right translations are displayed
+    $box2 = $this->i18nCreateBlock();
+    // Create translations for title and body, source strings should be already there
+    $translations = $this->i18nTranslateBlock($box2);
+    $this->i18nAssertTranslations($translations['title'], '', 'Block title translation displayed.');
+  
+    /*
     // Test a block with filtering and text formats
-    $box3 = $this->i18nCreateBox(array(
+    $box3 = $this->i18nCreateBlock(array(
       'title' => '<div><script>alert(0)</script>Title</script>',
       'body' => "One line\nTwo lines<script>alert(1)</script>",
-      'language' => I18N_BLOCK_LOCALIZE,
     ));
     $language = current($this->getOtherLanguages());
     // We add language name to the title just to make sure we get the right translation later
-    $this->i18n_stringSaveTranslation("blocks:block:$box3->bid:title", $language->language, $box3->title . $language->name);
-    $this->i18n_stringSaveTranslation("blocks:block:$box3->bid:body", $language->language, $box3->body);
+    $translations = $this->i18nTranslateBlock($box3);
     // This should be the actual HTML displayed
-    $title = check_plain($box3->title);
-    $body = check_markup($box3->body);
+    $title = check_plain($box3['title']);
+    $body = check_markup($box3['body'], $box3['format']);
     $this->drupalGet('');
     $this->assertRaw($title, "Title being displayed for default language: " . $title);
-    $this->assertRaw($body, "Body being displayed for default language: " . check_plain($body));
+    $this->assertRaw($body, "Body being displayed for default language: " . $body);
     $this->i18nGet($language);
-    $this->assertRaw($title . $language->name, "Translated title displayed with right filtering.");
-    $this->assertRaw($body, "Translated body displayed with right filtering.");
+    $this->i18nCheckTranslations($translations['title']);
+    $this->i18nCheckTranslations($translations['body']);
+    $this->dumpTable('i18n_string');
+    */
   }
  
   /**
    * Translate block fields to all languages
    */
   function i18nTranslateBlock($block) {
-    $this->createStringTranslation('blocks', $block['title']);
-    $this->createStringTranslation('blocks', $block['body']);
+    $translations['title'] = $this->createStringTranslation('blocks', $block['title']);
+    $translations['body'] = $this->createStringTranslation('blocks', $block['body']);
     return $translations;
   }
   /**
    * Test creating custom block (i.e. box), moving it to a specific region and then deleting it.
    */
-  function i18nCreateBlock($i18n_mode = I18N_MODE_LOCALIZE, $region = 'left', $check_display = TRUE) {
+  function i18nCreateBlock($block = array(), $region = 'sidebar_first', $check_display = TRUE) {
+    $this->i18nLogin($this->admin_user);
     // Add a new custom block by filling out the input form on the admin/structure/block/add page.
-    $custom_block = array();
-    $custom_block['info'] = $this->randomName(8);
-    $custom_block['title'] = $this->randomName(8);
-    $custom_block['i18n_mode'] = $i18n_mode;
-    $custom_block['body[value]'] = $this->randomName(32);
+    $block += array(
+      'info' => $this->randomName(8),
+      'title' => $this->randomName(8),
+      'i18n_mode' => I18N_MODE_LOCALIZE,
+      'body' => $this->randomName(16),
+    );
+    $custom_block = array(
+      'info' => $block['info'],
+      'title' => $block['title'],
+      'i18n_mode' => $block['i18n_mode'],
+      'body[value]' => $block['body'],
+    );
     $this->drupalPost('admin/structure/block/add', $custom_block, t('Save block'));
-    $custom_block['body'] = $custom_block['body[value]'];
     
     // Confirm that the custom block has been created, and then query the created bid.
     $this->assertText(t('The block has been created.'), t('Custom block successfully created.'));
-    $bid = db_query("SELECT bid FROM {block_custom} WHERE info = :info", array(':info' => $custom_block['info']))->fetchField();
+    $bid = db_query("SELECT bid FROM {block_custom} WHERE info = :info", array(':info' => $block['info']))->fetchField();
 
     // Check to see if the custom block was created by checking that it's in the database.
     $this->assertNotNull($bid, t('Custom block found in database'));
@@ -111,54 +117,40 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $data = block_block_view($bid);
     $format = db_query("SELECT format FROM {block_custom} WHERE bid = :bid", array(':bid' => $bid))->fetchField();
     $this->assertTrue(array_key_exists('subject', $data) && empty($data['subject']), t('block_block_view() provides an empty block subject, since custom blocks do not have default titles.'));
-    $this->assertEqual(check_markup($custom_block['body[value]'], $format), $data['content'], t('block_block_view() provides correct block content.'));
+    $this->assertEqual(check_markup($block['body'], $format), $data['content'], t('block_block_view() provides correct block content.'));
 
     // Check if the block can be moved to all availble regions.
-    $custom_block['module'] = 'block';
-    $custom_block['delta'] = $bid;
-    $this->moveBlockToRegion($custom_block, $region);
+    $block['module'] = 'block';
+    $block['delta'] = $bid;
+    $block['format'] = $format;
+    $this->moveBlockToRegion($block, $region);
  
-    return $custom_block;
+    return $block;
   }
 
   /**
    * Update block i18n mode
    */
-  function setBlockMode($module, $delta, $mode = I18N_MODE_LOCALIZE) {
+  function setBlockMode($block, $mode = I18N_MODE_LOCALIZE) {
     $edit['i18n_mode'] = $mode;
-    $this->drupalPost("admin/structure/block/manage/$module/$delta/configure", $edit, t('Save block'));
+    $this->updateBlock($block, $edit);
   }
   /**
    * Update block visibility for languages
    */
-  function setBlockLanguages($module, $delta, $languages = array()) {
+  function setBlockLanguages($block, $languages = array()) {
     $edit = array();
-    foreach (i18n_language_list() as $langcode => $name) {
-      $edit["languages[$langcode]"] = in_array($langcode, $languages) ? 1 : 0;
+    foreach ($this->getEnabledLanguages() as $langcode => $language) {
+      $edit["languages[$langcode]"] = in_array($langcode, $languages) ? TRUE : FALSE;
     }
-    $this->drupalPost("admin/structure/block/manage/$module/$delta/configure", $edit, t('Save block'));
-  
+    $this->updateBlock($block, $edit);
   }
-  
-  function moveBlockToRegion($block, $region) {
-    // Set the created block to a specific region.
-    $edit = array();
-    $edit['blocks[' . $block['module'] . '_' . $block['delta'] . '][region]'] = $region;
-    $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
-
-    // Confirm that the block was moved to the proper region.
-    $this->assertText(t('The block settings have been updated.'), t('Block successfully moved to %region_name region.', array( '%region_name' => $region)));
-
-    // Confirm that the block is being displayed.
-    $this->drupalGet('node');
-    $this->assertText(t($block['title']), t('Block successfully being displayed on the page.'));
-
-    // Confirm that the custom block was found at the proper region.
-    $xpath = $this->buildXPathQuery('//div[@class=:region-class]//div[@id=:block-id]/*', array(
-      ':region-class' => 'region region-' . str_replace('_', '-', $region),
-      ':block-id' => 'block-' . $block['module'] . '-' . $block['delta'],
-    ));
-    $this->assertFieldByXPath($xpath, NULL, t('Custom block found in %region_name region.', array('%region_name' => $region)));
+  /**
+   * Update block
+   */
+  function updateBlock($block, $edit) {
+    $this->i18nLogin($this->admin_user);
+    $this->drupalPost('admin/structure/block/manage/' . $block['module'] . '/' . $block['delta'] . '/configure', $edit, t('Save block'));
   }
   
 }   

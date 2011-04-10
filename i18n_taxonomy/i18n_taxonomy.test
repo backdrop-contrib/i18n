@@ -30,6 +30,7 @@ class i18nTaxonomyTestCase extends Drupali18nTestCase {
     // Create and Save Spanish translation for all of them
     $count = 0;
     $lang = 'es';
+    $this->drupalLogin($this->translator);
     foreach ($terms as $term) {
       $translations[$term->tid] = $this->randomName(10);
       // Save Spanish translation

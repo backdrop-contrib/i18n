@@ -6,13 +6,14 @@
  * Base class for Internationalization tests
  */
 class Drupali18nTestCase extends DrupalWebTestCase {
+  protected $current_user;
 
   function setUpLanguages() {
     // Setup users.
     $this->admin_user = $this->drupalCreateUser(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'administer blocks', 'access administration pages'));
     $this->translator = $this->drupalCreateUser(array('translate interface'));
 
-    $this->drupalLogin($this->admin_user);
+    $this->i18nLogin($this->admin_user);
 
     // Add languages.
     $this->addLanguage('en');
@@ -30,6 +31,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $edit = array('language[enabled][locale-url]' => TRUE);
     $this->drupalPost('admin/config/regional/language/configure', $edit, t('Save settings'));
     $this->assertRaw(t('Language negotiation configuration saved.'), t('URL language detection enabled.'));
+    $this->drupalGet('admin/config/regional/language/configure');
     $this->resetCaches();
   }
 
@@ -38,7 +40,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
    */
   function setUpContentTranslation() {
     $this->translator = $this->drupalCreateUser(array('create page content', 'edit own page content', 'translate content'));
-    $this->drupalLogin($this->admin_user);
+    $this->i18nLogin($this->admin_user);
     // Set "Basic page" content type to use multilingual support with
     // translation.
     $this->drupalGet('admin/structure/types/manage/page');
@@ -188,6 +190,27 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     return $this->drupalGet($path, $options, $headers);
   }
   /**
+   * Login user, only if changed
+   */
+  function i18nLogin($user) {
+    if (!isset($this->current_user) || $this->current_user->uid != $user->uid) {
+      $this->current_user = $user;
+      $this->drupalLogin($user);
+    }
+  }
+  /**
+   * Check strings for different languages
+   */
+  function i18nAssertTranslations($translations, $path = '', $message = 'Translation found for language.') {
+    foreach ($translations as $langcode => $text) {
+      $language = $this->getLanguage($langcode);
+      if ($language->enabled) {
+        $this->i18nGet($language, $path);
+        $this->assertText($text, $message . ' ' . $language->name);
+      }
+    }
+  }
+  /**
    * Create node with language
    */
   protected function i18nCreateNode($language, $settings = array()) {
@@ -195,6 +218,30 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $settings += array('language'  => $language->language, 'body' => array());
     $settings['body'] += array($language->language => array(array()));
     return $this->drupalCreateNode($settings);
+  }
+  /**
+   * Move block to region, from block.test
+   */
+  function moveBlockToRegion($block, $region = 'sidebar_first') {
+    $this->i18nLogin($this->admin_user);
+    // Set the created block to a specific region.
+    $edit = array();
+    $edit['blocks[' . $block['module'] . '_' . $block['delta'] . '][region]'] = $region;
+    $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
+
+    // Confirm that the block was moved to the proper region.
+    $this->assertText(t('The block settings have been updated.'), t('Block successfully moved to %region_name region.', array( '%region_name' => $region)));
+
+    // Confirm that the block is being displayed.
+    $this->drupalGet('node');
+    $this->assertText(t($block['title']), t('Block successfully being displayed on the page.'));
+
+    // Confirm that the custom block was found at the proper region.
+    $xpath = $this->buildXPathQuery('//div[@class=:region-class]//div[@id=:block-id]/*', array(
+      ':region-class' => 'region region-' . str_replace('_', '-', $region),
+      ':block-id' => 'block-' . $block['module'] . '-' . $block['delta'],
+    ));
+    $this->assertFieldByXPath($xpath, NULL, t('Custom block found in %region_name region.', array('%region_name' => $region)));
   }
   /**
    * Get language object for langcode
@@ -224,7 +271,18 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     unset($languages[language_default('language')]);
     return $languages;
   }
-
+  /**
+   * Get enabled languages
+   */
+  public function getEnabledLanguages() {
+    $list = array();
+    foreach (language_list() as $langcode => $language) {
+      if (!empty($language->enabled)) {
+        $list[$langcode] = $language;
+      }
+    }
+    return $list;
+  }
   /**
    * Create translation for string in textgroup
    * 
@@ -239,11 +297,11 @@ class Drupali18nTestCase extends DrupalWebTestCase {
         $translations[$language->language] = $this->randomName($length);
       }
     }
+    $this->i18nLogin($this->translator);
     // This is the language indicator on the translation search screen for
     // untranslated strings. Copied straight from locale.inc.
     $language_indicator = "<em class=\"locale-untranslated\">";
     // Search for the name and translate it.
-    $this->drupalLogin($this->translator);
     $search = array(
       'string' => $name,
       'language' => 'all',
@@ -254,7 +312,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     // assertText() seems to remove the input field where $name always could be
     // found, so this is not a false assert. See how assertNoText succeeds
     // later.
-    $this->assertText($name, t('Search found the name.'));
+    $this->assertText(check_plain($name), t('Search found the name.'));
     $this->assertRaw($language_indicator, t('Name is untranslated.'));
     // Assume this is the only result, given the random name.
     $this->clickLink(t('edit'));
@@ -263,7 +321,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     preg_match('!admin/config/regional/translate/edit/(\d+)!', $this->getUrl(), $matches);
     $lid = $matches[1];
     // No t() here, it's surely not translated yet.
-    $this->assertText($name, t('name found on edit screen.'));
+    $this->assertText(check_plain($name), t('name found on edit screen.'));
     foreach ($translations as $langcode => $translation) {
       $edit["translations[$langcode]"] = $translation;
     }
@@ -275,12 +333,13 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $this->assertNoRaw($language_indicator, t('String is translated.'));
     return $translations;
   }
-
+  
   /**
    * Reset static caches to make the test code match the client site behavior.
    */
   function resetCaches() {
     drupal_static_reset('locale_url_outbound_alter');
+    drupal_static_reset('language_list');
   }
   
   /**
