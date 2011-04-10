@@ -206,7 +206,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
       $language = $this->getLanguage($langcode);
       if ($language->enabled) {
         $this->i18nGet($language, $path);
-        $this->assertText($text, $message . ' ' . $language->name);
+        $this->assertRaw($text, $message . ' ' . $language->name . ': '. check_plain($text));
       }
     }
   }
@@ -234,7 +234,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
 
     // Confirm that the block is being displayed.
     $this->drupalGet('node');
-    $this->assertText(t($block['title']), t('Block successfully being displayed on the page.'));
+    $this->assertText(check_plain($block['title']), t('Block successfully being displayed on the page.'));
 
     // Confirm that the custom block was found at the proper region.
     $xpath = $this->buildXPathQuery('//div[@class=:region-class]//div[@id=:block-id]/*', array(

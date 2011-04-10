@@ -21,20 +21,26 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $format = filter_default_format();
     variable_set('i18n_string_allowed_formats', array($format => $format));
     $this->i18nLogin($this->admin_user);
-    // Display Language switcher block
-    $this->moveBlockToRegion(array('module' => 'locale', 'delta' => 'language', 'title' => t('Languages')));
   }
 
   function testBlockTranslation() {
-    // Create a translatable block
+    // Display Language switcher block
+    $switcher = array('module' => 'locale', 'delta' => 'language', 'title' => t('Languages'));
+    $this->moveBlockToRegion($switcher);
+    // Add a custom title to language switcher block and check it displays translated
+    $title = $this->randomName(10);
+    $this->updateBlock($switcher, array('title' => $title, 'i18n_mode' => I18N_MODE_LOCALIZE));
+    $this->assertText($title, "The new custom title is displayed on the home page.");
+    $translations = $this->createStringTranslation('blocks', $title);
+    $this->i18nAssertTranslations($translations);
+      
+    // Create a translatable block and test block visibility per language.
     $block = $this->i18nCreateBlock();
-
     // Now set a language for the block and confirm it shows just for that one (without translation)
     $languages = $this->getEnabledLanguages();
     $setlanguage = array_shift($languages);
     $otherlanguage = array_shift($languages);
     $this->setBlockLanguages($block, array($setlanguage->language));
-
     // Show in block's language but not translated
     $this->i18nGet($setlanguage);
     $this->assertText($block['title']);
@@ -42,40 +48,37 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $this->i18nGet($otherlanguage);
     $this->assertNoText($block['title']);
 
-    // Add a custom title to any other block: Navigation (user, 1)
-    $title = $this->randomName(10);
-    $user_block = array('module' => 'system', 'delta' => 'navigation');
-    $this->updateBlock($user_block, array('title' => $title, 'i18n_mode' => I18N_MODE_LOCALIZE));
-    $this->assertText($title, "The new custom title is displayed on the home page.");
-    $translations = $this->createStringTranslation('blocks', $title);
-    $this->i18nAssertTranslations($translations);
-
-    // Create a new block, translate it and check the right translations are displayed
+    // Create a new block, translate it and check the right translations are displayed for title and body
     $box2 = $this->i18nCreateBlock();
     // Create translations for title and body, source strings should be already there
     $translations = $this->i18nTranslateBlock($box2);
-    $this->i18nAssertTranslations($translations['title'], '', 'Block title translation displayed.');
-  
-    /*
-    // Test a block with filtering and text formats
+    $this->i18nAssertTranslations($translations['title'], '', 'Custom block title translation displayed.');
+    $this->i18nAssertTranslations($translations['body'], '', 'Custom block body translation displayed.');
+    
+    // Test a block translation with filtering and text formats
     $box3 = $this->i18nCreateBlock(array(
       'title' => '<div><script>alert(0)</script>Title</script>',
-      'body' => "One line\nTwo lines<script>alert(1)</script>",
+      'body' => "Dangerous text\nOne line\nTwo lines<script>alert(1)</script>",
     ));
-    $language = current($this->getOtherLanguages());
-    // We add language name to the title just to make sure we get the right translation later
-    $translations = $this->i18nTranslateBlock($box3);
     // This should be the actual HTML displayed
     $title = check_plain($box3['title']);
     $body = check_markup($box3['body'], $box3['format']);
     $this->drupalGet('');
     $this->assertRaw($title, "Title being displayed for default language: " . $title);
     $this->assertRaw($body, "Body being displayed for default language: " . $body);
-    $this->i18nGet($language);
-    $this->i18nCheckTranslations($translations['title']);
-    $this->i18nCheckTranslations($translations['body']);
-    $this->dumpTable('i18n_string');
-    */
+
+    // We add language name to the body just to make sure we get the right translation later
+    // This won't work for block titles as they don't have input format thus scripts will be blocked by locale
+    $translations = array();
+    foreach ($this->getOtherLanguages() as $langcode => $language) {
+      $translations[$langcode] = $box3['body'] . "\n" . $language->name;
+      $filtered[$langcode] = check_markup($translations[$langcode], $box3['format']);
+    }
+    // We need to find the string by this part alone, the rest will be filtered
+    $this->createStringTranslation('blocks', 'Dangerous text', $translations);
+    // Check the right filtered strings are displayed
+    $this->i18nAssertTranslations($filtered);
+
   }
  
   /**
