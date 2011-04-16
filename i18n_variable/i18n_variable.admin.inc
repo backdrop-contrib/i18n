@@ -24,7 +24,6 @@ function i18n_variable_admin_settings($form, $form_state) {
   }
   // The final list will be the sum of both lists. We may have unknown variables we want to preserve.
   $list = array_unique(array_merge($translatable, $current));
-  $list[] = 'unknown_variable';
   $form['variables'] = array(
     '#type' => 'fieldset',
     '#title' => t('Select variables to be translated'),
@@ -32,9 +31,12 @@ function i18n_variable_admin_settings($form, $form_state) {
     '#tree' => TRUE,
   );
   foreach ($list as $name) {
-    $form['variables'][$name] = array(
+    // Variable names may clash with form element names, so we need to replace '[' and ']'
+    $safename = str_replace(array('[', ']'), array('<', '>'), $name);
+    $form['variables'][$safename] = array(
       '#type' => 'checkbox',
       '#default_value' => in_array($name, $current),
+      '#variable_name' => $name,
     );
   }
   $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save configuration'));
@@ -48,6 +50,10 @@ function i18n_variable_admin_settings_submit($form, $form_state) {
   // Get main variable names
   $variables = $form_state['values']['variables'];
   $variables = array_keys(array_filter($variables));
+  // Translate variable names
+  foreach ($variables as $index => $name) {
+    $variables[$index] = str_replace(array('<', '>'), array('[', ']'), $name);
+  }
   variable_set('i18n_variable_conf', $variables);
   // Spawn multiple variables and translate into actual variables
   variable_set('i18n_variable_list', variable_children($variables));
