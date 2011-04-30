@@ -61,12 +61,15 @@ function i18n_node_translation_overview($node) {
       // @todo We may need to switch interface language for translations
       // $params = variable_get('i18n_translation_switch', 0) ? array('language' => $language) : array();
       $links = language_negotiation_get_switch_links($type, $path);
-      $title = empty($links->links[$langcode]) ? l($translation_node->title, $path) : l($translation_node->title, $links->links[$langcode]['href'], $links->links[$langcode]);
+      // When node not published, links don't have href so we use path instead
+      // Note: this is a bug in Core translation module, see http://drupal.org/node/1137074
+      $title = empty($links->links[$langcode]) || empty($links->links[$langcode]['href']) ? l($translation_node->title, $path) : l($translation_node->title, $links->links[$langcode]['href'], $links->links[$langcode]);
       if (node_access('update', $translation_node)) {
         $text = t('edit');
         $path = 'node/' . $translation_node->nid . '/edit';
         $links = language_negotiation_get_switch_links($type, $path);
-        $options[] = empty($links->links[$langcode]) ? l($text, $path) : l($text, $links->links[$langcode]['href'], $links->links[$langcode]);
+        // When node not published, links don't have href so we use path instead
+        $options[] = empty($links->links[$langcode]) || empty($links->links[$langcode]['href']) ? l($text, $path) : l($text,  $links->links[$langcode]['href'], $links->links[$langcode]);
       }
       $status = $translation_node->status ? t('Published') : t('Not published');
       $status .= $translation_node->translate ? ' - <span class="marker">' . t('outdated') . '</span>' : '';
