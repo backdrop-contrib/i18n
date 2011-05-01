@@ -196,13 +196,34 @@ function i18n_menu() {
 
 /**
  * Switch select Mode on off if enabled
+ * 
+ * Usage for disabling content selection for a while then return to previous state
+ *   
+ *   // Disable selection, but store previous mode
+ *   $previous = i18n_select(FALSE);
+ * 
+ *   // Other code to be run without content selection here
+ *   ..........................
+ * 
+ *   // Return to previous mode
+ *   i18n_select($previous);
+ * 
+ * @param $value
+ *   Optional, enable/disable selection: TRUE/FALSE
+ * @return boolean
+ *   Previous selection mode (TRUE/FALSE)
  */
 function i18n_select($value = NULL) {
-  static $mode;
+  static $mode = FALSE;
+
   if (isset($value)) {
+    $previous = $mode;
     $mode = $value;
+    return $previous;
   }
-  return $mode;
+  else {
+    return $mode;
+  }
 }
 
 /**
