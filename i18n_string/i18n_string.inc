@@ -90,7 +90,7 @@ class i18n_string_default {
       $i18nstring->lid = $source->lid;
       if ($source->source != $i18nstring->source || $source->location != $i18nstring->location) {
         // String has changed, mark translations for update
-        $status = $this->save_source($source);
+        $status = $this->save_source($i18nstring);
         db_update('locales_target')
           ->fields(array('i18n_status' => I18N_STRING_STATUS_UPDATE))
           ->condition('lid', $source->lid)
