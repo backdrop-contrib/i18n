@@ -52,6 +52,10 @@ function i18n_node_translation_overview($node) {
   $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
   // Modes have different allowed languages
   foreach (i18n_node_language_list($node) as $langcode => $language_name) {
+    if ($langcode == LANGUAGE_NONE) {
+      // Never show language neutral on the overview.
+      continue;
+    }    
     $options = array();
     if (isset($translations[$langcode])) {
       // Existing translation in the translation set: display status.
