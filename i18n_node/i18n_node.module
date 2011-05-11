@@ -217,7 +217,7 @@ function i18n_node_menu_alter(&$items) {
  * Get node language.
  */
 function i18n_node_get_lang($nid, $default = '') {
-  $lang = db_result(db_query('SELECT language FROM {node} WHERE nid = %d', $nid));
+  $lang = db_query('SELECT language FROM {node} WHERE nid = :nid', array(':nid' => $nid))->fetchField();
   return $lang ? $lang : $default ;
 }
 
