@@ -87,8 +87,7 @@ function i18n_menu_block_view_alter(&$data, $block) {
       $menus = menu_get_menus(FALSE);
       $data['subject'] = i18n_string_plain(array('menu', 'menu', $block->delta, 'title'), $menus[$block->delta]);
     }
-    //i18n_menu_localize_elements($data['content']);
-    $data['content'] = i18n_menu_translated_tree($block->delta, TRUE);
+    $data['content'] = i18n_menu_translated_tree($block->delta);
   }  
 }
 
@@ -342,17 +341,18 @@ function i18n_menu_variable_info_alter(&$variables, $options) {
  * Get localized menu tree.
  * @param $menu_name
  *   The menu the translated tree has to be fetched from.
- * @param $reset
- * 	 Whether to reset the internal cache for the translated tree.
+ * @param $langcode
+ * 	 Optional language code to get the menu in, defaults to request language.
  */
-function i18n_menu_translated_tree($menu_name, $reset = FALSE) {
+function i18n_menu_translated_tree($menu_name, $langcode = NULL) {
   $menu_output = &drupal_static(__FUNCTION__);
-  if (!isset($menu_output[$menu_name]) || $reset) {    
+  $langcode = i18n_langcode($langcode);
+  if (!isset($menu_output[$langcode][$menu_name]) || $reset) {    
     $tree = menu_tree_page_data($menu_name);
-    $tree = i18n_menu_localize_tree($tree);
-    $menu_output[$menu_name] = menu_tree_output($tree);
+    $tree = i18n_menu_localize_tree($tree, $langcode);
+    $menu_output[$langcode][$menu_name] = menu_tree_output($tree);
   }
-  return $menu_output[$menu_name];
+  return $menu_output[$langcode][$menu_name];
 }
 
 /**
