@@ -21,12 +21,7 @@ function i18n_select_variable_info($options = array()) {
     'group' => 'i18n',
     'element' => array('#disabled' => !module_exists('i18n_taxonomy')),
   );
-  $variables['i18n_select_blocks'] = array(
-    'title' => t('Blocks (not implemented)', array(), $options),
-    'type' => 'boolean',
-    'default' => TRUE,
-    'group' => 'i18n',
-  );
+
   // Enable / disable for specific pages
   $description = t("Specify pages by using their paths. Enter one path per line. The '*' character is a wildcard. Example paths are %blog for the blog page and %blog-wildcard for every personal blog. %front is the front page.", array('%blog' => 'blog', '%blog-wildcard' => 'blog/*', '%front' => '<front>'), $options);
   if (module_exists('php')) {
