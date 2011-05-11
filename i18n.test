@@ -8,9 +8,9 @@
 class Drupali18nTestCase extends DrupalWebTestCase {
   protected $current_user;
 
-  function setUpLanguages() {
+  function setUpLanguages($admin_permissions = array()) {
     // Setup users.
-    $this->admin_user = $this->drupalCreateUser(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'administer blocks', 'access administration pages'));
+    $this->admin_user = $this->drupalCreateUser(array_merge(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'administer blocks', 'access administration pages'), $admin_permissions));
     $this->translator = $this->drupalCreateUser(array('translate interface'));
 
     $this->i18nLogin($this->admin_user);
@@ -134,7 +134,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $edit["body[$langcode][0][value]"] = $body;
     $edit['language'] = $language;
     $this->drupalPost('node/add/' . $type, $edit, t('Save'));
-    $this->assertRaw(t('Basic node %title has been created.', array('%title' => $title)), t('Basic page created.'));
+    $this->assertRaw(t('Basic @type %title has been created.', array('@type' => $type, '%title' => $title)), t('Basic page created.'));
 
     // Check to make sure the node was created.
     $node = $this->drupalGetNodeByTitle($title);
