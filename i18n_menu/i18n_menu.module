@@ -54,15 +54,25 @@ function i18n_menu_menu() {
     'file' => 'i18n_menu.admin.inc',
   );
   $items['admin/structure/menu/item/%menu_link/translate'] = array(
-    'title' => 'Translations',
+    'title' => 'Translate',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('i18n_menu_translation_form', NULL, 4, NULL),
     'access callback' => 'i18n_menu_translation_item_access',
     'access arguments' => array(4),
     'file' => 'i18n_menu.admin.inc',
+    'type' => MENU_LOCAL_TASK,
   );  
   
   return $items;
+}
+
+/**
+ * Implements hook_menu_alter()
+ */
+function i18n_menu_menu_alter(&$items) {
+  $items['admin/structure/menu/item/%menu_link'] = $items['admin/structure/menu/item/%menu_link/edit'];
+  $items['admin/structure/menu/item/%menu_link']['type'] = MENU_CALLBACK;
+  $items['admin/structure/menu/item/%menu_link/edit']['type'] = MENU_DEFAULT_LOCAL_TASK;
 }
 
 /**
