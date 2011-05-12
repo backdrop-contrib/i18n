@@ -28,7 +28,7 @@ function i18n_taxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
 }
 
 /**
- * Callback for term translation tab
+ * Callback for term translation tab.
  */
 function i18n_taxonomy_term_translation_tab_page($term, $language = NULL) {
   if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_TRANSLATE)) {
@@ -198,7 +198,7 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
 /**
  * Generate a tabular listing of translations for vocabularies.
  */
-function i18n_taxonomy_translation_overview($vocabulary) {
+function i18n_taxonomy_translation_sets_overview($vocabulary) {
   drupal_set_title(check_plain($vocabulary->name));
   $output = '';
 
@@ -240,4 +240,32 @@ function i18n_taxonomy_translation_overview($vocabulary) {
     $build['message']['#markup'] = t('No translations defined for this vocabulary.');
   }
   return $build;
+}
+
+/**
+ * Callback for term translation tab.
+ */
+function i18n_taxonomy_translation_vocabulary_page($vocabulary, $language = NULL) {
+  module_load_include('inc', 'i18n_string', 'i18n_string.pages');
+  $form_meta = array(
+    '#page_title' => t('Translate vocabulary'),
+    '#item_title_key' => array('taxonomy', 'vocabulary', $vocabulary->vid, 'name'),
+    '#item_title_default' => $vocabulary->name,
+    '#edit' => 'admin/structure/taxonomy/' . $vocabulary->machine_name . '/edit',
+    '#translate' => 'admin/structure/taxonomy/' . $vocabulary->machine_name . '/translate',
+    '#items' => array(),
+  );
+  $form_meta['#items'][] = array(
+    '#title' => t('Name'),
+    '#string_key' => array('taxonomy', 'vocabulary', $vocabulary->vid, 'name'),
+    '#default_value' => $vocabulary->name,
+  );
+  if (!empty($vocabulary->description)) {
+    $form_meta['#items'][] = array(
+      '#title' => t('Description'),
+      '#string_key' => array('taxonomy', 'vocabulary', $vocabulary->vid, 'description'),
+      '#default_value' => $vocabulary->description
+    );
+  }
+  return i18n_string_translate_page($form_meta, $language);
 }
