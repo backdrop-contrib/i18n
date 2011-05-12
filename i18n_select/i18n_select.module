@@ -133,7 +133,8 @@ function i18n_select_page() {
  */
 function i18n_select_query_node_access_alter(QueryAlterableInterface $query) {
   $mode = i18n_select_mode('nodes');
-  if ($mode && ($table_alias = i18n_select_check_table($query, 'node')) && i18n_select_check_query($query, $table_alias)) {
+  if ($mode && ($table_alias = i18n_select_check_table($query, 'node', 'nid')) && i18n_select_check_query($query, $table_alias)) {
+
     // if the language field is present we don't want to do any filtering.
     $fields = $query->getFields();
     if (isset($fields['language'])) {
@@ -154,7 +155,7 @@ function i18n_select_query_node_access_alter(QueryAlterableInterface $query) {
  */
 function i18n_select_query_term_access_alter(QueryAlterableInterface $query) {
   $mode = i18n_select_mode('taxonomy');
-  if (module_exists('i18n_taxonomy') && $mode && ($table_alias = i18n_select_check_table($query, 'taxonomy_term_data')) && i18n_select_check_query($query, $table_alias)) {
+  if (module_exists('i18n_taxonomy') && $mode && ($table_alias = i18n_select_check_table($query, 'taxonomy_term_data', 'tid')) && i18n_select_check_query($query, $table_alias)) {
     $query->condition($table_alias . '.language', i18n_select_langcodes());
     // Mark query as altered
     $query->addTag('i18n_select');
@@ -162,14 +163,22 @@ function i18n_select_query_term_access_alter(QueryAlterableInterface $query) {
 }
 
 /**
- * Check table exists in query and get alias for it
- * 
- * @todo Should we add the table if not there?
+ * Check table exists in query and get alias for it.
+ *
+ * If is not there, try to join it based on $field_name.
  */
-function i18n_select_check_table($query, $table_name) {
+function i18n_select_check_table($query, $table_name, $field_name) {
   foreach ($query->getTables() as $table) {
-    if ($table['table'] == $table_name) {
+    if (!($table instanceof SelectQueryInterface) && $table['table'] == $table_name) {
       return !empty($table['alias']) ? $table['alias'] : $table_name;
+    }
+  }
+
+  // If node table doesn't exist, look for the nid column, join with node
+  // and then return the alias of that.
+  foreach ($query->getFields() as $field) {
+    if ($field['field'] == $field_name) {
+      return $query->join('node', 'node', $field['table'] . '.' . $field_name . ' = %alias.' . $field['field']);
     }
   }
 }
