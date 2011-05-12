@@ -124,8 +124,8 @@ class Drupali18nTestCase extends DrupalWebTestCase {
    * @param
    *   $language Language code.
    */
-  function createNode($type, $title, $body, $language) {
-    $edit = array();
+  function createNode($type, $title, $body, $language, $edit = array()) {
+    $edit = $edit;
     $langcode = LANGUAGE_NONE;
     $edit["title"] = $title;
     $edit["body[$langcode][0][value]"] = $body;
