@@ -231,8 +231,8 @@ function i18n_block_i18n_string_list($group) {
 function i18n_block_block_delete_submit(&$form, $form_state) {
   $delta = $form_state['values']['delta'];
   // Delete stored strings for the title and content fields.
-  i18n_string_remove_string("blocks:block:$delta:title");
-  i18n_string_remove_string("blocks:block:$delta:body");
+  i18n_string_remove("blocks:block:$delta:title");
+  i18n_string_remove("blocks:block:$delta:body");
 }
 
 /**
