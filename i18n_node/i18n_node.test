@@ -18,6 +18,8 @@ class I18nNodeTestCase extends Drupali18nTestCase {
     parent::setUp('translation', 'i18n_node');
     parent::setUpLanguages(array('administer content translations', 'translate content'));
     parent::setUpContentTranslation();
+
+    $this->addLanguage('pt-br');
   }
 
   /**
