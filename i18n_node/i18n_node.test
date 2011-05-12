@@ -24,6 +24,7 @@ class I18nNodeTestCase extends Drupali18nTestCase {
    * Tests for adding content to an existing translation set.
    */
   function testAddContentToTranslationSet() {
+    module_load_include('inc', 'i18n_node', 'i18n_node.pages');
 
     // Create 3 nodes in different languages.
     $en_title = $this->randomName(10);
