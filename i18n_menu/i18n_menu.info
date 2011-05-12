@@ -9,3 +9,4 @@ package = Multilingual - Internationalization
 core = 7.x
 
 files[] = i18n_menu.inc
+files[] = i18n_menu.test
