@@ -20,6 +20,10 @@ class I18nNodeTestCase extends Drupali18nTestCase {
     parent::setUpContentTranslation();
 
     $this->addLanguage('pt-br');
+    // Add a disabled language.
+    $this->addLanguage('it');
+    $edit = array('enabled[it]' => FALSE);
+    $this->drupalPost('admin/config/regional/language', $edit, t('Save configuration'));
   }
 
   /**
@@ -60,6 +64,9 @@ class I18nNodeTestCase extends Drupali18nTestCase {
     // Go to the translations tab.
     $this->drupalGet('node/' . $en_node->nid);
     $this->clickLink(t('Translate'));
+
+    // Make sure that the disabled language doesn't show up.
+    $this->assertNoText(t('Italian'));
 
     // Test validation.
     $edit = array(
