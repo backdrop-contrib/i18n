@@ -77,7 +77,7 @@ function i18n_element_language_select($default = LANGUAGE_NONE) {
     '#type' => 'select',
     '#title' => t('Language'),
     '#default_value' => $default,
-    '#options' => array(LANGUAGE_NONE => t('Language neutral')) + i18n_language_list(),
+    '#options' => array(LANGUAGE_NONE => '') + i18n_language_list(),
   );
 }
 
