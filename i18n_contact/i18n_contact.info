@@ -1,4 +1,4 @@
-name = Contact languages
+name = Contact translation
 description = Makes contact categories and replies available for translation.
 dependencies[] = i18n_string
 package = Multilingual - Internationalization
