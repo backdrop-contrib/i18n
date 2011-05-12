@@ -7,6 +7,8 @@
  */
 class Drupali18nTestCase extends DrupalWebTestCase {
   protected $current_user;
+  protected $default_language;
+  protected $secondary_language;
 
   function setUpLanguages($admin_permissions = array()) {
     // Setup users.
@@ -16,8 +18,10 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $this->drupalLogin($this->admin_user);
 
     // Add languages.
-    $this->addLanguage('en');
-    $this->addLanguage('es');
+    $this->default_language = 'en';
+    $this->secondary_language = 'es';
+    $this->addLanguage($this->default_language);
+    $this->addLanguage($this->secondary_language);
     $this->addLanguage('it');
     // A language with two letter code may help too
     $this->addLanguage('pt-br');
