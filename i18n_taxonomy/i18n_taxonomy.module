@@ -722,33 +722,25 @@ function i18n_taxonomy_form_all_localize(&$item) {
 }
 
 /**
- * Get term translations for multilingual terms. This works for multilingual vocabularies.
+ * Get all terms in a translation set, represented by $i18n_tsid.
  *
- * @param $params
- *   Array of query conditions. I.e. array('tid' => xxx)
- * @param $getall
- *   Whether to get the original term too in the set or not.
- *
+ * @param $i18n_tsid
+ *   The translation source tid of the translation set, the identifier
+ *   of the term used to derive all translations in the set.
  * @return
- *   An array of the from lang => Term.
+ *   Array of terms in the translation set.
  */
-function i18n_taxonomy_term_get_translations($params, $getall = TRUE) {
-  foreach ($params as $field => $value) {
-    $conds[] = "i.$field = '%s'";
-    $values[] = $value;
+function i18n_taxonomy_term_get_translations($i18n_tsid) {
+  $translations = &drupal_static(__FUNCTION__, array());
+
+  if (!isset($translations[$i18n_tsid])) {
+    $sql = "SELECT tid, name, vid, language
+      FROM taxonomy_term_data
+      WHERE i18n_tsid = :i18n_tsid";
+
+    $translations[$i18n_tsid] = db_query($sql, array(':i18n_tsid' => $i18n_tsid))->fetchAllAssoc('language');
   }
-  if (!$getall) { // If not all, a parameter must be tid.
-    $conds[] = "t.tid != %d";
-    $values[] = $params['tid'];
-  }
-  $conds[] = "t.trid != 0";
-  $sql = 'SELECT t.* FROM {term_data} t INNER JOIN {term_data} i ON t.trid = i.trid WHERE '. implode(' AND ', $conds);;
-  $result = db_query($sql, $values);
-  $items = array();
-  while ($data = db_fetch_object($result)) {
-    $items[$data->language] = $data;
-  }
-  return $items;
+  return $translations[$i18n_tsid];
 }
 
 /**
