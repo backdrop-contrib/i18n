@@ -150,7 +150,7 @@ function i18n_string_menu() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() 
+ * Implements hook_form_FORM_ID_alter()
  */
 function i18n_string_form_locale_translate_edit_form_alter(&$form, &$form_state) {
   // Restrict filter permissions and handle validation and submission for i18n strings
@@ -174,9 +174,8 @@ function i18n_string_form_locale_translate_edit_form_alter(&$form, &$form_state)
         $form['translations'][$langcode]['#disabled'] = $disabled;
       }
       $form['translations']['format_help'] = array(
-        '#type' => 'item',
-        '#title' => t('Text format: @name', array('@name' => $format->name)),
-        '#value' => theme('filter_tips', _filter_tips($context->format, FALSE))
+        '#type' => 'markup',
+        '#markup' => '<h5>' . t('Text format: @name', array('@name' => $format->name)) . '</h5>' . theme('filter_tips', array('tips' => _filter_tips($context->format, FALSE))),
       );
       $form['submit']['#disabled'] = $disabled;
     }
@@ -186,17 +185,17 @@ function i18n_string_form_locale_translate_edit_form_alter(&$form, &$form_state)
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() 
+ * Implements hook_form_FORM_ID_alter()
  */
 function i18n_string_form_locale_translate_export_po_form_alter(&$form, $form_state) {
   $names = locale_language_list('name', TRUE);
   if (language_default('language') != 'en' && array_key_exists('en', $names)) {
     $form['langcode']['#options']['en'] = $names['en'];
-  }  
+  }
 }
 
 /**
- * Implements hook_form_FORM_ID_alter() 
+ * Implements hook_form_FORM_ID_alter()
  */
 function i18n_string_form_locale_translate_import_form_alter(&$form, $form_state) {
   if (language_default('language') != 'en') {
@@ -329,13 +328,13 @@ function i18n_string_update_context($oldname, $newname) {
 
 /**
  * Convert string name into textgroup and string context
- * 
+ *
  * @param $name
  *   Array or string concatenated with ':' that contains textgroup and string context
  * @param $replace
  *   Parameter to replace the placeholder ('*') if we are dealing with multiple strings
  *   Or parameter to append to context if there's no placeholder
- * 
+ *
  * @return array
  *   The first element will be the text group name
  *   The second one will be an array with string name elements, without textgroup
@@ -371,11 +370,11 @@ function i18n_string_element_mark(&$element) {
 
 /**
  * Translate / update multiple strings
- * 
+ *
  * @param $strings
  *   Array of name => string pairs
  */
-function i18n_string_multiple($operation, $name, $strings, $options = array()) {  
+function i18n_string_multiple($operation, $name, $strings, $options = array()) {
   $result = array();
   // Strings may be an array of properties, we need to shift it
   if ($operation == 'remove') {
@@ -486,7 +485,7 @@ function i18n_string_translate($name, $string, $options = array()) {
 
 /**
  * Format the resulting translation or the default string applying callbacks
- * 
+ *
  * There's a hidden variable, 'i18n_string_debug', that when set to TRUE will display additional info
  */
 function i18n_string_format($i18nstring, $options = array()) {
@@ -564,7 +563,7 @@ function i18n_string_plain($name, $default, $options = array()) {
 
 /**
  * Translation for list of options
- * 
+ *
  * @param $options
  *   Array with additional options, some changes
  *   - 'index' => field that will be mapped to the array key (defaults to 'property')
@@ -639,9 +638,9 @@ function i18n_string_l10n_client_add($string, $options) {
 
 /**
  * Translate object properties
- * 
+ *
  * We clone the object previously so we don't risk translated properties being saved
- * 
+ *
  * @param $type
  *   Object type
  * @param $object
@@ -666,7 +665,7 @@ function i18n_string_object_translate($type, $object, $options = array()) {
 
 /**
  * Remove object strings, because object is deleted
- * 
+ *
  * @param $type
  *   Object type
  * @param $object
@@ -678,7 +677,7 @@ function i18n_string_object_remove($type, $object, $options = array()) {
     $string_info = $info['string translation'];
     $object = is_array($object) ? (object)$object : $object;
     return i18n_string_remove(array($string_info['textgroup'], $string_info['type'], $object->{$info['key']}, '*'), array_keys($string_info['properties']), $options);
-  }  
+  }
 }
 
 /**

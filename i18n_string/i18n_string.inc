@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * @file
  *   API for internationalization strings
@@ -41,7 +41,7 @@ class i18n_string_default {
       $parts = explode(':', $context);
     }
     // Location will be the full string name
-    $string->location = $this->textgroup . ':' . $string->context; 
+    $string->location = $this->textgroup . ':' . $string->context;
     $string->type = array_shift($parts);
     $string->objectid = $parts ? array_shift($parts) : '';
     $string->objectkey = (int)$string->objectid;
@@ -49,10 +49,10 @@ class i18n_string_default {
     $string->property = $parts ? implode(':', $parts) : '';
     // Get elements from the cache
     $this->cache_get($string);
-    return $string; 
+    return $string;
   }
   /**
-   * Check if text format is allowed for translation 
+   * Check if text format is allowed for translation
    *
    * @param $format
    *   Text format key or NULL if not format (will be allowed)
@@ -108,7 +108,7 @@ class i18n_string_default {
     // Make sure we have i18n_string part, create or update
     // This will also create the source object if doesn't exist
     $this->save_string($i18nstring);
-  
+
     if ($options['watchdog']) {
       $params = $this->string_params($i18nstring);
       switch ($status) {
@@ -118,8 +118,8 @@ class i18n_string_default {
         case SAVED_NEW:
           watchdog('i18n_string', 'Created string %location for text group %textgroup: %string', $params);
           break;
-      }     
-    }  
+      }
+    }
     return $status;
   }
 
@@ -134,14 +134,14 @@ class i18n_string_default {
       }
       if (isset($string->translation)) {
         $this->translations[$string->language][$string->lid] = $string->translation;
-      }      
+      }
     }
     elseif (isset($string->lid)) {
       // It seems we don't have a source string
       $this->string_map[$string->context] = FALSE;
     }
   }
-  
+
   /**
    * Get translation from cache
    */
@@ -164,7 +164,7 @@ class i18n_string_default {
       }
     }
   }
-  
+
   /**
    * Reset cache, needed for tests
    */
@@ -224,7 +224,7 @@ class i18n_string_default {
   protected function get_translation($i18nstring) {
     // First, populate available data from the cache
     $this->cache_get($i18nstring);
-    
+
     if (isset($i18nstring->translation)) {
       // Which doesn't mean we've got a translation, only that we've got the result cached
       $translation = $i18nstring;
@@ -235,26 +235,26 @@ class i18n_string_default {
         $translation->source = $i18nstring->source;
       }
       else {
-        // No source, no translation     
+        // No source, no translation
         $translation = $i18nstring;
         $translation->translation = FALSE;
       }
       $this->cache_set($translation);
     }
     // Return the full object if we've got a translation
-    return $translation->translation !== FALSE ? $translation : NULL; 
+    return $translation->translation !== FALSE ? $translation : NULL;
   }
-  
+
   /**
    * Load translation from db
-   * 
+   *
    * @todo Optimize when we've already got the source string
    */
   protected static function load_translation($i18nstring) {
     $query = self::query_string($i18nstring);
     $query->leftJoin('locales_target', 't', 's.lid = t.lid');
     $query->fields('t', array('translation', 'i18n_status'));
-    $query->condition('t.language', $i18nstring->language);    
+    $query->condition('t.language', $i18nstring->language);
     // Speed up the query, we just need one row
     if (empty($i18nstring->multiple)) {
       $query->range(0, 1);
@@ -267,10 +267,10 @@ class i18n_string_default {
     }
     if (empty($i18nstring->multiple)) {
       return reset($translations);
-    } 
+    }
     else {
       return $translations;
-    } 
+    }
   }
 
   /**
@@ -287,7 +287,7 @@ class i18n_string_default {
   protected static function get_string($context) {
     return self::query_string($context)->execute()->fetchObject();
   }
-  
+
   /**
    * Build query for i18n_string table
    */
@@ -311,7 +311,7 @@ class i18n_string_default {
         }
       }
     }
-    return $query;  
+    return $query;
   }
 
   /**
@@ -347,7 +347,7 @@ class i18n_string_default {
       db_delete('locales_source')->condition('lid', $source->lid)->execute();
       if ($options['watchdog']) {
         watchdog('i18n_string', 'Deleted string %location for textgroup %textgroup: %string', $this->string_params($i18nstring));
-      } 
+      }
       return SAVED_DELETED;
     }
   }
@@ -355,7 +355,7 @@ class i18n_string_default {
    * Save / update string object
    *
    * There seems to be a race condition sometimes so skip errors, #277711
-   * 
+   *
    * @param $string
    *   Full string object to be saved
    * @param $source
@@ -394,7 +394,7 @@ class i18n_string_default {
 
   /**
    * Save translation to the db
-   * 
+   *
    * @param $string
    *   Full string object with translation data (language, translation)
    */
@@ -403,7 +403,7 @@ class i18n_string_default {
       ->key(array('lid' => $string->lid, 'language' => $string->language))
       ->fields(array('translation' => $string->translation))
       ->execute();
-    $this->cache_set($string);  
+    $this->cache_set($string);
   }
 
   /**
@@ -477,10 +477,10 @@ class i18n_string_default {
     }
     return $translations;
   }
-  
+
   /**
    * Translate string object
-   * 
+   *
    * @param $i18nstring
    *   String object
    * @param $options
@@ -496,7 +496,7 @@ class i18n_string_default {
       return $i18nstring;
     }
   }
-  
+
   /**
    * Translate object properties
    */
@@ -552,7 +552,7 @@ class i18n_string_default {
         case SAVED_NEW:
           drupal_set_message(t('Created string %location for text group %textgroup: %string', $params));
           break;
-      }     
+      }
     }
     return $this;
   }
@@ -581,7 +581,10 @@ class i18n_string_default {
    * Update string translation.
    */
   function update_translation($context, $langcode, $translation) {
-    if ($source = $this->get_source($context, $translation)) {
+    $i18nstring = (object) array(
+      'context' => implode(':', $context),
+    );
+    if ($source = $this->get_source($i18nstring)) {
       $source->language = $langcode;
       $source->translation = $translation;
       $this->save_translation($source);
@@ -629,7 +632,7 @@ class i18n_string_default {
         $replace[$field] = $newcontext[$index];
       }
     }
-  
+
     // Query and replace if there are any fields. It is possible that under some circumstances fields are the same
     if (!empty($replace)) {
       $textgroup = array_shift($oldcontext);
@@ -639,7 +642,7 @@ class i18n_string_default {
         ->fields('s')
         ->condition('s.textgroup', $textgroup)
         ->condition('s.context', $context, 'LIKE');
-  
+
       foreach ($query->execute()->fetchAll() as $source) {
         foreach ($replace as $field => $value) {
           $source->$field = $value;
@@ -647,7 +650,7 @@ class i18n_string_default {
         // Recalculate location, context, objectindex
         $source->context = $source->type . ':' . $source->objectid . ':' . $source->property;
         $source->location = $source->textgroup . ':' . $source->context;
-        $source->objectindex = (int)$source->objectid; 
+        $source->objectindex = (int)$source->objectid;
         // Update source string.
         $update = array(
           'textgroup' => $source->textgroup,
@@ -657,7 +660,7 @@ class i18n_string_default {
           ->fields($update + array('location' => $source->location))
           ->condition('lid', $source->lid)
           ->execute();
-  
+
         // Update object data.
         db_update('i18n_string')
         ->fields($update + array(
@@ -673,7 +676,7 @@ class i18n_string_default {
       drupal_set_message(t('Updated @count string names from %oldname to %newname.', array('@count' => $count, '%oldname' => $oldname, '%newname' => $newname)));
     }
   }
-  
+
   /**
    * Recheck strings after update
    */
@@ -770,5 +773,3 @@ function i18n_string_save_translation($translation) {
   }
   return $count;
 }
-
-
