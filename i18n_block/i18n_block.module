@@ -157,31 +157,6 @@ function i18n_block_help($path, $arg) {
 }
 
 /**
- * Refresh all strings.
- */
-function i18n_block_locale_refresh() {
-  $query = db_select('block', 'b')
-    ->distinct()
-    ->fields('b', array('module', 'delta', 'title', 'i18n_mode'))
-    ->fields('bc', array('body', 'format'))
-    ->condition('i18n_mode', 1);
-  $query->leftJoin('block_custom', 'bc', 'b.bid = bc.bid');
-  $result = $query->execute()
-    ->fetchAll(PDO::FETCH_OBJ);
-  foreach ($result as $block) {
-    // If the block has a custom title and no language it must be translated
-    if ($block->title && $block->title != '<none>') {
-      i18n_string_update("blocks:$block->module:$block->delta:title", $block->title);
-    }
-    // If the block has body and no language, must be a custom block (box)
-    if ($block->body) {
-      i18n_string_update("blocks:$block->module:$block->delta:body", $block->body, array('format' => $block->format));
-    }
-  }
-  return TRUE; // Meaning it completed with no issues
-}
-
-/**
  * Implements hook_i18n_string_info()
  */
 function i18n_block_i18n_string_info() {
