@@ -250,6 +250,8 @@ function i18n_preprocess_html(&$variables) {
 /**
  * Translate or update user defined string. Entry point for i18n_string API if enabled.
  *
+ * This function is from i18n_string sub module and is subject to be moved back.
+ *
  * @param $name
  *   Textgroup and context glued with ':'.
  * @param $default
