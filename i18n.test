@@ -22,13 +22,6 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     $this->secondary_language = 'es';
     $this->addLanguage($this->default_language);
     $this->addLanguage($this->secondary_language);
-    $this->addLanguage('it');
-    // A language with two letter code may help too
-    $this->addLanguage('pt-br');
-
-    // Disable Italian to test the translation behavior with disabled languages.
-    $edit = array('enabled[it]' => FALSE);
-    $this->drupalPost('admin/config/regional/language', $edit, t('Save configuration'));
 
     // Enable URL language detection and selection to make the language switcher
     // block appear.
@@ -407,5 +400,30 @@ class Drupali18nTestCase extends DrupalWebTestCase {
     else {
       return 'No properties';
     }
+  }
+}
+
+class Drupali18nConfigTestCase extends Drupali18nTestCase {
+  function getInfo() {
+    return array(
+      'name' => 'Multilingual configuration',
+      'group' => 'Internationalization',
+      'description' => 'Basic configuration for the i18n module',
+    );
+  }
+
+  function setUp() {
+    parent::setUp('translation', 'i18n_node');
+    parent::setUpLanguages();
+  }
+
+  function testEnableLanguages() {
+    // A language with two letter code may help too
+    $this->addLanguage('pt-br');
+
+    // Disable Italian to test the translation behavior with disabled languages.
+    $this->addLanguage('it');
+    $edit = array('enabled[it]' => FALSE);
+    $this->drupalPost('admin/config/regional/language', $edit, t('Save configuration'));
   }
 }
