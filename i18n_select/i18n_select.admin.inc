@@ -16,7 +16,7 @@ function i18n_select_admin_settings() {
   $form['pages'] = array(
     '#type' => 'variable_fieldset',
     '#title' => t('Enable for specific pages'),
-    '#variable_list' => array('i18n_select_page_mode', 'i18n_select_page_list', 'i18n_select_page_block'),
+    '#variable_list' => array('i18n_select_page_mode', 'i18n_select_page_list'),
   );
   return system_settings_form($form);
 }

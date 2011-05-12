@@ -1,6 +1,6 @@
 <?php
 /**
- * @file 
+ * @file
  * Test case for multilingual blocks
  */
 
@@ -17,10 +17,10 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
   function setUp() {
     parent::setUp('i18n_block');
     parent::setUpLanguages();
-    
+
     $format = filter_default_format();
     variable_set('i18n_string_allowed_formats', array($format => $format));
-    $this->i18nLogin($this->admin_user);
+    $this->drupalLogin($this->admin_user);
   }
 
   function testBlockTranslation() {
@@ -33,7 +33,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $this->assertText($title, "The new custom title is displayed on the home page.");
     $translations = $this->createStringTranslation('blocks', $title);
     $this->i18nAssertTranslations($translations);
-      
+
     // Create a translatable block and test block visibility per language.
     $block = $this->i18nCreateBlock();
     // Now set a language for the block and confirm it shows just for that one (without translation)
@@ -54,7 +54,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $translations = $this->i18nTranslateBlock($box2);
     $this->i18nAssertTranslations($translations['title'], '', 'Custom block title translation displayed.');
     $this->i18nAssertTranslations($translations['body'], '', 'Custom block body translation displayed.');
-    
+
     // Test a block translation with filtering and text formats
     $box3 = $this->i18nCreateBlock(array(
       'title' => '<div><script>alert(0)</script>Title</script>',
@@ -80,7 +80,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $this->i18nAssertTranslations($filtered);
 
   }
- 
+
   /**
    * Translate block fields to all languages
    */
@@ -93,7 +93,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
    * Test creating custom block (i.e. box), moving it to a specific region and then deleting it.
    */
   function i18nCreateBlock($block = array(), $region = 'sidebar_first', $check_display = TRUE) {
-    $this->i18nLogin($this->admin_user);
+    $this->drupalLogin($this->admin_user);
     // Add a new custom block by filling out the input form on the admin/structure/block/add page.
     $block += array(
       'info' => $this->randomName(8),
@@ -108,14 +108,14 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
       'body[value]' => $block['body'],
     );
     $this->drupalPost('admin/structure/block/add', $custom_block, t('Save block'));
-    
+
     // Confirm that the custom block has been created, and then query the created bid.
     $this->assertText(t('The block has been created.'), t('Custom block successfully created.'));
     $bid = db_query("SELECT bid FROM {block_custom} WHERE info = :info", array(':info' => $block['info']))->fetchField();
 
     // Check to see if the custom block was created by checking that it's in the database.
     $this->assertNotNull($bid, t('Custom block found in database'));
-    
+
     // Check that block_block_view() returns the correct title and content.
     $data = block_block_view($bid);
     $format = db_query("SELECT format FROM {block_custom} WHERE bid = :bid", array(':bid' => $bid))->fetchField();
@@ -127,7 +127,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $block['delta'] = $bid;
     $block['format'] = $format;
     $this->moveBlockToRegion($block, $region);
- 
+
     return $block;
   }
 
@@ -152,8 +152,8 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
    * Update block
    */
   function updateBlock($block, $edit) {
-    $this->i18nLogin($this->admin_user);
+    $this->drupalLogin($this->admin_user);
     $this->drupalPost('admin/structure/block/manage/' . $block['module'] . '/' . $block['delta'] . '/configure', $edit, t('Save block'));
   }
-  
-}   
+
+}
