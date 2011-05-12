@@ -74,7 +74,7 @@ function i18n_taxonomy_menu() {
     'title' => 'Translation',
     'page callback' => 'i18n_taxonomy_translation_overview',
     'page arguments' => array(3),
-    'access callback' => '_i18n_taxonomy_translation_tab',
+    'access callback' => '_i18n_taxonomy_vocabulary_translation_tab',
     'access arguments' => array(3),
     'type' => MENU_LOCAL_TASK,
     //'parent' => 'admin/content/taxonomy/%taxonomy_vocabulary',
@@ -84,7 +84,7 @@ function i18n_taxonomy_menu() {
     'title' => 'Create new translation',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('i18n_taxonomy_translation_term_form', 3),
-    'access callback' => '_i18n_taxonomy_translation_tab',
+    'access callback' => '_i18n_taxonomy_vocabulary_translation_tab',
     'access arguments' => array(3),
     'type' => MENU_LOCAL_ACTION,
     //'parent' => 'admin/content/taxonomy/%taxonomy_vocabulary',
@@ -94,10 +94,20 @@ function i18n_taxonomy_menu() {
     'title' => 'Edit translation',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('i18n_taxonomy_translation_term_form', 3, 6),
-    'access callback' => '_i18n_taxonomy_translation_tab',
+    'access callback' => '_i18n_taxonomy_vocabulary_translation_tab',
     'access arguments' => array(3),
     'type' => MENU_CALLBACK,
     //'parent' => 'admin/content/taxonomy/%taxonomy_vocabulary',
+    'file' => 'i18n_taxonomy.admin.inc',
+  );
+  $items['taxonomy/term/%taxonomy_term/translate'] = array(
+    'title' => 'Translate',
+    'page callback' => 'i18n_taxonomy_page_term_translate',
+    'page arguments' => array(2),
+    'access callback' => '_i18n_taxonomy_term_translation_tab',
+    'access arguments' => array(2),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 8,
     'file' => 'i18n_taxonomy.admin.inc',
   );
   $items['i18n/taxonomy/autocomplete/vocabulary/%taxonomy_vocabulary_machine_name/%'] = array(
@@ -140,10 +150,19 @@ function i18n_taxonomy_menu_alter(&$items) {
 }
 
 /**
- * Menu access callback. Show tab only for full multilingual vocabularies.
+ * Menu access callback for vocabulary translation tab. Show tab only for full multilingual vocabularies.
  */
-function _i18n_taxonomy_translation_tab($vocabulary) {
-  return user_access('administer taxonomy') && i18n_taxonomy_vocabulary_mode($vocabulary->vid) & I18N_MODE_TRANSLATE;
+function _i18n_taxonomy_vocabulary_translation_tab($vocabulary) {
+  return user_access('administer taxonomy') && i18n_taxonomy_vocabulary_mode($vocabulary->vid, I18N_MODE_TRANSLATE);
+}
+
+/**
+ * Menu access callback for term translation tab. Show tab only for translatable terms
+ * 
+ * @todo This should work also for localizable terms when we've got that part implemented
+ */
+function _i18n_taxonomy_term_translation_tab($term) {
+  return taxonomy_term_edit_access($term) && i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_TRANSLATE);  
 }
 
 /**

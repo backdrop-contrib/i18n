@@ -28,9 +28,19 @@ function i18n_taxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
 }
 
 /**
+ * Callback for term translation tab
+ */
+function i18n_taxonomy_page_term_translate($term) {
+  $vocabulary = taxonomy_vocabulary_load($term->vid);
+  $translation_set = !empty($term->i18n_tsid) ? i18n_translation_set_load($term->i18n_tsid) : NULL;
+  $output = drupal_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $translation_set, $term);
+  return $output;
+}
+
+/**
  * Produces a vocabulary translation form.
  */
-function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $translation_set = NULL) {
+function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $translation_set = NULL, $source = NULL) {
   $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);  
   $translations = $translation_set ? $translation_set->get_translations() : array();
   $form['vocabulary'] = array('#type' => 'value', '#value' => $vocabulary);
@@ -42,16 +52,28 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
   );
   // List of terms for languages.
   foreach (i18n_language_list() as $lang => $langname) {
-    $form['translations'][$lang] = array(
-      '#title' => $langname,
-      '#type' => 'textfield',
-      '#default_value' => isset($translations[$lang]) ? $translations[$lang]->name : '',
-      '#autocomplete_path' => 'i18n/taxonomy/autocomplete/vocabulary/' . $vocabulary->machine_name . '/' . $lang,
-      '#langcode' => $lang,
-      '#size' => 80,
-      '#maxlength' => 1024,
-      '#element_validate' => array('i18n_taxonomy_autocomplete_validate'),      
-    );
+    if ($source && $source->language == $lang) {
+      // This is the source term, we don't change it
+      $form['source_term'] = array('#type' => 'value', '#value' => $source);
+      $form['translations'][$lang] = array(
+        '#title' => $langname,
+        '#type' => 'item',
+        '#markup' => $source->name,
+        '#langcode' => $lang,
+      );
+    }
+    else {
+      $form['translations'][$lang] = array(
+        '#title' => $langname,
+        '#type' => 'textfield',
+        '#default_value' => isset($translations[$lang]) ? $translations[$lang]->name : '',
+        '#autocomplete_path' => 'i18n/taxonomy/autocomplete/vocabulary/' . $vocabulary->machine_name . '/' . $lang,
+        '#langcode' => $lang,
+        '#size' => 80,
+        '#maxlength' => 1024,
+        '#element_validate' => array('i18n_taxonomy_autocomplete_validate'),      
+      );
+    }
 
   }
   $form['submit'] = array(
@@ -124,6 +146,10 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
           $term = (object) $item;
         }
         $translations[$lang] = $term;    
+      }
+      if (!empty($form_state['values']['source_term'])) {
+        $term = $form_state['values']['source_term'];
+        $translations[$term->language] = $term;
       }
       if (!empty($translations)) {
         $translation_set = $translation_set ? $translation_set : i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
