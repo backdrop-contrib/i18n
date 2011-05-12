@@ -30,18 +30,43 @@ function i18n_taxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
 /**
  * Callback for term translation tab
  */
-function i18n_taxonomy_page_term_translate($term) {
-  $vocabulary = taxonomy_vocabulary_load($term->vid);
-  $translation_set = !empty($term->i18n_tsid) ? i18n_translation_set_load($term->i18n_tsid) : NULL;
-  $output = drupal_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $translation_set, $term);
-  return $output;
+function i18n_taxonomy_term_translation_tab_page($term, $language = NULL) {
+  if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_TRANSLATE)) {
+    $vocabulary = taxonomy_vocabulary_load($term->vid);
+    $translation_set = !empty($term->i18n_tsid) ? i18n_translation_set_load($term->i18n_tsid) : NULL;
+    return drupal_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $translation_set, $term);
+  }
+  elseif (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_LOCALIZE)) {
+    module_load_include('inc', 'i18n_string', 'i18n_string.pages');
+    $form_meta = array(
+      '#page_title' => t('Translate term'),
+      '#item_title_key' => array('taxonomy', 'term', $term->tid, 'name'),
+      '#item_title_default' => $term->name,
+      '#edit' => 'taxonomy/term/' . $term->tid . '/edit',
+      '#translate' => 'taxonomy/term/' . $term->tid . '/translate',
+      '#items' => array(),
+    );
+    $form_meta['#items'][] = array(
+      '#title' => t('Name'),
+      '#string_key' => array('taxonomy', 'term', $term->tid, 'name'),
+      '#default_value' => $term->name,
+    );
+    if (!empty($term->description)) {
+      $form_meta['#items'][] = array(
+	'#title' => t('Description'),
+	'#string_key' => array('taxonomy', 'term', $term->tid, 'description'),
+	'#default_value' => $term->description
+      );
+    }
+    return i18n_string_translate_page($form_meta, $language);
+  }
 }
 
 /**
  * Produces a vocabulary translation form.
  */
 function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $translation_set = NULL, $source = NULL) {
-  $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);  
+  $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
   $translations = $translation_set ? $translation_set->get_translations() : array();
   $form['vocabulary'] = array('#type' => 'value', '#value' => $vocabulary);
   $form['translations'] = array(
@@ -71,7 +96,7 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
         '#langcode' => $lang,
         '#size' => 80,
         '#maxlength' => 1024,
-        '#element_validate' => array('i18n_taxonomy_autocomplete_validate'),      
+        '#element_validate' => array('i18n_taxonomy_autocomplete_validate'),
       );
     }
 
@@ -145,7 +170,7 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
         else {
           $term = (object) $item;
         }
-        $translations[$lang] = $term;    
+        $translations[$lang] = $term;
       }
       if (!empty($form_state['values']['source_term'])) {
         $term = $form_state['values']['source_term'];
