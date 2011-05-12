@@ -124,21 +124,21 @@ function i18n_node_select_translation($form, &$form_state, $node, $translations)
     '#theme' => 'i18n_node_select_translation',
     '#description' => t("Alternatively, you can select existing nodes as translations of this one or remove nodes from this translation set. Only nodes that have the right language and don't belong to other translation set will be available here.")
   );
-  foreach (language_list() as $language => $object) {
-    if ($language != $node->language) {
-      $nid = isset($translations[$language]) ? $translations[$language]->nid : 0;
-      $form['translations']['nid'][$language] = array(
+  foreach (i18n_node_language_list($node) as $langcode => $language_name) {
+    if ($langcode != $node->language && $langcode != LANGUAGE_NONE) {
+      $nid = isset($translations[$langcode]) ? $translations[$langcode]->nid : 0;
+      $form['translations']['nid'][$langcode] = array(
         '#type' => 'value',
         '#value' => $nid,
       );
-      $form['translations']['language'][$language] = array(
+      $form['translations']['language'][$langcode] = array(
         '#type' => 'value',
-        '#value' => $object->name,
+        '#value' => $language_name,
       );
-      $form['translations']['node'][$language] = array(
+      $form['translations']['node'][$langcode] = array(
         '#type' => 'textfield',
         '#maxlength' => 255,
-        '#autocomplete_path' => 'i18n/node/autocomplete/' . $node->type . '/' . $language,
+        '#autocomplete_path' => 'i18n/node/autocomplete/' . $node->type . '/' . $langcode,
         '#default_value' => $nid ? i18n_node_nid2autocomplete($nid) : '',
       );
     }
