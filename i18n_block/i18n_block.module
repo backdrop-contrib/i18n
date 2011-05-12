@@ -73,7 +73,7 @@ function i18n_block_translate_tab_page($module, $delta, $language = NULL) {
     '#item_title_key' => array('blocks', $block->module, $block->delta, 'title'),
     '#item_title_default' => $block->title,
     '#edit' => 'admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure',
-    '#translate' => 'admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/translate/',
+    '#translate' => 'admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/translate',
     '#items' => array(),
   );
   if (!empty($block->title) && $block->title != '<none>') {

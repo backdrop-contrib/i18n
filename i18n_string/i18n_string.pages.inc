@@ -61,7 +61,7 @@ function i18n_string_translate_page_overview($form_meta) {
         $language->name,
         $item_title,
         $translated ? t('translated') : t('not translated'),
-        l(t('translate'), $form_meta['#translate'] . $langcode),
+        l(t('translate'), $form_meta['#translate'] . '/' . $langcode),
       );
     }
   }
@@ -128,6 +128,9 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
   $form['#validate'] = array(
     'i18n_string_translate_page_form_validate'
   );
+  $form['#redirect'] = array(
+     $form_meta['#translate'],
+  );
   return $form;
 }
 
@@ -153,6 +156,7 @@ function i18n_string_translate_page_form_submit($form, &$form_state) {
     i18n_string_textgroup($textgroup)->update_translation($context, $form_state['values']['langcode'], $value);
   }
   drupal_set_message(t('Translations saved.'));
+  $form_state['redirect'] = $form['#redirect'];
 }
 
 /**
