@@ -6,3 +6,4 @@ package = Multilingual - Internationalization
 core = 7.x
 configure = admin/config/regional/i18n/variable
 
+files[] = i18n_variable.test
