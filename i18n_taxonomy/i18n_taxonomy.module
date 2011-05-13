@@ -682,13 +682,15 @@ function i18n_taxonomy_taxonomy_term_presave($term) {
  * Implements hook_form_FORM_ID_alter()
  */
 function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
-  $vocabulary = $form_state['vocabulary'];
-  $i18n_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
-  $langcode = i18n_object_langcode($vocabulary, LANGUAGE_NONE);
-  $form += i18n_translation_mode_element($i18n_mode, $langcode);
-  // Override options with proper description
-  $form['i18n_translation']['i18n_mode']['#options'] = _i18n_taxonomy_vocabulary_options();
-  $form['#validate'][] = 'i18n_taxonomy_form_vocabulary_validate';
+  if (!isset($form_state['confirm_delete'])) {
+    $vocabulary = $form_state['vocabulary'];
+    $i18n_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
+    $langcode = i18n_object_langcode($vocabulary, LANGUAGE_NONE);
+    $form += i18n_translation_mode_element($i18n_mode, $langcode);
+    // Override options with proper description
+    $form['i18n_translation']['i18n_mode']['#options'] = _i18n_taxonomy_vocabulary_options();
+    $form['#validate'][] = 'i18n_taxonomy_form_vocabulary_validate';
+  }
 }
 
 /**
