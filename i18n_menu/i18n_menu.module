@@ -330,11 +330,13 @@ function i18n_menu_translated_menu_link_alter(&$item, $map) {
 function i18n_menu_help($path, $arg) {
   switch ($path) {
     case 'admin/help#i18n_menu' :
-      $output = '<p>' . t('This module provides support for translatable custom menu items:') . '</p>';
+      $output = '<p>' . t('This module adds support for multilingual menus. You can setup multilingual options for each menu:') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>' . t('Create menus as usual, with names in the default language, usually English. If the menu is already created, no changes are needed.') . '</li>';
-      $output .= '<li>' . t('Optionally, you can set up a language for a menu item so it is only displayed for that language.') . '</li>';
+      $output .= '<li>' . t('Menus can be fully multilingual with translatable (or localized) menu items.') . '</li>';
+      $output .= '<li>' . t('Menus can be configured to have a fixed language. All menu items share this language setting and the menu will be visible in that language only.') . '</li>';
+      $output .= '<li>' . t('Menus can also be configured to have no translations.') . '</li>';
       $output .= '</ul>';
+      $output .= '<p>' . t('The multilingual options of a menu must be configured before individual menu items can be translated. Go to the <a href="@menu-admin">Menus administration page</a> and follow the "edit menu" link to the menu in question.', array('@menu-admin' => url('admin/structure/menu') ) ) . '</p>';
       $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
       return $output;
   }
