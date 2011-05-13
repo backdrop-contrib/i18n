@@ -89,6 +89,8 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
     '#tree' => TRUE,
   );
   foreach ($form_meta['#items'] as $item) {
+    $disabled = FALSE;
+    $description = '';
     list($textgroup, $context) = i18n_string_context($item['#string_key']);
     $source = db_select('i18n_string', 'i18ns')
       ->fields('i18ns')
@@ -97,8 +99,6 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
       ->execute()
       ->fetchObject();
     if ($source) {
-      $disabled = FALSE;
-      $description = '';
       if ($source->format) {
         $format = $formats[$source->format];
         $disabled = !filter_access($format);
