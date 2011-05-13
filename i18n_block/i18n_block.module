@@ -262,6 +262,17 @@ function i18n_block_form_block_admin_configure_alter(&$form, &$form_state, $form
     '#options' => i18n_language_list(),
     '#description' => t('If no language is selected, block will show regardless of language.'),
   );
+  $form['actions']['translate'] = array(
+    '#type' => 'submit',
+    '#name'   => 'save_translate',
+    '#value' => t('Save and translate'),
+    '#states' => array(
+      'visible' => array(
+        // The value must be a string so that the javascript comparison works.
+        ":input[name=i18n_mode]" => array('value' => (string)I18N_MODE_LOCALIZE),
+      ),
+    ),
+  );
   $form['#submit'][] = 'i18n_block_form_block_admin_configure_submit';
 }
 
@@ -296,6 +307,12 @@ function i18n_block_form_block_admin_configure_submit(&$form, &$form_state) {
       ->condition('delta', $delta)
       ->execute();
     i18n_block_update_strings($form_state['values'], $form_state['values']['i18n_mode']);
+
+    // If the save and translate button was clicked, redirect to the translate
+    // tab instead of the block overview.
+    if ($form_state['triggering_element']['#name'] == 'save_translate') {
+      $form_state['redirect'] = 'admin/structure/block/manage/' . $module . '/' . $delta . '/translate';
+    }
   }
 }
 
