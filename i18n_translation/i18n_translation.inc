@@ -197,7 +197,7 @@ class i18n_translation_set {
    */
   public function get_title() {
     if (!empty($this->title)) {
-      $title = $this->title;
+      return $this->title;
     }
     elseif ($translations = $this->get_translations()) {
       foreach ($translations as $item) {
