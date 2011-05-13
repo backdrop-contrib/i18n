@@ -35,7 +35,7 @@ function i18n_menu_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('i18n_translation_set_overview', 'menu_link'),
     'access arguments' => array('administer menu'),
-    'type' => MENU_LOCAL_TASK,   
+    'type' => MENU_LOCAL_TASK,
   );
   $items['admin/structure/menu/translation/add'] = array(
     'title' => 'Add translation',
@@ -61,8 +61,8 @@ function i18n_menu_menu() {
     'access arguments' => array(4),
     'file' => 'i18n_menu.admin.inc',
     'type' => MENU_LOCAL_TASK,
-  );  
-  
+  );
+
   return $items;
 }
 
@@ -76,13 +76,13 @@ function i18n_menu_menu_alter(&$items) {
 }
 
 /**
- * Menu access callback 
+ * Menu access callback
  */
 function i18n_menu_translation_menu_access($menu) {
   return user_access('administer menu') && $menu['i18n_mode'] & I18N_MODE_TRANSLATE;
 }
 /**
- * Menu access callback 
+ * Menu access callback
  */
 function i18n_menu_translation_item_access($item) {
   return user_access('administer menu') && i18n_object_langcode($item);
@@ -92,12 +92,14 @@ function i18n_menu_translation_item_access($item) {
  * Implements hook_block_view()
  */
 function i18n_menu_block_view_alter(&$data, $block) {
-  if ($block->module == 'menu' && (i18n_menu_mode($block->delta) & I18N_MODE_MULTIPLE)) {
-    if (!$block->title) {
-      $menus = menu_get_menus(FALSE);
-      $data['subject'] = i18n_string_plain(array('menu', 'menu', $block->delta, 'title'), $menus[$block->delta]);
+  if (($block->module == 'menu' || $block->module == 'system') && (i18n_menu_mode($block->delta) & I18N_MODE_MULTIPLE)) {
+    $menus = menu_get_menus();
+    if (isset($menus[$block->delta])) {
+      if (!$block->title) {
+        $data['subject'] = i18n_string_plain(array('menu', 'menu', $block->delta, 'title'), $menus[$block->delta]);
+      }
+      $data['content'] = i18n_menu_translated_tree($block->delta);
     }
-    $data['content'] = i18n_menu_translated_tree($block->delta);
   }
 }
 
@@ -244,7 +246,7 @@ function i18n_menu_menu_update($menu) {
       ->fields(array('language' => $menu['language']))
       ->condition('menu_name', $menu['menu_name'])
       ->condition('customized', 1)
-      ->execute();    
+      ->execute();
   }
   // Update strings, always add translation if no language
   if (!i18n_object_langcode($menu)) {
@@ -357,7 +359,7 @@ function i18n_menu_variable_info_alter(&$variables, $options) {
 function i18n_menu_translated_tree($menu_name, $langcode = NULL) {
   $menu_output = &drupal_static(__FUNCTION__);
   $langcode = i18n_langcode($langcode);
-  if (!isset($menu_output[$langcode][$menu_name]) || $reset) {    
+  if (!isset($menu_output[$langcode][$menu_name]) || $reset) {
     $tree = menu_tree_page_data($menu_name);
     $tree = i18n_menu_localize_tree($tree, $langcode);
     $menu_output[$langcode][$menu_name] = menu_tree_output($tree);
@@ -414,7 +416,7 @@ function i18n_menu_localize_elements(&$elements) {
 
 /**
  * Return an array of localized links for a navigation menu.
- * 
+ *
  * Localized version of menu_navigation_links()
  */
 function i18n_menu_navigation_links($menu_name, $level = 0) {
@@ -501,8 +503,8 @@ function _i18n_menu_link_localize(&$link, $langcode = NULL) {
     $link['options']['attributes']['title'] = $description;
   }
   if (!empty($link['options']['attributes']['title'])) {
-    
-  }  
+
+  }
 }
 
 /**
@@ -657,7 +659,7 @@ function i18n_menu_form_node_form_alter(&$form, &$form_state, $form_id) {
 
 /**
  * Implements hook_node_presave()
- * 
+ *
  * Set menu link language to node language
  */
 function i18n_menu_node_presave($node) {
@@ -681,7 +683,7 @@ function i18n_menu_node_prepare_translation($node) {
 
 /**
  * Process menu and menu item add/edit form submissions.
- * 
+ *
  * @todo See where this fits
  */
 /*

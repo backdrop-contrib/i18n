@@ -60,6 +60,22 @@ class i18nMenuTestCase extends Drupali18nTestCase {
     $this->assertText($neutral_item['link_title']);
     $this->assertNoText($default_item['link_title']);
     $this->assertText($secondary_item['link_title']);
+
+    // Test the same thing with a system menu used as a block.
+    $block['title'] = $menu['title'];
+    $block['module'] = 'system';
+    $block['delta'] = 'main-menu';
+    $this->moveBlockToRegion($block, 'sidebar_first');
+
+    $this->drupalGet('');
+    $this->assertText($neutral_item['link_title']);
+    $this->assertText($default_item['link_title']);
+    $this->assertNoText($secondary_item['link_title']);
+
+    $this->drupalGet($this->secondary_language);
+    $this->assertText($neutral_item['link_title']);
+    $this->assertNoText($default_item['link_title']);
+    $this->assertText($secondary_item['link_title']);
   }
 
   /**
