@@ -83,7 +83,7 @@ function i18n_translation_admin_form($form, &$form_state, $type = NULL, $tsids =
     }
   }
   $form['translations'] = array(
-    '#type' => 'tableselect',
+    '#theme' => 'table',
     '#header' => $header,
     '#options' => $options,
     '#empty' => t('No translation sets available.'),
