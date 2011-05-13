@@ -10,7 +10,7 @@
  */
 function i18n_menu_translation_overview($menu) {
   // Get translation sets with elements in this menu
-  $query =db_select('i18n_translation_set', 's')
+  $query = db_select('i18n_translation_set', 's')
     ->distinct()
     ->fields('s', array('tsid'))
     ->condition('s.type', 'menu_link');
@@ -20,7 +20,7 @@ function i18n_menu_translation_overview($menu) {
     return drupal_get_form('i18n_translation_set_overview', 'menu_link', $tsids);
   }
   else {
-    return t('No translations for this menu item.');
+    return t('No translation sets for this menu.');
   }
 }
 
@@ -74,9 +74,10 @@ function i18n_menu_translation_form($form, $form_state, $menu = NULL, $item = NU
       );
     }
   }
-  $form['controls']['update'] = array('#type' => 'submit', '#value' => t('Save'));
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['update'] = array('#type' => 'submit', '#value' => t('Save'));
   if ($translation_set) {
-    $form['controls']['delete'] = array('#type' => 'submit', '#value' => t('Delete'));
+    $form['actions']['delete'] = array('#type' => 'submit', '#value' => t('Delete'));
   }
   return $form;
 }
@@ -85,8 +86,19 @@ function i18n_menu_translation_form($form, $form_state, $menu = NULL, $item = NU
  * Process form validation
  */
 function i18n_menu_translation_form_validate($form, &$form_state)  {
-  if ($form_state['values']['op'] == t('Save') && !array_filter($form_state['values']['translations'])) {
-    form_set_error('paths', t('There are no path translations to save.'));
+  if ($form_state['values']['op'] == t('Save')) {
+    $selected = 0;
+    // example array('en' => 'navigation:0')
+    $mlids = array_filter($form_state['values']['translations']);
+    foreach ($mlids as $lang => $item_name) {
+      list($menu_name, $mlid) = explode(':', $item_name);
+      if ($mlid) {
+        $selected++;
+      }
+    }
+    if ($selected < 1) {
+      form_set_error('translations', t('There are no path translations to save.'));
+    }
   }
 }
 
