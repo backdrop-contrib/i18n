@@ -212,7 +212,7 @@ function i18n_taxonomy_vocabulary_translation_tab_sets_access($vocabulary) {
  * @todo This should work also for localizable terms when we've got that part implemented
  */
 function i18n_taxonomy_term_translation_tab_access($term) {
-  return taxonomy_term_edit_access($term) && (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_TRANSLATE) || (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_LOCALIZE) && user_access('translate interface')));
+  return taxonomy_term_edit_access($term) && i18n_taxonomy_vocabulary_mode($term->vid) & I18N_MODE_MULTIPLE && user_access('translate interface');
 }
 
 /**
@@ -689,10 +689,39 @@ function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state)
     $form += i18n_translation_mode_element($i18n_mode, $langcode);
     // Override options with proper description
     $form['i18n_translation']['i18n_mode']['#options'] = _i18n_taxonomy_vocabulary_options();
+    if (user_access('translate interface')) {
+      $form['actions']['translate'] = array(
+        '#type' => 'submit',
+        '#name'   => 'save_translate',
+        '#value' => t('Save and translate'),
+        '#weight' => 5,
+        '#states' => array(
+          'invisible' => array(
+            // Hide the button if language mode is selected value needs to be a
+            // string so that the javascript-side matching works.
+            'input[name=i18n_mode]' => array('value' => (string)I18N_MODE_LANGUAGE),
+          )
+        )
+      );
+      // Make sure the delete buttons shows up last.
+      if (isset($form['actions']['delete'])) {
+        $form['actions']['delete']['#weight'] = 10;
+      }
+    }
     $form['#validate'][] = 'i18n_taxonomy_form_vocabulary_validate';
+    $form['#submit'][] = 'i18n_taxonomy_form_vocabulary_submit';
 
     $form['i18n_translation']['language']['#options'][LANGUAGE_NONE] = t('- Select a language -');
     $form['i18n_translation']['language']['#required'] = TRUE;
+  }
+}
+
+/**
+ * Form submit callback to redirect when using the save and translate button.
+ */
+function i18n_taxonomy_form_vocabulary_submit($form, &$form_state) {
+  if ($form_state['triggering_element']['#name'] == 'save_translate') {
+    $form_state['redirect'] = 'admin/structure/taxonomy/' . $form_state['values']['machine_name'] . '/translate';
   }
 }
 
@@ -777,6 +806,32 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
         '#value' => LANGUAGE_NONE,
       );
       break;
+  }
+
+  if (user_access('translate interface') && i18n_taxonomy_vocabulary_mode($vocabulary->vid) & I18N_MODE_MULTIPLE) {
+    $form['actions']['translate'] = array(
+      '#type' => 'submit',
+      '#name'   => 'save_translate',
+      '#value' => t('Save and translate'),
+      '#weight' => 5,
+    );
+    // Make sure the delete buttons shows up last.
+    if (isset($form['actions']['delete'])) {
+      $form['actions']['delete']['#weight'] = 10;
+    }
+    $form['#submit'][] = 'i18n_taxonomy_form_term_submit';
+  }
+}
+
+/**
+ * Form submit callback to redirect when using the save and translate button.
+ */
+function i18n_taxonomy_form_term_submit($form, &$form_state) {
+  if ($form_state['triggering_element']['#name'] == 'save_translate') {
+    // When using the edit link on the list terms, a destination param is
+    // added that needs to be unset to make the redirection work.
+    unset($_GET['destination']);
+    $form_state['redirect'] = 'taxonomy/term/' . $form_state['values']['tid'] . '/translate';
   }
 }
 
