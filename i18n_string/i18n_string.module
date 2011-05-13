@@ -484,6 +484,15 @@ function i18n_string_translate($name, $string, $options = array()) {
 }
 
 /**
+ * Check user access to translate a specific string.
+ * 
+ * If the string has a format the user is not allowed to edit, it will return FALSE
+ */
+function i18n_string_translate_access($i18nstring, $account = NULL) {
+  return empty($i18nstring->format) || in_array($i18nstring->format, i18n_string_allowed_formats()) && filter_access($i18nstring->format, $account);
+}
+
+/**
  * Format the resulting translation or the default string applying callbacks
  *
  * There's a hidden variable, 'i18n_string_debug', that when set to TRUE will display additional info
@@ -626,13 +635,10 @@ function i18n_string_remove($name, $string = NULL, $options = array()) {
 function i18n_string_l10n_client_add($string, $options) {
   // If current language add to l10n client list for later on page translation.
   // If langcode translation was disabled we are not supossed to reach here.
-  if (($string->language == i18n_langcode()) && function_exists('l10_client_add_string_to_page')) {
+  if (($string->language == i18n_langcode()) && function_exists('l10_client_add_string_to_page') && i18n_string_translate_access($string)) {
     $translation = !empty($string->translation) ? $string->translation : TRUE;
     $source = !empty($string->source) ? $string->source : FALSE;
-    // Check whether the format is allowed
-    if (empty($string->format) || in_array($string->format, i18n_string_allowed_formats())) {
-      l10_client_add_string_to_page($string->source, $translation, $string->textgroup);
-    }
+    l10_client_add_string_to_page($string->source, $translation, $string->textgroup);
   }
 }
 

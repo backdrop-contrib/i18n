@@ -158,6 +158,17 @@ class i18n_translation_set {
       return '';
     }
   }
+  /**
+   * Get delete path for this translation set
+   */
+  public function get_delete_path() {
+    if ($path = $this->get_info('delete path')) {
+      return $path . '/' . $this->tsid;
+    }
+    else {
+      return '';
+    }
+  }
 
   /**
    * Get field on translations table that stores the translation set id (tsid)
@@ -186,7 +197,7 @@ class i18n_translation_set {
    */
   public function get_title() {
     if (!empty($this->title)) {
-      $title = $this->title;
+      return $this->title;
     }
     elseif ($translations = $this->get_translations()) {
       foreach ($translations as $item) {

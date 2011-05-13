@@ -89,8 +89,8 @@ function testTaxonomyTermLocalize() {
       'translations[' . $this->default_language . ']' => $en_term->name,
       'translations[' . $this->secondary_language . ']' => $es_term->name,
     );
-    $this->drupalPost('admin/structure/taxonomy/' . $vocab->machine_name . '/translation/add', $edit, t('Save'));
-    $this->drupalGet('admin/structure/taxonomy/' . $vocab->machine_name . '/translation');
+    $this->drupalPost('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets/add', $edit, t('Save'));
+    $this->drupalGet('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets');
 
     // Freetagging creates terms with the correct language.
     $new_term_name = $this->randomName();
