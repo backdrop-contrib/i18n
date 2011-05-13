@@ -576,6 +576,21 @@ function i18n_taxonomy_taxonomy_term_update($term) {
   if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_LOCALIZE)) {
     i18n_string_object_update('taxonomy_term', $term);
   }
+  // Multilingual terms, translatable.
+  if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_TRANSLATE)) {
+    if ($term->language !== LANGUAGE_NONE) {
+      $vocabulary = taxonomy_vocabulary_load($term->vid);
+      
+      // If the term translation set id is not set, we will create a new translation set.
+      $translation_set = isset($term->translation_set) ? $term->translation_set : i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
+      $translation_set->get_translations();
+
+      // Add the current term to the translation set.
+      $translation_set->translations[$term->language] = $term;
+      $translation_set->save(TRUE);
+    }
+  }
+  // TODO: Remove the term from it's translation set if the language is set to LANGUAGE_NONE
 }
 
 /**
@@ -695,6 +710,44 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
       $form['language'] = array(
         '#description' => t('This term belongs to a multilingual vocabulary. You can set a language for it.'),
       ) + i18n_element_language_select($term);
+
+      // If the term to be added will be a translation of a source term,
+      // set the default value of the option list to the target language and
+      // create a form element for storing the translation set of the source term.
+      if (isset($_GET['translation']) && isset($_GET['target'])) {
+        $source_term = taxonomy_term_load($_GET['translation']);
+
+        // Add the translation set to the form so we know the new term
+        // needs to be added to that set.
+        if (!empty($source_term->i18n_tsid)) {
+          $form['translation_set'] = array(
+            '#type' => 'value',
+            '#value' => i18n_translation_set_load($source_term->i18n_tsid),
+          );
+          // $form['#term']['i18n_tsid'] = $source_term->i18n_tsid;
+        }
+
+        $form['language']['#default_value'] = $_GET['target'];
+        $form['language']['#disabled'] = TRUE;
+
+        drupal_set_title(t('%language translation of term %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_term->name)), PASS_THROUGH);
+      }
+
+      // If the current term is part of a translation set,
+      // remove all other languages of the option list.
+      if (isset($term->language) && $term->language !== LANGUAGE_NONE) {
+        $translations = i18n_taxonomy_term_get_translations($term->i18n_tsid);
+
+        // If the number of translations equals 1, there's only a source translation.
+        if (count($translations) > 1) {
+          unset($form['language']['#options'][LANGUAGE_NONE]);
+          foreach ($translations as $langcode => $translation) {
+            if ($translation->tid !== $term->tid) {
+              unset($form['language']['#options'][$langcode]);
+            }
+          }
+        }
+      }
       break;
 
     case I18N_MODE_LANGUAGE:

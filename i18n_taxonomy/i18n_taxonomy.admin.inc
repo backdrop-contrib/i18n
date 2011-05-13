@@ -34,7 +34,12 @@ function i18n_taxonomy_term_translation_tab_page($term, $language = NULL) {
   if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_TRANSLATE)) {
     $vocabulary = taxonomy_vocabulary_load($term->vid);
     $translation_set = !empty($term->i18n_tsid) ? i18n_translation_set_load($term->i18n_tsid) : NULL;
-    return drupal_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $translation_set, $term);
+
+    $translation_overview = i18n_taxonomy_translation_term_overview($term);
+
+    $translation_term_form = drupal_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $translation_set, $term);
+
+    return $translation_overview += $translation_term_form;
   }
   elseif (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_LOCALIZE)) {
     module_load_include('inc', 'i18n_string', 'i18n_string.pages');
@@ -244,6 +249,60 @@ function i18n_taxonomy_translation_sets_overview($vocabulary) {
 
 /**
  * Callback for term translation tab.
+ */
+function i18n_taxonomy_translation_term_overview($term) {
+  if ($term->i18n_tsid) {
+    // Already part of a set, grab that set.
+    $i18n_tsid = $term->i18n_tsid;
+    $translation_set = i18n_translation_set_load($term->i18n_tsid);
+    $translation_set->get_translations();
+    $translations = $translation_set->get_translations();
+  }
+  else {
+    // We have no translation source nid, this could be a new set, emulate that.
+    $i18n_tsid = $term->tid;
+    $translations = array($term->language => $term);
+  }
+  $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+  $header = array(t('Language'), t('Title'), t('Operations'));
+
+  foreach (language_list() as $langcode => $language) {
+    $options = array();
+    $language_name = $language->name;
+    if (isset($translations[$langcode])) {
+      // Existing translation in the translation set: display status.
+      // We load the full node to check whether the user can edit it.
+      $translation_term = taxonomy_term_load($translations[$langcode]->tid);
+      $path = 'taxonomy/term/' . $translation_term->tid;
+      $title = l($translation_term->name, $path);
+
+      $options[] = l(t('edit'), $path . '/edit');
+
+      if ($translation_term->tid == $i18n_tsid) {
+        $language_name = t('<strong>@language_name</strong> (source)', array('@language_name' => $language_name));
+      }
+    }
+    else {
+      // No such translation in the set yet: help user to create it.
+      $title = t('n/a');
+      $options[] = l(t('add translation'), 'admin/structure/taxonomy/' . $term->vocabulary_machine_name . '/add', array('query' => array('translation' => $term->tid, 'target' => $langcode) + drupal_get_destination()));
+    }
+    $rows[] = array($language_name, $title, implode(" | ", $options));
+  }
+
+  drupal_set_title(t('Translations of term %title', array('%title' => $term->name)), PASS_THROUGH);
+
+  $build['translation_node_overview'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+  );
+
+  return $build;
+}
+
+/**
+ * Callback for vocabulary translation tab.
  */
 function i18n_taxonomy_translation_vocabulary_page($vocabulary, $language = NULL) {
   module_load_include('inc', 'i18n_string', 'i18n_string.pages');
