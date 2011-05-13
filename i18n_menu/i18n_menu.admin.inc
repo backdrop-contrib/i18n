@@ -34,7 +34,7 @@ function i18n_menu_translation_form($form, $form_state, $menu = NULL, $item = NU
     $translations[$lang] = $item;
   }
   $item = $item ? $item : array('mlid' => 0, 'menu_name' => '', 'plid' => 0);
-  $item_lang = i18n_object_langcode($item); 
+  $item_lang = i18n_object_langcode($item);
   $form['title'] = array(
     '#title' => t('Title'),
     '#type' => 'textfield',
@@ -70,7 +70,7 @@ function i18n_menu_translation_form($form, $form_state, $menu = NULL, $item = NU
         '#default_value' => $default,
         '#options' => $options,
         '#description' => t('The maximum depth for a link and all its children is fixed at !maxdepth. Some menu links may not be available as parents if selecting them would exceed this limit.', array('!maxdepth' => MENU_MAX_DEPTH)),
-        '#attributes' => array('class' => array('menu-title-select')),  
+        '#attributes' => array('class' => array('menu-title-select')),
       );
     }
   }
@@ -191,4 +191,67 @@ function i18n_menu_tree_all_data($menu_name, $langcode, $link = NULL, $max_depth
     }
   }
   return $tree;
+}
+
+/**
+ * Callback for menu translation tab.
+ */
+function i18n_menu_translation_menu_page($menu, $language = NULL) {
+  module_load_include('inc', 'i18n_string', 'i18n_string.pages');
+  $form_meta = array(
+    '#page_title' => t('Translate menu'),
+    '#item_title_key' => array('menu', 'menu', $menu['menu_name'], 'title'),
+    '#item_title_default' => $menu['title'],
+    '#edit' => 'admin/structure/menu/manage/' . $menu['menu_name'] . '/edit',
+    '#translate' => 'admin/structure/menu/manage/' . $menu['menu_name'] . '/translate',
+    '#items' => array(),
+  );
+  $form_meta['#items'][] = array(
+    '#title' => t('Menu name'),
+    '#string_key' => array('menu', 'menu', $menu['menu_name'], 'title'),
+    '#default_value' => $menu['title'],
+  );
+  if (!empty($menu['description'])) {
+    $form_meta['#items'][] = array(
+      '#title' => t('Description'),
+      '#string_key' => array('menu', 'menu', $menu['menu_name'], 'description'),
+      '#default_value' => $menu['description'],
+    );
+  }
+  return i18n_string_translate_page($form_meta, $language);
+}
+
+/**
+ * Callback for menu item translation tab.
+ */
+function i18n_menu_translation_item_page($item, $language = NULL) {
+  if (i18n_object_langcode($item)) {
+    // If the item has a language code, we can only support translation sets.
+    return drupal_get_form('i18n_menu_translation_form', NULL, $item, NULL);
+  }
+  else {
+    // Otherwise we can only support localizing the item.
+    module_load_include('inc', 'i18n_string', 'i18n_string.pages');
+    $form_meta = array(
+      '#page_title' => t('Translate menu item'),
+      '#item_title_key' => array('menu', 'item', $item['mlid'], 'title'),
+      '#item_title_default' => $item['link_title'],
+      '#edit' => 'admin/structure/menu/item/' . $item['mlid'] . '/edit',
+      '#translate' => 'admin/structure/menu/item/' . $item['mlid'] . '/translate',
+      '#items' => array(),
+    );
+    $form_meta['#items'][] = array(
+      '#title' => t('Menu link title'),
+      '#string_key' => array('menu', 'item', $item['mlid'], 'title'),
+      '#default_value' => $item['link_title'],
+    );
+    if (!empty($item['options']['attributes']['title'])) {
+      $form_meta['#items'][] = array(
+        '#title' => t('Description'),
+        '#string_key' => array('menu', 'item', $item['mlid'], 'description'),
+        '#default_value' => $item['options']['attributes']['title'],
+      );
+    }
+    return i18n_string_translate_page($form_meta, $language);
+  }
 }
