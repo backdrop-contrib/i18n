@@ -99,7 +99,6 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
         '#default_value' => isset($translations[$lang]) ? $translations[$lang]->name : '',
         '#autocomplete_path' => 'i18n/taxonomy/autocomplete/vocabulary/' . $vocabulary->machine_name . '/' . $lang,
         '#langcode' => $lang,
-        '#size' => 80,
         '#maxlength' => 1024,
         '#element_validate' => array('i18n_taxonomy_autocomplete_validate'),
       );
@@ -266,9 +265,8 @@ function i18n_taxonomy_translation_term_overview($term) {
   $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
   $header = array(t('Language'), t('Title'), t('Operations'));
 
-  foreach (language_list() as $langcode => $language) {
+  foreach (i18n_language_list() as $langcode => $language_name) {
     $options = array();
-    $language_name = $language->name;
     if (isset($translations[$langcode])) {
       // Existing translation in the translation set: display status.
       // We load the full node to check whether the user can edit it.
