@@ -4,3 +4,4 @@ dependencies[] = field
 dependencies[] = i18n_string
 package = Multilingual - Internationalization
 core = 7.x
+files[] = i18n_field.test

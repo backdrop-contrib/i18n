@@ -24,6 +24,9 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
   }
 
   function testBlockTranslation() {
+
+    $block_translater = $this->drupalCreateUser(array('administer blocks', 'translate interface'));
+
     // Display Language switcher block
     $switcher = array('module' => 'locale', 'delta' => 'language', 'title' => t('Languages'));
     $this->moveBlockToRegion($switcher);
@@ -55,6 +58,33 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $this->i18nAssertTranslations($translations['title'], '', 'Custom block title translation displayed.');
     $this->i18nAssertTranslations($translations['body'], '', 'Custom block body translation displayed.');
 
+    // Test the translate tab.
+    $this->drupalLogin($this->admin_user);
+    $this->drupalGet('admin/structure/block/manage/' . $box2['module'] . '/' . $box2['delta'] . '/configure');
+    $this->assertNoFieldByName('save_and_translate');
+
+    $this->drupalLogin($block_translater);
+    $this->drupalPost('admin/structure/block/manage/' . $box2['module'] . '/' . $box2['delta'] . '/configure', array(), t('Save and translate'));
+    // @todo Improve these checks.
+    $this->assertText(t('Spanish'));
+    $this->assertText(t('translated'));
+
+    $this->clickLink(t('translate'));
+    debug($translations);
+    $this->assertFieldByName('strings[blocks:block:' . $box2['delta'] . ':title]', $translations['title']['es']);
+    $this->assertFieldByName('strings[blocks:block:' . $box2['delta'] . ':body]', $translations['body']['es']);
+
+    // Update the translation.
+    $translations['title']['es'] = $this->randomName(10);
+    $translations['body']['es'] = $this->randomName(20);
+    $edit = array(
+      'strings[blocks:block:' . $box2['delta'] . ':title]' => $translations['title']['es'],
+      'strings[blocks:block:' . $box2['delta'] . ':body]' => $translations['body']['es'],
+    );
+    $this->drupalPost(NULL, $edit, t('Save translation'));
+    $this->i18nAssertTranslations($translations['title'], '', 'Updated block title translation displayed.');
+    $this->i18nAssertTranslations($translations['body'], '', 'Updated block body translation displayed.');
+
     // Test a block translation with filtering and text formats
     $box3 = $this->i18nCreateBlock(array(
       'title' => '<div><script>alert(0)</script>Title</script>',
@@ -79,6 +109,13 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     // Check the right filtered strings are displayed
     $this->i18nAssertTranslations($filtered);
 
+    // Assert translatable descriptions.
+    $this->drupalLogin($this->admin_user);
+    $this->drupalGet('admin/structure/block/manage/system/powered-by/configure');
+    $this->assertText(t('This block has generated content, only the title can be translated here.'));
+
+    $this->drupalGet('admin/structure/block/manage/system/navigation/configure');
+    $this->assertText(t('To translate the block content itself, translate the menu that is being shown.'));
   }
 
   /**
