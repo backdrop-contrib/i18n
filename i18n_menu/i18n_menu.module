@@ -571,6 +571,9 @@ function i18n_menu_form_menu_edit_menu_alter(&$form, &$form_state) {
   $i18n_mode = $menu && isset($menu['i18n_mode']) ? $menu['i18n_mode'] : I18N_MODE_NONE;
   $langcode = $menu && isset($menu['language']) ? $menu['language'] : LANGUAGE_NONE;
   $form += i18n_translation_mode_element($i18n_mode, $langcode, array(I18N_MODE_NONE, I18N_MODE_MULTIPLE, I18N_MODE_LANGUAGE));
+
+  $form['i18n_translation']['language']['#options'][LANGUAGE_NONE] = t('- Select a language -');
+  $form['i18n_translation']['language']['#required'] = TRUE;
 }
 
 /**
