@@ -33,26 +33,56 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   }
 
   /**
-   * Set up translation for content type (page)
+   * Set up content-type (with translation).
    */
-  function setUpContentTranslation() {
-    $this->translator = $this->drupalCreateUser(array('create page content', 'edit own page content', 'translate content'));
-    $this->drupalLogin($this->admin_user);
-    // Set "Basic page" content type to use multilingual support with
-    // translation.
-    $this->drupalGet('admin/structure/types/manage/page');
-    $edit = array();
-    $edit['language_content_type'] = 2;
-    // Mark status and promoted
-    $edit['node_options[status]'] = 1;
-    $edit['node_options[promote]'] = 1;
-    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
-    $this->assertRaw(t('The content type %type has been updated.', array('%type' => 'Basic page')), t('Basic page content type has been updated.'));
+  function setUpContentType($settings = array()) {
+    $settings += array(
+      'type' => 'page',
+      'mode' => I18N_MODE_LOCALIZE,
+      'status' => 1,
+      'promote' => 0,
+    );
 
+    $type = node_type_get_type($settings['type']);
+
+    $this->translator = $this->drupalCreateUser(array(
+      'create ' . $type->type . ' content',
+      'edit own ' . $type->type . ' content',
+      'translate content',
+    ));
+
+    $this->drupalLogin($this->admin_user);
+    // Set content type to use multilingual support with translation.
+    $this->drupalGet('admin/structure/types/manage/' . $type->type);
+    $edit = array();
+    $edit['language_content_type'] = $settings['mode'];
+    // Mark status and promoted
+    $edit['node_options[status]'] = $settings['status'];
+    $edit['node_options[promote]'] = $settings['promote'];
+    $this->drupalPost('admin/structure/types/manage/' . $type->type, $edit, t('Save content type'));
+    $this->assertRaw(t('The content type %type has been updated.', array('%type' => $type->name)), t('%type content type has been updated.', array('%type' => $type->name)));
+
+    $this->enableLanguageBlock();
+  }
+
+  /**
+   * Enable the language switcher block.
+   */
+  function enableLanguageBlock() {
     // Enable the language switcher block.
     $language_type = LANGUAGE_TYPE_INTERFACE;
     $edit = array("blocks[locale_$language_type][region]" => 'sidebar_first');
     $this->drupalPost('admin/structure/block', $edit, t('Save blocks'));
+  }
+
+  /**
+   * Set up translation for content type (default: page).
+   */
+  function setUpContentTranslation($settings = array()) {
+    $settings += array(
+      'mode' => I18N_MODE_LANGUAGE,
+    );
+    $this->setUpContentType($settings);
   }
 
   /**
