@@ -14,7 +14,7 @@
  *   The page content.
  */
 function i18n_taxonomy_term_page($term) {
-  i18n_taxonomy_localize_terms($term);
+  i18n_taxonomy_localize_terms($term, array('name', 'description'));
   // Build breadcrumb based on the hierarchy of the term.
   $current = (object) array(
     'tid' => $term->tid,
