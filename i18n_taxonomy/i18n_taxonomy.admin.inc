@@ -45,24 +45,11 @@ function i18n_taxonomy_term_translation_tab_page($term, $language = NULL) {
     module_load_include('inc', 'i18n_string', 'i18n_string.pages');
     $form_meta = array(
       '#page_title' => t('Translate term'),
-      '#item_title_key' => array('taxonomy', 'term', $term->tid, 'name'),
-      '#item_title_default' => $term->name,
       '#edit' => 'taxonomy/term/' . $term->tid . '/edit',
       '#translate' => 'taxonomy/term/' . $term->tid . '/translate',
-      '#items' => array(),
+      '#type' => 'taxonomy_term',
+      '#object' => $term,
     );
-    $form_meta['#items'][] = array(
-      '#title' => t('Name'),
-      '#string_key' => array('taxonomy', 'term', $term->tid, 'name'),
-      '#default_value' => $term->name,
-    );
-    if (!empty($term->description)) {
-      $form_meta['#items'][] = array(
-	'#title' => t('Description'),
-	'#string_key' => array('taxonomy', 'term', $term->tid, 'description'),
-	'#default_value' => $term->description
-      );
-    }
     return i18n_string_translate_page($form_meta, $language);
   }
 }
@@ -306,23 +293,10 @@ function i18n_taxonomy_translation_vocabulary_page($vocabulary, $language = NULL
   module_load_include('inc', 'i18n_string', 'i18n_string.pages');
   $form_meta = array(
     '#page_title' => t('Translate vocabulary'),
-    '#item_title_key' => array('taxonomy', 'vocabulary', $vocabulary->vid, 'name'),
-    '#item_title_default' => $vocabulary->name,
     '#edit' => 'admin/structure/taxonomy/' . $vocabulary->machine_name . '/edit',
     '#translate' => 'admin/structure/taxonomy/' . $vocabulary->machine_name . '/translate',
-    '#items' => array(),
+    '#type' => 'taxonomy_vocabulary',
+    '#object' => $vocabulary,
   );
-  $form_meta['#items'][] = array(
-    '#title' => t('Name'),
-    '#string_key' => array('taxonomy', 'vocabulary', $vocabulary->vid, 'name'),
-    '#default_value' => $vocabulary->name,
-  );
-  if (!empty($vocabulary->description)) {
-    $form_meta['#items'][] = array(
-      '#title' => t('Description'),
-      '#string_key' => array('taxonomy', 'vocabulary', $vocabulary->vid, 'description'),
-      '#default_value' => $vocabulary->description
-    );
-  }
   return i18n_string_translate_page($form_meta, $language);
 }

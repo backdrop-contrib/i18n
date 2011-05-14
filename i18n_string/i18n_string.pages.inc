@@ -15,6 +15,28 @@ function i18n_string_translate_page($form_meta, $langcode = NULL) {
     '#item_title_header' => t('Title'),
   );
 
+  // If there is an object property, get the items from there.
+  if (!empty($form_meta['#type']) && !empty($form_meta['#object'])) {
+    $info = i18n_object_info($form_meta['#type']);
+
+    foreach ($info['string translation']['properties'] as $key => $title) {
+      if (!empty($form_meta['#object']->{$key})) {
+        $form_meta['#items'][] = array(
+          '#title' => is_array($title) ? $title['title'] : $title,
+          '#string_key' => array($info['string translation']['textgroup'], $info['string translation']['type'], $form_meta['#object']->{$info['key']}, $key),
+          '#default_value' => $form_meta['#object']->{$key},
+        );
+      }
+    }
+  }
+
+  // If not set, assume that the default item is the first one.
+  if ((empty($form_meta['#item_title_key']))) {
+    $default_item = reset($form_meta['#items']);
+    $form_meta['#item_title_key'] = $default_item['#string_key'];
+    $form_meta['#item_title_default'] = $default_item['#default_value'];
+  }
+
   if (empty($langcode)) {
     drupal_set_title($form_meta['#page_title']);
     return i18n_string_translate_page_overview($form_meta);
