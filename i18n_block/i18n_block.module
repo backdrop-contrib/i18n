@@ -276,17 +276,19 @@ function i18n_block_form_block_admin_configure_alter(&$form, &$form_state, $form
     '#options' => i18n_language_list(),
     '#description' => t('If no language is selected, block will show regardless of language.'),
   );
-  $form['actions']['translate'] = array(
-    '#type' => 'submit',
-    '#name'   => 'save_translate',
-    '#value' => t('Save and translate'),
-    '#states' => array(
-      'visible' => array(
-        // The value must be a string so that the javascript comparison works.
-        ":input[name=i18n_mode]" => array('checked' => TRUE),
+  if (user_access('translate interface')) {
+    $form['actions']['translate'] = array(
+      '#type' => 'submit',
+      '#name'   => 'save_translate',
+      '#value' => t('Save and translate'),
+      '#states' => array(
+        'visible' => array(
+          // The value must be a string so that the javascript comparison works.
+          ":input[name=i18n_mode]" => array('checked' => TRUE),
+        ),
       ),
-    ),
-  );
+    );
+  }
   $form['#submit'][] = 'i18n_block_form_block_admin_configure_submit';
 }
 
