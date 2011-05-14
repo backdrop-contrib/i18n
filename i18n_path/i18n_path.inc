@@ -6,7 +6,7 @@
 class i18n_path_translation_set extends i18n_translation_set {
   /**
    * Clean path translations.
-   * 
+   *
    * Unlike other translation sets this actually deletes paths
    */
   public function clean_translations() {
@@ -28,7 +28,7 @@ class i18n_path_translation_set extends i18n_translation_set {
    */
   public function save_translations() {
     foreach ($this->translations as $lang => $path) {
-      $path = is_object($path) ? $path : (object)array('path' => $path, 'language' => $lang, 'tsid' => $this->tsid);
+      $path = is_object($path) ? $path : (object) array('path' => $path, 'language' => $lang, 'tsid' => $this->tsid);
       drupal_write_record('i18n_path', $path, !empty($path->tpid) ? 'tpid' : array());
       $this->translations[$lang] = $path;
     }
@@ -37,12 +37,12 @@ class i18n_path_translation_set extends i18n_translation_set {
    * Get title from item
    */
   protected function item_title($item) {
-    return $item['path'];
+    return $item->path;
   }
   /**
    * Get link for item
    */
   protected function item_path($item) {
-    return check_url($item['path']);
+    return check_url($item->path);
   }
 }
