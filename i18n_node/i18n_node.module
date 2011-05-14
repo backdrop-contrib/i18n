@@ -3,7 +3,7 @@
 /**
  * @file
  * Internationalization (i18n) module - Node type handling
- * 
+ *
  * The i18n strings created by this module are:
  * - node:type:[type]:[name,title,body,help]
  */
@@ -48,7 +48,7 @@ function i18n_node_add($type) {
 function i18n_node_field_extra_fields() {
   $return = array();
   $info = entity_get_info('node');
-  foreach (array_keys($info['bundles']) as $bundle) {  
+  foreach (array_keys($info['bundles']) as $bundle) {
     if (i18n_node_type_enabled($bundle)) {
       $return['node'][$bundle] = i18n_language_field_extra();
     }
@@ -60,6 +60,22 @@ function i18n_node_field_extra_fields() {
  * Implements hook_menu().
  */
 function i18n_node_menu() {
+  $items['admin/structure/types/manage/%node_type/translate'] = array(
+    'title' => 'Translate',
+    'access callback' => 'i18n_node_translate_tab_access',
+    'page callback' => 'i18n_node_translate_tab_page',
+    'page arguments' => array(4),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+  );
+  $items['admin/structure/types/manage/%node_type/translate/%language'] = array(
+    'title' => 'Translate',
+    'access callback' => 'i18n_node_translate_tab_access',
+    'page callback' => 'i18n_node_translate_tab_page',
+    'page arguments' => array(4, 6),
+    'type' => MENU_CALLBACK,
+  );
+
   $items['admin/config/regional/i18n/node'] = array(
     'title' => 'Node options',
     'description' => 'Configure extended options for multilingual content and translations.',
@@ -69,6 +85,7 @@ function i18n_node_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => 10,
   );
+
   $items['i18n/node/autocomplete'] = array(
     'page callback' => 'i18n_node_autocomplete',
     'file' => 'i18n_node.pages.inc',
@@ -79,8 +96,58 @@ function i18n_node_menu() {
 }
 
 /**
+ * Menu access callback function.
+ */
+function i18n_node_translate_tab_access() {
+  return user_access('translate interface') && user_access('administer content types');
+}
+
+/**
+ * Build a translation page for the given category.
+ */
+function i18n_node_translate_tab_page($type, $language = NULL) {
+  module_load_include('inc', 'i18n_string', 'i18n_string.pages');
+  $form_meta = array(
+    '#page_title' => t('Translate content type'),
+    '#item_title_header' => t('Name'),
+    '#item_title_key' => array('node', 'type', $type->type, 'name'),
+    '#item_title_default' => $type->name,
+    '#edit' => 'admin/structure/types/manage/' . $type->type . '/edit',
+    '#translate' => 'admin/structure/types/manage/' . $type->type . '/translate',
+    '#items' => array(),
+  );
+  $form_meta['#items'][] = array(
+    '#title' => t('Name'),
+    '#string_key' => array('node', 'type', $type->type, 'name'),
+    '#default_value' => $type->name,
+  );
+  if ($type->has_title && !empty($type->title_label)) {
+    $form_meta['#items'][] = array(
+      '#title' => t('Title field label'),
+      '#string_key' => array('node', 'type', $type->type, 'title_label'),
+      '#default_value' => $type->title_label
+    );
+  }
+  if (!empty($type->description)) {
+    $form_meta['#items'][] = array(
+      '#title' => t('Description'),
+      '#string_key' => array('node', 'type', $type->type, 'description'),
+      '#default_value' => $type->description
+    );
+  }
+  if (!empty($type->help)) {
+    $form_meta['#items'][] = array(
+      '#title' => t('Help'),
+      '#string_key' => array('node', 'type', $type->type, 'help'),
+      '#default_value' => $type->help
+    );
+  }
+  return i18n_string_translate_page($form_meta, $language);
+}
+
+/**
  * Implements hook_block_view_MODULE_DELTA_alter().
- * 
+ *
  * Set translated help text for node/add pages, replace node_help() text.
  */
 function i18n_node_block_view_system_help_alter(&$block) {
@@ -91,8 +158,8 @@ function i18n_node_block_view_system_help_alter(&$block) {
       if ($help !== $type->help) {
         $block['content'] = str_replace(filter_xss_admin($type->help), filter_xss_admin($help), $block['content']);
       }
-    } 
-  } 
+    }
+  }
 }
 
 /**
@@ -154,7 +221,7 @@ function i18n_node_i18n_string_list($group) {
         'help' => $type->help,
       );
     }
-    return $strings; 
+    return $strings;
   }
 }
 
@@ -170,7 +237,7 @@ function i18n_node_i18n_object_info() {
       'type' => 'type',
       'properties' => array(
         'name' => t('Name'),
-        'title_label' => t('Title label'), 
+        'title_label' => t('Title label'),
         'description' => t('Description'),
         'help' => t('Help text'),
       ),
@@ -188,7 +255,7 @@ function i18n_node_i18n_translate_path($path, $language) {
     if (!empty($translations[$language->language])) {
       return 'node/' . $translations[$language->language]->nid . $matches[2];
     }
-  } 
+  }
 }
 
 /**
@@ -327,7 +394,7 @@ function i18n_node_node_view($node) {
  * Handles links for extended languages. Sets current interface language.
  */
 function i18n_node_node_view_alter(&$build) {
-  $node = $build['#node'];  
+  $node = $build['#node'];
   // Hide node translation links.
   if (variable_get('i18n_hide_translation_links', 0)) {
     if (isset($build['links']['translation'])) {
@@ -351,7 +418,7 @@ function i18n_node_node_view_alter(&$build) {
           'language' => $language,
           'attributes' => array(
         		'title' => $translations[$langcode]->title,
-        		'class' => array('translation-link'),               
+        		'class' => array('translation-link'),
           ),
         );
       }
@@ -387,7 +454,7 @@ function i18n_node_node_type_delete($info) {
  * Implements hook_elements().
  *
  * Add a process callback for textfields.
- * 
+ *
  *  * @todo Update D7
  */
 /*
@@ -403,7 +470,7 @@ function i18n_node_elements() {
  *
  * When editing or translating a node, set Javascript to rewrite autocomplete
  * paths to use the node language prefix rather than the current content one.
- * 
+ *
  * @todo Update D7
  */
 function i18n_node_textfield_process($element) {
@@ -505,7 +572,7 @@ function i18n_node_form_node_form_alter(&$form, $form_state) {
    *
    * @see http://drupal.org/node/765860
   */
-  
+
   // call a 'private' implemenation of i18n_node_form_node_form_alter()
   $form['#after_build'][] = '_i18n_node_form_node_form_alter';
 }
@@ -548,7 +615,7 @@ function i18n_node_theme() {
 
 /**
  * Shorthand for translating node type strings
- * 
+ *
  * @param $type
  *   Node type name or full object
  */
@@ -564,12 +631,12 @@ function i18n_node_translate_type($type, $property = 'name', $source = NULL, $op
  * Translate node type name (unfiltered)
  */
 function i18n_node_type_name($type, $name) {
-  return i18n_string_translate(array('node', 'type', $type, 'name'), $name); 
+  return i18n_string_translate(array('node', 'type', $type, 'name'), $name);
 }
 
 /**
  * Check whether this is a language enabled node type
- * 
+ *
  * @param $type
  *   Node, node type object, or node type name
  */
