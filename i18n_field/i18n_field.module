@@ -170,28 +170,20 @@ function i18n_field_field_storage_info_alter(&$info) {
 function i18n_field_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element) {
   global $language;
   // The field language may affect some variables (default) but not others (description will be in current page language)
-  $langcode = empty($element['#language']) || $element['#language'] == LANGUAGE_NONE ? $language->language : $element['#language'];
+  $i18n_langcode = empty($element['#language']) || $element['#language'] == LANGUAGE_NONE ? $language->language : $element['#language'];
   $delta = $element['#delta'];
 
-  $translate = array(
-    'description' => array('filter' => 'field_filter_xss'),
-    //'default_value' => array('langcode' => $langcode),
-  );
-
-  foreach ($translate as $property => $options) {
-
-  }
   // Translate field description if set
   if (!empty($instance['description'])) {
     $element['#description'] = i18n_field_translate_property($instance, 'description');
   }
   // Translate default value if exists and the current value is the default
   if (($translate = i18n_field_type_info($field['type'], 'translate_default')) && !empty($instance['default_value'][$delta]['value']) && !empty($items[$delta]['value']) && $instance['default_value'][$delta]['value'] === $items[$delta]['value']) {
-    $items[$delta]['value'] = $translate($instance, $items[$delta]['value'], $langcode);
+    $items[$delta]['value'] = $translate($instance, $items[$delta]['value'], $i18n_langcode);
   }
   // Translate list options
   if (($translate = i18n_field_type_info($field['type'], 'translate_options')) && !empty($field['settings']['allowed_values'])) {
-    $field['settings']['allowed_values'] = $translate($field, $langcode);
+    $field['settings']['allowed_values'] = $translate($field, $i18n_langcode);
   }
   // Redirect through original module_field_widget_form()
   if (!empty($instance['widget']['i18n_field_callbacks'])) {
