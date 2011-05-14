@@ -244,6 +244,7 @@ function i18n_taxonomy_field_formatter_prepare_view($entity_type, $entities, $fi
  */
 function i18n_taxonomy_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
+  $language = i18n_language();
 
   // Terms whose tid is 'autocreate' do not exist
   // yet and $item['taxonomy_term'] is not set. Theme such terms as
@@ -262,7 +263,7 @@ function i18n_taxonomy_field_formatter_view($entity_type, $entity, $field, $inst
           $uri = entity_uri('taxonomy_term', $term);
           $element[$delta] = array(
             '#type' => 'link',
-            '#title' => i18n_taxonomy_term_name($term, $langcode),
+            '#title' => i18n_taxonomy_term_name($term, $language->language),
             '#href' => $uri['path'],
             '#options' => $uri['options'],
           );
@@ -272,7 +273,7 @@ function i18n_taxonomy_field_formatter_view($entity_type, $entity, $field, $inst
 
     case 'i18n_taxonomy_term_reference_plain':
       foreach ($items as $delta => $item) {
-        $name = ($item['tid'] != 'autocreate' ? i18n_taxonomy_term_name($item['taxonomy_term'], $langcode): $item['name']);
+        $name = ($item['tid'] != 'autocreate' ? i18n_taxonomy_term_name($item['taxonomy_term'], $language->language): $item['name']);
         $element[$delta] = array(
           '#markup' => check_plain($name),
         );
