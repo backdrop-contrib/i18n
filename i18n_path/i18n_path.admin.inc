@@ -21,7 +21,7 @@ function i18n_path_admin_overview($type = NULL) {
   $query->condition('t.type', $type);
 
   $tsids = $query
-    ->fields('t',array('tsid'))
+    ->fields('t', array('tsid'))
     ->limit(50)
     ->orderByHeader($header)
     ->execute()
@@ -32,7 +32,7 @@ function i18n_path_admin_overview($type = NULL) {
   $options = array();
   foreach ($translations as $set) {
     $paths = array();
-    foreach($set->get_translations() as $language => $path) {
+    foreach ($set->get_translations() as $language => $path) {
       if (!empty($path->path)) {
         $paths[$language] = $language_list[$language]->name . ': ' . l($path->path, $path->path, array('language' => $language_list[$language]));
       }
@@ -122,9 +122,19 @@ function i18n_path_admin_form($form, $form_state, $translation_set = NULL) {
       '#default_value' => !empty($paths[$langcode]) ? $paths[$langcode]->path : '',
     );
   }
-  $form['controls']['update'] = array('#type' => 'submit', '#value' => t('Save'));
+
+  $form['controls']['update'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+    '#name' => 'save',
+  );
+
   if ($translation_set) {
-    $form['controls']['delete'] = array('#type' => 'submit', '#value' => t('Delete'));
+    $form['controls']['delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete'),
+      '#name' => 'delete',
+    );
   }
   return $form;
 }
@@ -133,7 +143,7 @@ function i18n_path_admin_form($form, $form_state, $translation_set = NULL) {
  * Process form validation
  */
 function i18n_path_admin_form_validate($form, &$form_state)  {
-  if ($form_state['values']['op'] == t('Save')) {
+  if ($form_state['triggering_element']['#name'] == 'save') {
     $paths = &$form_state['values']['translations'];
     if ($paths = array_filter($paths)) {
       module_load_include('inc', 'menu', 'menu.admin');
@@ -158,9 +168,8 @@ function i18n_path_admin_form_validate($form, &$form_state)  {
  */
 function i18n_path_admin_form_submit($form, &$form_state) {
   $translation_set = $form_state['values']['translation_set'];
-
-  switch ($form_state['values']['op']) {
-    case t('Save'):
+  switch ($form_state['triggering_element']['#name']) {
+    case 'save':
       $paths = array_filter($form_state['values']['translations']);
       $translation_set = $translation_set ? $translation_set : i18n_translation_set_create('path');
       $translation_set->title = '';
@@ -186,7 +195,7 @@ function i18n_path_admin_form_submit($form, &$form_state) {
       $translation_set->save(TRUE);
       drupal_set_message(t('The path translation has been saved.'));
       break;
-    case t('Delete'):
+    case 'delete':
       $destination = array();
       if (isset($_GET['destination'])) {
         $destination = drupal_get_destination();
