@@ -327,7 +327,7 @@ class i18n_string_default {
    *   Optional source string (string in default language).
    */
   public function remove($context, $string = NULL, $options = array()) {
-    $options += array('messages' => TRUE);
+    $options += array('messages' => FALSE);
     $i18nstring = $this->build_string($context, $string, $options);
     $status = $this->remove_string($i18nstring, $options);
     if ($options['messages'] && $status === SAVED_DELETED) {
@@ -532,7 +532,7 @@ class i18n_string_default {
    *   - 'messages', Whether to print out status messages
    */
   public function update($context, $string, $options = array()) {
-    $options += array('format' => FALSE, 'messages' => TRUE, 'watchdog' => TRUE);
+    $options += array('format' => FALSE, 'messages' => FALSE, 'watchdog' => TRUE);
     $i18nstring = $this->build_string($context, $string, $options);
     $i18nstring->format = $options['format'];
     if (!$this->check_string($i18nstring, $options)) {
