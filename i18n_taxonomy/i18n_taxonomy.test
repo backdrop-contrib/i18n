@@ -19,10 +19,29 @@ class i18nTaxonomyTestCase extends Drupali18nTestCase {
     parent::setUp('i18n_taxonomy', 'field_test');
     parent::setUpLanguages();
 
-    $this->admin_user = $this->drupalCreateUser(array('access field_test content', 'administer field_test content', 'administer taxonomy', 'administer languages'));
+    // Create users.
+    $filtered_html_format = filter_format_load('filtered_html');
+    $full_html_format = filter_format_load('full_html');
+    $this->admin_user = $this->drupalCreateUser(array(
+      'access field_test content',
+      'administer field_test content',
+      'administer taxonomy',
+      'administer languages',
+      'administer filters',
+      filter_permission_name($filtered_html_format),
+      filter_permission_name($full_html_format),
+    ));
   }
 
 function testTaxonomyTermLocalize() {
+    $this->drupalLogin($this->admin_user);
+    // Make Input Format "Filtert Text" translatable
+    $edit = array(
+      'i18n_string_allowed_formats[filtered_html]' => 'filtered_html',
+      'i18n_string_allowed_formats[plain_text]' => 'plain_text',
+    );
+    $this->drupalPost('admin/config/regional/i18n/strings', $edit, t('Save configuration'));
+
     // Create a localizable vocabulary.
     $vocab = $this->createVocabulary(array('i18n_mode' => I18N_MODE_LOCALIZE));
     $this->assertEqual(i18n_taxonomy_vocabulary_mode($vocab->vid), I18N_MODE_LOCALIZE, 'A vocabulary has been created and it is localizable.');
@@ -33,8 +52,13 @@ function testTaxonomyTermLocalize() {
     $prefix = $this->randomName() . '_';
     $term = $this->createTerm(array('vid' => $vocab->vid, 'name' => $prefix . $this->randomName()));
 
+    $this->drupalLogin($this->translator);
+
     // Create and Save Spanish translation, again using the same prefix.
-    $term_translation = $this->createStringTranslation('taxonomy', $term->name, array($this->secondary_language => $prefix . $this->randomName()));
+    $term_translation = array(
+      'name' => $this->createStringTranslation('taxonomy', $term->name, array($this->secondary_language => $prefix . $this->randomName())),
+      'description' => $this->createStringTranslation('taxonomy', $term->description, array($this->secondary_language => $prefix . $this->randomName())),
+    );
 
     $this->drupalLogin($this->admin_user);
 
@@ -52,16 +76,26 @@ function testTaxonomyTermLocalize() {
 
     // Terms should be localized in the field widget.
     $this->drupalGet($this->secondary_language . '/test-entity/add/test-bundle');
-    $this->assertText($term_translation[$this->secondary_language], 'Widget values are displayed correctly in non-default languages.');
+    $this->assertText($term_translation['name'][$this->secondary_language], 'Widget values are displayed correctly in non-default languages.');
 
     $this->drupalPost(NULL, $edit, t('Save'));
-    $this->assertText($term_translation[$this->secondary_language], 'Field values are displayed correctly in non-default languages.');
+    $this->assertText($term_translation['name'][$this->secondary_language], 'Field values are displayed correctly in non-default languages.');
+
+    // Term name and term description should be localized
+    $this->drupalGet('taxonomy/term/' . $term->tid, array('language' => i18n_language($this->default_language)));
+    $this->assertText($term->name, 'Term title is displayed correctly in default language.');
+    $this->assertText($term->description, 'Term description is displayed correctly in default language.');
+
+    // Term name and term description should be localized
+    $this->drupalGet('taxonomy/term/' . $term->tid, array('language' => i18n_language($this->secondary_language)));
+    $this->assertText($term_translation['name'][$this->secondary_language], 'Term title is displayed correctly in non-default language.');
+    $this->assertText($term_translation['description'][$this->secondary_language], 'Term description is displayed correctly in non-default language.');
 
     // Autocomplete should respect localization.
     $autocomplete_path = 'taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
     $autocomplete_values = $this->drupalGetAJAX($autocomplete_path);
     $this->assertTrue(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in default language.');
-    $this->assertFalse(isset($autocomplete_values[$term_translation[$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages');
+    $this->assertFalse(isset($autocomplete_values[$term_translation['name'][$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages');
 
  // Autocomplete should respect localization, but doesn't.
  //   $autocomplete_path = $this->secondary_language . '/taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
