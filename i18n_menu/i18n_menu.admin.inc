@@ -118,6 +118,7 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
         list($menu_name, $mlid) = explode(':', $item_name);
         $translation_set->translations[$lang] = menu_link_load($mlid);
       }
+      $translation_set->title = $form_state['values']['title'];
       $translation_set->save(TRUE);
       drupal_set_message(t('The item translation has been saved.'));
       break;
