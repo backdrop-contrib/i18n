@@ -42,15 +42,7 @@ function i18n_taxonomy_term_translation_tab_page($term, $language = NULL) {
     return $translation_overview += $translation_term_form;
   }
   elseif (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_LOCALIZE)) {
-    module_load_include('inc', 'i18n_string', 'i18n_string.pages');
-    $form_meta = array(
-      '#page_title' => t('Translate term'),
-      '#edit' => 'taxonomy/term/' . $term->tid . '/edit',
-      '#translate' => 'taxonomy/term/' . $term->tid . '/translate',
-      '#type' => 'taxonomy_term',
-      '#object' => $term,
-    );
-    return i18n_string_translate_page($form_meta, $language);
+    return i18n_string_object_translate_page('taxonomy_term', $term, $language);
   }
 }
 

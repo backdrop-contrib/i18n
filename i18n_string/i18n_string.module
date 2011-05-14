@@ -696,3 +696,37 @@ function i18n_string_object_update($type, $object) {
     return i18n_string_textgroup($info['string translation']['textgroup'])->update_object($type, $object);
   }
 }
+
+/**
+ * Generic translation page for i18n_strings objects.
+ */
+function i18n_string_object_translate_page($object_type, $object, $langcode = NULL) { 
+  $info = i18n_object_info($object_type);
+  $textgroup = i18n_string_textgroup($info['string translation']['textgroup']);
+
+  // Build the form meta from object type
+  $type = $info['string translation']['type'];
+  $form_meta = array(
+    '#page_title' => t('Translate @name', array('@name' => $info['title'])),
+    '#edit' => $textgroup->get_edit_path($type, $object),
+    '#translate' => $textgroup->get_translate_path($type, $object),
+  );
+
+  foreach ($info['string translation']['properties'] as $key => $title) {
+    if (!empty($object->{$key})) {
+      $form_meta['#items'][] = array(
+        '#title' => is_array($title) ? $title['title'] : $title,
+        '#string_key' => array($info['string translation']['textgroup'], $info['string translation']['type'], $object->{$info['key']}, $key),
+        '#default_value' => $object->{$key},
+      );
+    }
+  }
+
+  // Set the default item key, assume it's the first.
+  $default_item = reset($form_meta['#items']);
+  $form_meta['#item_title_key'] = $default_item['#string_key'];
+  $form_meta['#item_title_default'] = $default_item['#default_value'];
+
+  module_load_include('inc', 'i18n_string', 'i18n_string.pages');
+  return i18n_string_translate_page($form_meta, $langcode);
+}

@@ -692,6 +692,28 @@ class i18n_string_default {
       $this->save_string($string);
     }
   }
+
+  /**
+   * Get edit path for object
+   *
+   * @param $type
+   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
+   * @param $object
+   *   The Drupal object itself
+   */
+  public function get_edit_path($type, $object) {
+  }
+
+  /**
+   * Get translate path for object
+   *
+   * @param $type
+   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
+   * @param $object
+   *   The Drupal object itself
+   */
+  public function get_translate_path($type, $object) {
+  }
 }
 
 /**
