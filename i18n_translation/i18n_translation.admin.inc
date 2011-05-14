@@ -16,9 +16,9 @@ function i18n_translation_admin_overview() {
  * Admin form
  */
 function i18n_translation_admin_form($form, &$form_state, $type = NULL, $tsids = NULL) {
-    // Build the sortable table header.
+  // Build the sortable table header.
   $header['title'] = array('data' => t('Title'), 'field' => 't.title');
-  if (!$type) {
+  if ($type) {
     $header['type'] = array('data' => t('Type'), 'field' => 't.type');
   }
   $header['created'] = array('data' => t('Created'), 'field' => 't.created');
@@ -40,16 +40,19 @@ function i18n_translation_admin_form($form, &$form_state, $type = NULL, $tsids =
     ->fetchCol();
   $translations = $tsids ? entity_load('i18n_translation', $tsids) : array();
   $destination = drupal_get_destination();
-  $options = array();
+  $rows = array();
   foreach ($translations as $set) {
     $info = i18n_object_info($set->type);
-    $options[$set->tsid] = array(
+    $rows[$set->tsid] = array(
       'title' => check_plain($set->get_title()),
       'type' => isset($info['title']) ? $info['title'] : t('Unknown'),
       'created' => format_date($set->created, 'short'),
       'changed' => format_date($set->changed, 'short'),
       'operations' => '',
     );
+    if (!$type) {
+      unset($rows[$set->tsid]['type']);
+    }
     // Build a list of all the accessible operations for the current set.
     $operations = array();
     if ($path = $set->get_edit_path()) {
@@ -57,11 +60,11 @@ function i18n_translation_admin_form($form, &$form_state, $type = NULL, $tsids =
         'title' => t('edit'),
         'href' => $path,
         'query' => $destination,
-      );      
+      );
     }
     if (count($operations) > 1) {
       // Render an unordered list of operations links.
-      $options[$set->tsid]['operations'] = array(
+      $rows[$set->tsid]['operations'] = array(
         'data' => array(
           '#theme' => 'links__node_operations',
           '#links' => $operations,
@@ -72,7 +75,7 @@ function i18n_translation_admin_form($form, &$form_state, $type = NULL, $tsids =
     elseif (!empty($operations)) {
       // Render the first and only operation as a link.
       $link = reset($operations);
-      $options[$set->tsid]['operations'] = array(
+      $rows[$set->tsid]['operations'] = array(
         'data' => array(
           '#type' => 'link',
           '#title' => $link['title'],
@@ -85,7 +88,7 @@ function i18n_translation_admin_form($form, &$form_state, $type = NULL, $tsids =
   $form['translations'] = array(
     '#theme' => 'table',
     '#header' => $header,
-    '#options' => $options,
+    '#rows' => $rows,
     '#empty' => t('No translation sets available.'),
   );
   return $form;
