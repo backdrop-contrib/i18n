@@ -770,7 +770,8 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
       // If the current term is part of a translation set,
       // remove all other languages of the option list.
       if (isset($term->language) && $term->language !== LANGUAGE_NONE) {
-        $translations = i18n_taxonomy_term_get_translations($term->i18n_tsid);
+        $translation_set = i18n_translation_set_load($term->i18n_tsid);
+        $translations = $translation_set->get_translations();
 
         // If the number of translations equals 1, there's only a source translation.
         if (count($translations) > 1) {
@@ -919,29 +920,8 @@ function i18n_taxonomy_form_all_localize(&$item) {
 }
 
 /**
- * Get all terms in a translation set, represented by $i18n_tsid.
- *
- * @param $i18n_tsid
- *   The translation source tid of the translation set, the identifier
- *   of the term used to derive all translations in the set.
- * @return
- *   Array of terms in the translation set.
- */
-function i18n_taxonomy_term_get_translations($i18n_tsid) {
-  $translations = &drupal_static(__FUNCTION__, array());
-
-  if (!isset($translations[$i18n_tsid])) {
-    $sql = "SELECT tid, name, vid, language
-      FROM taxonomy_term_data
-      WHERE i18n_tsid = :i18n_tsid";
-
-    $translations[$i18n_tsid] = db_query($sql, array(':i18n_tsid' => $i18n_tsid))->fetchAllAssoc('language');
-  }
-  return $translations[$i18n_tsid];
-}
-
-/**
  * Implements hook_node_prepare().
+ * @TODO: this code is outdated, replace this term translation feature with hook_field_prepare_translation().
  */
 function i18n_taxonomy_node_prepare($node) {
   // Taxonomy translation.
@@ -1017,9 +997,11 @@ function i18n_taxonomy_translate_terms($taxonomy, $langcode, $fullterms = TRUE) 
         $translation[$index] = $tdata;
       }
       elseif ($term->language && $term->language != $langcode) {
-        $translated_terms = i18n_taxonomy_term_get_translations(array('tid' => $term->tid));
-        if ($translated_terms && !empty($translated_terms[$langcode])) {
-          $newterm = $translated_terms[$langcode];
+        $translation_set = i18n_translation_set_load($term->i18n_tsid);
+        $translations = $translation_set->get_translations();
+
+        if ($translations && !empty($translations[$langcode])) {
+          $newterm = $translations[$langcode];
           $translation[$newterm->tid] = $fullterms ? $newterm : $newterm->tid;
         }
       }
