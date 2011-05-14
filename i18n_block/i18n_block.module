@@ -238,16 +238,30 @@ function i18n_block_form_block_admin_configure_alter(&$form, &$form_state, $form
     ),
   );
 
-  // Add translatable option, just title for module blocks, title and content for custom blocks.
+  // Add translatable option, just title for module blocks, title and content
+  // for custom blocks.
+  $description = '';
+  $module = $form['module']['#value'];
+  $delta = $form['delta']['#value'];
+
+  // User created menus are exposed by the menu module, others by system.module.
+  if ($module == 'menu' || ($module == 'system' && !in_array($delta, array('mail', 'help', 'powered-by')))) {
+    $description = t('To translate the block content itself, <a href="@menu_translate_url">translate the menu</a> that is being shown.', array('@menu_translate_url' => url('admin/structure/menu/manage/' . $form['delta']['#value'])));
+  }
+  elseif ($module == 'views' && module_exists('i18nviews')) {
+    $name = substr($delta, 0, strpos($delta, '-'));
+    $description = t('To translate the block content itself, <a href="@views_translate_url">translate the view</a> that is being shown.', array('@views_translate_url' => url('admin/structure/views/view/' . $name . '/translate')));
+  }
+  elseif ($module != 'block') {
+    $description = t('This block has generated content, only the title can be translated here.');
+  }
+
   $block = block_load($form['module']['#value'], $form['delta']['#value']);
   $form['i18n_block']['languages']['i18n_mode'] = array(
-    '#type' => 'radios',
-    '#title' => t('Translation'),
-    '#options' => array(
-      I18N_MODE_NONE => t('Not translatable'),
-      I18N_MODE_LOCALIZE => $form['module']['#value'] == 'block' ? t("Translate title and content.") : t("Translate title."),
-    ),
+    '#type' => 'checkbox',
+    '#title' => t('Make this block translatable'),
     '#default_value' => isset($block->i18n_mode) ? $block->i18n_mode : I18N_MODE_NONE,
+    '#description' => $description,
   );
 
   // Add option to select which language pages to show on.
@@ -257,7 +271,7 @@ function i18n_block_form_block_admin_configure_alter(&$form, &$form_state, $form
   ))->fetchCol();
   $form['i18n_block']['languages']['languages'] = array(
     '#type' => 'checkboxes',
-    '#title' => t('Only show this block for these languages'),
+    '#title' => t('Show this block for these languages'),
     '#default_value' => $default_options,
     '#options' => i18n_language_list(),
     '#description' => t('If no language is selected, block will show regardless of language.'),
@@ -269,7 +283,7 @@ function i18n_block_form_block_admin_configure_alter(&$form, &$form_state, $form
     '#states' => array(
       'visible' => array(
         // The value must be a string so that the javascript comparison works.
-        ":input[name=i18n_mode]" => array('value' => (string)I18N_MODE_LOCALIZE),
+        ":input[name=i18n_mode]" => array('checked' => TRUE),
       ),
     ),
   );
