@@ -87,6 +87,8 @@ function i18n_translation_menu() {
 /**
  * Get form element for translation mode and language
  *
+ * @param $object_type
+ *   Object type for the container element
  * @param $i18n_mode
  *   Current or default translation mode
  * @param $langcode
@@ -94,7 +96,7 @@ function i18n_translation_menu() {
  * @param $options
  *   Restricted list of translation modes if we don't want all of them
  */
-function i18n_translation_mode_element($i18n_mode = I18N_MODE_NONE, $langcode = LANGUAGE_NONE, $options = NULL) {
+function i18n_translation_mode_element($object_type, $i18n_mode = I18N_MODE_NONE, $langcode = LANGUAGE_NONE, $options = NULL) {
   $form['i18n_translation'] = array(
     '#type' => 'fieldset',
     '#title' => t('Multilingual options'),
@@ -103,7 +105,7 @@ function i18n_translation_mode_element($i18n_mode = I18N_MODE_NONE, $langcode = 
   $form['i18n_translation']['i18n_mode'] = array(
     '#type' => 'radios',
     '#title' => t('Translation mode'),
-    '#options' => i18n_translation_options($options),
+    '#options' => i18n_translation_options($object_type, $options),
     '#default_value' => $i18n_mode,
     '#description' => t('For localizable elements, to have all items available for translation visit the <a href="@locale-refresh">translation refresh</a> page.', array('@locale-refresh' => url('admin/config/regional/translate/i18n_string'))),
   );
@@ -120,16 +122,26 @@ function i18n_translation_mode_element($i18n_mode = I18N_MODE_NONE, $langcode = 
 /**
  * Get list of translation modes
  *
+ * @param $container_type
+ *   Object type for the container
  * @param $options
- *   Options to include. If none, all will be returned.
+ *   Options to include. If none, defaults for container type will be returned.
  */
-function i18n_translation_options($options = NULL) {
+function i18n_translation_options($container_type, $options = NULL) {
+  // Get names and translation options for container object and items
+  $container_info = i18n_object_info($container_type, 'translation container');
+  $replacements = array(
+  	'@container_name' => $container_info['name'],
+    '@item_name_multiple' => $container_info['item name'],
+    '@item_name_multiple_capitalized' => ucfirst($container_info['item name']),
+  );
+  $options = $options ? $options : $container_info['options'];
   $list = array(
-    I18N_MODE_NONE => t('None. No multilingual options.'),
-    I18N_MODE_LOCALIZE => t('Localize. Items are common for all languages, but their name and description may be localized.'),
-    I18N_MODE_TRANSLATE => t('Translate. Different items will be allowed for each language and they can be translated.'),
-    I18N_MODE_MULTIPLE => T('Translate and Localize. Items with language will allow translations. Items without language will be localized.'),
-    I18N_MODE_LANGUAGE => t('Fixed Language. Items will have a global language and they will only show up for pages in that language.'),
+    I18N_MODE_NONE => t('No multilingual options for @item_name_multiple. Only the @container_name will be translatable.', $replacements),
+    I18N_MODE_LOCALIZE => t('Localize. @item_name_multiple_capitalized are common for all languages, but their name and description may be localized.', $replacements),
+    I18N_MODE_TRANSLATE => t('Translate. Different @item_name_multiple will be allowed for each language and they can be translated.', $replacements),
+    I18N_MODE_MULTIPLE => t('Translate and Localize. @item_name_multiple_capitalized with language will allow translations. @item_name_multiple_capitalized without language will be localized.', $replacements),
+    I18N_MODE_LANGUAGE => t('Fixed Language. @item_name_multiple_capitalized will have a global language and they will only show up for pages in that language.', $replacements),
   );
   if ($options) {
     foreach (array_keys($list) as $key) {

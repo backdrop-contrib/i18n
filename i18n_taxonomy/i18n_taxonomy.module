@@ -55,18 +55,6 @@ function i18n_taxonomy_help($path, $arg) {
 }
 
 /**
- * Returns list of vocabulary modes.
- */
-function _i18n_taxonomy_vocabulary_options() {
-  return array(
-    I18N_MODE_NONE => t('None. No multilingual options for this vocabulary.'),
-    I18N_MODE_LOCALIZE => t('Localize terms. Terms are common for all languages, but their name and description may be localized.'),
-    I18N_MODE_TRANSLATE => t('Per language terms. Different terms will be allowed for each language and they can be translated.'),
-    I18N_MODE_LANGUAGE => t('Set language to vocabulary. The vocabulary will have a global language and it will only show up for pages in that language.'),
-  );
-}
-
-/**
  * Implements hook_menu().
  */
 function i18n_taxonomy_menu() {
@@ -686,9 +674,8 @@ function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state)
     $vocabulary = $form_state['vocabulary'];
     $i18n_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
     $langcode = i18n_object_langcode($vocabulary, LANGUAGE_NONE);
-    $form += i18n_translation_mode_element($i18n_mode, $langcode);
-    // Override options with proper description
-    $form['i18n_translation']['i18n_mode']['#options'] = _i18n_taxonomy_vocabulary_options();
+    // Define the replacement names to add some logic to the translation mode options.
+    $form += i18n_translation_mode_element('taxonomy_vocabulary', $i18n_mode, $langcode);
     if (user_access('translate interface')) {
       $form['actions']['translate'] = array(
         '#type' => 'submit',
@@ -1236,7 +1223,13 @@ function i18n_taxonomy_i18n_object_info() {
         'name' => t('Name'),
         'description' => t('Description'),
       ),
-    )
+    ),
+    'translation container' => array(
+      'name' => t('vocabulary'),
+      'item type' => 'taxonomy_term',
+      'item name' => t('terms'),
+      'options' => array(I18N_MODE_NONE, I18N_MODE_LOCALIZE, I18N_MODE_TRANSLATE, I18N_MODE_LANGUAGE),
+    ),
   );
   return $info;
 }
