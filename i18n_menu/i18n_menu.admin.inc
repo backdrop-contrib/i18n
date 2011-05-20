@@ -35,12 +35,6 @@ function i18n_menu_translation_form($form, $form_state, $menu = NULL, $item = NU
   }
   $item = $item ? $item : array('mlid' => 0, 'menu_name' => '', 'plid' => 0);
   $item_lang = i18n_object_langcode($item);
-  $form['title'] = array(
-    '#title' => t('Title'),
-    '#type' => 'textfield',
-    '#default_value' => $translation_set ? $translation_set->title : '',
-    '#description' => t('Optional descriptive name for this translation set.'),
-  );
   $form['translations'] = array(
     '#type' => 'fieldset',
     '#title' => t('Translations'),
@@ -116,9 +110,9 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
       $translation_set->translations = array();
       foreach ($mlids as $lang => $item_name) {
         list($menu_name, $mlid) = explode(':', $item_name);
-        $translation_set->translations[$lang] = menu_link_load($mlid);
+        $translation_set->add_item(menu_link_load($mlid), $lang);
       }
-      $translation_set->title = $form_state['values']['title'];
+      $translation_set->title = $translation_set->get_title();
       $translation_set->save(TRUE);
       drupal_set_message(t('The item translation has been saved.'));
       break;
@@ -240,7 +234,10 @@ function i18n_menu_translation_menu_page($menu, $language = NULL) {
 function i18n_menu_translation_item_page($item, $language = NULL) {
   if (i18n_object_langcode($item)) {
     // If the item has a language code, we can only support translation sets.
-    return drupal_get_form('i18n_menu_translation_form', NULL, $item, NULL);
+    $translation_set = !empty($item['i18n_tsid']) ? i18n_translation_set_load($item['i18n_tsid']) : NULL;
+    $build['overview'] = i18n_menu_translation_item_overview($item, $translation_set);
+    $build['translation_form'] = drupal_get_form('i18n_menu_translation_form', NULL, $item, $translation_set);
+    return $build;
   }
   else {
     // Otherwise we can only support localizing the item.
@@ -267,4 +264,54 @@ function i18n_menu_translation_item_page($item, $language = NULL) {
     }
     return i18n_string_translate_page($form_meta, $language);
   }
+}
+
+
+/**
+ * Callback for menu translation tab.
+ */
+function i18n_menu_translation_item_overview($item, $translation_set = NULL) {
+  if ($item['i18n_tsid']) {
+    // Already part of a set, grab that set.
+    $translation_set = i18n_translation_set_load($item['i18n_tsid']);
+    $translations = $translation_set->get_translations();
+  }
+  else {
+    // We have no translation source mlid, this could be a new set, emulate that.
+    $translations = array($item['language'] => $item);
+  }
+
+  $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+  $header = array(t('Language'), t('Title'), t('Operations'));
+
+  foreach (i18n_language_list() as $langcode => $language_name) {
+    $options = array();
+    if (isset($translations[$langcode])) {
+      // Existing translation in the translation set: display status.
+      $translation_item = menu_link_load($translations[$langcode]['mlid']);
+      $title = l($translation_item['link_title'], $translation_item['link_path']);
+      $path = 'admin/structure/menu/item/' . $translation_item['mlid'];
+      $options[] = l(t('edit'), $path);
+
+      if ($translation_item['mlid'] == $item['mlid']) {
+        $language_name = t('<strong>@language_name</strong> (source)', array('@language_name' => $language_name));
+      }
+    }
+    else {
+      // No such translation in the set yet: help user to create it.
+      $title = t('n/a');
+      $options[] = l(t('add translation'), 'admin/structure/menu/manage/' . $item['menu_name'] . '/add', array('query' => array('translation' => $item['mlid'], 'target' => $langcode) + drupal_get_destination()));
+    }
+    $rows[] = array($language_name, $title, implode(" | ", $options));
+  }
+
+  drupal_set_title(t('Translations of menu item %title', array('%title' => $item['link_title'])), PASS_THROUGH);
+
+  $build['translation_item_overview'] = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $rows,
+  );
+
+  return $build;
 }

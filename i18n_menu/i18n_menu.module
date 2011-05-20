@@ -309,6 +309,15 @@ function i18n_menu_menu_link_update($link) {
       'description' => $link['options']['attributes']['title'],
     ));
   }
+
+  // Multilingual item, translatable, it may be part of a translation set
+  if (i18n_menu_mode($link['menu_name'], I18N_MODE_TRANSLATE) && i18n_object_langcode($link) && !empty($link['translation_set'])) {
+    // If the term translation set id is not set, we will create a new translation set.
+    $translation_set = $link['translation_set'];
+    // Add the current term to the translation set.
+    $translation_set->add_item($link);
+    $translation_set->save(TRUE);
+  }
 }
 
 /**
@@ -599,6 +608,53 @@ function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
     $form['i18n']['language'] = array(
       '#description' => t('This item belongs to a multilingual menu. You can set a language for it.'),
     ) + i18n_element_language_select($item);
+
+    // If the term to be added will be a translation of a source term,
+    // set the default value of the option list to the target language and
+    // create a form element for storing the translation set of the source term.
+    if (isset($_GET['translation']) && isset($_GET['target']) && ($source_item = menu_link_load($_GET['translation']))) {
+      if (!empty($source_item['i18n_tsid'])) {
+        $translation_set = i18n_translation_set_load($i18n_tsid);
+      }
+      else {
+        // Create object and stick the source information in the translation set
+        $translation_set = i18n_translation_set_build('menu_link');
+        $translation_set->add_item($source_item);     
+      }
+      $form['link_path']['#default_value'] = $source_item['link_path'];
+
+      // Maybe we should disable the 'link_path' and 'parent' form elements?
+      // $form['link_path']['#disabled'] = TRUE;
+      // $form['parent']['#disabled'] = TRUE;
+
+      $form['i18n']['language']['#default_value'] = $_GET['target'];
+      $form['i18n']['language']['#disabled'] = TRUE;
+
+      drupal_set_title(t('%language translation of menu item %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_item['link_title'])), PASS_THROUGH);
+    }
+    elseif (!empty($item['i18n_tsid'])) {
+      $translation_set = i18n_translation_set_load($item['i18n_tsid']);
+    }
+
+    // Add the translation set to the form so we know the new menu item
+    // needs to be added to that set.
+    if (!empty($translation_set)) {
+      $form['translation_set'] = array(
+        '#type' => 'value',
+        '#value' => $translation_set,
+      );
+
+      // If the current term is part of a translation set,
+      // remove all other languages of the option list.
+      if ($translations = $translation_set->get_translations()) {
+        unset($form['i18n']['language']['#options'][LANGUAGE_NONE]);
+        foreach ($translations as $langcode => $translation) {
+          if ($translation['mlid'] !== $item['mlid']) {
+            unset($form['i18n']['language']['#options'][$langcode]);
+          }
+        }
+      }
+    }
   }
   else {
     $form['language'] = array(
