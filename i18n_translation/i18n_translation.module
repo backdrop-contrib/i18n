@@ -112,10 +112,14 @@ function i18n_translation_mode_element($object_type, $i18n_mode = I18N_MODE_NONE
   $form['i18n_translation']['language'] = array(
     '#default_value' => $langcode ? $langcode : LANGUAGE_NONE,
     '#description' => t('Predefined language. If set, it will apply to all items.'),
+    '#required' => TRUE,
     '#states' => array(
       'visible' => array('input[name="i18n_mode"]' => array('value' => (string)I18N_MODE_LANGUAGE)),
     ),
   ) + i18n_element_language_select();
+
+  // The option value 'Language neutral' makes no sense here.
+  $form['i18n_translation']['language']['#options'][LANGUAGE_NONE] = t('- Select a language -');
   return $form;
 }
 
