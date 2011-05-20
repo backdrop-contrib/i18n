@@ -30,6 +30,8 @@ function i18n_menu_translation_overview($menu) {
 function i18n_menu_translation_form($form, $form_state, $menu = NULL, $item = NULL, $translation_set = NULL) {
   $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
   $translations = $translation_set ? $translation_set->get_translations() : array();
+  // What to do with title? Let's make it a hidden field for now, some tests relay on it
+  $form['title'] = array('#type' => 'hidden', '#default_value' => $translation_set ? $translation_set->title : '');
   if ($item && ($lang = i18n_object_langcode($item))) {
     $translations[$lang] = $item;
   }
@@ -112,7 +114,7 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
         list($menu_name, $mlid) = explode(':', $item_name);
         $translation_set->add_item(menu_link_load($mlid), $lang);
       }
-      $translation_set->title = $translation_set->get_title();
+      $translation_set->title = !empty($form_state['values']['title']) ? $form_state['values']['title'] : '';
       $translation_set->save(TRUE);
       drupal_set_message(t('The item translation has been saved.'));
       break;

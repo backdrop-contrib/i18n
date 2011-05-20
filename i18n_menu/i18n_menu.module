@@ -259,6 +259,9 @@ function i18n_menu_menu_insert($menu) {
  * Implements hook_menu_update()
  */
 function i18n_menu_menu_update($menu) {
+  // Stores the fields of menu links which need an update.
+  $update = array();
+
   if (!isset($menu['i18n_mode'])) {
     $menu['i18n_mode'] = I18N_MODE_NONE;
   }
@@ -275,13 +278,35 @@ function i18n_menu_menu_update($menu) {
   elseif ($menu['i18n_mode'] & I18N_MODE_LANGUAGE) {
     $update['language'] = $menu['language'];
   }
+
+  // Non translatable menu.
+  if (!i18n_menu_mode($menu['menu_name'], I18N_MODE_TRANSLATE)) {
+    $tsids = db_select('menu_links')
+      ->fields('menu_links', array('i18n_tsid'))
+      ->groupBy('i18n_tsid')
+      ->condition('menu_name', $menu['menu_name'])
+      ->condition('customized', 1)
+      ->condition('i18n_tsid', 0, '<>')
+      ->execute()
+      ->fetchCol(0);
+    if (!empty($tsids)) {
+      foreach($tsids as $tsid) {
+        if ($translation_set = i18n_translation_set_load($tsid)) {
+          $translation_set->delete();
+        }
+      }
+    }
+    $update['i18n_tsid'] = 0;
+  }
+
   if (!empty($update)) {
     db_update('menu_links')
-      ->fields(array('language' => $menu['language']))
+      ->fields($update)
       ->condition('menu_name', $menu['menu_name'])
       ->condition('customized', 1)
       ->execute();
   }
+
   // Update strings, always add translation if no language
   if (!i18n_object_langcode($menu)) {
     i18n_string_object_update('menu', $menu);
@@ -289,7 +314,7 @@ function i18n_menu_menu_update($menu) {
 }
 
 /**
- * Implements hook_menu_insert()
+ * Implements hook_menu_delete()
  */
 function i18n_menu_menu_delete($menu) {
   i18n_string_object_remove('menu', $menu);
@@ -306,33 +331,76 @@ function i18n_menu_menu_link_insert($link) {
  * Implements hook_menu_update()
  */
 function i18n_menu_menu_link_update($link) {
+  // Stores the fields to update.
+  $fields = array();
+
+  // Multilingual menu links, translatable, it may be part of a translation set.
+  if (i18n_menu_mode($link['menu_name'], I18N_MODE_TRANSLATE) && isset($link['language'])) {
+    if (i18n_object_langcode($link)) {
+      if (!empty($link['translation_set'])) {
+        // Translation set comes as parameter, we may be creating a translation, add link to the set
+        $translation_set = $link['translation_set'];
+        $translation_set->add_item($link);
+        $translation_set->save(TRUE);   
+      }
+    }
+    elseif ($link['language'] === LANGUAGE_NONE && !empty($link['original_item']['i18n_tsid'])) {
+      if ($translation_set = i18n_translation_set_load($link['original_item']['i18n_tsid'])) {
+        $translation_set->remove_item(NULL, $link['original_item']['language']);
+        // If there are no links left in this translation set, delete the set.
+        // Otherwise update the set.
+        if ($translation_set->get_translations()) {
+          $translation_set->update(TRUE);
+        }
+        else {
+          $translation_set->delete();
+        }
+      }
+      $fields['i18n_tsid'] = 0;
+    }
+  }
+
   if (isset($link['language'])) {
+    $fields['language'] = $link['language'];
+  }
+
+  if (!empty($fields)) {
     db_update('menu_links')
-      ->fields(array('language' => $link['language']))
+      ->fields($fields)
       ->condition('mlid', $link['mlid'])
       ->execute();
   }
+  // Update translatable strings if any
   if (isset($link['options']['attributes']['title']) && !empty($link['customized']) && i18n_menu_mode($link['menu_name'], I18N_MODE_LOCALIZE) && !i18n_object_langcode($link)) {
     i18n_string_update(array('menu', 'item', $link['mlid']), array(
       'title' => $link['link_title'],
       'description' => $link['options']['attributes']['title'],
     ));
   }
-
-  // Multilingual item, translatable, it may be part of a translation set
-  if (i18n_menu_mode($link['menu_name'], I18N_MODE_TRANSLATE) && i18n_object_langcode($link) && !empty($link['translation_set'])) {
-    // If the term translation set id is not set, we will create a new translation set.
-    $translation_set = $link['translation_set'];
-    // Add the current term to the translation set.
-    $translation_set->add_item($link);
-    $translation_set->save(TRUE);
-  }
 }
 
 /**
- * Implements hook_menu_insert()
+ * Implements hook_menu_delete()
  */
 function i18n_menu_menu_link_delete($link) {
+  // If a translation set exists for this link, remove this link from the set.
+  if (!empty($link['i18n_tsid'])) {
+    if ($translation_set = i18n_translation_set_load($link['i18n_tsid'])) {
+      $translation_set->get_translations();
+
+      unset($translation_set->translations[$link['language']]);
+
+      // If there are no links left in this translation set, delete the set.
+      // Otherwise update the set.
+      if (empty($translation_set->translations)) {
+        $translation_set->delete();
+      }
+      else {
+        $translation_set->save(TRUE);
+      }
+    }
+  }
+
   i18n_string_object_remove('menu_link', $link);
 }
 
@@ -620,7 +688,7 @@ function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
     // create a form element for storing the translation set of the source term.
     if (isset($_GET['translation']) && isset($_GET['target']) && ($source_item = menu_link_load($_GET['translation']))) {
       if (!empty($source_item['i18n_tsid'])) {
-        $translation_set = i18n_translation_set_load($i18n_tsid);
+        $translation_set = i18n_translation_set_load($source_item['i18n_tsid']);
       }
       else {
         // Create object and stick the source information in the translation set

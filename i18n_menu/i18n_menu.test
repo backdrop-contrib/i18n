@@ -79,6 +79,103 @@ class i18nMenuTestCase extends Drupali18nTestCase {
   }
 
   /**
+   * Tests if the translation set management works.
+   */
+  function testMenuTranslationSets() {
+    $menu = $this->createMenu(array('i18n_mode' => I18N_MODE_MULTIPLE));
+
+    $neutral_item = $this->createMenuLink(array('menu_name' => $menu['menu_name']));
+    $default_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->default_language));
+    $secondary_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->secondary_language));
+
+    $translationset_edit = array(
+      'translations[' . $this->default_language . ']' => $default_item['menu_name'] . ':' . $default_item['mlid'],
+      'translations[' . $this->secondary_language . ']' => $secondary_item['menu_name'] . ':' . $secondary_item['mlid'],
+    );
+    $translation_set = $this->createMenuLinkTranslationSet($menu['menu_name'], $translationset_edit);
+
+    // Check if the overview works
+    $this->drupalGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/list/sets');
+    $link = $this->xpath('//*/a[contains(@href,"admin/structure/menu/manage/' . $menu['menu_name'] . '/list/sets/edit/' . $translation_set->tsid . '")]');
+    $this->assertTrue(!empty($link),'Created translation-set found.');
+
+    // Check if the edit mode works
+    $this->drupalGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/list/sets/edit/' . $translation_set->tsid);
+    $this->assertFieldByXPath(
+      "//*[@id='edit-translations-" . $this->default_language . "']/option[@selected]/@value",
+      $menu['menu_name'] . ':' . $default_item['mlid'],
+      'Expected option selection for language ' . $this->default_language . ' found.'
+    );
+    $this->assertFieldByXPath(
+      "//*[@id='edit-translations-" . $this->secondary_language . "']/option[@selected]/@value",
+      $menu['menu_name'] . ':' . $secondary_item['mlid'],
+      'Expected option selection for language ' . $this->secondary_language . ' found.'
+    );
+  }
+
+  /**
+   * Tests if on a switch from translatable to non translatable the translation
+   * sets and links are cleaned up.
+   */
+  function testMenuTranslateLocalizeSwitchToNonTranslatable() {
+    // Test filtering for menu blocks.
+    $menu = $this->createMenu(array('i18n_mode' => I18N_MODE_MULTIPLE));
+
+    // Check current menu mode
+    $this->drupalGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit');
+    $this->assertFieldByName('i18n_mode', I18N_MODE_MULTIPLE, 'Menu i18n mode set to I18N_MODE_MULTIPLE');
+
+    // Setup menu links for testing.
+    $neutral_item = $this->createMenuLink(array('menu_name' => $menu['menu_name']));
+    $default_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->default_language));
+    $secondary_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->secondary_language));
+
+    $translationset_edit = array(
+      'translations[' . $this->default_language . ']' => $default_item['menu_name'] . ':' . $default_item['mlid'],
+      'translations[' . $this->secondary_language . ']' => $secondary_item['menu_name'] . ':' . $secondary_item['mlid'],
+    );
+    $translation_set = $this->createMenuLinkTranslationSet($menu['menu_name'], $translationset_edit);
+    $tsid = $translation_set->tsid;
+
+    // Test language mode switch
+    $edit = array(
+      'i18n_mode' => I18N_MODE_LANGUAGE,
+      'language' => $this->secondary_language,
+    );
+    $this->drupalPost('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit', $edit, t('Save'));
+    $this->drupalGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit');
+    $this->assertFieldByName('i18n_mode', I18N_MODE_LANGUAGE, 'Menu i18n mode changed to I18N_MODE_LANGUAGE');
+
+    $this->assertTrue(!empty(i18n_translation_set_load($tsid)->tsid), 'Translation set kept.');
+
+    $menu_link_languages = db_select('menu_links')
+      ->fields('menu_links', array('language'))
+      ->condition('menu_name', $menu['menu_name'])
+      ->groupBy('language')
+      ->execute()
+      ->fetchCol();
+    $this->assertTrue((count($menu_link_languages) == 1 && reset($menu_link_languages) === $this->secondary_language), 'Menu link language changed to menu language.');
+
+    // Test cleanup.
+    $edit = array(
+      'i18n_mode' => I18N_MODE_NONE,
+    );
+    $this->drupalPost('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit', $edit, t('Save'));
+    $this->drupalGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit');
+    $this->assertFieldByName('i18n_mode', I18N_MODE_NONE, 'Menu i18n mode changed to I18N_MODE_NONE');
+    $translation_sets = entity_load('i18n_translation', FALSE, array('tsid' => $tsid), TRUE);
+    $this->assertTrue(empty($translation_sets), 'Translation set deleted.');
+
+    $menu_link_languages = db_select('menu_links')
+      ->fields('menu_links', array('language'))
+      ->condition('menu_name', $menu['menu_name'])
+      ->groupBy('language')
+      ->execute()
+      ->fetchCol();
+    $this->assertTrue(((count($menu_link_languages) == 1) && reset($menu_link_languages) === LANGUAGE_NONE), 'Menu link language switched to LANGUAGE_NONE.');
+  }
+
+  /**
    * Helper function to create a menu.
    */
   function createMenu($edit = array()) {
@@ -103,5 +200,23 @@ class i18nMenuTestCase extends Drupali18nTestCase {
     );
 
     return menu_link_load(menu_link_save($item));
+  }
+
+  /**
+   * Helper function to create a translation set.
+   */
+  function createMenuLinkTranslationSet($menu_name, $edit = array()) {
+    $edit += array(
+      'title' => $this->randomName(16),
+    );
+    $this->drupalPost('admin/structure/menu/manage/' . $menu_name . '/list/sets/add', $edit, t('Save'));
+
+    // Load translation set entity.
+    $entity = entity_load('i18n_translation', FALSE, array('title' => $edit['title']), TRUE);
+    if (empty($entity)) {
+      $this->fail('Could not create a translation set.', 'i18n_translation');
+      return FALSE;
+    }
+    return reset($entity);
   }
 }

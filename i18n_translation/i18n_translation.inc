@@ -9,6 +9,8 @@ class i18n_translation_set {
   public $bundle = '';
   public $status = 0;
   public $master_id = 0;
+  // It may optionally have a title
+  public $title = '';
   // Translations indexed by language
   public $translations = NULL;
   
@@ -252,6 +254,7 @@ class i18n_translation_set {
     $item = $this->check_item($item);
     $langcode = $langcode ? $langcode : i18n_object_langcode($item);
     if ($item && $langcode) {
+      $this->get_translations();
       $this->translations[$langcode] = $item;
       return TRUE;
     }
@@ -259,6 +262,17 @@ class i18n_translation_set {
       return FALSE;
     }
   }
+  /**
+   * Remove item / language from translation set
+   */
+  public function remove_item($item = NULL, $langcode = NULL) {
+    $this->get_translations();
+    $langcode = $langcode ? $langcode : i18n_object_langcode($item);
+    if ($langcode && isset($this->translations[$langcode])) {
+      unset($this->translations[$langcode]);
+    }
+  }
+
   /**
    * Check item has translation set property
    */
