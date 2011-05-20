@@ -209,7 +209,7 @@ function i18n_taxonomy_translation_sets_overview($vocabulary) {
         $thisrow[] = '--';
       }
     }
-    $thisrow[] = l(t('edit'), "admin/structure/taxonomy/$vocabulary->machine_name/translation/edit/$trid");
+    $thisrow[] = l(t('edit'), "admin/structure/taxonomy/$vocabulary->machine_name/list/sets/edit/$trid");    
     $rows[] = $thisrow;
   }
   if ($rows) {
