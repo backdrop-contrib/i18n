@@ -710,13 +710,13 @@ function i18n_string_object_translate_page($object_type, $object, $langcode = NU
     '#edit' => $textgroup->get_edit_path($object_type, $object),
     '#translate' => $textgroup->get_translate_path($object_type, $object),
   );
-
-  foreach ($info['string translation']['properties'] as $key => $title) {
-    if (!empty($object->{$key})) {
+  $object_key = i18n_object_key($object_type, $object);
+  foreach ($info['string translation']['properties'] as $field => $title) {
+    if ($value = i18n_object_field($object, $field)) {
       $form_meta['#items'][] = array(
         '#title' => is_array($title) ? $title['title'] : $title,
-        '#string_key' => array($info['string translation']['textgroup'], $info['string translation']['type'], $object->{$info['key']}, $key),
-        '#default_value' => $object->{$key},
+        '#string_key' => array($info['string translation']['textgroup'], $info['string translation']['type'], $object_key, $field),
+        '#default_value' => $value,
       );
     }
   }

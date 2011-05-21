@@ -709,6 +709,9 @@ class i18n_string_default {
    *   The Drupal object itself
    */
   public function get_edit_path($type, $object) {
+    if (($base_path = i18n_object_info($type, 'base path')) && ($key = i18n_object_key($type, $object))) {
+      return $base_path . '/' . $key . '/edit';
+    }
   }
 
   /**
@@ -720,6 +723,9 @@ class i18n_string_default {
    *   The Drupal object itself
    */
   public function get_translate_path($type, $object) {
+    if (($base_path = i18n_object_info($type, 'base path')) && ($key = i18n_object_key($type, $object))) {
+      return $base_path . '/' . $key . '/translate';
+    }    
   }
 }
 

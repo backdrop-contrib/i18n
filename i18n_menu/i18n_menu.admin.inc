@@ -203,34 +203,6 @@ function i18n_menu_tree_all_data($menu_name, $langcode, $link = NULL, $max_depth
 }
 
 /**
- * Callback for menu translation tab.
- */
-function i18n_menu_translation_menu_page($menu, $language = NULL) {
-  module_load_include('inc', 'i18n_string', 'i18n_string.pages');
-  $form_meta = array(
-    '#page_title' => t('Translate menu'),
-    '#item_title_key' => array('menu', 'menu', $menu['menu_name'], 'title'),
-    '#item_title_default' => $menu['title'],
-    '#edit' => 'admin/structure/menu/manage/' . $menu['menu_name'] . '/edit',
-    '#translate' => 'admin/structure/menu/manage/' . $menu['menu_name'] . '/translate',
-    '#items' => array(),
-  );
-  $form_meta['#items'][] = array(
-    '#title' => t('Menu name'),
-    '#string_key' => array('menu', 'menu', $menu['menu_name'], 'title'),
-    '#default_value' => $menu['title'],
-  );
-  if (!empty($menu['description'])) {
-    $form_meta['#items'][] = array(
-      '#title' => t('Description'),
-      '#string_key' => array('menu', 'menu', $menu['menu_name'], 'description'),
-      '#default_value' => $menu['description'],
-    );
-  }
-  return i18n_string_translate_page($form_meta, $language);
-}
-
-/**
  * Callback for menu item translation tab.
  */
 function i18n_menu_translation_item_page($item, $language = NULL) {
@@ -243,28 +215,7 @@ function i18n_menu_translation_item_page($item, $language = NULL) {
   }
   else {
     // Otherwise we can only support localizing the item.
-    module_load_include('inc', 'i18n_string', 'i18n_string.pages');
-    $form_meta = array(
-      '#page_title' => t('Translate menu item'),
-      '#item_title_key' => array('menu', 'item', $item['mlid'], 'title'),
-      '#item_title_default' => $item['link_title'],
-      '#edit' => 'admin/structure/menu/item/' . $item['mlid'] . '/edit',
-      '#translate' => 'admin/structure/menu/item/' . $item['mlid'] . '/translate',
-      '#items' => array(),
-    );
-    $form_meta['#items'][] = array(
-      '#title' => t('Menu link title'),
-      '#string_key' => array('menu', 'item', $item['mlid'], 'title'),
-      '#default_value' => $item['link_title'],
-    );
-    if (!empty($item['options']['attributes']['title'])) {
-      $form_meta['#items'][] = array(
-        '#title' => t('Description'),
-        '#string_key' => array('menu', 'item', $item['mlid'], 'description'),
-        '#default_value' => $item['options']['attributes']['title'],
-      );
-    }
-    return i18n_string_translate_page($form_meta, $language);
+    return i18n_string_object_translate_page('menu_link', $item, $language);
   }
 }
 
