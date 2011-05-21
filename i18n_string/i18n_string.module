@@ -705,11 +705,10 @@ function i18n_string_object_translate_page($object_type, $object, $langcode = NU
   $textgroup = i18n_string_textgroup($info['string translation']['textgroup']);
 
   // Build the form meta from object type
-  $type = $info['string translation']['type'];
   $form_meta = array(
     '#page_title' => t('Translate @name', array('@name' => $info['title'])),
-    '#edit' => $textgroup->get_edit_path($type, $object),
-    '#translate' => $textgroup->get_translate_path($type, $object),
+    '#edit' => $textgroup->get_edit_path($object_type, $object),
+    '#translate' => $textgroup->get_translate_path($object_type, $object),
   );
 
   foreach ($info['string translation']['properties'] as $key => $title) {

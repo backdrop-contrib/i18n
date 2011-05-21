@@ -26,9 +26,9 @@ class i18n_taxonomy_textgroup extends i18n_string_default {
    */
   public function get_edit_path($type, $object) {
     switch ($type) {
-      case 'term':
+      case 'taxonomy_term':
         return 'taxonomy/term/' . $object->tid . '/edit';
-      case 'vocabulary':
+      case 'taxonomy_vocabulary':
         return 'admin/structure/taxonomy/' . $object->machine_name . '/edit';
     }
   }
@@ -42,9 +42,9 @@ class i18n_taxonomy_textgroup extends i18n_string_default {
    */
   public function get_translate_path($type, $object) {
     switch ($type) {
-      case 'term':
+      case 'taxonomy_term':
         return 'taxonomy/term/' . $object->tid . '/translate';
-      case 'vocabulary':
+      case 'taxonomy_vocabulary':
         return 'admin/structure/taxonomy/' . $object->machine_name . '/translate';
     }
   }
