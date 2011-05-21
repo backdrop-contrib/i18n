@@ -11,7 +11,7 @@
 function i18n_string_enable() {
   // Refresh locales for enabled modules
   $modules = module_implements('i18n_string_refresh');
-  i18n_string_modules_enabled($modules);  
+  i18n_string_modules_enabled($modules);
 }
 
 /**
@@ -128,7 +128,7 @@ function i18n_string_install_update_string($string) {
   $string->location = $string->textgroup . ':' . $string->context;
   $string->objectindex = (int)$string->objectid;
   drupal_write_record('i18n_string', $string, 'lid');
-  drupal_write_record('locales_source', $string, 'lid');  
+  drupal_write_record('locales_source', $string, 'lid');
 }
 
 /**
@@ -144,7 +144,7 @@ function i18n_string_update_7000() {
     db_query("UPDATE {i18n_string} s SET s.textgroup = (SELECT l.textgroup FROM {locales_source} l WHERE l.lid = s.lid)");
     // Populate context field. We could use CONCAT_WS but I guess this is more standard.
     db_query("UPDATE {i18n_string} SET context = CONCAT(type, ':', objectid, ':', property)");
-    db_query("UPDATE {locales_source} s SET s.context = (SELECT l.context FROM {i18n_string} l WHERE l.lid = s.lid)");    
+    db_query("UPDATE {locales_source} s SET s.context = (SELECT l.context FROM {i18n_string} l WHERE l.lid = s.lid)");
   }
 }
 

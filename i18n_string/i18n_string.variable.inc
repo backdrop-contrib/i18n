@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements hook_variable_info()
+ * Implements hook_variable_info().
  */
 function i18n_string_variable_info($options = array()) {
   $variables['i18n_string_translate_langcode_[language]'] = array(

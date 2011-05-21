@@ -222,7 +222,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
       $language = $this->getLanguage($langcode);
       if ($language->enabled) {
         $this->i18nGet($language, $path);
-        $this->assertRaw($text, $message . ' ' . $language->name . ': '. check_plain($text));
+        $this->assertRaw($text, $message . ' ' . $language->name . ': ' . check_plain($text));
       }
     }
   }
@@ -404,7 +404,8 @@ class Drupali18nTestCase extends DrupalWebTestCase {
       }
       if (!empty($rows)) {
         $output .= theme('table', array('header' => $header, 'rows' => $rows));
-      } else {
+      }
+      else {
         $output .= ' No rows';
       }
       $output .= '<br />';

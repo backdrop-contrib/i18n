@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements hook_variable_info()
+ * Implements hook_variable_info().
  */
 function i18n_select_variable_info($options = array()) {
   $variables['i18n_select_nodes'] = array(
@@ -30,7 +30,7 @@ function i18n_select_variable_info($options = array()) {
   }
   else {
     $title = t('Pages', array(), $options);
-  }  
+  }
   $variables['i18n_select_page_mode'] = array(
     'type' => 'select',
     'options callback' => 'i18n_select_variable_option_list',
@@ -69,5 +69,5 @@ function i18n_select_variable_option_list($variable, $options = array()) {
   if (module_exists('php')) {
     $options += array(I18N_SELECT_PAGE_PHP => t('Pages on which this PHP code returns <code>TRUE</code> (experts only)'));
   }
-  return $options;  
+  return $options;
 }

@@ -55,7 +55,7 @@ function i18n_node_translation_overview($node) {
     if ($langcode == LANGUAGE_NONE) {
       // Never show language neutral on the overview.
       continue;
-    }    
+    }
     $options = array();
     if (isset($translations[$langcode])) {
       // Existing translation in the translation set: display status.
@@ -223,7 +223,7 @@ function i18n_node_autocomplete($type, $language, $string = '') {
   $matches = array();
   foreach (_i18n_node_references($string, 'contains', $params) as $id => $row) {
     // Add a class wrapper for a few required CSS overrides.
-    $matches[$row['title'] ." [nid:$id]"] = '<div class="reference-autocomplete">'. $row['rendered'] . '</div>';
+    $matches[$row['title'] . " [nid:$id]"] = '<div class="reference-autocomplete">' . $row['rendered'] . '</div>';
   }
   drupal_json_output($matches);
 }
@@ -233,7 +233,7 @@ function i18n_node_autocomplete($type, $language, $string = '') {
  */
 function i18n_node_nid2autocomplete($nid) {
   if ($node = node_load($nid)) {
-    return check_plain($node->title) . ' [nid:' . $nid .']';
+    return check_plain($node->title) . ' [nid:' . $nid . ']';
   }
   else {
     return t('Not found');
@@ -284,7 +284,7 @@ function i18n_node_autocomplete2nid($name, $field = NULL, $type, $language) {
  */
 function _i18n_node_references($string, $match = 'contains', $params = array(), $limit = 10) {
   $query = db_select('node', 'n')
-    ->fields('n', array('nid', 'title' ,'type'))
+    ->fields('n', array('nid', 'title' , 'type'))
     ->orderBy('n.title')
     ->orderBy('n.type')
     ->range(0, $limit);

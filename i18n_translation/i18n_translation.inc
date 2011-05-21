@@ -84,7 +84,7 @@ class i18n_translation_set {
 
   /**
    * Clean all items in this translation set
-   * 
+   *
    * Unlink other items (not current translations from this translation set)
    */
   public function clean_translations() {
@@ -92,7 +92,7 @@ class i18n_translation_set {
       $query = db_update($table)
         ->fields(array($field => 0))
         ->condition($field, $this->tsid);
-      if ($translations = $this->get_translations()) {  
+      if ($translations = $this->get_translations()) {
         $query->condition('language', array_keys($translations), 'NOT IN');
       }
       return $query->execute();
@@ -113,11 +113,10 @@ class i18n_translation_set {
         return $this->delete_translations();
       }
     }
-    
   }
   /**
    * Delete translations in this translation set
-   * 
+   *
    * It won't delete objects, just unlink them from translation set
    */
   public function delete_translations() {
@@ -307,6 +306,6 @@ class i18n_translation_set {
    */
   protected function key_field() {
     $info = i18n_object_info($this->type);
-    return $info['key'];    
+    return $info['key'];
   }
 }

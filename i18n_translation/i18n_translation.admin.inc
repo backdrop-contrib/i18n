@@ -33,7 +33,7 @@ function i18n_translation_admin_form($form, &$form_state, $type = NULL, $tsids =
     $query->condition('t.tsid', $tsids);
   }
   $tsids = $query
-    ->fields('t',array('tsid'))
+    ->fields('t', array('tsid'))
     ->limit(50)
     ->orderByHeader($header)
     ->execute()

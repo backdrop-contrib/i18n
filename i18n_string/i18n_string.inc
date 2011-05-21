@@ -27,7 +27,7 @@ class i18n_string_default {
    */
   public function build_string($context, $source, $options = array()) {
     // Set at least the default language to translate to
-    $string = new Stdclass();
+    $string = new stdClass();
     $string->textgroup = $this->textgroup;
     $string->source = $source;
     if (is_array($context)) {
@@ -742,7 +742,7 @@ function i18n_string_l10n_client_save_string() {
       l10n_client_save_string();
     }
     elseif (isset($_POST['source']) && isset($_POST['target']) && !empty($_POST['form_token']) && drupal_valid_token($_POST['form_token'], 'l10n_client_form')) {
-      $translation = new Stdclass();
+      $translation = new stdClass();
       $translation->language = $language->language;
       $translation->source = $_POST['source'];
       $translation->translation = $_POST['target'];

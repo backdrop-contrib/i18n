@@ -48,7 +48,7 @@ function i18n_string_translate_page_overview($form_meta) {
     else {
       // Try to figure out if this item has any of its properties translated.
       $translated = FALSE;
-      foreach($form_meta['#items'] as $item) {
+      foreach ($form_meta['#items'] as $item) {
         $str = i18n_string($item['#string_key'], $item['#default_value'], array('langcode' => $langcode, 'sanitize' => FALSE));
         if ($str != $item['#default_value']) {
           $translated = TRUE;
@@ -129,7 +129,7 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
     'i18n_string_translate_page_form_validate'
   );
   $form['#redirect'] = array(
-     $form_meta['#translate'],
+    $form_meta['#translate'],
   );
   return $form;
 }
@@ -138,7 +138,7 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
  * Validation submission callback for in-place string translation.
  */
 function i18n_string_translate_page_form_validate($form, &$form_state) {
-  foreach($form_state['values']['strings'] as $key => $value) {
+  foreach ($form_state['values']['strings'] as $key => $value) {
     // We don't need to validate disabled form fields because those are already
     // validated by the FormAPI.
     if (empty($form['strings'][$key]['#i18n_string_format'])) {
@@ -151,7 +151,7 @@ function i18n_string_translate_page_form_validate($form, &$form_state) {
  * Form submission callback for in-place string translation.
  */
 function i18n_string_translate_page_form_submit($form, &$form_state) {
-  foreach($form_state['values']['strings'] as $key => $value) {
+  foreach ($form_state['values']['strings'] as $key => $value) {
     list($textgroup, $context) = i18n_string_context(explode(':', $key));
     i18n_string_textgroup($textgroup)->update_translation($context, $form_state['values']['langcode'], $value);
   }

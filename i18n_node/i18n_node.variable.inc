@@ -5,7 +5,7 @@
  */
 
 /**
- * Implements hook_variable_info()
+ * Implements hook_variable_info().
  */
 function i18n_node_variable_info($options = array()) {
   $variables['i18n_hide_translation_links'] = array(
@@ -57,5 +57,5 @@ function i18n_node_variable_extended_options($variable, $options) {
     I18N_LANGUAGE_ENABLED => t('Normal - All enabled languages will be allowed.', array(), $options),
     I18N_LANGUAGE_EXTENDED => t('Extended - All defined languages will be allowed.', array(), $options),
     I18N_LANGUAGE_EXTENDED | I18N_LANGUAGE_HIDDEN => t('Extended, but not displayed - All defined languages will be allowed for input, but not displayed in links.', array(), $options),
-  );  
+  );
 }

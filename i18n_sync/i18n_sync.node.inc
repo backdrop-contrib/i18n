@@ -3,7 +3,7 @@
 /**
  * @file
  * Internationalization (i18n) package. Synchronization of translations
- * 
+ *
  * Node synchronization.
  */
 
@@ -54,7 +54,7 @@ function i18n_sync_node_translation($node, $translations, $fields, $op) {
     $count++;
   }
   i18n_sync(TRUE);
-  i18n_select(TRUE);  
+  i18n_select(TRUE);
   drupal_set_message(format_plural($count, 'One node translation has been synchronized.', 'All @count node translations have been synchronized.'));
 }
 
@@ -95,7 +95,7 @@ function i18n_sync_node_translation_default_field($node, $translation, $field) {
       if (isset($node->$field)) {
         $translation->$field = $node->$field;
       }
-  }  
+  }
 }
 
 
@@ -149,13 +149,13 @@ function i18n_sync_node_translation_filefield_field(&$node, &$translation, $fiel
   if (is_array($node->$field)) {
     $translated_images = array();
     foreach ($node->$field as $file) {
-      $found = false;
+      $found = FALSE;
 
       // Try to find existing translations of the filefield items and reference them.
       foreach ($translation->$field as $translation_image) {
         if ($file['fid'] == $translation_image['fid']) {
           $translated_images[] = $translation_image;
-          $found = true;
+          $found = TRUE;
         }
       }
 
@@ -194,7 +194,7 @@ function i18n_sync_node_translation_reference_field(&$reference_node, $default_v
 
 /**
  * Synchronize configurable field
- * 
+ *
  * @param $field_info
  *   Field API field information.
  */
@@ -209,6 +209,6 @@ function i18n_sync_node_translation_field_field($node, $translation, $field, $fi
       if (isset($node->{$field}[$node->language])) {
         $translation->{$field}[$translation->language] = $node->{$field}[$node->language];
       }
-      break;   
-  } 
+      break;
+  }
 }

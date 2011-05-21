@@ -41,7 +41,7 @@ class i18nSelectTestCase extends Drupali18nTestCase {
 
     // Create some content and check selection modes
     $this->drupalLogin($this->translator);
-    
+
     // variable_set('language_content_type_story', 1);
     $neutral = $this->drupalCreateNode(array('type' => 'page', 'promote' => 1));
     $source = $this->createNode('page', $this->randomName(), $this->randomString(20), language_default('language'), array('field_tags[und]' => $tag_name = $this->randomName()));

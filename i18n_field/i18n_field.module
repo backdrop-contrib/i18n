@@ -13,7 +13,7 @@
  */
 
 /**
- * Implements hook_i18n_string_info()
+ * Implements hook_i18n_string_info().
  */
 function i18n_field_i18n_string_info() {
   $groups['field'] = array(
@@ -26,7 +26,7 @@ function i18n_field_i18n_string_info() {
 }
 
 /**
- * Implements hook_i18n_string_list()
+ * Implements hook_i18n_string_list().
  */
 function i18n_field_i18n_string_list($group) {
   if ($group == 'field'  || $group == 'all') {
@@ -122,7 +122,7 @@ function i18n_field_field_formatter_view($entity_type, $entity, $field, $instanc
 }
 
 /**
- * Implements hook_field_widget_info_alter()
+ * Implements hook_field_widget_info_alter().
  *
  * Cached, invoked only after widget info is rebuilt
  */
@@ -195,21 +195,21 @@ function i18n_field_field_widget_form($form, $form_state, $field, $instance, $la
 }
 
 /**
- * Implements hook_field_create_field()
+ * Implements hook_field_create_field().
  */
 function i18n_field_field_create_field($field) {
   i18n_field_field_update_strings($field);
 }
 
 /**
- * Implements hook_field_create_instance();
+ * Implements hook_field_create_instance().
  */
 function i18n_field_field_create_instance($instance) {
   i18n_field_instance_update_strings($instance);
 }
 
 /**
- * Implements hook_field_delete_instance();
+ * Implements hook_field_delete_instance().
  */
 function i18n_field_field_delete_instance($instance) {
   foreach (array('description', 'default_value') as $property) {
@@ -218,14 +218,14 @@ function i18n_field_field_delete_instance($instance) {
 }
 
 /**
- * Implements hook_field_update_instance();
+ * Implements hook_field_update_instance().
  */
 function i18n_field_field_update_instance($instance, $prior_instance) {
   i18n_field_instance_update_strings($instance);
 }
 
 /**
- * Implements hook_field_update_field()
+ * Implements hook_field_update_field().
  */
 function i18n_field_field_update_field($field) {
   i18n_field_field_update_strings($field);
@@ -237,7 +237,7 @@ function i18n_field_field_update_field($field) {
 function i18n_field_field_update_strings($field) {
   // For select fields field:field_name
   if (!empty($field['settings']['allowed_values']) && i18n_field_type_info($field['type'], 'translate_options')) {
-    i18n_string_update(array('field', $field['field_name'],'#allowed_values'), $field['settings']['allowed_values']);
+    i18n_string_update(array('field', $field['field_name'], '#allowed_values'), $field['settings']['allowed_values']);
   }
 }
 
@@ -314,7 +314,7 @@ function i18n_field_type_info($type = NULL, $property = NULL) {
 }
 
 /**
- * Implements hook_i18n_field_info()
+ * Implements hook_i18n_field_info().
  */
 function i18n_field_i18n_field_info() {
   $info['text'] = $info['text_long'] = $info['text_with_summary'] = array(

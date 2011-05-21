@@ -12,7 +12,7 @@
  * @author Jose A. Reyero, 2004
  */
 
-// All multilingual options disabled 
+// All multilingual options disabled
 define('I18N_LANGUAGE_DISABLED', 0);
 // Language list will include all enabled languages
 define('I18N_LANGUAGE_ENABLED', 1);
@@ -35,7 +35,7 @@ define('I18N_MODE_TRANSLATE', 4);
 define('I18N_MODE_MULTIPLE', I18N_MODE_LOCALIZE | I18N_MODE_TRANSLATE);
 
 /**
- * Implements hook_boot()
+ * Implements hook_boot().
  */
 function i18n_boot() {
   // Just make sure the module is loaded for boot and the API is available.
@@ -43,7 +43,7 @@ function i18n_boot() {
 
 /**
  * Get global language object, make sure it is initialized
- * 
+ *
  * @param $language
  *   Language code or language object to convert to valid language object
  */
@@ -62,7 +62,7 @@ function i18n_language($language = NULL) {
       // We don't have language yet, initialize the language system and retry
       drupal_bootstrap(DRUPAL_BOOTSTRAP_LANGUAGE);
     }
-    return $GLOBALS['language']; 
+    return $GLOBALS['language'];
   }
 }
 
@@ -105,7 +105,7 @@ function i18n_language_field_extra() {
 
 /**
  * Get full language list
- * 
+ *
  * @todo See about creating a permission for seeing disabled languages
  */
 function i18n_language_list($field = 'name', $mode = NULL) {
@@ -115,7 +115,7 @@ function i18n_language_list($field = 'name', $mode = NULL) {
 
 /**
  * Get language name for any defined (enabled or not) language
- * 
+ *
  * @see locale_language_list()
  */
 function i18n_language_name($lang) {
@@ -138,7 +138,7 @@ function i18n_language_name($lang) {
  * Get valid language code for current page or check whether the code is a defined language
  */
 function i18n_langcode($langcode = NULL) {
-  return $langcode && $langcode !== LANGUAGE_NONE ? $langcode : i18n_language()->language;  
+  return $langcode && $langcode !== LANGUAGE_NONE ? $langcode : i18n_language()->language;
 }
 
 /**
@@ -147,24 +147,24 @@ function i18n_langcode($langcode = NULL) {
 function i18n_help($path = 'admin/help#i18n', $arg) {
   switch ($path) {
     case 'admin/help#i18n' :
-      $output = '<p>'. t('This module improves support for multilingual content in Drupal sites:') .'</p>';
+      $output = '<p>' . t('This module improves support for multilingual content in Drupal sites:') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>'. t('Shows content depending on page language.') .'</li>';
-      $output .= '<li>'. t('Handles multilingual variables.') .'</li>';
-      $output .= '<li>'. t('Extended language option for chosen content types. For these content types transations will be allowed for all defined languages, not only for enabled ones.') .'</li>';
-      $output .= '<li>'. t('Provides a block for language selection and two theme functions: <em>i18n_flags</em> and <em>i18n_links</em>.') .'</li>';
+      $output .= '<li>' . t('Shows content depending on page language.') . '</li>';
+      $output .= '<li>' . t('Handles multilingual variables.') . '</li>';
+      $output .= '<li>' . t('Extended language option for chosen content types. For these content types transations will be allowed for all defined languages, not only for enabled ones.') . '</li>';
+      $output .= '<li>' . t('Provides a block for language selection and two theme functions: <em>i18n_flags</em> and <em>i18n_links</em>.') . '</li>';
       $output .= '</ul>';
-      $output .= '<p>'. t('This is the base module for several others adding different features:') .'</p>';
+      $output .= '<p>' . t('This is the base module for several others adding different features:') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>'. t('Multilingual menu items.') .'</li>';
-      $output .= '<li>'. t('Multilingual taxonomy adds a language field for taxonomy vocabularies and terms.') .'</li>';
+      $output .= '<li>' . t('Multilingual menu items.') . '</li>';
+      $output .= '<li>' . t('Multilingual taxonomy adds a language field for taxonomy vocabularies and terms.') . '</li>';
       $output .= '</ul>';
-      $output .= '<p>'. t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) .'</p>';
+      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) . '</p>';
       return $output;
 
     case 'admin/config/language/i18n':
       $output = '<ul>';
-      $output .= '<li>'. t('To enable multilingual support for specific content types go to <a href="@configure_content_types">configure content types</a>.', array('@configure_content_types' => url('admin/structure/types'))) .'</li>';
+      $output .= '<li>' . t('To enable multilingual support for specific content types go to <a href="@configure_content_types">configure content types</a>.', array('@configure_content_types' => url('admin/structure/types'))) . '</li>';
       $output .= '</ul>';
       return $output;
   }
@@ -196,18 +196,18 @@ function i18n_menu() {
 
 /**
  * Switch select Mode on off if enabled
- * 
+ *
  * Usage for disabling content selection for a while then return to previous state
- *   
+ *
  *   // Disable selection, but store previous mode
  *   $previous = i18n_select(FALSE);
- * 
+ *
  *   // Other code to be run without content selection here
  *   ..........................
- * 
+ *
  *   // Return to previous mode
  *   i18n_select($previous);
- * 
+ *
  * @param $value
  *   Optional, enable/disable selection: TRUE/FALSE
  * @return boolean
@@ -280,7 +280,7 @@ function i18n_string($name, $string, $options = array()) {
 
 /**
  * Get language from context.
- * 
+ *
  * Depending on the page content we may need to use a different language for some operations.
  */
 function i18n_context_language() {
@@ -295,7 +295,7 @@ function i18n_context_language() {
 
 /**
  * Get object language code
- * 
+ *
  * @param $object
  *   Object or array having language field or plain language field
  * @param $default

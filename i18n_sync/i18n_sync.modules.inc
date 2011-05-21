@@ -3,7 +3,7 @@
 /**
  * @file
  * Internationalization (i18n) package. Synchronization of translations
- * 
+ *
  * Implements hook_i18n_sync_node_fields() for several core and contrib modules.
  */
 
@@ -13,7 +13,7 @@
 function book_i18n_sync_options($entity_type, $bundle_name) {
   if ($entity_type == 'node') {
     return array(
-      'parent' => array('title' =>t('Book outline'), 'description' => t('Set the translated parent for each translation if possible.')),
+      'parent' => array('title' => t('Book outline'), 'description' => t('Set the translated parent for each translation if possible.')),
     );
   }
 }

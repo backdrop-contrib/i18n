@@ -57,7 +57,7 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
     '#type' => 'fieldset',
     '#title' => t('Select translations'),
     '#description' => t('Select existing terms or type new ones that will be created for each language.'),
-  	'#tree' => TRUE
+    '#tree' => TRUE
   );
   // List of terms for languages.
   foreach (i18n_language_list() as $lang => $langname) {
@@ -192,7 +192,7 @@ function i18n_taxonomy_translation_sets_overview($vocabulary) {
   // Get terms/translations for this vocab.
   $result = db_query('SELECT * FROM {taxonomy_term_data} t WHERE vid = :vid AND i18n_tsid > 0', array(':vid' => $vocabulary->vid));
   $terms = $messages = array();
-  foreach($result as $term) {
+  foreach ($result as $term) {
     if ($term->i18n_tsid && $term->language) {
       $terms[$term->i18n_tsid][$term->language] = $term;
     }
@@ -203,7 +203,7 @@ function i18n_taxonomy_translation_sets_overview($vocabulary) {
     $thisrow = array();
     foreach ($languages as $lang => $name) {
       if (array_key_exists($lang, $terms)) {
-        $thisrow[] = l($terms[$lang]->name, 'taxonomy/term/'. $terms[$lang]->tid);
+        $thisrow[] = l($terms[$lang]->name, 'taxonomy/term/' . $terms[$lang]->tid);
       }
       else {
         $thisrow[] = '--';

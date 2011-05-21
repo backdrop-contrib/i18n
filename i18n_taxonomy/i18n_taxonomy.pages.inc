@@ -48,7 +48,7 @@ function i18n_taxonomy_term_page($term) {
     $build['pager'] = array(
       '#theme' => 'pager',
       '#weight' => 5,
-     );
+    );
   }
   else {
     $build['no_content'] = array(
@@ -71,7 +71,7 @@ function i18n_taxonomy_term_page($term) {
  * @ingroup themeable
  */
 function theme_i18n_taxonomy_term_page($tids, $result) {
-  drupal_add_css(drupal_get_path('module', 'taxonomy') .'/taxonomy.css');
+  drupal_add_css(drupal_get_path('module', 'taxonomy') . '/taxonomy.css');
 
   $output = '';
 
@@ -141,7 +141,7 @@ function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
     $query->addTag('i18n_select');
     // Add language condition
     $query->condition('t.language', $langcode);
-    
+
     // Do not select already entered terms.
     if (!empty($tags_typed)) {
       $query->condition('t.name', $tags_typed, 'NOT IN');

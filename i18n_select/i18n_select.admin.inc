@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Helper functions for select administration.
+ */
+
 function i18n_select_admin_settings() {
   $form['types'] = array(
     '#type' => 'variable_fieldset',
@@ -20,4 +25,3 @@ function i18n_select_admin_settings() {
   );
   return system_settings_form($form);
 }
-

@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Helper functions for string administration.
+ */
+
 // Load locale library
 include_once './includes/locale.inc';
 
@@ -27,7 +32,7 @@ function i18n_string_admin_refresh_form() {
   $form['refresh'] = array(
     '#type' => 'submit',
     '#value' => t('Refresh strings'),
-    '#suffix' => '<p>'. t('This will create all the missing strings for the selected text groups.') .'</p>',
+    '#suffix' => '<p>' . t('This will create all the missing strings for the selected text groups.') . '</p>',
   );
   // Get all languages, except default language.
   $languages = locale_language_list('name', TRUE);
@@ -40,7 +45,7 @@ function i18n_string_admin_refresh_form() {
   $form['update'] = array(
     '#type' => 'submit',
     '#value' => t('Update translations'),
-    '#suffix' => '<p>'. t('This will fetch all existing translations from the localization tables for the selected text groups and languages.') .'</p>',
+    '#suffix' => '<p>' . t('This will fetch all existing translations from the localization tables for the selected text groups and languages.') . '</p>',
   );
   return $form;
 }
@@ -85,15 +90,15 @@ function i18n_string_admin_update($language, $groups) {
   $result = $query->execute()->fetchAll(PDO::FETCH_OBJ);
 
   $count = 0;
-  foreach($result as $string) {
+  foreach ($result as $string) {
     // Just update strings when no text format, otherwise it could be dangerous under some circumstances.
     if (empty($string->format) && !empty($string->translation)) {
       $count++;
       db_insert(locales_target)
       ->fields(array(
         'translation' => $string->translation,
-      	'lid' => $string->lid,
-      	'language' => $language,
+        'lid' => $string->lid,
+        'language' => $language,
       ))
       ->execute();
     }
@@ -204,7 +209,7 @@ function i18n_string_refresh_string_list($strings) {
           }
           i18n_string_update(array($textgroup, $type, $id, $key), $string, array('format' => $format));
           $count++;
-        }    
+        }
       }
     }
   }
@@ -213,7 +218,7 @@ function i18n_string_refresh_string_list($strings) {
 
 /**
  * Create batch for refreshing strings
- * 
+ *
  * @param $groups
  *   Array of text groups to refresh
  * @param $delete
@@ -225,8 +230,8 @@ function i18n_string_refresh_batch($groups, $delete = FALSE) {
     $operations[] = array('_i18n_string_batch_refresh_prepare', array($group));
     // First try to find string list
     $operations[] = array('_i18n_string_batch_refresh_list', array($group));
-    // Then invoke refresh callback 
-    $operations[] = array('_i18n_string_batch_refresh_callback', array($group));   
+    // Then invoke refresh callback
+    $operations[] = array('_i18n_string_batch_refresh_callback', array($group));
     if ($delete) {
       $operations[] = array('_i18n_string_batch_refresh_cleanup', array($group));
     }
@@ -295,7 +300,7 @@ function _i18n_string_batch_refresh_summary($group, &$context) {
     drupal_set_message(t("Successfully refreshed @count strings for %group", array('@count' => $context['results'][$group]['refresh'], '%group' => i18n_string_group_info($group, 'title'))));
     if (!empty($context['results'][$group]['deleted'])) {
       drupal_set_message(t('Deleted @count left over strings.', array('@count' => $context['results'][$group]['deleted'])));
-    }  
+    }
   }
   else {
     drupal_set_message(t("Cannot refresh strings for %group.", array('%group' => i18n_string_group_info($group, 'title'))), 'warning');
