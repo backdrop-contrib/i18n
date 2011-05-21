@@ -738,23 +738,30 @@ function i18n_string_object_translate_page($object_type, $object, $langcode = NU
  *
  * @param $name
  *   Array or string concatenated with ':' that contains textgroup and string context
- * @param $string
- *   Source string in default language. Default language may or may not be English.
- *   Array of key => string to update multiple strings at once
+ * @param $translation
+ *   Translation string for this language code
  * @param $langcode
  *   The language code to translate to a language other than what is used to display the page.
  */
-function i18n_string_translation_update($name, $string, $langcode) {
-  if (is_array($string)) {
-    return i18n_string_multiple('translation_update', $name, $string, $langcode);
+function i18n_string_translation_update($name, $translation, $langcode) {
+  if (is_array($translation)) {
+    return i18n_string_multiple('translation_update', $name, $translation, $langcode);
   }
   else {
     list ($textgroup, $context) = i18n_string_context($name);
-    $langcode_default = language_default('langcode');
+    $langcode_default = language_default('language');
     // It's the default language so we should update the string source as well.
     if ($langcode == $langcode_default) {
-      i18n_string_update($name, $string);
+      i18n_string_update($name, $translation);
     }
-    i18n_string_textgroup($textgroup)->update_translation($name, $langcode, $string);
+    elseif ($source = i18n_string_textgroup($textgroup)->update_translation($context, $langcode, $translation)) {
+      return $source;
+    }
+    else {
+      // We don't have a source string, so we need to create it with this translation. Ugly but...
+      // Both source and translation will be the same string.
+      i18n_string_update($name, $translation);
+      return i18n_string_textgroup($textgroup)->update_translation($context, $langcode, $translation);
+    }
   }
 }

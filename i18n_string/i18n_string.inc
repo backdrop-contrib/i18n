@@ -578,7 +578,14 @@ class i18n_string_default {
     return $status;
   }
   /**
-   * Update string translation.
+   * Update string translation, only if source exists.
+   * 
+   * @param $context
+   *   String context as array
+   * @param $langcode
+   *   Language code to create the translation for
+   * @param $translation
+   *   String translation for this language
    */
   function update_translation($context, $langcode, $translation) {
     $i18nstring = (object) array(
