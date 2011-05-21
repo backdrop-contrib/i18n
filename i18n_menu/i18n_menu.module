@@ -12,36 +12,27 @@
  * Implements hook_menu()
  */
 function i18n_menu_menu() {
-  $items['admin/structure/menu/manage/%menu/list/list'] = array(
-    'title' => 'Menu links',
-    'type' => MENU_DEFAULT_LOCAL_TASK,
-    'weight' => 0,
-  );
-  $items['admin/structure/menu/manage/%menu/list/sets'] = array(
+  $items['admin/structure/menu/manage/translation'] = array(
     'title' => 'Translation sets',
-    'page callback' => 'i18n_menu_translation_overview',
-    'page arguments' => array(4),
-    'access callback' => 'i18n_menu_translation_menu_set_access',
-    'access arguments' => array(4),
+    'page callback' => 'i18n_menu_translation_set_overview',
+    'access arguments' => array('administer menu'),
     'type' => MENU_LOCAL_TASK,
     'file' => 'i18n_menu.admin.inc',
     'weight' => 10,
   );
-  $items['admin/structure/menu/manage/%menu/list/sets/add'] = array(
+  $items['admin/structure/menu/manage/translation/add'] = array(
     'title' => 'Add translation',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('i18n_menu_translation_form', 4, NULL, NULL),
-    'access callback' => 'i18n_menu_translation_menu_set_access',
-    'access arguments' => array(4),
+    'page arguments' => array('i18n_menu_translation_form'),
+    'access arguments' => array('administer menu'),
     'type' => MENU_LOCAL_ACTION,
     'file' => 'i18n_menu.admin.inc',
   );
-  $items['admin/structure/menu/manage/%menu/list/sets/edit/%i18n_menu_translation'] = array(
+  $items['admin/structure/menu/manage/translation/edit/%i18n_menu_translation'] = array(
     'title' => 'Edit translation',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('i18n_menu_translation_form', 4, NULL, 8),
-    'access callback' => 'i18n_menu_translation_menu_set_access',
-    'access arguments' => array(4),
+    'page arguments' => array('i18n_menu_translation_form', NULL, NULL, 6),
+    'access arguments' => array('administer menu'),
     'type' => MENU_CALLBACK,
     'file' => 'i18n_menu.admin.inc',
   );
@@ -99,13 +90,6 @@ function i18n_menu_menu_alter(&$items) {
  */
 function i18n_menu_translation_menu_access($menu) {
   return user_access('administer menu') && user_access('translate interface') && !i18n_menu_mode($menu['menu_name'], I18N_MODE_LANGUAGE);
-}
-
-/**
- * Menu access callback
- */
-function i18n_menu_translation_menu_set_access($menu) {
-  return user_access('administer menu') && ($menu['i18n_mode'] & I18N_MODE_TRANSLATE);
 }
 
 /**
@@ -171,7 +155,7 @@ function i18n_menu_i18n_object_info() {
       'table' => 'menu_links',
       'field' => 'i18n_tsid',
       'parent' => 'menu',
-      'edit path' => 'admin/structure/menu/translation',
+      'edit path' => 'admin/structure/menu/manage/translation/edit',
     ),
   );
   return $info;

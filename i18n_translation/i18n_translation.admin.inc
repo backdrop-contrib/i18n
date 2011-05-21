@@ -8,8 +8,85 @@
 /**
  * Overview page
  */
-function i18n_translation_admin_overview() {
+function i18n_translation_admin_overview($type) {
+  $info = i18n_object_info($type);
 
+  // Build the sortable table header.
+  $header['title'] = array('data' => t('Title'), 'field' => 't.title');
+  $header['items'] = t('Items');
+  $header['operations'] = array('data' => t('Operations'));
+
+  $query = db_select('i18n_translation_set', 't')->extend('PagerDefault')->extend('TableSort');
+  $query->condition('t.type', $type);
+
+  $tsids = $query
+    ->fields('t', array('tsid'))
+    ->limit(50)
+    ->orderByHeader($header)
+    ->execute()
+    ->fetchCol();
+
+  $translations = $tsids ? entity_load('i18n_translation', $tsids) : array();
+  $destination = drupal_get_destination();
+  $options = array();
+  foreach ($translations as $set) {
+    $items = array();
+    foreach ($set->item_list() as $language => $item) {
+      $items[$language] = i18n_language_name($language) . ': ' . $item;
+    }
+    $options[$set->tsid] = array(
+      'title' => check_plain($set->get_title()),
+      'path' => theme('item_list', array('items' => $items)),
+      'operations' => '',
+    );
+    // Build a list of all the accessible operations for the current set.
+    $operations = array();
+    if ($path = $set->get_edit_path()) {
+      $operations['edit'] = array(
+        'title' => t('edit'),
+        'href' => $path,
+        'query' => $destination,
+      );
+    }
+    if ($path = $set->get_delete_path()) {
+      $operations['delete'] = array(
+        'title' => t('delete'),
+        'href' => $path,
+        'query' => $destination,
+      );
+    }
+    if (count($operations) > 1) {
+      // Render an unordered list of operations links.
+      $options[$set->tsid]['operations'] = array(
+        'data' => array(
+          '#theme' => 'links__node_operations',
+          '#links' => $operations,
+          '#attributes' => array('class' => array('links', 'inline')),
+        ),
+      );
+    }
+    elseif (!empty($operations)) {
+      // Render the first and only operation as a link.
+      $link = reset($operations);
+      $options[$set->tsid]['operations'] = array(
+        'data' => array(
+          '#type' => 'link',
+          '#title' => $link['title'],
+          '#href' => $link['href'],
+          '#options' => array('query' => $link['query']),
+        ),
+      );
+    }
+  }
+
+  $form = array(
+    '#theme' => 'table',
+    '#header' => $header,
+    '#rows' => $options,
+    '#empty' => t('No path translations set available.')
+  );
+
+  return $form;  
 }
 
 /**

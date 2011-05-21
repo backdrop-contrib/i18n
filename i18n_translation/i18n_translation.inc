@@ -227,12 +227,14 @@ class i18n_translation_set {
    * Get item list
    */
   public function item_list() {
+    $language_list = language_list();
     $items = array();
     foreach ($this->get_translations() as $langcode => $item) {
       $title = $this->item_title($item);
       $path = $this->item_path($item);
       if ($title && $path) {
-        $items[$langcode] = l($title, $path);
+        $options = isset($language_list[$langcode]) ? array('language' => $language_list[$langcode]) : array();
+        $items[$langcode] = l($title, $path, $options);
       }
       elseif ($title) {
         $items[$langcode] = check_plain($title);
