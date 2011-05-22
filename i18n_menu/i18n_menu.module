@@ -454,8 +454,11 @@ function i18n_menu_variable_info_alter(&$variables, $options) {
  *   The menu the translated tree has to be fetched from.
  * @param $langcode
  * 	 Optional language code to get the menu in, defaults to request language.
+ * @param $reset
+ *   Whether to reset the internal i18n_menu_translated_tree cache.
+ *
  */
-function i18n_menu_translated_tree($menu_name, $langcode = NULL) {
+function i18n_menu_translated_tree($menu_name, $langcode = NULL, $reset = FALSE) {
   $menu_output = &drupal_static(__FUNCTION__);
   $langcode = i18n_langcode($langcode);
   if (!isset($menu_output[$langcode][$menu_name]) || $reset) {
