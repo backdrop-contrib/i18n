@@ -7,8 +7,13 @@
 
 /**
  * Overview page for translation sets
+ * 
+ * @param $type
+ *   Translation set type to get a listing for this type only
+ * @param $query
+ *   Base query to build upon
  */
-function i18n_translation_admin_overview($type = NULL) {
+function i18n_translation_admin_overview($type = NULL, $query = NULL) {
   // Build the sortable table header.
   $header['title'] = array('data' => t('Title'), 'field' => 't.title');
   if (!$type) {
@@ -20,7 +25,8 @@ function i18n_translation_admin_overview($type = NULL) {
   $header['operations'] = array('data' => t('Operations'));
 
   // Get the translation sets for this form
-  $query = db_select('i18n_translation_set', 't')->extend('PagerDefault')->extend('TableSort');
+  $query = $query ? $query : db_select('i18n_translation_set', 't');
+  $query = $query->extend('PagerDefault')->extend('TableSort');
   if ($type) {
     $query->condition('t.type', $type);
   }

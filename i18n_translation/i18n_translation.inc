@@ -153,7 +153,7 @@ class i18n_translation_set {
    */
   public function get_edit_path() {
     if ($path = $this->get_info('edit path')) {
-      return strtr($path, $this->get_placeholders('delete'));
+      return strtr($path, $this->get_path_placeholders('delete'));
     }
     else {
       return '';
@@ -213,7 +213,7 @@ class i18n_translation_set {
    */
   public function get_delete_path() {
     if ($path = $this->get_info('delete path')) {
-      return strtr($path, $this->get_placeholders('delete'));
+      return strtr($path, $this->get_path_placeholders('delete'));
     }
     else {
       return '';
@@ -222,7 +222,7 @@ class i18n_translation_set {
   /**
    * Get placeholder values for path replacement
    */
-  function get_placeholders($op = 'list') {
+  function get_path_placeholders($op = 'list') {
     $values['%operation'] = $op;
     $values['%type'] = $this->type;
     $values['%i18n_translation_set'] = $this->tsid;

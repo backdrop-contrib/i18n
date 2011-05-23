@@ -182,47 +182,11 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
  * Generate a tabular listing of translations for vocabularies.
  */
 function i18n_taxonomy_translation_sets_overview($vocabulary) {
+  module_load_include('admin.inc', 'i18n_translation');
   drupal_set_title(check_plain($vocabulary->name));
-  $output = '';
-
-  $languages = i18n_language_list();
-  $header = array_merge($languages, array(t('Operations')));
-  $links = array();
-  $types = array();
-  // Get terms/translations for this vocab.
-  $result = db_query('SELECT * FROM {taxonomy_term_data} t WHERE vid = :vid AND i18n_tsid > 0', array(':vid' => $vocabulary->vid));
-  $terms = $messages = array();
-  foreach ($result as $term) {
-    if ($term->i18n_tsid && $term->language) {
-      $terms[$term->i18n_tsid][$term->language] = $term;
-    }
-  }
-  // Reorder data for rows and languages.
-  $rows = array();
-  foreach ($terms as $trid => $terms) {
-    $thisrow = array();
-    foreach ($languages as $lang => $name) {
-      if (array_key_exists($lang, $terms)) {
-        $thisrow[] = l($terms[$lang]->name, 'taxonomy/term/' . $terms[$lang]->tid);
-      }
-      else {
-        $thisrow[] = '--';
-      }
-    }
-    $thisrow[] = l(t('edit'), "admin/structure/taxonomy/$vocabulary->machine_name/list/sets/edit/$trid");    
-    $rows[] = $thisrow;
-  }
-  if ($rows) {
-    $build['translations'] = array(
-      '#theme' => 'table',
-      '#header' => $header,
-      '#rows' => $rows
-    );
-  }
-  else {
-    $build['message']['#markup'] = t('No translations defined for this vocabulary.');
-  }
-  return $build;
+  $query = db_select('i18n_translation_set', 't')
+    ->condition('t.bundle', $vocabulary->machine_name);
+  return i18n_translation_admin_overview('taxonomy_term', $query);
 }
 
 /**
