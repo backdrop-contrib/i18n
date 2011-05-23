@@ -92,15 +92,15 @@ class i18nMenuTestCase extends Drupali18nTestCase {
       'translations[' . $this->default_language . ']' => $default_item['menu_name'] . ':' . $default_item['mlid'],
       'translations[' . $this->secondary_language . ']' => $secondary_item['menu_name'] . ':' . $secondary_item['mlid'],
     );
-    $translation_set = $this->createMenuLinkTranslationSet($menu['menu_name'], $translationset_edit);
+    $translation_set = $this->createMenuLinkTranslationSet($translationset_edit);
 
     // Check if the overview works
-    $this->drupalGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/list/sets');
-    $link = $this->xpath('//*/a[contains(@href,"admin/structure/menu/manage/' . $menu['menu_name'] . '/list/sets/edit/' . $translation_set->tsid . '")]');
+    $this->drupalGet('admin/structure/menu/manage/translation');
+    $link = $this->xpath('//*/a[contains(@href,"admin/structure/menu/manage/translation/edit/' . $translation_set->tsid . '")]');
     $this->assertTrue(!empty($link),'Created translation-set found.');
 
     // Check if the edit mode works
-    $this->drupalGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/list/sets/edit/' . $translation_set->tsid);
+    $this->drupalGet('admin/structure/menu/manage/translation/edit/' . $translation_set->tsid);
     $this->assertFieldByXPath(
       "//*[@id='edit-translations-" . $this->default_language . "']/option[@selected]/@value",
       $menu['menu_name'] . ':' . $default_item['mlid'],
@@ -134,7 +134,7 @@ class i18nMenuTestCase extends Drupali18nTestCase {
       'translations[' . $this->default_language . ']' => $default_item['menu_name'] . ':' . $default_item['mlid'],
       'translations[' . $this->secondary_language . ']' => $secondary_item['menu_name'] . ':' . $secondary_item['mlid'],
     );
-    $translation_set = $this->createMenuLinkTranslationSet($menu['menu_name'], $translationset_edit);
+    $translation_set = $this->createMenuLinkTranslationSet($translationset_edit);
     $tsid = $translation_set->tsid;
 
     // Test language mode switch
@@ -205,11 +205,11 @@ class i18nMenuTestCase extends Drupali18nTestCase {
   /**
    * Helper function to create a translation set.
    */
-  function createMenuLinkTranslationSet($menu_name, $edit = array()) {
+  function createMenuLinkTranslationSet($edit = array()) {
     $edit += array(
       'title' => $this->randomName(16),
     );
-    $this->drupalPost('admin/structure/menu/manage/' . $menu_name . '/list/sets/add', $edit, t('Save'));
+    $this->drupalPost('admin/structure/menu/manage/translation/add', $edit, t('Save'));
 
     // Load translation set entity.
     $entity = entity_load('i18n_translation', FALSE, array('title' => $edit['title']), TRUE);
