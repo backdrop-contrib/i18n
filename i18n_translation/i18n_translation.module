@@ -188,8 +188,7 @@ function i18n_translation_format_items($translations) {
  * Get translation set for object
  */
 function i18n_translation_object($type, $object, $create = FALSE) {
-  $info = i18n_translation_set_info($type);
-  if ($tsid = i18n_object_field($object, $info['translation set']['field'])) {
+  if (($field = i18n_translation_set_info($type, 'field', 'i18n_tsid')) && ($tsid = i18n_object_field($object, $field))) {
     return i18n_translation_set_load($tsid, $type);
   }
   elseif ($create) {
@@ -204,11 +203,11 @@ function i18n_translation_object($type, $object, $create = FALSE) {
 /**
  * Get information about translation sets
  */
-function i18n_translation_set_info($type = NULL, $property = NULL) {
+function i18n_translation_set_info($type = NULL, $property = NULL, $default = NULL) {
   if ($type) {
-    if (($info = i18n_object_info($type)) && !empty($info['translation set'])) {
+    if (($info = i18n_object_info($type, 'translation set'))) {
       if ($property) {
-        return isset($info[$property]) ? $info[$property] : NULL;
+        return isset($info[$property]) ? $info[$property] : $default;
       }
       else {
         return $info;
@@ -230,8 +229,7 @@ function i18n_translation_set_info($type = NULL, $property = NULL) {
  * Build a translation set from type, data
  */
 function i18n_translation_set_build($type, $data = array()) {
-  $info = i18n_translation_set_info($type);
-  $class = isset($info['translation set']['class']) ? $info['translation set']['class'] : 'i18n_translation_set';
+  $class = i18n_translation_set_info($type, 'class', 'i18n_translation_set');
   $set = new $class((array)$data);
   $set->type = $type;
   return $set;

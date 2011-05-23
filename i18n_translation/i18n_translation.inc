@@ -244,7 +244,7 @@ class i18n_translation_set {
    */
   public function get_info($property, $default = NULL) {
     $info = i18n_translation_set_info($this->type);
-    return $info && isset($info['translation set'][$property]) ? $info['translation set'][$property] : $default;
+    return $info && isset($info[$property]) ? $info[$property] : $default;
   }
 
   /**

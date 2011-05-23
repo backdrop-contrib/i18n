@@ -355,6 +355,29 @@ function i18n_object_key($type, $object, $default = NULL) {
 }
 
 /**
+ * Get edit path for object
+ */
+function i18n_object_edit_path($type, $object) {
+  if ($path = i18n_object_info($type, 'edit path')) {
+    return strtr($path, i18n_object_placeholders($type, $object));
+  }
+  else {
+    return NULL;
+  }
+}
+
+/**
+ * Get menu placehoders for object
+ */
+function i18n_object_placeholders($type, $object) {
+  $placeholders = i18n_object_info($type, 'placeholders', array());
+  foreach ($placeholders as $name => $field) {
+    $placeholders[$name] = i18n_object_field($object, $field);
+  }
+  return $placeholders;
+}
+
+/**
  * Build translation link
  */
 function i18n_translation_link($path, $langcode, $link = array()) {

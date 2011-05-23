@@ -149,6 +149,11 @@ function i18n_menu_i18n_object_info() {
     'title' => t('Menu link'),
     'key' => 'mlid',
     'base path' => 'admin/structure/menu/item',
+    'edit path' => 'admin/structure/menu/item/%menu_link/edit',
+    'placeholders' => array(
+    	'%menu_link' => 'mlid',
+      '%menu' => 'menu_name',
+    ),
     'string translation' => array(
       'textgroup' => 'menu',
       'type' => 'item',

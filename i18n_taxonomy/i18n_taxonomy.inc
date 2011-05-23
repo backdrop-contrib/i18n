@@ -50,12 +50,12 @@ class i18n_taxonomy_textgroup extends i18n_string_default {
    * @param $object
    *   The Drupal object itself
    */
-  public function get_translate_path($type, $object) {
+  public function get_translate_path($type, $object, $language = NULL) {
     switch ($type) {
       case 'taxonomy_term':
-        return 'taxonomy/term/' . $object->tid . '/translate';
+        return 'taxonomy/term/' . $object->tid . '/translate' . ($language ? '/' . $language->language : '');
       case 'taxonomy_vocabulary':
-        return 'admin/structure/taxonomy/' . $object->machine_name . '/translate';
+        return 'admin/structure/taxonomy/' . $object->machine_name . '/translate' . ($language ? '/' . $language->language : '');
     }
   }
 }

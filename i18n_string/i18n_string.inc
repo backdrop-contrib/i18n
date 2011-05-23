@@ -709,9 +709,7 @@ class i18n_string_default {
    *   The Drupal object itself
    */
   public function get_edit_path($type, $object) {
-    if (($base_path = i18n_object_info($type, 'base path')) && ($key = i18n_object_key($type, $object))) {
-      return $base_path . '/' . $key . '/edit';
-    }
+    return i18n_object_edit_path($type, $object);
   }
 
   /**
@@ -722,9 +720,11 @@ class i18n_string_default {
    * @param $object
    *   The Drupal object itself
    */
-  public function get_translate_path($type, $object) {
-    if (($base_path = i18n_object_info($type, 'base path')) && ($key = i18n_object_key($type, $object))) {
-      return $base_path . '/' . $key . '/translate';
+  public function get_translate_path($type, $object, $language = NULL) {
+    if ($path = i18n_string_object_info($type, 'translate path')) {
+      $replace = i18n_object_placeholders($type, $object);
+      $replace['%language'] = $language ? $language->language : '';
+      return trim(strtr($path, $replace), '/');
     }    
   }
 }

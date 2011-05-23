@@ -8,23 +8,6 @@
  * - node:type:[type]:[name,title,body,help]
  */
 
-/**
- * Implements hook_menu().
- */
-/**
- * @todo Update autocomplete, try some other module
-function i18n_node_menu() {
-  // Autocomplete callback for nodes
-  $items['i18n/node/autocomplete'] = array(
-    'title' => 'Node title autocomplete',
-    'page callback' => 'i18n_node_autocomplete',
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-    'file' => 'i18n_node.pages.inc',
-  );
-  return $items;
-}
-*/
 
 /**
  * Replacement for node_add
@@ -63,16 +46,20 @@ function i18n_node_menu() {
   $items['admin/structure/types/manage/%node_type/translate'] = array(
     'title' => 'Translate',
     'access callback' => 'i18n_node_translate_tab_access',
-    'page callback' => 'i18n_node_translate_tab_page',
-    'page arguments' => array(4),
+    //'page callback' => 'i18n_node_translate_tab_page',
+    //'page arguments' => array(4),
+    'page callback' => 'i18n_string_object_translate_page',
+    'page arguments' => array('node_type', 4),
     'type' => MENU_LOCAL_TASK,
     'weight' => 10,
   );
   $items['admin/structure/types/manage/%node_type/translate/%language'] = array(
     'title' => 'Translate',
     'access callback' => 'i18n_node_translate_tab_access',
-    'page callback' => 'i18n_node_translate_tab_page',
-    'page arguments' => array(4, 6),
+    //'page callback' => 'i18n_node_translate_tab_page',
+    //'page arguments' => array(4, 6),
+    'page callback' => 'i18n_string_object_translate_page',
+    'page arguments' => array('node_type', 4, 6),
     'type' => MENU_CALLBACK,
   );
 
@@ -100,49 +87,6 @@ function i18n_node_menu() {
  */
 function i18n_node_translate_tab_access() {
   return user_access('translate interface') && user_access('administer content types');
-}
-
-/**
- * Build a translation page for the given category.
- */
-function i18n_node_translate_tab_page($type, $language = NULL) {
-  module_load_include('inc', 'i18n_string', 'i18n_string.pages');
-  $form_meta = array(
-    '#page_title' => t('Translate content type'),
-    '#item_title_header' => t('Name'),
-    '#item_title_key' => array('node', 'type', $type->type, 'name'),
-    '#item_title_default' => $type->name,
-    '#edit' => 'admin/structure/types/manage/' . $type->type . '/edit',
-    '#translate' => 'admin/structure/types/manage/' . $type->type . '/translate',
-    '#items' => array(),
-  );
-  $form_meta['#items'][] = array(
-    '#title' => t('Name'),
-    '#string_key' => array('node', 'type', $type->type, 'name'),
-    '#default_value' => $type->name,
-  );
-  if ($type->has_title && !empty($type->title_label)) {
-    $form_meta['#items'][] = array(
-      '#title' => t('Title field label'),
-      '#string_key' => array('node', 'type', $type->type, 'title_label'),
-      '#default_value' => $type->title_label
-    );
-  }
-  if (!empty($type->description)) {
-    $form_meta['#items'][] = array(
-      '#title' => t('Description'),
-      '#string_key' => array('node', 'type', $type->type, 'description'),
-      '#default_value' => $type->description
-    );
-  }
-  if (!empty($type->help)) {
-    $form_meta['#items'][] = array(
-      '#title' => t('Help'),
-      '#string_key' => array('node', 'type', $type->type, 'help'),
-      '#default_value' => $type->help
-    );
-  }
-  return i18n_string_translate_page($form_meta, $language);
 }
 
 /**
@@ -232,6 +176,10 @@ function i18n_node_i18n_object_info() {
   $info['node_type'] = array(
     'title' => t('Node type'),
     'key' => 'type',
+    'placeholders' => array(
+    	'%node_type' => 'type',
+    ),
+    'edit path' => 'admin/structure/types/manage/%node_type',
     'string translation' => array(
       'textgroup' => 'node',
       'type' => 'type',
@@ -241,6 +189,7 @@ function i18n_node_i18n_object_info() {
         'description' => t('Description'),
         'help' => t('Help text'),
       ),
+      'translate path' => 'admin/structure/types/manage/%node_type/translate/%language',
     )
   );
   return $info;
