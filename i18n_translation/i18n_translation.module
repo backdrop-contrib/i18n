@@ -70,8 +70,8 @@ function i18n_translation_menu() {
   $items['admin/config/regional/i18n_translation'] = array(
     'title' => 'Translation sets',
     'description' => 'Translation sets overview.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('i18n_translation_set_overview'),
+    'page callback' => 'i18n_translation_admin_overview',
+    //'page arguments' => array('i18n_translation_set_overview'),
     'access arguments' => array('administer site configuration'),
     'file' => 'i18n_translation.admin.inc',
     'weight' => 10,

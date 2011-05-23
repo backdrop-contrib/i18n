@@ -160,6 +160,49 @@ class i18n_translation_set {
     }
   }
   /**
+   * Get operations as renderable links
+   */
+  public function get_operations() {
+    $destination = drupal_get_destination();
+    $operations = array();
+    if ($path = $this->get_edit_path()) {
+      $operations['edit'] = array(
+        'title' => t('edit'),
+        'href' => $path,
+        'query' => $destination,
+      );
+    }
+    if ($path = $this->get_delete_path()) {
+      $operations['delete'] = array(
+        'title' => t('delete'),
+        'href' => $path,
+        'query' => $destination,
+      );
+    }
+    return $operations;  
+  }
+  /**
+   * Get items as renderable links
+   */
+  public function get_items() {
+    $language_list = language_list();
+    $items = array();
+    foreach ($this->get_translations() as $langcode => $item) {
+      $title = $this->item_title($item);
+      $path = $this->item_path($item);
+      $language = isset($language_list[$langcode]) ? $language_list[$langcode] : NULL;
+      $items[$langcode] = array(
+        'title' => $title,
+        'href' => $path ? $path : NULL,
+        'language' => $language,
+      );
+      if ($language && function_exists('languageicons_link_add')) {
+        languageicons_link_add($items[$langcode]);
+      }
+    }
+    return $items;    
+  }
+  /**
    * Get overview (list) path for this translation set
    */
   public function get_list_path() {
@@ -239,7 +282,9 @@ class i18n_translation_set {
    * Get link for item
    */
   protected function item_path($item) {
-    return entity_uri($this->type, $item);
+    if ($uri = entity_uri($this->type, $item)) {
+      return $uri['path'];
+    }
   }
   /**
    * Get item list
