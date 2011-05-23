@@ -5,13 +5,6 @@
  * Helper functions for menu administration.
  */
 
-/**
- * Generate a tabular listing of translations for vocabularies.
- */
-function i18n_menu_translation_set_overview() {
-  module_load_include('admin.inc', 'i18n_translation');
-  return i18n_translation_admin_overview('menu_link');
-}
 
 /**
  * Produces a vocabulary translation form.

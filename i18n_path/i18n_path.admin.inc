@@ -148,37 +148,3 @@ function i18n_path_save_translations($paths, $tpid = NULL) {
     return $tpid;
   }
 }
-
-/**
- * Ask for confirmation of translation set deletion
- */
-function i18n_path_delete_translation_confirm($form, &$form_state, $translation_set) {
-  $form['#translation_set'] = $translation_set;
-  $form['tsid'] = array(
-    '#type' => 'value',
-    '#value' => $translation_set->tsid,
-  );
-  if (empty($translation_set->title)) {
-    $translation_set->title = t('Unknown');
-  }
-  return confirm_form($form,
-    t('Are you sure you want to delete %title?', array('%title' => $translation_set->title)),
-    'admin/config/regional/i18n_translation/path',
-    t('This action cannot be undone.'),
-    t('Delete'),
-    t('Cancel')
-  );
-}
-
-/**
- * Execute translation set deletion
- */
-function i18n_path_delete_translation_confirm_submit($form, &$form_state) {
-  if ($form_state['values']['confirm']) {
-    $translation_set = i18n_path_translation_set_load($form_state['values']['tsid']);
-    $translation_set->delete(TRUE);
-    drupal_set_message(t('The path translation has been deleted.'));
-  }
-
-  $form_state['redirect'] = 'admin/config/regional/i18n_translation/path';
-}

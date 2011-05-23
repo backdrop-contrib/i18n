@@ -204,10 +204,15 @@ function i18n_translation_object($type, $object, $create = FALSE) {
 /**
  * Get information about translation sets
  */
-function i18n_translation_set_info($type = NULL) {
+function i18n_translation_set_info($type = NULL, $property = NULL) {
   if ($type) {
     if (($info = i18n_object_info($type)) && !empty($info['translation set'])) {
-      return $info;
+      if ($property) {
+        return isset($info[$property]) ? $info[$property] : NULL;
+      }
+      else {
+        return $info;
+      }
     }
   }
   else {
@@ -272,4 +277,50 @@ function i18n_translation_set_index($translations) {
 function i18n_translation_set_overview($form, &$form_state, $type = NULL, $tsids = NULL) {
   module_load_include('admin.inc', 'i18n_translation');
   return i18n_translation_admin_form($form, $form_state, $type, $tsids);
+}
+
+/**
+ * Generate a tabular listing of translations for this type.
+ */
+function i18n_translation_set_list_manage($type) {
+  module_load_include('admin.inc', 'i18n_translation');
+  return i18n_translation_admin_overview($type);
+}
+
+/**
+ * Ask for confirmation of translation set deletion
+ */
+function i18n_translation_set_delete_confirm($form, &$form_state, $translation_set) {
+  $form['#translation_set'] = $translation_set;
+  $form['tsid'] = array(
+    '#type' => 'value',
+    '#value' => $translation_set->tsid,
+  );
+  if ($items = $translation_set->item_list()) {
+    $form['items'] = array(
+      '#type' => 'item',
+      '#title' => t('Items in this translation set'),
+      '#markup' => theme('item_list', array('items' => $items)),
+    );
+  }
+  return confirm_form($form,
+    t('Are you sure you want to delete %title translation set?', array('%title' => $translation_set->get_title())),
+    i18n_translation_set_info($translation_set->type, 'list path'),
+    t('This action cannot be undone.'),
+    t('Delete'),
+    t('Cancel')
+  );
+}
+
+/**
+ * Execute translation set deletion
+ */
+function i18n_translation_set_delete_confirm_submit($form, &$form_state) {
+  if ($form_state['values']['confirm']) {
+    $set = i18n_translation_set_load($form_state['values']['tsid']);
+    $set->delete(TRUE);
+    drupal_set_message(t('The translation set has been deleted.'));
+  }
+
+  $form_state['redirect'] = i18n_translation_set_info($set->type, 'list path');
 }

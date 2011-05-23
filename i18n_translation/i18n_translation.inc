@@ -153,24 +153,42 @@ class i18n_translation_set {
    */
   public function get_edit_path() {
     if ($path = $this->get_info('edit path')) {
-      return $path . '/' . $this->tsid;
+      return strtr($path, $this->get_placeholders('delete'));
     }
     else {
       return '';
     }
   }
   /**
+   * Get overview (list) path for this translation set
+   */
+  public function get_list_path() {
+    return $this->get_info('list path');
+  }
+  /**
    * Get delete path for this translation set
    */
   public function get_delete_path() {
     if ($path = $this->get_info('delete path')) {
-      return $path . '/' . $this->tsid;
+      return strtr($path, $this->get_placeholders('delete'));
     }
     else {
       return '';
     }
   }
-
+  /**
+   * Get placeholder values for path replacement
+   */
+  function get_placeholders($op = 'list') {
+    $values['%operation'] = $op;
+    $values['%type'] = $this->type;
+    $values['%i18n_translation_set'] = $this->tsid;
+    if ($placeholder = $this->get_info('placeholder')) {
+      $values[$placeholder] = $this->tsid;
+    }
+    return $values;
+  }
+  
   /**
    * Get field on translations table that stores the translation set id (tsid)
    */
