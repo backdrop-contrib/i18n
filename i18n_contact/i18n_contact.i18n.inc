@@ -18,6 +18,30 @@ function i18n_contact_i18n_string_info() {
 }
 
 /**
+ * Implements hook_i18n_object_info().
+ */
+function i18n_contact_i18n_object_info() {
+  $info['contact'] = array(
+    'title' => t('Contact category'),
+    'key' => 'cid',
+    'placeholders' => array(
+      '%contact' => 'cid',
+    ),
+    'edit path' => 'admin/structure/contact/edit/%contact',
+    'string translation' => array(
+      'textgroup' => 'contact',
+      'type' => 'category',
+      'properties' => array(
+        'category' => t('Category'),
+        'reply' => t('Auto-reply'),
+      ),
+      'translate path' => 'admin/structure/contact/edit/%contact/translate',
+    )
+  );
+  return $info;
+}
+
+/**
  * Implements hook_i18n_string_list().
  */
 function i18n_contact_i18n_string_list($group) {

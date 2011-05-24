@@ -21,16 +21,16 @@ function i18n_contact_menu() {
   $items['admin/structure/contact/edit/%contact/translate'] = array(
     'title' => 'Translate',
     'access callback' => 'i18n_contact_translate_tab_access',
-    'page callback' => 'i18n_contact_translate_tab_page',
-    'page arguments' => array(4),
+    'page callback' => 'i18n_string_object_translate_page',
+    'page arguments' => array('contact', 4),
     'type' => MENU_LOCAL_TASK,
     'weight' => 10,
   );
   $items['admin/structure/contact/edit/%contact/translate/%language'] = array(
     'title' => 'Translate',
     'access callback' => 'i18n_contact_translate_tab_access',
-    'page callback' => 'i18n_contact_translate_tab_page',
-    'page arguments' => array(4, 6),
+    'page callback' => 'i18n_string_object_translate_page',
+    'page arguments' => array('contact', 4, 6),
     'type' => MENU_CALLBACK,
   );
   return $items;
@@ -43,35 +43,6 @@ function i18n_contact_menu() {
  */
 function i18n_contact_translate_tab_access() {
   return user_access('translate interface') && user_access('administer contact forms');
-}
-
-/**
- * Build a translation page for the given category.
- */
-function i18n_contact_translate_tab_page($contact, $language = NULL) {
-  module_load_include('inc', 'i18n_string', 'i18n_string.pages');
-  $form_meta = array(
-    '#page_title' => t('Translate contact category'),
-    '#item_title_header' => t('Category'),
-    '#item_title_key' => array('contact', 'category', $contact['cid'], 'category'),
-    '#item_title_default' => $contact['category'],
-    '#edit' => 'admin/structure/contact/edit/' . $contact['cid'],
-    '#translate' => 'admin/structure/contact/edit/' . $contact['cid'] . '/translate',
-    '#items' => array(),
-  );
-  $form_meta['#items'][] = array(
-    '#title' => t('Category'),
-    '#string_key' => array('contact', 'category', $contact['cid'], 'category'),
-    '#default_value' => $contact['category'],
-  );
-  if (!empty($contact['reply'])) {
-    $form_meta['#items'][] = array(
-      '#title' => t('Auto-reply'),
-      '#string_key' => array('contact', 'category', $contact['cid'], 'reply'),
-      '#default_value' => $contact['reply']
-    );
-  }
-  return i18n_string_translate_page($form_meta, $language);
 }
 
 /**
