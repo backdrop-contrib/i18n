@@ -66,34 +66,8 @@ function i18n_block_translate_tab_access($module, $delta) {
  * Build a translation page for the given block.
  */
 function i18n_block_translate_tab_page($module, $delta, $language = NULL) {
-  module_load_include('inc', 'i18n_string', 'i18n_string.pages');
   $block = block_load($module, $delta);
-  $form_meta = array(
-    '#page_title' => t('Translate block'),
-    '#item_title_key' => array('blocks', $block->module, $block->delta, 'title'),
-    '#item_title_default' => $block->title,
-    '#edit' => 'admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/configure',
-    '#translate' => 'admin/structure/block/manage/' . $block->module . '/' . $block->delta . '/translate',
-    '#items' => array(),
-  );
-  if (!empty($block->title) && $block->title != '<none>') {
-    $form_meta['#items'][] = array(
-      '#title' => t('Block title'),
-      '#string_key' => array('blocks', $block->module, $block->delta, 'title'),
-      '#default_value' => $block->title,
-    );
-  }
-  if ($block->module == 'block') {
-    $custom_block = (object) block_custom_block_get($block->delta);
-    if (!empty($custom_block->body)) {
-      $form_meta['#items'][] = array(
-        '#title' => t('Block body'),
-        '#string_key' => array('blocks', $block->module, $block->delta, 'body'),
-        '#default_value' => $custom_block->body
-      );
-    }
-  }
-  return i18n_string_translate_page($form_meta, $language);
+  return i18n_string_object_translate_page('block', $block, $language);
 }
 
 /**

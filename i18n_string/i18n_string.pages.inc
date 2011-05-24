@@ -56,7 +56,7 @@ function i18n_string_translate_page_overview($form_meta) {
         }
       }
       // Translate the item that was requested to be displayed as title.
-      $item_title = i18n_string($form_meta['#item_title_key'], $form_meta['#item_title_default'], array('langcode' => $langcode));
+      $item_title = i18n_string_translate($form_meta['#item_title_key'], $form_meta['#item_title_default'], array('langcode' => $langcode));
       $rows[] = array(
         $language->name,
         $item_title,

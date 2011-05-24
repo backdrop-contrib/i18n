@@ -5,6 +5,57 @@
  */
 
 /**
+ * Implements hook i18n_object_info()
+ */
+function i18n_field_i18n_object_info() {
+  $info['field'] = array(
+    'title' => t('Field'),
+    'key' => 'field',
+    'placeholders' => array(
+    	'%field_ui_menu' => 'field_name',
+      '%field_type' => 'type',
+    ),
+    'edit path' => 'admin/structure/types/manage/%bundle/fields/%field_ui_menu/field-settings',
+    'string translation' => array(
+      'textgroup' => 'field',
+      'properties' => array(
+        'label' => array(
+          'title' => t('Label'),
+        ),
+      ),
+      //'translate path' => 'admin/structure/block/manage/%module/%delta/translate/%language',
+    )
+  );
+  $info['field_instance'] = array(
+    'title' => t('Field instance'),
+    'key' => array('field_name', 'bundle'),
+    'placeholders' => array(
+    	'%bundle' => 'bundle',
+      '%field_ui_menu' => 'field_name',
+    ),
+    'edit path' => 'admin/structure/types/manage/%bundle/fields/%field_ui_menu',
+    'string translation' => array(
+      'textgroup' => 'field',
+      'properties' => array(
+        'label' => array(
+          'title' => t('Label'),
+        ),
+        'description' => array(
+          'title' => t('Description'),
+          'format' => 'format',
+        ),
+        'default_value' => array(
+          'title' => t('Default value'),
+          'format' => 'format',
+        ),
+      ),
+      //'translate path' => 'admin/structure/types/manage/%bundle/fields/%field_ui_menu/translate/%language',
+    )
+  );
+  return $info;
+}
+
+/**
  * Implements hook_i18n_string_info().
  */
 function i18n_field_i18n_string_info() {
@@ -13,6 +64,7 @@ function i18n_field_i18n_string_info() {
     'description' => t('Configurable fields descriptions, defaults, options, etc.'),
     'format' => FALSE, // This group doesn't have formatted strings
     'list' => TRUE, // This group can list all strings
+    'class' => 'i18n_field_textgroup',
   );
   return $groups;
 }

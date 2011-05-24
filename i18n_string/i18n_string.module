@@ -690,8 +690,8 @@ function i18n_string_object_info($type = NULL, $property = NULL) {
  *   Object or array
  */
 function i18n_string_object_translate($type, $object, $options = array()) {
-  // If the object is marked as translation do nothing
-  if (is_object($object) && !empty($object->i18n_string) || is_array($object) && !empty($object['i18n_string'])) {
+  // If the object is marked as translated do nothing
+  if (i18n_object_field($object, 'i18n_string')) {
     return $object;
   }
   $info = i18n_object_info($type);
@@ -707,6 +707,15 @@ function i18n_string_object_translate($type, $object, $options = array()) {
 }
 
 /**
+ * Get translatable properties for object
+ */
+function i18n_string_object_properties($type, $object) {
+  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
+    return i18n_string_textgroup($textgroup)->get_object_properties($type, $object);
+  }
+}
+
+/**
  * Remove object strings, because object is deleted
  *
  * @param $type
@@ -715,11 +724,10 @@ function i18n_string_object_translate($type, $object, $options = array()) {
  *   Object or array
  */
 function i18n_string_object_remove($type, $object, $options = array()) {
-  $info = i18n_object_info($type);
-  if ($info && !empty($info['string translation'])) {
-    $string_info = $info['string translation'];
-    $object = is_array($object) ? (object)$object : $object;
-    return i18n_string_remove(array($string_info['textgroup'], $string_info['type'], $object->{$info['key']}, '*'), array_keys($string_info['properties']), $options);
+  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
+    $properties = i18n_string_textgroup($textgroup)->get_object_properties($type, $object);
+    $name = array_merge(array($textgroup), i18n_string_textgroup($textgroup)->get_object_context($type, $object), array('*'));
+    return i18n_string_remove($name, array_keys($properties), $options);
   }
 }
 
@@ -727,10 +735,8 @@ function i18n_string_object_remove($type, $object, $options = array()) {
  * Update object properties
  */
 function i18n_string_object_update($type, $object) {
-  $info = i18n_object_info($type);
-  if ($info && !empty($info['string translation'])) {
-    $object = is_array($object) ? (object)$object : $object;
-    return i18n_string_textgroup($info['string translation']['textgroup'])->update_object($type, $object);
+  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
+    return i18n_string_textgroup($textgroup)->update_object($type, $object);
   }
 }
 
@@ -747,14 +753,15 @@ function i18n_string_object_translate_page($object_type, $object, $langcode = NU
     '#edit' => $textgroup->get_edit_path($object_type, $object),
     '#translate' => $textgroup->get_translate_path($object_type, $object),
   );
-  $object_key = i18n_object_key($object_type, $object);
-  foreach ($info['string translation']['properties'] as $field => $title) {
-    if ($value = i18n_object_field($object, $field)) {
+  // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
+  $object_context = $textgroup->get_object_context($object_type, $object);
+  foreach ($textgroup->get_object_properties($object_type, $object) as $key => $string) {
+    if ($string['string']) {
       $form_meta['#items'][] = array(
-        '#title' => is_array($title) ? $title['title'] : $title,
-        '#string_key' => array($info['string translation']['textgroup'], $info['string translation']['type'], $object_key, $field),
-        '#default_value' => $value,
-      );
+        '#title' => $string['title'],
+        '#string_key' => $string['name'],
+        '#default_value' => $string['string'],
+      );      
     }
   }
 

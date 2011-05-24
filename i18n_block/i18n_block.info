@@ -4,4 +4,6 @@ dependencies[] = block
 dependencies[] = i18n_string
 package = Multilingual - Internationalization
 core = 7.x
+files[] = i18n_block.inc
 files[] = i18n_block.test
+

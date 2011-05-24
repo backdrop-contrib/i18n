@@ -13,6 +13,101 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function i18n_field_menu() {
+  // Ensure the following is not executed until field_bundles is working and
+  // tables are updated. Needed to avoid errors on initial installation.
+  if (!module_exists('field_ui') || defined('MAINTENANCE_MODE')) {
+    return;
+  }
+
+  // Create tabs for all possible bundles. From field_ui_menu().
+  foreach (entity_get_info() as $entity_type => $entity_info) {
+    if ($entity_info['fieldable']) {
+      foreach ($entity_info['bundles'] as $bundle_name => $bundle_info) {
+        if (isset($bundle_info['admin'])) {
+          // Extract path information from the bundle.
+          $path = $bundle_info['admin']['path'];
+          // Different bundles can appear on the same path (e.g. %node_type and
+          // %comment_node_type). To allow field_ui_menu_load() to extract the
+          // actual bundle object from the translated menu router path
+          // arguments, we need to identify the argument position of the bundle
+          // name string ('bundle argument') and pass that position to the menu
+          // loader. The position needs to be casted into a string; otherwise it
+          // would be replaced with the bundle name string.
+          if (isset($bundle_info['admin']['bundle argument'])) {
+            $bundle_arg = $bundle_info['admin']['bundle argument'];
+            $bundle_pos = (string) $bundle_arg;
+          }
+          else {
+            $bundle_arg = $bundle_name;
+            $bundle_pos = '0';
+          }
+          // This is the position of the %field_ui_menu placeholder in the
+          // items below.
+          $field_position = count(explode('/', $path)) + 1;
+
+          // Extract access information, providing defaults.
+          $access = array_intersect_key($bundle_info['admin'], drupal_map_assoc(array('access callback', 'access arguments')));
+          $access += array(
+            'access callback' => 'user_access',
+            'access arguments' => array('administer site configuration'),
+          );
+          $items["$path/fields/%field_ui_menu/translate"] = array(
+            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
+            'title' => 'Translate',
+            'page callback' => 'i18n_string_object_translate_page',
+            'page arguments' => array('field_instance', $field_position),
+            'type' => MENU_LOCAL_TASK,
+          ) + $access;
+          $items["$path/fields/%field_ui_menu/translate/instance"] = array(
+            'title' => 'Instance',
+            'type' => MENU_DEFAULT_LOCAL_TASK,
+          );
+          $items["$path/fields/%field_ui_menu/translate/instance/%language"] = array(
+            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
+            'title' => 'Instance',
+            'page callback' => 'i18n_string_object_translate_page',
+            'page arguments' => array('field_instance', $field_position, $field_position + 3),
+            'type' => MENU_CALLBACK,
+          ) + $access;
+          $items["$path/fields/%i18n_field/translate/field"] = array(
+            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
+            'title' => 'Field',
+            'page callback' => 'i18n_string_object_translate_page',
+            'page arguments' => array('field', $field_position),
+            'type' => MENU_LOCAL_TASK,
+          ) + $access;
+          $items["$path/fields/%i18n_field/translate/field/%language"] = array(
+            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
+            'title' => 'Field',
+            'page callback' => 'i18n_string_object_translate_page',
+            'page arguments' => array('field', $field_position, $field_position + 3),
+            'type' => MENU_CALLBACK,
+          ) + $access;
+        }
+      }
+    }
+  }
+  return $items;
+}
+
+/**
+ * Menu loader for field with extra information
+ * 
+ * To be able to translate fields we need some instance information to place them in the menu
+ */
+function i18n_field_load($field_name, $entity_type, $bundle_name, $bundle_pos, $map) {
+  if ($instance = field_ui_menu_load($field_name, $entity_type, $bundle_name, $bundle_pos, $map)) {
+    return field_info_field($instance['field_name']) + $instance;
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
  * Implements hook_hook_info().
  */
 function i18n_field_hook_info() {
@@ -178,9 +273,7 @@ function i18n_field_field_create_instance($instance) {
  * Implements hook_field_delete_instance().
  */
 function i18n_field_field_delete_instance($instance) {
-  foreach (array('description', 'default_value') as $property) {
-    i18n_string_remove(array('field', $instance['field_name'], $instance['bundle'], $property));
-  }
+  i18n_string_object_remove('field_instance', $instance);
 }
 
 /**
@@ -201,26 +294,14 @@ function i18n_field_field_update_field($field) {
  * Update field strings
  */
 function i18n_field_field_update_strings($field) {
-  // For select fields field:field_name
-  if (!empty($field['settings']['allowed_values']) && i18n_field_type_info($field['type'], 'translate_options')) {
-    i18n_string_update(array('field', $field['field_name'], '#allowed_values'), $field['settings']['allowed_values']);
-  }
+  i18n_string_object_update('field', $field);
 }
 
 /**
  * Update field instance strings
  */
 function i18n_field_instance_update_strings($instance) {
-  $field = field_info_field($instance['field_name']);
-  if (isset($instance['description'])) {
-    i18n_string_update(array('field', $instance['field_name'], $instance['bundle'], 'description'), $instance['description']);
-  }
-  // Only for text field types
-  if (isset($instance['default_value']) && i18n_field_type_info($field['type'], 'translate_default')) {
-    $format = isset($instance['default_value'][0]['format']) ? $instance['default_value'][0]['format'] : NULL;
-    i18n_string_update(array('field', $instance['field_name'], $instance['bundle'], 'default_value'), $instance['default_value'][0]['value'], array('format' => $format));
-  }
-
+  i18n_string_object_update('field_instance', $instance);
 }
 
 /**

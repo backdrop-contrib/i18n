@@ -5,6 +5,36 @@
  */
 
 /**
+ * Implements hook i18n_object_info()
+ */
+function i18n_block_i18n_object_info() {
+  $info['block'] = array(
+    'title' => t('Block'),
+    'key' => array('module', 'delta'),
+    'placeholders' => array(
+    	'%module' => 'module',
+      '%delta' => 'delta',
+    ),
+    'edit path' => 'admin/structure/block/manage/%module/%delta/configure',
+    'string translation' => array(
+      'textgroup' => 'blocks',
+      'properties' => array(
+        'title' => array(
+          'title' => t('Title'),
+          'empty' => '<none>',
+        ),
+        'body' => array(
+          'title' => t('Body'),
+          'format' => 'format',
+        ),
+      ),
+      'translate path' => 'admin/structure/block/manage/%module/%delta/translate/%language',
+    )
+  );
+  return $info;
+}
+
+/**
  * Implements hook_i18n_string_info().
  */
 function i18n_block_i18n_string_info() {
@@ -13,6 +43,7 @@ function i18n_block_i18n_string_info() {
     'description' => t('Configurable blocks titles and content.'),
     'format' => TRUE, // This group has strings with format (block body)
     'list' => TRUE, // This group can list all strings
+    'class' => 'i18n_block_textgroup',
   );
   return $groups;
 }
@@ -43,6 +74,33 @@ function i18n_block_i18n_string_list($group) {
           'format' => $block->format
         );
       }
+    }
+    return $strings;
+  }
+}
+
+/**
+ * Implements hook_i18n_object_strings().
+ */
+function i18n_block_i18n_object_strings($type, $object) {
+  if ($type == 'block' && $object->i18n_mode & I18N_MODE_LOCALIZE) {
+    $strings = array();
+    // If the block has a custom title and no language it must be translated
+    if ($object->title && $object->title != '<none>') {
+      $strings['blocks'][$object->module][$object->delta]['title'] = $object->title;
+    }
+    if (!empty($object->body)) {
+      $strings['blocks'][$object->module][$object->delta]['body'] = array(
+        'string' => $object->body,
+        'format' => $object->format
+      );     
+    }
+    elseif ($object->module == 'block' && !isset($object->body)) {
+      $custom_block = (object) block_custom_block_get($object->delta);
+      $strings['blocks'][$object->module][$object->delta]['body'] = array(
+      	'string' => $custom_block->body, 
+      	'format' => $custom_block->format
+      );
     }
     return $strings;
   }

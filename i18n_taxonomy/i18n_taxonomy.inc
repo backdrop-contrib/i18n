@@ -40,6 +40,8 @@ class i18n_taxonomy_textgroup extends i18n_string_default {
         return 'taxonomy/term/' . $object->tid . '/edit';
       case 'taxonomy_vocabulary':
         return 'admin/structure/taxonomy/' . $object->machine_name . '/edit';
+      default:
+        return parent::get_edit_path($type, $object);
     }
   }
   /**
@@ -56,6 +58,8 @@ class i18n_taxonomy_textgroup extends i18n_string_default {
         return 'taxonomy/term/' . $object->tid . '/translate' . ($language ? '/' . $language->language : '');
       case 'taxonomy_vocabulary':
         return 'admin/structure/taxonomy/' . $object->machine_name . '/translate' . ($language ? '/' . $language->language : '');
+      default:
+        return parent::get_translate_path($type, $object, $language);
     }
   }
 }
