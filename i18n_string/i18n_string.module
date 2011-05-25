@@ -695,12 +695,16 @@ function i18n_string_object_translate($type, $object, $options = array()) {
   if (i18n_object_field($object, 'i18n_string')) {
     return $object;
   }
-  $info = i18n_object_info($type);
-  if ($info && !empty($info['string translation'])) {
-    $translate = is_object($object) ? clone $object : (object)$object;
-    $translate->i18n_string = TRUE;
-    $result = i18n_string_textgroup($info['string translation']['textgroup'])->translate_object($type, $translate, $options);
-    return is_array($object) ? (array)$result : $result;
+  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
+    if (is_object($object)) {
+      $translate = clone $object;
+      $translate->i18n_string = TRUE;
+    }
+    else {
+      $translate = $object;
+      $translate['i18n_string'] = TRUE;
+    }
+    return i18n_string_textgroup($textgroup)->translate_object($type, $translate, $options);
   }
   else {
     return $object;
@@ -723,12 +727,18 @@ function i18n_string_object_translate_mode($type, $object) {
 
 /**
  * Get translatable properties for object
+ * 
+ * This will return a big array indexed by textgroup, object type, object id and string key.
+ * Each element is an array with string information, and may have these properties:
+ * - 'string', the string itself, will be NULL if the object doesn't have that string
+ * - 'format', string format when needed
+ * - 'title', string readable name
  */
 function i18n_string_object_properties($type, $object) {
   $properties = array();
   if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
     $properties = i18n_string_textgroup($textgroup)->get_object_properties($type, $object);
-    // Call hook_i18n_string_list_[textgroup]_alter(), last chance for modules
+    // Call hook_i18n_string_list_TEXTGROUP_alter(), last chance for modules
     drupal_alter('i18n_string_list_' . $textgroup, $properties, $type, $object);
   }
   return $properties;
@@ -736,6 +746,10 @@ function i18n_string_object_properties($type, $object) {
 
 /**
  * Translate properties into array of strings, filter out empty ones, etc
+ * 
+ * This will return a simple array of arrays, indexed by string key.
+ * Each item will have the same elements as in i18n_string_object_properties() and
+ * - 'name', full string name array (textgroup, object type, object id, string key)
  */
 function i18n_string_object_strings($object_type, $object, $include_empty = FALSE) {
   $strings = array();

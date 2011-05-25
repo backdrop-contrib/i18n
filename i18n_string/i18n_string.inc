@@ -482,7 +482,7 @@ class i18n_string_default {
     $result = $strings;
     foreach ($translations as $translation) {
       $index = $translation->$property;
-      $translation->source = $strings[$index];
+      $translation->source = is_array($strings[$index]) ? $strings[$index]['string'] : $strings[$index];
       $result[$index] = $translation;
       unset($strings[$index]);
     }
@@ -490,7 +490,7 @@ class i18n_string_default {
     foreach ($strings as $index => $string) {
       $translation = clone $i18nstring;
       $translation->$property = $index;
-      $translation->source = $strings[$index];
+      $translation->source = is_array($strings[$index]) ? $strings[$index]['string'] : $strings[$index];
       $result[$index] = $translation;
     }
     return $result;
@@ -537,8 +537,13 @@ class i18n_string_default {
       $context = $this->get_object_context($type, $object);
       $context[] = '*';
       $translations = $this->multiple_translate($context, $strings, $options);
-      foreach ($translation as $field => $value) {
-        $object->$field = i18n_string_format($value, $options);
+      foreach ($translations as $field => $value) {
+        if (is_object($object)) {
+          $object->$field = i18n_string_format($value, $options);
+        }
+        elseif (is_array($object)) {
+          $object[$field] = i18n_string_format($value, $options);
+        }
       }
     }
     return $object;

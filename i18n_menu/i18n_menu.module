@@ -228,10 +228,7 @@ function i18n_menu_menu_link_update($link) {
   }
   // Update translatable strings if any
   if (isset($link['options']['attributes']['title']) && !empty($link['customized']) && i18n_menu_mode($link['menu_name'], I18N_MODE_LOCALIZE) && !i18n_object_langcode($link)) {
-    i18n_string_update(array('menu', 'item', $link['mlid']), array(
-      'title' => $link['link_title'],
-      'description' => $link['options']['attributes']['title'],
-    ));
+    i18n_string_object_update('menu_link', $link);
   }
 }
 
