@@ -43,43 +43,6 @@ function i18n_menu_menu() {
     'access arguments' => array('administer menu'),
     'type' => MENU_CALLBACK,
   );
-  $items['admin/structure/menu/manage/%menu/translate'] = array(
-    'title' => 'Translate',
-    'page callback' => 'i18n_string_object_translate_page',
-    'page arguments' => array('menu', 4),
-    'access callback' => 'i18n_menu_translation_menu_access',
-    'access arguments' => array(4),
-    'file' => 'i18n_menu.admin.inc',
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['admin/structure/menu/manage/%menu/translate/%language'] = array(
-    'title' => 'Translate',
-    'page callback' => 'i18n_string_object_translate_page',
-    'page arguments' => array('menu', 4, 6),
-    'access callback' => 'i18n_menu_translation_menu_access',
-    'access arguments' => array(4),
-    'file' => 'i18n_menu.admin.inc',
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['admin/structure/menu/item/%menu_link/translate'] = array(
-    'title' => 'Translate',
-    'page callback' => 'i18n_menu_translation_item_page',
-    'page arguments' => array(4),
-    'access callback' => 'i18n_menu_translation_item_access',
-    'access arguments' => array(4),
-    'file' => 'i18n_menu.admin.inc',
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['admin/structure/menu/item/%menu_link/translate/%language'] = array(
-    'title' => 'Translate',
-    'page callback' => 'i18n_menu_translation_item_page',
-    'page arguments' => array(4, 6),
-    'access callback' => 'i18n_menu_translation_item_access',
-    'access arguments' => array(4),
-    'file' => 'i18n_menu.admin.inc',
-    'type' => MENU_CALLBACK,
-  );
   return $items;
 }
 
@@ -90,21 +53,6 @@ function i18n_menu_menu_alter(&$items) {
   $items['admin/structure/menu/item/%menu_link'] = $items['admin/structure/menu/item/%menu_link/edit'];
   $items['admin/structure/menu/item/%menu_link']['type'] = MENU_CALLBACK;
   $items['admin/structure/menu/item/%menu_link/edit']['type'] = MENU_DEFAULT_LOCAL_TASK;
-}
-
-/**
- * Menu access callback
- */
-function i18n_menu_translation_menu_access($menu) {
-  return user_access('administer menu') && user_access('translate interface') && !i18n_menu_mode($menu['menu_name'], I18N_MODE_LANGUAGE);
-}
-
-/**
- * Menu access callback
- */
-function i18n_menu_translation_item_access($item) {
-  $menu = menu_load($item['menu_name']);
-  return user_access('administer menu') && ($menu['i18n_mode'] & I18N_MODE_TRANSLATE) && user_access('translate interface');
 }
 
 /**

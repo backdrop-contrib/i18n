@@ -373,4 +373,17 @@ class i18n_translation_set {
     $info = i18n_object_info($this->type);
     return $info['key'];
   }
+  
+  /**
+   * Access to object translation. This should check object properties and permissions
+   */
+  public static function translate_access($term) {
+    return FALSE;
+  }
+  /**
+   * Translation mode for object
+   */
+  public static function translate_mode($object) {
+    return I18N_MODE_NONE;
+  }
 }

@@ -255,24 +255,20 @@ class i18n_string_default {
    * Get object strings for translation
    */
   public function get_object_strings($object_type, $object) {
-    $strings = array();
-    foreach ($this->get_object_properties($object_type, $object) as $key => $data) {
-      if (!empty($data['string']) && is_string($data['string'])) {
-        $strings[$key] = $data['string'];
-      }
-    }
-    return $strings;
+    return i18n_string_object_strings($object_type, $object);
   }
   /**
    * Get object translatable properties
    */
   public function get_object_properties($object_type, $object) {
     $object_keys = array_merge(array($this->textgroup), $this->get_object_context($object_type, $object)); 
+    list($string_type, $object_id) = $this->get_object_context($object_type, $object); 
     $strings = array();
     foreach (i18n_string_object_info($object_type, 'properties') as $field => $info) {
       $info = is_array($info) ? $info : array('title' => $info);
-      $value = i18n_object_field($object, $field);
-      $strings[$field] = array(
+      $field_name = isset($info['field']) ? $info['field'] : $field;
+      $value = i18n_object_field($object, $field_name);
+      $strings[$this->textgroup][$string_type][$object_id][$field] = array(
         'string' => is_array($value) || isset($info['empty']) && $value === $info['empty'] ? NULL : $value,
         'title' => $info['title'],
         'format' => isset($info['format']) ? i18n_object_field($object, $info['format']) : NULL,
@@ -537,7 +533,7 @@ class i18n_string_default {
    * Translate object properties
    */
   public function translate_object($type, $object, $options = array()) {
-    if ($strings = $this->get_object_strings($type, $object)) {
+    if ($strings = i18n_string_object_strings($type, $object)) {
       $context = $this->get_object_context($type, $object);
       $context[] = '*';
       $translations = $this->multiple_translate($context, $strings, $options);
@@ -632,8 +628,7 @@ class i18n_string_default {
    * Update object properties. Create or remove source strings.
    */
   public function update_object($type, $object, $options = array()) {
-    $object_context = $this->get_object_context($type, $object);
-    foreach ($this->get_object_properties($type, $object) as $key => $string) {
+    foreach (i18n_string_object_strings($type, $object, TRUE) as $key => $string) {
       $field_options = !empty($string['format']) ? array('format' => $string['format']) : array();
       // Not likely but it may occur that an object triggers an update in another textgroup
       i18n_string_update($string['name'], $string['string'], $field_options + $options);

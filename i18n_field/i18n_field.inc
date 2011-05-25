@@ -68,9 +68,8 @@ class i18n_field_textgroup extends i18n_string_default {
         if (!empty($object['settings']['allowed_values']) && i18n_field_type_info($object['type'], 'translate_options')) {
           //return array('field', $field['field_name'], '#allowed_values');
           foreach ($object['settings']['allowed_values'] as $key => $value) {
-            $properties[$key] = array(
-              'title' => t('Option'),
-              'name' => array($this->textgroup, $object['field_name'], '#allowed_values', $key),
+            $properties[$this->textgroup][$object['field_name']]['#allowed_values'][$key] = array(
+              'title' => t('Option %name', array('%name' => $value)),
               'string' => $value,
             );
           }
@@ -81,8 +80,8 @@ class i18n_field_textgroup extends i18n_string_default {
         // Only for text field types
         if (isset($object['default_value']) && i18n_field_type_info($field['type'], 'translate_default')) {
           $format = isset($object['default_value'][0]['format']) ? $object['default_value'][0]['format'] : NULL;
-          $properties['default_value']['string'] = $object['default_value'][0]['value'];
-          $properties['default_value']['format'] = $format;
+          $properties[$this->textgroup][$object['field_name']][$object['bundle']]['default_value']['string'] = $object['default_value'][0]['value'];
+          $properties[$this->textgroup][$object['field_name']][$object['bundle']]['default_value']['format'] = $format;
         }        
         break;
     }

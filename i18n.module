@@ -197,6 +197,8 @@ function i18n_menu() {
     'description' => 'Configure extended options for multilingual content and translations.',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
+  module_load_include('pages.inc', 'i18n');
+  $items += i18n_page_menu_items();
   return $items;
 }
 
@@ -392,6 +394,38 @@ function i18n_object_placeholders($type, $object) {
     $placeholders[$name] = i18n_object_field($object, $field);
   }
   return $placeholders;
+}
+
+/**
+ * Menu access callback for mixed translation tab
+ */
+function i18n_object_translate_access($type, $object) {
+  switch (i18n_object_translate_mode($type, $object)) {
+    case I18N_MODE_TRANSLATE:
+      return i18n_translation_object_translate_access($type, $object);
+    case I18N_MODE_LOCALIZE:
+      return i18n_string_object_translate_access($type, $object);
+    default:
+      return FALSE;
+  }
+}
+
+/**
+ * Get primary translate or localize mode for object
+ */
+function i18n_object_translate_mode($type, $object) {
+  $mode = &drupal_static(__FUNCTION__);
+  $key = i18n_object_key($type, $object);
+  $key = is_array($key) ? implode(':', $key) : $key;
+  if (!isset($mode[$type][$key])) {
+    if (module_exists('i18n_translation') && i18n_translation_set_info($type)) {
+      $mode[$type][$key] = i18n_translation_object_translate_mode($type, $object);
+    }
+    elseif (module_exists('i18n_string') && i18n_string_object_info($type)) {
+      $mode[$type][$key] = i18n_string_object_translate_mode($type, $object);
+    }
+  }
+  return $mode[$type][$key];
 }
 
 /**

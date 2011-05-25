@@ -12,6 +12,10 @@ function i18n_taxonomy_i18n_object_info() {
     'title' => t('Taxonomy term'),
     'entity' => 'taxonomy_term',
     'key' => 'tid',
+    'placeholders' => array(
+      '%taxonomy_term' => 'tid',
+    ),
+    'translate path' => 'taxonomy/term/%taxonomy_term/translate',
     'translation set' => array(
       'class' => 'i18n_taxonomy_translation_set',
       'table' => 'taxonomy_term_data',
@@ -21,6 +25,7 @@ function i18n_taxonomy_i18n_object_info() {
       'list path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets',
       'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/edit/%i18n_taxonomy_translation_set',
       'delete path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/delete/%i18n_taxonomy_translation_set',
+      'page callback' => 'i18n_taxonomy_term_translation_page',
     ),
     'string translation' => array(
       'textgroup' => 'taxonomy',
@@ -38,6 +43,10 @@ function i18n_taxonomy_i18n_object_info() {
     'title' => t('Vocabulary'),
     'entity' => 'taxonomy_vocabulary',
     'key' => 'vid',
+    'placeholders' => array(
+      '%taxonomy_vocabulary_machine_name' => 'machine_name',
+    ),
+    'translate path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/translate',
     'string translation' => array(
       'textgroup' => 'taxonomy',
       'type' => 'vocabulary',
@@ -88,4 +97,24 @@ function i18n_taxonomy_i18n_string_refresh($group) {
     }
     return TRUE; // Meaning it completed with no issues
   }
+}
+
+/**
+ * Callback for term translation tab.
+ * 
+ * @param $type
+ *   Should be always 'taxonomy_term'
+ * @pram $term
+ *   Taxonomy term object
+ */
+function i18n_taxonomy_term_translation_page($type, $term) {
+  module_load_include('admin.inc', 'i18n_taxonomy');
+  $vocabulary = taxonomy_vocabulary_load($term->vid);
+  $translation_set = !empty($term->i18n_tsid) ? i18n_translation_set_load($term->i18n_tsid) : NULL;
+
+  $translation_overview = i18n_taxonomy_translation_term_overview($term);
+
+  $translation_term_form = drupal_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $translation_set, $term);
+
+  return $translation_overview + $translation_term_form;
 }

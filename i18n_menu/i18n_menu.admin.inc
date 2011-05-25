@@ -185,24 +185,6 @@ function i18n_menu_tree_all_data($menu_name, $langcode, $link = NULL, $max_depth
 }
 
 /**
- * Callback for menu item translation tab.
- */
-function i18n_menu_translation_item_page($item, $language = NULL) {
-  if (i18n_object_langcode($item)) {
-    // If the item has a language code, we can only support translation sets.
-    $translation_set = !empty($item['i18n_tsid']) ? i18n_translation_set_load($item['i18n_tsid']) : NULL;
-    $build['overview'] = i18n_menu_translation_item_overview($item, $translation_set);
-    $build['translation_form'] = drupal_get_form('i18n_menu_translation_form', NULL, $item, $translation_set);
-    return $build;
-  }
-  else {
-    // Otherwise we can only support localizing the item.
-    return i18n_string_object_translate_page('menu_link', $item, $language);
-  }
-}
-
-
-/**
  * Callback for menu translation tab.
  */
 function i18n_menu_translation_item_overview($item, $translation_set = NULL) {

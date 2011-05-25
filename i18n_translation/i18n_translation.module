@@ -85,6 +85,15 @@ function i18n_translation_menu() {
 }
 
 /**
+ * Check whether this object can be part of a translation set
+ */
+function i18n_translation_check_object($type, $object) {
+  if ($info = i18n_translation_set_info($type)) {
+    
+  }
+}
+
+/**
  * Get form element for translation mode and language
  *
  * @param $object_type
@@ -197,6 +206,30 @@ function i18n_translation_object($type, $object, $create = FALSE) {
       $set->add_item($object, $langcode);
     }
     return $set;
+  }
+}
+
+/**
+ * Menu access callback for object translation sets
+ */
+function i18n_translation_object_translate_access($type, $object) {
+  if ($class = i18n_translation_set_info($type, 'class')) {
+    return call_user_func(array($class, 'translate_access'), $object);
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Translation mode for object
+ */
+function i18n_translation_object_translate_mode($type, $object) {
+  if ($class = i18n_translation_set_info($type, 'class')) {
+    return call_user_func(array($class, 'translate_mode'), $object);
+  }
+  else {
+    return I18N_MODE_NONE;
   }
 }
 

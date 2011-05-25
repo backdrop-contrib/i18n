@@ -264,6 +264,8 @@ function _i18n_string_batch_refresh_prepare($group, &$context) {
 function _i18n_string_batch_refresh_list($group, &$context) {
   $count = 0;
   if ($strings = module_invoke_all('i18n_string_list', $group)) {
+    // Invoke hook_i18n_string_list_TEXTGROUP_alter()
+    drupal_alter('i18n_string_list_' . $group, $strings);
     $count = i18n_string_refresh_string_list($strings);
     $context['results'][$group]['result'] = TRUE;
   }

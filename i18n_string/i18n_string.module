@@ -318,6 +318,7 @@ function i18n_string_update($name, $string, $options = array()) {
     return i18n_string_multiple('update', $name, $string, $options);
   }
   else {
+    $options += array('messages' => variable_get('i18n_string_debug', FALSE));
     list($textgroup, $context) = i18n_string_context($name);
     return i18n_string_textgroup($textgroup)->update($context, $string, $options);
   }
@@ -707,12 +708,51 @@ function i18n_string_object_translate($type, $object, $options = array()) {
 }
 
 /**
+ * Access callback for object translation
+ */
+function i18n_string_object_translate_access($type, $object) {
+  return user_access('translate interface') && I18N_MODE_LOCALIZE & i18n_object_translate_mode($type, $object);
+}
+
+/**
+ * Access callback for object translation
+ */
+function i18n_string_object_translate_mode($type, $object) {
+  return !i18n_object_langcode($object) && i18n_string_object_info($type) ? I18N_MODE_LOCALIZE : I18N_MODE_NONE;
+}
+
+/**
  * Get translatable properties for object
  */
 function i18n_string_object_properties($type, $object) {
+  $properties = array();
   if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
-    return i18n_string_textgroup($textgroup)->get_object_properties($type, $object);
+    $properties = i18n_string_textgroup($textgroup)->get_object_properties($type, $object);
+    // Call hook_i18n_string_list_[textgroup]_alter(), last chance for modules
+    drupal_alter('i18n_string_list_' . $textgroup, $properties, $type, $object);
   }
+  return $properties;
+}
+
+/**
+ * Translate properties into array of strings, filter out empty ones, etc
+ */
+function i18n_string_object_strings($object_type, $object, $include_empty = FALSE) {
+  $strings = array();
+  foreach (i18n_string_object_properties($object_type, $object) as $textgroup => $textgroup_list) {
+    foreach ($textgroup_list as $type => $type_list) {
+      foreach ($type_list as $object_id => $object_list) {
+        foreach ($object_list as $key => $string) {
+          if ($include_empty || !empty($string['string'])) {
+            $strings[$key] = $string + array(
+              'name' => array($textgroup, $type, $object_id, $key),
+            );
+          }
+        }
+      }
+    }
+  }
+  return $strings;
 }
 
 /**
@@ -725,18 +765,18 @@ function i18n_string_object_properties($type, $object) {
  */
 function i18n_string_object_remove($type, $object, $options = array()) {
   if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
-    $properties = i18n_string_textgroup($textgroup)->get_object_properties($type, $object);
+    $strings = i18n_string_object_strings($type, $object, TRUE);
     $name = array_merge(array($textgroup), i18n_string_textgroup($textgroup)->get_object_context($type, $object), array('*'));
-    return i18n_string_remove($name, array_keys($properties), $options);
+    return i18n_string_remove($name, array_keys($strings), $options);
   }
 }
 
 /**
  * Update object properties
  */
-function i18n_string_object_update($type, $object) {
+function i18n_string_object_update($type, $object, $options = array()) {
   if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
-    return i18n_string_textgroup($textgroup)->update_object($type, $object);
+    return i18n_string_textgroup($textgroup)->update_object($type, $object, $options);
   }
 }
 
@@ -754,8 +794,8 @@ function i18n_string_object_translate_page($object_type, $object, $langcode = NU
     '#translate' => $textgroup->get_translate_path($object_type, $object),
   );
   // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
-  $object_context = $textgroup->get_object_context($object_type, $object);
-  foreach ($textgroup->get_object_properties($object_type, $object) as $key => $string) {
+  $string_list = i18n_string_object_strings($object_type, $object);
+  foreach ($string_list as $key => $string) {
     if ($string['string']) {
       $form_meta['#items'][] = array(
         '#title' => $string['title'],

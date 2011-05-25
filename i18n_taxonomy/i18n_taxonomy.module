@@ -58,23 +58,6 @@ function i18n_taxonomy_help($path, $arg) {
  * Implements hook_menu().
  */
 function i18n_taxonomy_menu() {
-  $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/translate'] = array(
-    'title' => 'Translate',
-    'page callback' => 'i18n_string_object_translate_page',
-    'page arguments' => array('taxonomy_vocabulary', 3),
-    'access callback' => 'i18n_taxonomy_vocabulary_translation_tab_access',
-    'access arguments' => array(3),
-    'type' => MENU_LOCAL_TASK,
-  );
-  $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/translate/%language'] = array(
-    'title' => 'Translate',
-    'page callback' => 'i18n_string_object_translate_page',
-    'page arguments' => array('taxonomy_vocabulary', 3, 5),
-    'page arguments' => array(3, 5),
-    'access callback' => 'i18n_taxonomy_vocabulary_translation_tab_access',
-    'access arguments' => array(3),
-    'type' => MENU_CALLBACK,
-  );
   $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/list'] = array(
     'title' => 'Terms',
     'type' => MENU_DEFAULT_LOCAL_TASK,
@@ -116,25 +99,6 @@ function i18n_taxonomy_menu() {
     'access callback' => 'i18n_taxonomy_vocabulary_translation_tab_sets_access',
     'access arguments' => array(3),
     'type' => MENU_CALLBACK,
-  );
-  $items['taxonomy/term/%taxonomy_term/translate'] = array(
-    'title' => 'Translate',
-    'page callback' => 'i18n_taxonomy_term_translation_tab_page',
-    'page arguments' => array(2),
-    'access callback' => 'i18n_taxonomy_term_translation_tab_access',
-    'access arguments' => array(2),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-    'file' => 'i18n_taxonomy.admin.inc',
-  );
-  $items['taxonomy/term/%taxonomy_term/translate/%language'] = array(
-    'title' => 'Translate',
-    'page callback' => 'i18n_taxonomy_term_translation_tab_page',
-    'page arguments' => array(2, 4),
-    'access callback' => 'i18n_taxonomy_term_translation_tab_access',
-    'access arguments' => array(2),
-    'type' => MENU_CALLBACK,
-    'file' => 'i18n_taxonomy.admin.inc',
   );
   $items['i18n/taxonomy/autocomplete/vocabulary/%taxonomy_vocabulary_machine_name/%'] = array(
     'title' => 'Autocomplete taxonomy',
@@ -185,13 +149,6 @@ function i18n_taxonomy_menu_alter(&$items) {
   $items['taxonomy/autocomplete']['module'] = 'i18n_taxonomy';
   $items['taxonomy/autocomplete']['page callback'] = 'i18n_taxonomy_autocomplete_field';
   $items['taxonomy/autocomplete']['file'] = 'i18n_taxonomy.pages.inc';
-}
-
-/**
- * Menu access callback for vocabulary translation tab. Show tab only for full multilingual vocabularies.
- */
-function i18n_taxonomy_vocabulary_translation_tab_access($vocabulary) {
-  return user_access('administer taxonomy') && user_access('translate interface') && !i18n_taxonomy_vocabulary_mode($vocabulary->vid,I18N_MODE_LANGUAGE);
 }
 
 /**
@@ -377,6 +334,32 @@ function i18n_taxonomy_field_insert($entity_type, $entity, $field, $instance, $l
 function i18n_taxonomy_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
   return taxonomy_field_update($entity_type, $entity, $field, $instance, $langcode, $items);
 }
+
+/**
+ * Implements hook_forms().
+ */
+/*
+function i18n_taxonomy_forms($form_id, $args) {
+  if (strpos($form_id, 'i18n_taxonomy_translation') === 0) {
+    module_load_include('admin.inc', 'i18n_taxonomy');
+    switch ($form_id) {
+      case 'i18n_taxonomy_translation_set_term_form':
+        $forms['i18n_taxonomy_translation_set_term_form'] = array(
+          'callback' => 'i18n_taxonomy_translation_term_form', 
+          'callback arguments' => array($args[0]),
+        );      
+        break;
+      case 'i18n_taxonomy_translation_set_vocabulary_form':
+        $forms['i18n_taxonomy_translation_set_vocabulary_form'] = array(
+          'callback' => 'i18n_taxonomy_translation_term_form', 
+          'callback arguments' => array(),
+        );      
+        break;
+    }
+    return $forms;
+  } 
+}
+*/
 
 /**
  * Implements hook_options_list().

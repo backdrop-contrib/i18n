@@ -20,6 +20,25 @@ class i18n_taxonomy_translation_set extends i18n_translation_set {
     }
     return $values;
   }
+
+  /**
+   * Access to object translation. This should check object properties and permissions
+   */
+  public static function translate_access($term) {
+    return taxonomy_term_edit_access($term) && user_access('translate interface') && self::translate_mode($term) & I18N_MODE_TRANSLATE;
+  }
+  /**
+   * Translation mode for object
+   */
+  public static function translate_mode($term) {
+    $mode = i18n_taxonomy_vocabulary_mode($term->vid);
+    if (i18n_object_langcode($term)) {
+      return $mode & I18N_MODE_TRANSLATE;
+    }
+    else {
+      return $mode & I18N_MODE_LOCALIZE;
+    }
+  }
 }
 
 /**
