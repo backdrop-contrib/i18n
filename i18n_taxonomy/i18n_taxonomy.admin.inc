@@ -28,25 +28,6 @@ function i18n_taxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
 }
 
 /**
- * Callback for term translation tab.
- */
-function i18n_taxonomy_term_translation_tab_page($term, $language = NULL) {
-  if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_TRANSLATE)) {
-    $vocabulary = taxonomy_vocabulary_load($term->vid);
-    $translation_set = !empty($term->i18n_tsid) ? i18n_translation_set_load($term->i18n_tsid) : NULL;
-
-    $translation_overview = i18n_taxonomy_translation_term_overview($term);
-
-    $translation_term_form = drupal_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $translation_set, $term);
-
-    return $translation_overview += $translation_term_form;
-  }
-  elseif (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_LOCALIZE)) {
-    return i18n_string_object_translate_page('taxonomy_term', $term, $language);
-  }
-}
-
-/**
  * Produces a vocabulary translation form.
  */
 function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $translation_set = NULL, $source = NULL) {

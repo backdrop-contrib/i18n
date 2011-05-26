@@ -630,17 +630,6 @@ class i18n_string_default {
   }
 
   /**
-   * Update object properties. Create or remove source strings.
-   */
-  public function update_object($type, $object, $options = array()) {
-    foreach (i18n_string_object_strings($type, $object, TRUE) as $key => $string) {
-      $field_options = !empty($string['format']) ? array('format' => $string['format']) : array();
-      // Not likely but it may occur that an object triggers an update in another textgroup
-      i18n_string_update($string['name'], $string['string'], $field_options + $options);
-    }
-  }
-
-  /**
    * Update context for strings.
    *
    * As some string locations depend on configurable values, the field needs sometimes to be updated
@@ -752,6 +741,19 @@ class i18n_string_default {
       $replace['%language'] = $language ? $language->language : '';
       return trim(strtr($path, $replace), '/');
     }    
+  }
+
+  /**
+   * Access to object translation. This should check object properties and permissions
+   */
+  public static function object_translate_access($type, $object) {
+    return user_access('translate interface') && I18N_MODE_LOCALIZE & i18n_object_translate_mode($type, $object);
+  }
+  /**
+   * Translation mode for object
+   */
+  public static function object_translate_mode($type, $object) {
+    return !i18n_object_langcode($object) ? I18N_MODE_LOCALIZE : I18N_MODE_NONE;
   }
 }
 

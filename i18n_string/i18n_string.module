@@ -715,14 +715,24 @@ function i18n_string_object_translate($type, $object, $options = array()) {
  * Access callback for object translation
  */
 function i18n_string_object_translate_access($type, $object) {
-  return user_access('translate interface') && I18N_MODE_LOCALIZE & i18n_object_translate_mode($type, $object);
+  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
+    return i18n_string_textgroup($textgroup)->object_translate_access($type, $object);
+  }
+  else {
+    return FALSE;
+  }
 }
 
 /**
  * Access callback for object translation
  */
 function i18n_string_object_translate_mode($type, $object) {
-  return !i18n_object_langcode($object) && i18n_string_object_info($type) ? I18N_MODE_LOCALIZE : I18N_MODE_NONE;
+  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
+    return i18n_string_textgroup($textgroup)->object_translate_mode($type, $object);
+  }
+  else {
+    return I18N_MODE_NONE;
+  }
 }
 
 /**
@@ -778,19 +788,25 @@ function i18n_string_object_strings($object_type, $object, $include_empty = FALS
  *   Object or array
  */
 function i18n_string_object_remove($type, $object, $options = array()) {
-  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
-    $strings = i18n_string_object_strings($type, $object, TRUE);
-    $name = array_merge(array($textgroup), i18n_string_textgroup($textgroup)->get_object_context($type, $object), array('*'));
-    return i18n_string_remove($name, array_keys($strings), $options);
+  foreach (i18n_string_object_strings($type, $object, TRUE) as $key => $string) {
+    // Not likely but it may occur that an object triggers an update in another textgroup
+    i18n_string_remove($string['name'], $string['string'], $options);
   }
 }
 
 /**
  * Update object properties
+ * 
+ * @param $type
+ *   Object type
+ * @param $object
+ *   Object or array
  */
 function i18n_string_object_update($type, $object, $options = array()) {
-  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
-    return i18n_string_textgroup($textgroup)->update_object($type, $object, $options);
+  foreach (i18n_string_object_strings($type, $object, TRUE) as $key => $string) {
+    $field_options = !empty($string['format']) ? array('format' => $string['format']) : array();
+    // Not likely but it may occur that an object triggers an update in another textgroup
+    i18n_string_update($string['name'], $string['string'], $field_options + $options);
   }
 }
 
