@@ -757,6 +757,12 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
       '#name'   => 'save_translate',
       '#value' => t('Save and translate'),
       '#weight' => 5,
+      '#states' => array(
+        'invisible' => array(
+          // Hide the button if term is language neutral.
+          'select[name=language]' => array('value' => LANGUAGE_NONE),
+        ),
+      ),
     );
     // Make sure the delete buttons shows up last.
     if (isset($form['actions']['delete'])) {
