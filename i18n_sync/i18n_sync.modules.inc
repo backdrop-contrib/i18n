@@ -4,7 +4,7 @@
  * @file
  * Internationalization (i18n) package. Synchronization of translations
  *
- * Implements hook_i18n_sync_node_fields() for several core and contrib modules.
+ * Implements hook_i18n_sync_node_fields() for several core modules.
  */
 
 /**

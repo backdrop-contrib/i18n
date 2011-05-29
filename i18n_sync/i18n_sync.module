@@ -51,6 +51,16 @@ function i18n_sync_help($path, $arg) {
 }
 
 /**
+ * Implements hook_hook_info().
+ */
+function i18n_sync_hook_info() {
+  $hooks['i18n_sync_options'] = array(
+    'group' => 'i18n',
+  );
+  return $hooks;
+}
+
+/**
  * Implements hook_field_attach_prepare_translation_alter()
  */
 function i18n_sync_field_attach_prepare_translation_alter(&$entity, $context) {
