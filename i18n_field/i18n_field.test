@@ -64,11 +64,13 @@ class i18nFieldTestCase extends Drupali18nTestCase {
 
     // Test untranslated values in default language.
     $this->drupalGet('test-entity/add/test-bundle');
+    $this->assertText($label, 'Field label is not translated');
     $this->assertText($description, 'Field description is not translated');
     $this->assertText($value, 'Field allowed values are not translated');
 
     // Test translated values in secondary language.
     $this->drupalGet($this->secondary_language . '/test-entity/add/test-bundle');
+    $this->assertText($label_translation[$this->secondary_language], 'Field label is translated');
     $this->assertText($description_translation[$this->secondary_language], 'Field description is translated');
     $this->assertText($value_translation[$this->secondary_language], 'Field allowed values are translated');
   }
@@ -114,11 +116,13 @@ class i18nFieldTestCase extends Drupali18nTestCase {
 
     // Test untranslated values in default language.
     $this->drupalGet('test-entity/add/test-bundle');
+    $this->assertText($label, 'Field label is not translated');
     $this->assertText($description, 'Field description is not translated');
     $this->assertRaw($default_value, 'Default value is not translated');
 
     // Test translated values in secondary language.
     $this->drupalGet($this->secondary_language . '/test-entity/add/test-bundle');
+    $this->assertText($label_translation[$this->secondary_language], 'Field label is translated');
     $this->assertText($description_translation[$this->secondary_language], 'Field description is translated');
     $this->assertRaw($default_value_translation[$this->secondary_language], 'Default value translated');
   }
