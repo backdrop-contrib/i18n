@@ -15,6 +15,7 @@ function i18n_menu_i18n_object_info() {
     'placeholders' => array(
       '%menu' => 'menu_name',
     ),
+    'edit path' => 'admin/structure/menu/manage/%menu/edit',
     'translate path' => 'admin/structure/menu/manage/%menu/translate',
     'string translation' => array(
       'textgroup' => 'menu',
@@ -23,6 +24,7 @@ function i18n_menu_i18n_object_info() {
         'title' => t('Title'),
         'description' => t('Description'),
       ),
+      'translate path' => 'admin/structure/menu/manage/%menu/translate/%language',
     ),
     'translation container' => array(
       'name' => t('menu'),
