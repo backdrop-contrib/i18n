@@ -227,7 +227,12 @@ function i18n_sync_node_prepare($node) {
     // Copy over standard node fields. The rest are handled by field_attach_prepare_translation()
     foreach ($sync_fields as $field) {
       if (!empty($source->$field) && empty($i18n_options[$field]['field'])) {
-         $node->$field = $source->$field;
+        if ($field == 'uid') {
+          $node->name = $source->name;
+        }
+        else {
+          $node->$field = $source->$field;
+        }
       }
     }
   }

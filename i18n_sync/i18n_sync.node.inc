@@ -41,11 +41,13 @@ function i18n_sync_node_translation($node, $translations, $fields, $op) {
     $field_info = i18n_sync_node_options($node->type);
     // Invoke callback for each field, the default is just copy over
     foreach ($fields as $field) {
-      if (!empty($field_info[$field]['callback'])) {
-        call_user_func($field_info[$field]['callback'], $node, $translation, $field);
+      if (!empty($field_info[$field]['field'])) {
+        $function = !empty($field_info[$field]['callback']) ? $field_info[$field]['callback'] : 'i18n_sync_node_translation_default_field';
+        call_user_func($function, $node, $translation, $field, $field_info[$field]);
       }
-      elseif (!empty($field_info[$field]['field'])) {
-        i18n_sync_node_translation_field_field($node, $translation, $field, $field_info[$field]['field']);
+      elseif (isset($node->$field)) {
+        // Standard node field, just copy over.
+        $translation->$field = $node->$field;
       }
     }
     // Give a chance to other modules for additional sync
@@ -131,8 +133,8 @@ function i18n_sync_node_translation_reference_field(&$reference_node, $default_v
  * @param $field_info
  *   Field API field information.
  */
-function i18n_sync_node_translation_field_field($node, $translation, $field, $field_info) {
-  switch ($field_info['type']) {
+function i18n_sync_node_translation_default_field($node, $translation, $field, $field_info) {
+  switch ($field_info['field']['type']) {
     case 'file':
     case 'image':
       i18n_sync_node_translation_file_field($node, $translation, $field);

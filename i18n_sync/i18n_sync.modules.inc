@@ -54,7 +54,7 @@ function field_i18n_sync_options($entity_type, $bundle_name) {
 function node_i18n_sync_options($entity_type, $bundle_name) {
   if ($entity_type == 'node') {
     return array(
-      'name' => array('title' => t('Author')),
+      'uid' => array('title' => t('Author')),
       'status' => array('title' => t('Status')),
       'promote' => array('title' => t('Promote')),
       'moderate' =>  array('title' => t('Moderate')),
