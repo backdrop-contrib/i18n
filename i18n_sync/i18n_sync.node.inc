@@ -133,10 +133,6 @@ function i18n_sync_node_translation_reference_field(&$reference_node, $default_v
  */
 function i18n_sync_node_translation_field_field($node, $translation, $field, $field_info) {
   switch ($field_info['type']) {
-    case 'taxonomy_term_reference':
-      // Do nothing it has already been syncd.
-      // i18n_sync_node_translation_taxonomy($translation, $node);
-      break;
     case 'file':
     case 'image':
       i18n_sync_node_translation_file_field($node, $translation, $field);
