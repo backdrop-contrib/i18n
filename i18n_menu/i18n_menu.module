@@ -140,7 +140,7 @@ function i18n_menu_menu_update($menu) {
   }
 
   // Non translatable menu.
-  if (!i18n_menu_mode($menu['menu_name'], I18N_MODE_TRANSLATE)) {
+  if (!($menu['i18n_mode'] & I18N_MODE_TRANSLATE)) {
     $tsids = db_select('menu_links')
       ->fields('menu_links', array('i18n_tsid'))
       ->groupBy('i18n_tsid')
