@@ -137,6 +137,17 @@ class i18n_translation_set {
     return $this->translations;
   }
   /**
+   * Get item for language
+   */
+  public function get_item($langcode) {
+    if (($translations = $this->get_translations()) && isset($translations[$langcode])) {
+      return $translations[$langcode];
+    }
+    else {
+      return NULL;
+    }
+  }
+  /**
    * Get translations keys, indexed by language
    */
   public function get_translations_keys() {
