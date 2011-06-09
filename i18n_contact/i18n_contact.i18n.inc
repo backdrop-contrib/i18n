@@ -36,12 +36,16 @@ function i18n_contact_i18n_object_info() {
     'translate tab' => 'admin/structure/contact/edit/%contact/translate',
     // Properties for string translation.
     'string translation' => array(
+      // Text group that will handle this object's strings.
       'textgroup' => 'contact',
+      // Object type property for string translation.
       'type' => 'category',
+      // Translatable properties of these objects.
       'properties' => array(
         'category' => t('Category'),
         'reply' => t('Auto-reply'),
       ),
+      // Path to translate strings to every language.
       'translate path' => 'admin/structure/contact/edit/%contact/translate/%language',
     )
   );
