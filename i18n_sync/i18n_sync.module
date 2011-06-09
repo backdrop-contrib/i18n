@@ -68,6 +68,17 @@ function i18n_sync_field_attach_prepare_translation_alter(&$entity, $context) {
 }
 
 /**
+ * Implements hook_field_info_alter()
+ */
+function i18n_sync_field_info_alter(&$info) {
+  foreach (array('file', 'image') as $type) {
+    if (isset($info[$type])) {
+      $info[$type]['i18n_sync_callback'] = 'i18n_sync_field_file_sync';
+    }
+  }
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function i18n_sync_form_node_admin_content_alter(&$form, &$form_state) {
@@ -226,7 +237,7 @@ function i18n_sync_node_prepare($node) {
     $i18n_options = i18n_sync_node_options($node->type);
     // Copy over standard node fields. The rest are handled by field_attach_prepare_translation()
     foreach ($sync_fields as $field) {
-      if (!empty($source->$field) && empty($i18n_options[$field]['field'])) {
+      if (!empty($source->$field) && empty($i18n_options[$field]['field_name'])) {
         if ($field == 'uid') {
           $node->name = $source->name;
         }
@@ -284,4 +295,56 @@ function i18n_sync_options($entity_type, $bundle_name) {
   }
 
   return $cache[$entity_type][$bundle_name];
+}
+
+/**
+ * Synchronize entity field translation
+ */
+function i18n_sync_field_translation_sync($entity_type, $bundle_name, $entity, $langcode, $source_entity, $source_langcode, $field_name) {
+  $field = field_info_field($field_name);
+  $instance = field_info_instance($entity_type, $field_name, $bundle_name); 
+  if (isset($source_entity->{$field_name}[$source_langcode])) {
+    $items = $source_entity->{$field_name}[$source_langcode];
+    // Determine the function to synchronize this field
+    $type_info = field_info_field_types($field['type']);
+    if (isset($type_info['i18n_sync_callback'])) {
+      $function = $type_info['i18n_sync_callback'];
+      $function($entity_type, $entity, $field, $instance, $langcode, $items, $source_entity, $source_langcode);
+    }
+    $entity->{$field_name}[$langcode] = $items;
+  }
+  else {
+    // If source not set, unset translation too
+    unset($entity->{$field_name}[$langcode]);
+  }
+}
+
+/**
+ * Sync a file or image field (i18n_sync_callback)
+ * 
+ * - file-id's (fid) are synced
+ * - order of fid's is synced
+ * - description, alt, title is kept if already existing, copied otherwise
+ */
+function i18n_sync_field_file_sync($entity_type, $entity, $field, $instance, $langcode, &$items, $source_entity, $source_language) {
+  $field_name = $instance['field_name'];
+  // Build a copy of the existing files in the translation node
+  // indexed by fid for easy retrieval in the copy loop below
+  $existing_files = array();
+  if (isset($entity->{$field_name}[$langcode])) {
+    foreach ($entity->{$field_name}[$langcode] as $delta => $file) {
+      $existing_files[$file['fid']] = $file;
+    }
+  }
+  // Start creating the translated copy
+  foreach ($items as $delta => &$file) {
+    // keep alt, title, description if they already exist
+    if (array_key_exists($file['fid'], $existing_files)) {
+      foreach (array('title', 'description', 'alt') as $property) {
+        if (!empty($existing_files[$file['fid']][$property])) {
+          $file[$property] = $existing_files[$file['fid']][$property];
+        }
+      }
+    }
+  }
 }

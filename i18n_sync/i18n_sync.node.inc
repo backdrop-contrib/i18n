@@ -26,7 +26,7 @@
  * @param $op
  *   Node operation (insert|update).
  */
-function i18n_sync_node_translation($node, $translations, $fields, $op) {
+function i18n_sync_node_translation($node, $translations, $field_names, $op) {
   $count = 0;
   // Disable language selection and synchronization temporarily, enable it again later
   i18n_select(FALSE);
@@ -38,12 +38,11 @@ function i18n_sync_node_translation($node, $translations, $fields, $op) {
     }
     // Load full node, we need all data here.
     $translation = node_load($translation->nid, NULL, TRUE);
-    $field_info = i18n_sync_node_options($node->type);
+    $i18n_options = i18n_sync_node_options($node->type);
     // Invoke callback for each field, the default is just copy over
-    foreach ($fields as $field) {
-      if (!empty($field_info[$field]['field'])) {
-        $function = !empty($field_info[$field]['callback']) ? $field_info[$field]['callback'] : 'i18n_sync_node_translation_default_field';
-        call_user_func($function, $node, $translation, $field, $field_info[$field]);
+    foreach ($field_names as $field) {
+      if (!empty($i18n_options[$field]['field_name'])) {
+        i18n_sync_field_translation_sync('node', $node->type, $translation, $translation->language, $node, $node->language, $i18n_options[$field]['field_name']);
       }
       elseif (isset($node->$field)) {
         // Standard node field, just copy over.
@@ -51,32 +50,13 @@ function i18n_sync_node_translation($node, $translations, $fields, $op) {
       }
     }
     // Give a chance to other modules for additional sync
-    module_invoke_all('i18n_sync_node_translation', $node, $translation, $fields);
+    module_invoke_all('i18n_sync_translation', 'node', $translation, $translation->language, $node, $node->language, $field_names);
     node_save($translation);
     $count++;
   }
   i18n_sync(TRUE);
   i18n_select(TRUE);
   drupal_set_message(format_plural($count, 'One node translation has been synchronized.', 'All @count node translations have been synchronized.'));
-}
-
-/**
- * Synchronize taxonomy.
- *
- * Translate translatable terms, just copy over the rest.
- */
-function i18n_sync_node_translation_taxonomy(&$node, &$source) {
-  if (module_exists('i18n_taxonomy') && is_array($source->taxonomy)) {
-    // Load clean source node taxonomy so we don't need to handle weird form input
-    if (!isset($source->i18n_taxonomy)) {
-      $source->i18n_taxonomy = i18n_taxonomy_node_get_terms($source);
-    }
-    $node->taxonomy = i18n_taxonomy_translate_terms($source->i18n_taxonomy, $node->language, FALSE);
-  }
-  else {
-    // If not multilingual taxonomy enabled, just copy over.
-    $node->taxonomy = $source->taxonomy;
-  }
 }
 
 /**

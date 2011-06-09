@@ -275,6 +275,25 @@ function i18n_taxonomy_field_info_alter(&$info) {
   // Change module for this field. Basically we take over this field and this means
   // we need to implement a bunch of hooks for fields and options, including hook_field_schema()
   $info['taxonomy_term_reference']['module'] = 'i18n_taxonomy';
+  // Sync callback for field translations
+  $info['taxonomy_term_reference']['i18n_sync_callback'] = 'i18n_taxonomy_field_prepare_translation';
+}
+
+/**
+ * Implements hook_field_prepare_translation().
+ * 
+ * Prepare and synchronize translation for term reference fields
+ */
+function i18n_taxonomy_field_prepare_translation($entity_type, $entity, $field, $instance, $langcode, &$items, $source_entity, $source_langcode) {
+  foreach ($items as $index => $item) {
+    $term = isset($item['taxonomy_term']) ? $item['taxonomy_term'] : taxonomy_term_load($item['tid']);
+    if ($translation = i18n_taxonomy_term_get_translation($term, $langcode)) {
+      $items[$index] = array(
+        'taxonomy_term' => $translation,
+        'tid' => $translation->tid
+      );
+    }
+  }
 }
 
 /**
@@ -454,6 +473,35 @@ function i18n_taxonomy_theme() {
  */
 function i18n_taxonomy_term_name($term, $langcode = NULL) {
   return i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_LOCALIZE) ? i18n_string(array('taxonomy', 'term', $term->tid, 'name'), $term->name, array('langcode' => $langcode)) : $term->name;
+}
+
+/**
+ * Find term translation from translation set.
+ * 
+ * @param $term
+ *   Term object to find translation.
+ * @param $langcode
+ *   Language code to find translation for.
+ * @result object Taxonomy Term
+ *   Translation if exists.
+ */
+function i18n_taxonomy_term_get_translation($term, $langcode) {
+  if (i18n_object_langcode($term)) {
+    if ($term->language == $langcode) {
+      // Translation is the term itself.
+      return $term;
+    }
+    elseif (!empty($term->i18n_tsid)) {
+      return i18n_translation_set_load($term->i18n_tsid)->get_item($langcode);
+    }
+    else {
+      return NULL;
+    }
+  }
+  else {
+    // Term has no language, translation should be the same
+    return $term;
+  }
 }
 
 /**
@@ -865,20 +913,6 @@ function i18n_taxonomy_form_all_localize(&$item) {
       }
     }
   }
-}
-
-/**
- * Implements hook_node_prepare().
- * @TODO: this code is outdated, replace this term translation feature with hook_field_prepare_translation().
- */
-function i18n_taxonomy_node_prepare($node) {
-  // Taxonomy translation.
-  /*
-  if (is_array($source->taxonomy)) {
-    // Set translated taxonomy terms.
-    $node->taxonomy = i18n_taxonomy_translate_terms($source->taxonomy, $node->language);
-  }
-  */
 }
 
 /**

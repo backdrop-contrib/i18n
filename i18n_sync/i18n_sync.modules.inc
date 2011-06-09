@@ -36,11 +36,10 @@ function field_i18n_sync_options($entity_type, $bundle_name) {
   if ($bundle_name) {
     $instances = field_info_instances($entity_type, $bundle_name);
     foreach ($instances as $name => $instance) {
-      $field = field_info_field($instance['field_name']);
       $sync_fields[$name] = array(
         'title' => $instance['label'],
         'description' => $instance['description'],
-        'field' => $field,
+        'field_name' => $instance['field_name'],
         'group' => 'fields',
       );
     }
