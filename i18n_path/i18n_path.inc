@@ -27,7 +27,7 @@ class i18n_path_translation_set extends i18n_translation_set {
    * Save all path translations
    */
   public function save_translations() {
-    foreach ($this->translations as $lang => $path) {
+    foreach ($this->get_translations() as $lang => $path) {
       $path = is_object($path) ? $path : (object) array('path' => $path, 'language' => $lang, 'tsid' => $this->tsid);
       drupal_write_record('i18n_path', $path, !empty($path->tpid) ? 'tpid' : array());
       $this->translations[$lang] = $path;

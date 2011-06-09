@@ -27,8 +27,11 @@ class i18n_translation_set {
 
   /**
    * Delete a translation set
+   * 
+   * @param $delete_translations
+   *   Whether to unlink translations from the set. Detaults to TRUE.
    */
-  public function delete($delete_translations = FALSE) {
+  public function delete($delete_translations = TRUE) {
     db_delete('i18n_translation_set')
       ->condition('tsid', $this->tsid)
       ->execute();
@@ -49,8 +52,11 @@ class i18n_translation_set {
 
   /**
    * Create a new translation set
+   * 
+   * @param $save_translations
+   *   Whether to update linked objects so they belong to this set.
    */
-  public function insert($save_translations = FALSE) {
+  public function insert($save_translations = TRUE) {
     $this->created = $this->changed = REQUEST_TIME;
     $status = drupal_write_record('i18n_translation_set', $this);
     if ($save_translations) {
@@ -62,24 +68,42 @@ class i18n_translation_set {
 
   /**
    * Save translation set
+   * 
+   * @param $save_translations
+   *   Whether to update linked objects so they belong to this set.
    */
-  public function save($save_translations = FALSE) {
+  public function save($save_translations = TRUE) {
     $this->invoke_all('presave');
     return empty($this->tsid) ? $this->insert($save_translations) : $this->update($save_translations);
   }
 
   /**
-   * Create a new translation set
+   * Update a translation set
+   * 
+   * @param $update_translations
+   *   Whether to update objects linked to this set.
    */
-  public function update($udpate_translations = FALSE) {
+  public function update($update_translations = TRUE) {
     $this->changed = REQUEST_TIME;
     $status = drupal_write_record('i18n_translation_set', $this, 'tsid');
-    if ($udpate_translations) {
+    if ($update_translations) {
       $this->clean_translations();
       $this->save_translations();
     }
     $this->invoke_all('update');
     return $status;
+  }
+
+  /**
+   * Update a translation set or delete if empty.
+   */
+  public function update_delete() {
+    if ($this->get_translations()) {
+      return $this->update(TRUE);
+    }
+    else {
+      return $this->delete(TRUE);
+    }
   }
 
   /**
@@ -98,6 +122,7 @@ class i18n_translation_set {
       return $query->execute();
     }
   }
+
   /**
    * Save translations in this translation set
    */
@@ -114,6 +139,7 @@ class i18n_translation_set {
       }
     }
   }
+
   /**
    * Delete translations in this translation set
    *
@@ -127,6 +153,7 @@ class i18n_translation_set {
         ->execute();
     }
   }
+
   /**
    * Get translations, indexed by language
    */
@@ -289,6 +316,7 @@ class i18n_translation_set {
   protected function item_title($item) {
     return entity_label($this->type, $item);
   }
+
   /**
    * Get link for item
    */
@@ -297,6 +325,7 @@ class i18n_translation_set {
       return $uri['path'];
     }
   }
+
   /**
    * Get item list
    */
@@ -316,12 +345,15 @@ class i18n_translation_set {
     }
     return $items;
   }
+
   /**
    * Add translations
    */
   public function add_translations($translations) {
     array_map(array($this, 'add_item'), $translations);
+    return $this;
   }
+
   /**
    * Add translation item
    */
@@ -331,21 +363,31 @@ class i18n_translation_set {
     if ($item && $langcode) {
       $this->get_translations();
       $this->translations[$langcode] = $item;
-      return TRUE;
     }
-    else {
-      return FALSE;
-    }
+    return $this;
   }
+
   /**
    * Remove item / language from translation set
+   * 
+   * @param $item
+   *   Item to remove from this translation set, it must have a language property.
    */
-  public function remove_item($item = NULL, $langcode = NULL) {
+  public function remove_item($item) {
+    return $this->remove_language(i18n_object_langcode($item));
+  }
+
+  /**
+   * Remove language from translation set.
+   * 
+   * @param $langcode
+   *   Language to remove from this translation set.
+   */
+  public function remove_language($langcode) {
     $this->get_translations();
-    $langcode = $langcode ? $langcode : i18n_object_langcode($item);
     if ($langcode && isset($this->translations[$langcode])) {
       unset($this->translations[$langcode]);
-    }
+    }    
   }
 
   /**
@@ -388,7 +430,7 @@ class i18n_translation_set {
   /**
    * Access to object translation. This should check object properties and permissions
    */
-  public static function translate_access($term) {
+  public static function translate_access($object) {
     return FALSE;
   }
   /**

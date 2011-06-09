@@ -200,21 +200,17 @@ function i18n_menu_menu_link_update($link) {
       if (!empty($link['translation_set'])) {
         // Translation set comes as parameter, we may be creating a translation, add link to the set
         $translation_set = $link['translation_set'];
-        $translation_set->add_item($link);
-        $translation_set->save(TRUE);   
+        $translation_set
+          ->add_item($link)
+          ->save(TRUE);   
       }
     }
     elseif ($link['language'] === LANGUAGE_NONE && !empty($link['original_item']['i18n_tsid'])) {
       if ($translation_set = i18n_translation_set_load($link['original_item']['i18n_tsid'])) {
-        $translation_set->remove_item(NULL, $link['original_item']['language']);
+        $translation_set->remove_language($link['original_item']['language']);
         // If there are no links left in this translation set, delete the set.
         // Otherwise update the set.
-        if ($translation_set->get_translations()) {
-          $translation_set->update(TRUE);
-        }
-        else {
-          $translation_set->delete();
-        }
+        $translation_set->update_delete();
       }
       $fields['i18n_tsid'] = 0;
     }
@@ -552,8 +548,8 @@ function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
       }
       else {
         // Create object and stick the source information in the translation set
-        $translation_set = i18n_translation_set_build('menu_link');
-        $translation_set->add_item($source_item);     
+        $translation_set = i18n_translation_set_build('menu_link')
+          ->add_item($source_item);     
       }
       $form['link_path']['#default_value'] = $source_item['link_path'];
 
