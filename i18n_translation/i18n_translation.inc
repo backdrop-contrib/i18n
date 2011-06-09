@@ -195,7 +195,7 @@ class i18n_translation_set {
   /**
    * Get items as renderable links
    */
-  public function get_items() {
+  public function get_links() {
     $language_list = language_list();
     $items = array();
     foreach ($this->get_translations() as $langcode => $item) {

@@ -56,7 +56,7 @@ function i18n_translation_admin_form($form, &$form_state, $translations, $header
     if (isset($header['type'])) {
       $rows[$set->tsid]['type'] = isset($info['title']) ? $info['title'] : t('Unknown');
     }
-    $rows[$set->tsid]['items'] = ($items = $set->get_items()) ? theme('links', array('links' => $items)) : '';
+    $rows[$set->tsid]['items'] = ($items = $set->get_links()) ? theme('links', array('links' => $items)) : '';
     $rows[$set->tsid] += array(
       'created' => format_date($set->created, 'short'),
       'changed' => format_date($set->changed, 'short'),
