@@ -18,31 +18,7 @@ function i18n_contact_menu() {
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -100,
   );
-  $items['admin/structure/contact/edit/%contact/translate'] = array(
-    'title' => 'Translate',
-    'access callback' => 'i18n_contact_translate_tab_access',
-    'page callback' => 'i18n_string_object_translate_page',
-    'page arguments' => array('contact', 4),
-    'type' => MENU_LOCAL_TASK,
-    'weight' => 10,
-  );
-  $items['admin/structure/contact/edit/%contact/translate/%language'] = array(
-    'title' => 'Translate',
-    'access callback' => 'i18n_contact_translate_tab_access',
-    'page callback' => 'i18n_string_object_translate_page',
-    'page arguments' => array('contact', 4, 6),
-    'type' => MENU_CALLBACK,
-  );
   return $items;
-}
-
-/**
- * Menu access callback function.
- *
- * Contact translators required to have both contact and locale admin.
- */
-function i18n_contact_translate_tab_access() {
-  return user_access('translate interface') && user_access('administer contact forms');
 }
 
 /**

@@ -28,6 +28,7 @@ function i18n_contact_i18n_object_info() {
       '%contact' => 'cid',
     ),
     'edit path' => 'admin/structure/contact/edit/%contact',
+    'translate path' => 'admin/structure/contact/edit/%contact/translate',
     'string translation' => array(
       'textgroup' => 'contact',
       'type' => 'category',
@@ -35,7 +36,7 @@ function i18n_contact_i18n_object_info() {
         'category' => t('Category'),
         'reply' => t('Auto-reply'),
       ),
-      'translate path' => 'admin/structure/contact/edit/%contact/translate',
+      'translate path' => 'admin/structure/contact/edit/%contact/translate/%language',
     )
   );
   return $info;
