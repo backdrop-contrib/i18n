@@ -653,17 +653,19 @@ function i18n_menu_item_get_language($item) {
  * to match the translated item's menu settings.
  */
 function i18n_menu_form_node_form_alter(&$form, &$form_state, $form_id) {
-  $node = $form['#node'];
-  $link = $form['#node']->menu;
-  if (!empty($link['mlid'])) {
-    $form['menu']['link']['language'] = array('#type' => 'value', '#value' => $link['language']);
+  if (isset($form['menu'])) {
+    $node = $form['#node'];
+    $link = $form['#node']->menu;
+    if (!empty($link['mlid'])) {
+      $form['menu']['link']['language'] = array('#type' => 'value', '#value' => $link['language']);
+    }
+    else {
+      // Set menu language to node language.
+      $form['menu']['link']['language'] = array('#type' => 'value', '#value' => $node->language);
+    }
+    // Customized must be set to 1 to save language.
+    $form['menu']['link']['customized'] = array('#type' => 'value', '#value' => 1);
   }
-  else {
-    // Set menu language to node language.
-    $form['menu']['link']['language'] = array('#type' => 'value', '#value' => $node->language);
-  }
-  // Customized must be set to 1 to save language.
-  $form['menu']['link']['customized'] = array('#type' => 'value', '#value' => 1);
 }
 
 /**
