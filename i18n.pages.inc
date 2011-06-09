@@ -13,9 +13,9 @@
 function i18n_page_menu_items() {
   $items = array();
   foreach (i18n_object_info() as $type => $info) {
-    // These objects should have a 'translate path' property
-    if (!empty($info['translate path'])) {
-      $path = $info['translate path'];
+    // These objects should have a 'translate tab' property
+    if (!empty($info['translate tab'])) {
+      $path = $info['translate tab'];
       $localize = module_exists('i18n_string') && !empty($info['string translation']);
       $translate = module_exists('i18n_translation') && !empty($info['translation set']);
       if ($translate && $localize) {

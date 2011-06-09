@@ -16,7 +16,7 @@ function i18n_node_i18n_object_info() {
     	'%node_type' => 'type',
     ),
     'edit path' => 'admin/structure/types/manage/%node_type',
-    'translate path' => 'admin/structure/types/manage/%node_type/translate',
+    'translate tab' => 'admin/structure/types/manage/%node_type/translate',
     'string translation' => array(
       'textgroup' => 'node',
       'type' => 'type',

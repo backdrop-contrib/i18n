@@ -22,13 +22,19 @@ function i18n_contact_i18n_string_info() {
  */
 function i18n_contact_i18n_object_info() {
   $info['contact'] = array(
+    // Generic object title.
     'title' => t('Contact category'),
+    // The key field that will be used for translations.
     'key' => 'cid',
+    // Placeholders for automatic paths.
     'placeholders' => array(
       '%contact' => 'cid',
     ),
+    // To produce edit links automatically.
     'edit path' => 'admin/structure/contact/edit/%contact',
-    'translate path' => 'admin/structure/contact/edit/%contact/translate',
+    // Auto-generate translate tab.
+    'translate tab' => 'admin/structure/contact/edit/%contact/translate',
+    // Properties for string translation.
     'string translation' => array(
       'textgroup' => 'contact',
       'type' => 'category',

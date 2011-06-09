@@ -16,7 +16,8 @@ function i18n_menu_i18n_object_info() {
       '%menu' => 'menu_name',
     ),
     'edit path' => 'admin/structure/menu/manage/%menu/edit',
-    'translate path' => 'admin/structure/menu/manage/%menu/translate',
+    // Auto-generate translate tab.
+    'translate tab' => 'admin/structure/menu/manage/%menu/translate',
     'string translation' => array(
       'textgroup' => 'menu',
       'type' => 'menu',
@@ -38,7 +39,8 @@ function i18n_menu_i18n_object_info() {
     'key' => 'mlid',
     'base path' => 'admin/structure/menu/item',
     'edit path' => 'admin/structure/menu/item/%menu_link/edit',
-    'translate path' => 'admin/structure/menu/item/%menu_link/translate',
+    // Auto-generate translate tab
+    'translate tab' => 'admin/structure/menu/item/%menu_link/translate',
     'placeholders' => array(
     	'%menu_link' => 'mlid',
       '%menu' => 'menu_name',
