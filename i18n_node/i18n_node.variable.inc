@@ -15,12 +15,12 @@ function i18n_node_variable_info($options = array()) {
     'default' => 0,
     'group' => 'i18n',
   );
-  $variables['i18n_translation_switch'] = array(
+  $variables['i18n_node_translation_switch'] = array(
     'type' => 'boolean',
     'title' => t('Switch interface for translating', array(), $options),
-    'default' => 0,
+    'default' => 1,
     'group' => 'i18n',
-    'description' => t('Switch interface language to fit node language when creating or editing a translation. If not checked the interface language will be independent from node language.', array(), $options),
+    'description' => t('Switch interface language to fit node language when creating or editing a translation. If not checked the interface language will be independent from node language. This may have some unintended effects like references not matching the node language.', array(), $options),
   );
   $variables['i18n_node_options_[node_type]'] = array(
     'type' => 'multiple',

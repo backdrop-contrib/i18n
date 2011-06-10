@@ -50,6 +50,7 @@ function i18n_node_translation_overview($node) {
 
   $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
   $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
+
   // Modes have different allowed languages
   foreach (i18n_node_language_list($node) as $langcode => $language_name) {
     if ($langcode == LANGUAGE_NONE) {
@@ -62,18 +63,11 @@ function i18n_node_translation_overview($node) {
       // We load the full node to check whether the user can edit it.
       $translation_node = node_load($translations[$langcode]->nid);
       $path = 'node/' . $translation_node->nid;
-      // @todo We may need to switch interface language for translations
-      // $params = variable_get('i18n_translation_switch', 0) ? array('language' => $language) : array();
-      $links = language_negotiation_get_switch_links($type, $path);
-      // When node not published, links don't have href so we use path instead
-      // Note: this is a bug in Core translation module, see http://drupal.org/node/1137074
-      $title = empty($links->links[$langcode]) || empty($links->links[$langcode]['href']) ? l($translation_node->title, $path) : l($translation_node->title, $links->links[$langcode]['href'], $links->links[$langcode]);
+      $title = i18n_node_translation_link($translation_node->title, $path, $langcode);
       if (node_access('update', $translation_node)) {
         $text = t('edit');
         $path = 'node/' . $translation_node->nid . '/edit';
-        $links = language_negotiation_get_switch_links($type, $path);
-        // When node not published, links don't have href so we use path instead
-        $options[] = empty($links->links[$langcode]) || empty($links->links[$langcode]['href']) ? l($text, $path) : l($text,  $links->links[$langcode]['href'], $links->links[$langcode]);
+        $options[] = i18n_node_translation_link($text, $path, $langcode);
       }
       $status = $translation_node->status ? t('Published') : t('Not published');
       $status .= $translation_node->translate ? ' - <span class="marker">' . t('outdated') . '</span>' : '';
@@ -87,9 +81,8 @@ function i18n_node_translation_overview($node) {
       if (node_access('create', $node)) {
         $text = t('add translation');
         $path = 'node/add/' . str_replace('_', '-', $node->type);
-        $links = language_negotiation_get_switch_links($type, $path);
         $query = array('query' => array('translation' => $node->nid, 'target' => $langcode));
-        $options[] = empty($links->links[$langcode]) ? l($text, $path, $query) : l($text, $links->links[$langcode]['href'], array_merge_recursive($links->links[$langcode], $query));
+        $options[] = i18n_node_translation_link($text, $path, $langcode, $query);
       }
       $status = t('Not translated');
     }
@@ -108,6 +101,24 @@ function i18n_node_translation_overview($node) {
     $build['translation_node_select'] = drupal_get_form('i18n_node_select_translation', $node, $translations);
   }
   return $build;
+}
+
+/**
+ * Create link for node translation. This may be a 'edit' or a 'add translation' link.
+ */
+function i18n_node_translation_link($text, $path, $langcode, $options = array()) {
+  // We may want to switch interface for translation (core default) or not
+  if (variable_get_value('i18n_node_translation_switch')) {
+    $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+    $links = language_negotiation_get_switch_links($type, $path);
+    // When node not published, links don't have href so we use path instead
+    // Note: this is a bug in Core translation module, see http://drupal.org/node/1137074
+    if (!empty($links->links[$langcode]) && !empty($links->links[$langcode]['href'])) {
+      $options = array_merge_recursive($links->links[$langcode], $options);
+      $path = $links->links[$langcode]['href'];
+    }
+  }
+  return l($text, $path, $options);
 }
 
 /**
