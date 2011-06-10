@@ -503,7 +503,7 @@ function i18n_string_translate($name, $string, $options = array()) {
  * If the string has a format the user is not allowed to edit, it will return FALSE
  */
 function i18n_string_translate_access($i18nstring, $account = NULL) {
-  return empty($i18nstring->format) || in_array($i18nstring->format, i18n_string_allowed_formats()) && filter_access($i18nstring->format, $account);
+  return empty($i18nstring->format) || in_array($i18nstring->format, i18n_string_allowed_formats()) && ($format = filter_format_load($i18nstring->format)) && filter_access($format, $account) ;
 }
 
 /**
@@ -652,7 +652,7 @@ function i18n_string_l10n_client_add($string, $options) {
   if (($string->language == i18n_langcode()) && function_exists('l10_client_add_string_to_page') && i18n_string_translate_access($string)) {
     $translation = !empty($string->translation) ? $string->translation : TRUE;
     $source = !empty($string->source) ? $string->source : FALSE;
-    l10_client_add_string_to_page($string->source, $translation, $string->textgroup);
+    l10_client_add_string_to_page($string->source, $translation, $string->textgroup, $string->context);
   }
 }
 
