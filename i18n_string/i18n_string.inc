@@ -194,11 +194,14 @@ class i18n_string_default {
    * Get source string provided a string object.
    *
    * @param $context
-   *   Context string or object.
+   *   Context array or string object.
    * @return
-   *   Context object if it exists.
+   *   String object if it exists.
    */
-  protected function get_source($i18nstring) {
+  public function get_source($i18nstring) {
+    if (!is_object($i18nstring)) {
+      $i18nstring = $this->build_string($i18nstring, NULL);
+    }
     // Search the database using lid if we've got it or textgroup, context otherwise
     $query = db_select('locales_source', 's')->fields('s');
     if (!empty($i18nstring->lid)) {
@@ -210,7 +213,7 @@ class i18n_string_default {
     }
     // Speed up the query, we just need one row
     $source = $query->range(0, 1)->execute()->fetchObject();
-    // Update cached map
+    // Update cached map if we've got a context
     $this->string_map[$i18nstring->context] = $source ? $source->lid : FALSE;
     return $source;
   }
@@ -618,10 +621,7 @@ class i18n_string_default {
    *   String translation for this language
    */
   function update_translation($context, $langcode, $translation) {
-    $i18nstring = (object) array(
-      'context' => implode(':', $context),
-    );
-    if ($source = $this->get_source($i18nstring)) {
+    if ($source = $this->get_source($context)) {
       $source->language = $langcode;
       $source->translation = $translation;
       $this->save_translation($source);
@@ -767,72 +767,25 @@ function i18n_string_l10n_client_save_string() {
     $textgroup = !empty($_POST['textgroup']) ? $_POST['textgroup'] : 'default';
     // Default textgroup will be handled by l10n_client module
     if ($textgroup == 'default') {
-      l10n_client_save_string();
+      return l10n_client_save_string();
     }
-    elseif (isset($_POST['source']) && isset($_POST['target']) && !empty($_POST['form_token']) && drupal_valid_token($_POST['form_token'], 'l10n_client_form')) {
-      $translation = new stdClass();
-      $translation->language = $language->language;
-      $translation->source = $_POST['source'];
-      $translation->translation = $_POST['target'];
-      $translation->textgroup = $textgroup;
-      i18n_string_save_translation($translation);
-    }
-  }
-}
-
-/**
- * Import translation for a given textgroup.
- *
- * @TODO Check string format properly
- *
- * This will update multiple strings if there are duplicated ones
- *
- * @param $translation
- *   Srtring object with textgroup, langcode, source, translation, format properties
- * @return
- *   The number of strings updated
- */
-function i18n_string_save_translation($translation) {
-  include_once 'includes/locale.inc';
-
-  $query = db_select('locales_source', 's')
-    ->fields('s', array('lid'))
-    ->fields('i', array('format'))
-    ->condition('s.source', $translation->source)
-    ->condition('s.textgroup', $translation->textgroup);
-  $query->leftJoin('i18n_string', 'i', 's.lid = i.lid');
-  $result = $query->execute()->fetchAll(PDO::FETCH_OBJ);
-
-  $count = 0;
-  foreach ($result as $source) {
-    // If we have a format, check format access. Otherwise do regular check.
-    if ($source->format ? filter_access($source->format) : locale_string_is_safe($translation->translation)) {
-      $exists = (bool) db_select('locales_target', 'l')
-        ->fields('l', array('lid'))
-        ->condition('lid', $source->lid)
-        ->condition('language', $translation->langcode)
-        ->execute()
-        ->fetchColumn();
-      if (!$exists) {
-        // No translation in this language.
-        db_insert('locales_target')
-          ->fields(array(
-            'lid' => $source->lid,
-            'language' => $translation->langcode,
-            'translation' => $translation->translation,
-          ))
-          ->execute();
+    elseif (isset($_POST['source']) && isset($_POST['target']) && !empty($_POST['context']) && !empty($_POST['form_token']) && drupal_valid_token($_POST['form_token'], 'l10n_client_form')) {
+      $name = $textgroup . ':' . $_POST['context'];
+      $result = i18n_string_translation_update($name, $_POST['target'], $language->language, $_POST['source']);
+      if ($result) {
+        $message = theme('l10n_client_message', array('message' => t('Translation saved locally for user defined string.'), 'level' => WATCHDOG_INFO));
+      }
+      elseif ($result === FALSE) {
+        $message = theme('l10n_client_message', array('message' => t('Not saved due to insufficient permissions.')));     
       }
       else {
-        // Translation exists, overwrite
-        db_update('locales_target')
-          ->fields(array('translation' => $translation->translation))
-          ->condition('language', $translation->langcode)
-          ->condition('lid', $source->lid)
-          ->execute();
+        $message = theme('l10n_client_message', array('message' => t('Not saved due to source string missing.')));
       }
-      $count ++;
     }
+    else {
+      $message = theme('l10n_client_message', array('message' => t('Not saved due to missing form values.')));
+    }
+    drupal_json_output($message);
+    exit;
   }
-  return $count;
 }

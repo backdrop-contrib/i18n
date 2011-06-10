@@ -164,6 +164,13 @@ function i18n_string_hook_info() {
 /**
  * Implements hook_form_FORM_ID_alter()
  */
+function i18n_string_form_l10n_client_form_alter(&$form, &$form_state) {
+  $form['#action'] = url('i18n_string/save');
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter()
+ */
 function i18n_string_form_locale_translate_edit_form_alter(&$form, &$form_state) {
   // Restrict filter permissions and handle validation and submission for i18n strings
   $context = db_select('i18n_string', 'i18ns')
@@ -235,11 +242,8 @@ function i18n_string_translate_edit_form_validate($form, &$form_state) {
     $copy_state['values']['textgroup'] = 'default';
     locale_translate_edit_form_validate($form, $copy_state);
   }
-  else {
-    $formats = filter_formats();
-    if (!filter_access($formats[$context->format])) {
-      form_set_error('translations', t('You are not allowed to translate or edit texts with this text format.'));
-    }
+  elseif (!i18n_string_translate_access($context)) {
+    form_set_error('translations', t('You are not allowed to translate or edit texts with this text format.'));
   }
 }
 
@@ -269,6 +273,14 @@ function i18n_string_locale_translate_import_form_submit($form, &$form_state) {
   if (!drupal_get_messages('error', FALSE) && i18n_string_group_info($form_state['values']['group'])) {
     i18n_string_textgroup($form_state['values']['group'])->update_check();
   }
+}
+
+/**
+ * Get source string object.
+ */
+function i18n_string_get_source($name) {
+  list($textgroup, $context) = i18n_string_context($name);
+  return i18n_string_textgroup($textgroup)->get_source($context);
 }
 
 /**
@@ -847,7 +859,6 @@ function i18n_string_object_translate_page($object_type, $object, $langcode = NU
 /**
  * Update / create translation for a certain source.
  *
- //* Therefore it tries to update the source string, 
  *
  * @param $name
  *   Array or string concatenated with ':' that contains textgroup and string context
@@ -855,26 +866,57 @@ function i18n_string_object_translate_page($object_type, $object, $langcode = NU
  *   Translation string for this language code
  * @param $langcode
  *   The language code to translate to a language other than what is used to display the page.
+ * @param $source_string
+ *   Optional source string, just in case it needs to be created.
+ *   
+ * @return mixed
+ *   Source string object if update was successful.
+ *   Null if source string not found.
+ *   FALSE if use doesn't have permission to edit this translation.
  */
-function i18n_string_translation_update($name, $translation, $langcode) {
+function i18n_string_translation_update($name, $translation, $langcode, $source_string = NULL) {
   if (is_array($translation)) {
     return i18n_string_multiple('translation_update', $name, $translation, $langcode);
   }
-  else {
-    list ($textgroup, $context) = i18n_string_context($name);
-    $langcode_default = language_default('language');
-    // It's the default language so we should update the string source as well.
-    if ($langcode == $langcode_default) {
-      i18n_string_update($name, $translation);
-    }
-    elseif ($source = i18n_string_textgroup($textgroup)->update_translation($context, $langcode, $translation)) {
+  elseif ($source = i18n_string_get_source($name)) {
+    if (i18n_string_translation_validate($source, $translation)) {
+      if ($langcode == language_default('language')) {
+        // It's the default language so we should update the string source as well.
+        i18n_string_update($name, $translation);
+      }
+      else {
+        list ($textgroup, $context) = i18n_string_context($name);
+        i18n_string_textgroup($textgroup)->update_translation($context, $langcode, $translation);
+      }
       return $source;
     }
     else {
-      // We don't have a source string, so we need to create it with this translation. Ugly but...
-      // Both source and translation will be the same string.
-      i18n_string_update($name, $translation);
-      return i18n_string_textgroup($textgroup)->update_translation($context, $langcode, $translation);
+      // We cannot update this string because of its input format.
+      return FALSE;
     }
+  }
+  elseif ($source_string) {
+    // We don't have a source in the database, so we need to create it, but only if we've got the source too.
+    // Note this string won't have any format.
+    i18n_string_update($name, $source_string);
+    return i18n_string_translation_update($name, $translation, $langcode);
+  }
+  else {
+    return NULL;
+  }
+}
+
+/**
+ * Validate translation and check user access to input format
+ */
+function i18n_string_translation_validate($i18nstring, $translation) {
+  if (!empty($i18nstring->format)) {
+    // If we've got a text format, just need to check user access to it.
+    return i18n_string_translate_access($i18nstring);
+  }
+  else {
+    // If not text format use standard locale validation.
+    // Note: looks like locale.inc is included by locale_init() ?!
+    return locale_string_is_safe($translation);
   }
 }
