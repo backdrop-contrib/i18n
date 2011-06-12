@@ -31,22 +31,7 @@ class i18n_object_wrapper {
    * Get field value from object/array
    */
   function get_field($field, $default = NULL) {
-    if (is_array($field)) {
-      // We can handle a list of fields too. This is useful for multiple keys (like blocks)
-      foreach ($field as $key => $name) {
-        $values[$key] = $this->get_field($name);
-      }
-      return $values;
-    }
-    elseif (is_object($this->object)) {
-      return isset($this->object->$field) ? $this->object->$field : $default;
-    }
-    elseif (is_array($this->object)) {
-      return isset($this->object[$field]) ? $this->object[$field] : $default;
-    }
-    else {
-      return $default;
-    }
+    return i18n_object_field($this->object, $field, $default);
   }
 
   /**

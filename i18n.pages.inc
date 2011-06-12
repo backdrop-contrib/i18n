@@ -20,15 +20,12 @@ function i18n_page_menu_items() {
       $translate = module_exists('i18n_translation') && !empty($info['translation set']);
       if ($translate && $localize) {
         $page_callback = 'i18n_page_translate_tab';
-        $access_callback = 'i18n_object_translate_access';
       }
       elseif ($translate) {
         $page_callback = 'i18n_page_translate_translation';
-        $access_callback = 'i18n_translation_object_translate_access';
       }
       elseif ($localize) {
         $page_callback = 'i18n_page_translate_localize';
-        $access_callback = 'i18n_string_object_translate_access';
       }
       // Find the position for the object placeholder. We assume the first one.
       $placeholder = key($info['placeholders']);
@@ -40,7 +37,7 @@ function i18n_page_menu_items() {
           'title' => 'Translate',
           'page callback' => $page_callback,
           'page arguments' => array($type, $position),
-          'access callback' => $access_callback,
+          'access callback' => 'i18n_object_translate_access',
           'access arguments' => array($type, $position),
           'type' => MENU_LOCAL_TASK,
           'file' => 'i18n.pages.inc',
@@ -52,7 +49,7 @@ function i18n_page_menu_items() {
           'title' => 'Translate',
           'page callback' => $page_callback,
           'page arguments' => array($type, $position, count($parts)),
-          'access callback' => $access_callback,
+          'access callback' => 'i18n_object_translate_access',
           'access arguments' => array($type, $position),
           'type' => MENU_CALLBACK,
           'field' => 'i18n.pages.inc',
@@ -69,7 +66,7 @@ function i18n_page_menu_items() {
  */
 function i18n_page_translate_tab($type, $object, $language = NULL) {
    // Check whether object should be part of a translation set
-   switch (i18n_object_translate_mode($type, $object)) {
+   switch (i18n_object($type, $object)->get_translate_mode()) {
      case I18N_MODE_TRANSLATE:
        return i18n_page_translate_translation($type, $object);
      case I18N_MODE_LOCALIZE:

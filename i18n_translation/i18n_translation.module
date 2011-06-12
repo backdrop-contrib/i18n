@@ -217,20 +217,6 @@ function i18n_translation_object($type, $object, $create = FALSE) {
 }
 
 /**
- * Menu access callback for object translation sets
- */
-function i18n_translation_object_translate_access($type, $object) {
-  return i18n_object($type, $object)->get_translate_access();
-}
-
-/**
- * Translation mode for object
- */
-function i18n_translation_object_translate_mode($type, $object) {
-  return i18n_object($type, $object)->get_translate_mode();
-}
-
-/**
  * Get information about translation sets
  */
 function i18n_translation_set_info($type = NULL, $property = NULL, $default = NULL) {

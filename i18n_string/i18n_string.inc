@@ -663,33 +663,6 @@ class i18n_string_default {
     }
   }
 
-  /**
-   * Get edit path for object
-   *
-   * @param $type
-   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
-   * @param $object
-   *   The Drupal object itself
-   */
-  public function get_edit_path($type, $object) {
-    return i18n_object_edit_path($type, $object);
-  }
-
-  /**
-   * Get translate path for object
-   *
-   * @param $type
-   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
-   * @param $object
-   *   The Drupal object itself
-   */
-  public function get_translate_path($type, $object, $language = NULL) {
-    if ($path = i18n_string_object_info($type, 'translate path')) {
-      $replace = i18n_object_placeholders($type, $object);
-      $replace['%language'] = $language ? $language->language : '';
-      return trim(strtr($path, $replace), '/');
-    }    
-  }
 }
 
 /**
