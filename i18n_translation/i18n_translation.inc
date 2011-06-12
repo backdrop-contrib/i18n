@@ -12,7 +12,7 @@ class i18n_translation_set {
   // It may optionally have a title
   public $title = '';
   // Translations indexed by language
-  public $translations = NULL;
+  protected $translations = NULL;
   
   /**
    * Constructor from object/array
@@ -99,7 +99,7 @@ class i18n_translation_set {
    */
   public function update_delete() {
     if ($this->get_translations()) {
-      return $this->update(TRUE);
+      return $this->save(TRUE);
     }
     else {
       return $this->delete(TRUE);
@@ -158,11 +158,33 @@ class i18n_translation_set {
    * Get translations, indexed by language
    */
   public function get_translations() {
+    $translations = array();
+    foreach ($this->get_objects() as $lang => $object) {
+      $translations[$lang] = $object->get_object();
+    }
+    return $translations;
+  }
+  /**
+   * Reset translations, set empty array
+   */
+  public function reset_translations($translations = array()) {
+    $this->translations = array();
+    $this->add_translations($translations);
+    return $this;
+  }
+  /**
+   * Get translations as i18n objects, indexed by language
+   */
+  public function get_objects() {
     if (!isset($this->translations)) {
-      $this->translations = $this->load_translations();
+      $this->translations = array();
+      foreach ($this->load_translations() as $lang => $item) {
+        $this->translations[$lang] = i18n_object($this->type, $item);
+      }
     }
     return $this->translations;
   }
+
   /**
    * Get item for language
    */
@@ -179,8 +201,8 @@ class i18n_translation_set {
    */
   public function get_translations_keys() {
     $keys = array();
-    foreach ($this->get_translations() as $lang => $item) {
-      if ($id = i18n_object_field($item, $this->key_field())) {
+    foreach ($this->get_objects() as $lang => $object) {
+      if ($id = $object->get_key()) {
         $keys[$lang] = $id;
       }
     }
@@ -225,9 +247,9 @@ class i18n_translation_set {
   public function get_links() {
     $language_list = language_list();
     $items = array();
-    foreach ($this->get_translations() as $langcode => $item) {
-      $title = $this->item_title($item);
-      $path = $this->item_path($item);
+    foreach ($this->get_objects() as $langcode => $object) {
+      $title = $object->get_title();
+      $path = $object->get_path();
       $language = isset($language_list[$langcode]) ? $language_list[$langcode] : NULL;
       $items[$langcode] = array(
         'title' => $title,
@@ -299,9 +321,9 @@ class i18n_translation_set {
     if (!empty($this->title)) {
       return $this->title;
     }
-    elseif ($translations = $this->get_translations()) {
-      foreach ($translations as $item) {
-        $names[] = $this->item_title($item);
+    elseif ($translations = $this->get_objects()) {
+      foreach ($translations as $object) {
+        $names[] = $object->get_title();
       }
       return implode(' / ', $names);
     }
@@ -311,30 +333,14 @@ class i18n_translation_set {
   }
 
   /**
-   * Get title from item
-   */
-  protected function item_title($item) {
-    return entity_label($this->type, $item);
-  }
-
-  /**
-   * Get link for item
-   */
-  protected function item_path($item) {
-    if ($uri = entity_uri($this->type, $item)) {
-      return $uri['path'];
-    }
-  }
-
-  /**
    * Get item list
    */
   public function item_list() {
     $language_list = language_list();
     $items = array();
-    foreach ($this->get_translations() as $langcode => $item) {
-      $title = $this->item_title($item);
-      $path = $this->item_path($item);
+    foreach ($this->get_objects() as $langcode => $object) {
+      $title = $object->get_title();
+      $path = $object->get_path();
       if ($title && $path) {
         $options = isset($language_list[$langcode]) ? array('language' => $language_list[$langcode]) : array();
         $items[$langcode] = l($title, $path, $options);
@@ -362,7 +368,7 @@ class i18n_translation_set {
     $langcode = $langcode ? $langcode : i18n_object_langcode($item);
     if ($item && $langcode) {
       $this->get_translations();
-      $this->translations[$langcode] = $item;
+      $this->translations[$langcode] = i18n_object($this->type, $item);
     }
     return $this;
   }
@@ -425,18 +431,5 @@ class i18n_translation_set {
   protected function key_field() {
     $info = i18n_object_info($this->type);
     return $info['key'];
-  }
-  
-  /**
-   * Access to object translation. This should check object properties and permissions
-   */
-  public static function translate_access($object) {
-    return FALSE;
-  }
-  /**
-   * Translation mode for object
-   */
-  public static function translate_mode($object) {
-    return I18N_MODE_NONE;
   }
 }

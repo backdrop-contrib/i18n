@@ -580,7 +580,7 @@ function i18n_taxonomy_taxonomy_term_update($term) {
       $translation_set->get_translations();
 
       // Add the current term to the translation set.
-      $translation_set->translations[$term->language] = $term;
+      $translation_set->add_item($term);
       $translation_set->save(TRUE);
     }
   }
@@ -596,16 +596,11 @@ function i18n_taxonomy_taxonomy_term_delete($term) {
     $translation_set = i18n_translation_set_load($term->i18n_tsid);
     $translation_set->get_translations();
 
-    unset($translation_set->translations[$term->language]);
+    $translation_set->remove_language($term->language);
 
     // If there are no terms left in this translation set, delete the set.
     // Otherwise update the set.
-    if (empty($translation_set->translations)) {
-      $translation_set->delete();
-    }
-    else {
-      $translation_set->save(TRUE);
-    }
+    $translation_set->update_delete();
   }
   // Just in case there's any left over string we run it for all terms.
   i18n_string_object_remove('taxonomy_term', $term);

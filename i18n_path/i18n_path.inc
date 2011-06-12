@@ -30,19 +30,26 @@ class i18n_path_translation_set extends i18n_translation_set {
     foreach ($this->get_translations() as $lang => $path) {
       $path = is_object($path) ? $path : (object) array('path' => $path, 'language' => $lang, 'tsid' => $this->tsid);
       drupal_write_record('i18n_path', $path, !empty($path->tpid) ? 'tpid' : array());
-      $this->translations[$lang] = $path;
+      $this->add_item($path, $lang);
     }
   }
+
+}
+
+/**
+ * Path object
+ */
+class i18n_path_object extends i18n_object_wrapper {
   /**
    * Get title from item
    */
-  protected function item_title($item) {
-    return $item->path;
+  public function get_title() {
+    return $this->object->path;
   }
   /**
-   * Get link for item
+   * Get path for item
    */
-  protected function item_path($item) {
-    return check_url($item->path);
-  }
+  public function get_path() {
+    return check_url($this->object->path);
+  }  
 }

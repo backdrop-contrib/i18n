@@ -91,7 +91,7 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
       $mlids = array_filter($form_state['values']['translations']);
       $translation_set = $translation_set ? $translation_set : i18n_translation_set_create('menu_link');
       $translations = $translation_set->get_translations();
-      $translation_set->translations = array();
+      $translation_set->reset_translations();
       foreach ($mlids as $lang => $item_name) {
         list($menu_name, $mlid) = explode(':', $item_name);
         $translation_set->add_item(menu_link_load($mlid), $lang);

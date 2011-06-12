@@ -1,0 +1,148 @@
+<?php
+/**
+ * Object wrapper
+ */
+class i18n_object_wrapper {
+  protected $type;
+  protected $object;
+
+  /**
+   * Class constructor
+   */
+  public function __construct($type, $object) {
+    $this->type = $type;
+    $this->object = $object;
+  }
+
+  
+  /**
+   * Get edit path for object
+   */
+  function get_edit_path() {
+    if ($path = $this->get_info('edit path')) {
+      return strtr($path, $this->get_placeholders());
+    }
+    else {
+      return NULL;
+    }
+  }
+
+  /**
+   * Get field value from object/array
+   */
+  function get_field($field, $default = NULL) {
+    if (is_array($field)) {
+      // We can handle a list of fields too. This is useful for multiple keys (like blocks)
+      foreach ($field as $key => $name) {
+        $values[$key] = $this->get_field($name);
+      }
+      return $values;
+    }
+    elseif (is_object($this->object)) {
+      return isset($this->object->$field) ? $this->object->$field : $default;
+    }
+    elseif (is_array($this->object)) {
+      return isset($this->object[$field]) ? $this->object[$field] : $default;
+    }
+    else {
+      return $default;
+    }
+  }
+
+  /**
+   * Get key value from object/array
+   */
+  function get_key($default = NULL) {
+    if ($field = $this->get_info('key')) {
+      return $this->get_field($field, $default);
+    }
+    else {
+      return $default;
+    }
+  }
+
+  /**
+   * Get language code
+   */
+  public function get_langcode() {
+    return i18n_object_langcode($this->object);
+  }
+
+  /**
+   * Get real object or array
+   */
+  public function get_object() {
+    return $this->object;
+  }
+
+  /**
+   * Get menu placehoders for object
+   */
+  protected function get_placeholders($type, $object) {
+    $placeholders = $this->get_info('placeholders', array());
+    foreach ($placeholders as $name => $field) {
+      $placeholders[$name] = $this->get_field($field);
+    }
+    return $placeholders;
+  }
+  /**
+   * Get title from item
+   */
+  public function get_title() {
+    return entity_label($this->type, $this->object);
+  }
+
+  /**
+   * Get link for item
+   */
+  public function get_path() {
+    if ($uri = entity_uri($this->type, $this->object)) {
+      return $uri['path'];
+    }
+  }
+
+  /**
+   * Menu access callback for mixed translation tab
+   */
+  function get_translate_access() {
+    switch ($this->translate_mode()) {
+      case I18N_MODE_TRANSLATE:
+        return $this->translate_access();
+      case I18N_MODE_LOCALIZE:
+        return $this->localize_access();
+      default:
+        return FALSE;
+    }
+  }
+  /**
+   * Get translate or localize mode for object
+   */
+  function get_translate_mode() {
+     return $this->translate_mode();
+  }  
+  /**
+   * Localize access
+   */
+  protected function translate_access() {
+    return FALSE;
+  }
+  /**
+   * Get primary translate or localize mode for object
+   */
+  protected function translate_mode() {
+     return I18N_MODE_NONE;
+  }
+  /**
+   * Translate access (translation sets)
+   */
+  protected function localize_access() {
+    return FALSE;
+  }
+
+  /**
+   * Get object info
+   */
+  public function get_info($property) {
+    return i18n_object_info($this->type, $property);
+  }
+}

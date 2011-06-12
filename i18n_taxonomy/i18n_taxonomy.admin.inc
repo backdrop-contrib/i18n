@@ -142,8 +142,9 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
       }
       if (!empty($translations)) {
         $translation_set = $translation_set ? $translation_set : i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
-        $translation_set->translations = $translations;
-        $translation_set->save(TRUE);
+        $translation_set
+          ->reset_translations($translations)
+          ->save(TRUE);
         drupal_set_message(t('Term translations have been updated.'));
       }
       else {

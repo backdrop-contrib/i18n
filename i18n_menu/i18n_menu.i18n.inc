@@ -36,6 +36,7 @@ function i18n_menu_i18n_object_info() {
   );
   $info['menu_link'] = array(
     'title' => t('Menu link'),
+    'class' => 'i18n_menu_link',
     'key' => 'mlid',
     'base path' => 'admin/structure/menu/item',
     'edit path' => 'admin/structure/menu/item/%menu_link/edit',

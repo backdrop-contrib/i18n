@@ -24,6 +24,8 @@ function i18n_contact_i18n_object_info() {
   $info['contact'] = array(
     // Generic object title.
     'title' => t('Contact category'),
+    // Object class
+    'class' => 'i18n_string_object',
     // The key field that will be used for translations.
     'key' => 'cid',
     // Placeholders for automatic paths.

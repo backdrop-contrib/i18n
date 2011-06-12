@@ -96,15 +96,15 @@ function i18n_path_admin_form_submit($form, &$form_state) {
       $translations = $translation_set->get_translations();
       foreach ($paths as $lang => $path) {
         if (isset($translations[$lang])) {
-          $translations[$lang]->path = $translation_set->translations[$lang]->path = $path;
+          $translations[$lang]->path = $path;
         }
         else {
-          $translation_set->translations[$lang] = $path;
+          $translation_set->add_item($path, $lang);
         }
       }
 
-      foreach (array_diff(array_keys($translation_set->translations), array_keys($paths)) as $language) {
-        unset($translation_set->translations[$language]);
+      foreach (array_diff(array_keys($translation_set->get_translations()), array_keys($paths)) as $language) {
+        $translation_set->remove_language($language);
         unset($translations[$language]);
       }
 

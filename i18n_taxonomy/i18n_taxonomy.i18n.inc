@@ -10,6 +10,7 @@
 function i18n_taxonomy_i18n_object_info() {
   $info['taxonomy_term'] = array(
     'title' => t('Taxonomy term'),
+    'class' => 'i18n_taxonomy_term',
     'entity' => 'taxonomy_term',
     'key' => 'tid',
     'placeholders' => array(
@@ -42,6 +43,7 @@ function i18n_taxonomy_i18n_object_info() {
   );
   $info['taxonomy_vocabulary'] = array(
     'title' => t('Vocabulary'),
+    'class' => 'i18n_taxonomy_vocabulary',
     'entity' => 'taxonomy_vocabulary',
     'key' => 'vid',
     'placeholders' => array(

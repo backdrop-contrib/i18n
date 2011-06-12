@@ -758,6 +758,122 @@ class i18n_string_default {
 }
 
 /**
+ * String object wrapper
+ */
+class i18n_string_object extends i18n_object_wrapper {
+  // Text group object
+  protected $textgroup;
+  
+  /**
+   * Get object strings for translation
+   */
+  public function get_strings() {
+    return i18n_string_object_strings($object_type, $object);
+  }
+  /**
+   * Get object translatable properties
+   */
+  public function get_properties($object_type, $object) {
+    $object_keys = array_merge(array($this->textgroup), $this->get_string_context()); 
+    list($string_type, $object_id) = $this->get_object_context($object_type, $object); 
+    $strings = array();
+    $textgroup = $this->get_string_info('textgroup');
+    foreach ($this->get_string_info('properties') as $field => $info) {
+      $info = is_array($info) ? $info : array('title' => $info);
+      $field_name = isset($info['field']) ? $info['field'] : $field;
+      $value = $this->get_field($field_name);
+      $strings[$textgroup][$string_type][$object_id][$field] = array(
+        'string' => is_array($value) || isset($info['empty']) && $value === $info['empty'] ? NULL : $value,
+        'title' => $info['title'],
+        'format' => isset($info['format']) ? $this->get_field($info['format']) : NULL,
+        'name' => array_merge($object_keys, array($field)),
+      );
+    }
+    return $strings;
+  }
+  /**
+   * Get object info
+   */
+  public function get_string_info($property) {
+    return i18n_string_object_info($this->type, $property);
+  }
+  /**
+   * Get string context
+   */
+  public function get_string_context() {
+    return array($this->type, $this->get_key());
+  }
+  /**
+   * Get translate path for object
+   *
+   * @param $type
+   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
+   * @param $object
+   *   The Drupal object itself
+   */
+  public function get_translate_path($language = NULL) {
+    if ($path = $this->get_string_info('translate path')) {
+      $replace = $this->get_placeholders($type, $object);
+      $replace['%language'] = $language ? $language->language : '';
+      return trim(strtr($path, $replace), '/');
+    }    
+  }
+
+  /**
+   * Access to object translation. This should check object properties and permissions
+   */
+  protected function translate_access() {
+    return user_access('translate interface') && I18N_MODE_LOCALIZE & $this->translate_mode();
+  }
+
+  /**
+   * Translation mode for object
+   */
+  protected function translate_mode() {
+    return !i18n_object_langcode($this->object) ? I18N_MODE_LOCALIZE : I18N_MODE_NONE;
+  }
+
+  /**
+   * Get textgroup object
+   */
+  protected function textgroup() {
+    if (!isset($this->textgroup)) {
+      $this->textgroup = i18n_string_textgroup($this->get_string_info('textgroup'));
+    }
+    return $this->textgroup;
+  }
+
+  /**
+   * Translate object properties
+   */
+  public function translate($options = array()) {
+    if ($strings = i18n_string_object_strings($this->type, $this->object)) {
+      $context = $this->get_string_context();
+      $context[] = '*';
+      $translations = $this->textgroup()->multiple_translate($context, $strings, $options);
+      // Clone real objects, mark translated...
+      if (is_object($this->object)) {
+        $object = clone $this->object;
+        $translate->i18n_string = TRUE;
+      }
+      else {
+        $object = $this->object;
+        $object['i18n_string'] = TRUE;
+      }
+      foreach ($translations as $field => $value) {
+        if (is_object($object)) {
+          $object->$field = i18n_string_format($value, $options);
+        }
+        elseif (is_array($object)) {
+          $object[$field] = i18n_string_format($value, $options);
+        }
+      }
+    }
+    return $object;
+  }
+}
+
+/**
  * Menu callback. Saves a string translation coming as POST data.
  */
 function i18n_string_l10n_client_save_string() {
