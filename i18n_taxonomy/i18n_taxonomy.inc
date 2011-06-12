@@ -29,48 +29,6 @@ class i18n_taxonomy_translation_set extends i18n_translation_set {
 /**
  * Taxonomy textgroup handler
  */
-class i18n_taxonomy_textgroup extends i18n_string_default {
-  /**
-   * Get edit path for object
-   *
-   * @param $type
-   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
-   * @param $object
-   *   The Drupal object itself
-   */
-  public function get_edit_path($type, $object) {
-    switch ($type) {
-      case 'taxonomy_term':
-        return 'taxonomy/term/' . $object->tid . '/edit';
-      case 'taxonomy_vocabulary':
-        return 'admin/structure/taxonomy/' . $object->machine_name . '/edit';
-      default:
-        return parent::get_edit_path($type, $object);
-    }
-  }
-  /**
-   * Get translate path for object
-   *
-   * @param $type
-   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
-   * @param $object
-   *   The Drupal object itself
-   */
-  public function get_translate_path($type, $object, $language = NULL) {
-    switch ($type) {
-      case 'taxonomy_term':
-        return 'taxonomy/term/' . $object->tid . '/translate' . ($language ? '/' . $language->language : '');
-      case 'taxonomy_vocabulary':
-        return 'admin/structure/taxonomy/' . $object->machine_name . '/translate' . ($language ? '/' . $language->language : '');
-      default:
-        return parent::get_translate_path($type, $object, $language);
-    }
-  }
-}
-
-/**
- * Taxonomy textgroup handler
- */
 class i18n_taxonomy_term extends i18n_string_object {
   /**
    * Get edit path for object
@@ -87,7 +45,7 @@ class i18n_taxonomy_term extends i18n_string_object {
   /**
    * Translation mode for object
    */
-  protected function translate_mode() {
+  public function get_translate_mode() {
     $mode = i18n_taxonomy_vocabulary_mode($this->object->vid);
     if ($this->get_langcode()) {
       return $mode & I18N_MODE_TRANSLATE;

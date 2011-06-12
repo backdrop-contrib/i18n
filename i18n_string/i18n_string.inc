@@ -249,38 +249,6 @@ class i18n_string_default {
   }
 
   /**
-   * Get base keys for translating this object
-   */
-  public function get_object_context($object_type, $object) {
-    return array(i18n_string_object_info($object_type, 'type'), i18n_object_key($object_type, $object)); 
-  }
-  /**
-   * Get object strings for translation
-   */
-  public function get_object_strings($object_type, $object) {
-    return i18n_string_object_strings($object_type, $object);
-  }
-  /**
-   * Get object translatable properties
-   */
-  public function get_object_properties($object_type, $object) {
-    $object_keys = array_merge(array($this->textgroup), $this->get_object_context($object_type, $object)); 
-    list($string_type, $object_id) = $this->get_object_context($object_type, $object); 
-    $strings = array();
-    foreach (i18n_string_object_info($object_type, 'properties') as $field => $info) {
-      $info = is_array($info) ? $info : array('title' => $info);
-      $field_name = isset($info['field']) ? $info['field'] : $field;
-      $value = i18n_object_field($object, $field_name);
-      $strings[$this->textgroup][$string_type][$object_id][$field] = array(
-        'string' => is_array($value) || isset($info['empty']) && $value === $info['empty'] ? NULL : $value,
-        'title' => $info['title'],
-        'format' => isset($info['format']) ? i18n_object_field($object, $info['format']) : NULL,
-        'name' => array_merge($object_keys, array($field)),
-      );
-    }
-    return $strings;
-  }
-  /**
    * Load translation from db
    *
    * @todo Optimize when we've already got the source string
@@ -533,26 +501,6 @@ class i18n_string_default {
   }
 
   /**
-   * Translate object properties
-   */
-  public function translate_object($type, $object, $options = array()) {
-    if ($strings = i18n_string_object_strings($type, $object)) {
-      $context = $this->get_object_context($type, $object);
-      $context[] = '*';
-      $translations = $this->multiple_translate($context, $strings, $options);
-      foreach ($translations as $field => $value) {
-        if (is_object($object)) {
-          $object->$field = i18n_string_format($value, $options);
-        }
-        elseif (is_array($object)) {
-          $object[$field] = i18n_string_format($value, $options);
-        }
-      }
-    }
-    return $object;
-  }
-
-  /**
    * Update / create translation source for user defined strings.
    *
    * @param $name
@@ -742,19 +690,6 @@ class i18n_string_default {
       return trim(strtr($path, $replace), '/');
     }    
   }
-
-  /**
-   * Access to object translation. This should check object properties and permissions
-   */
-  public static function object_translate_access($type, $object) {
-    return user_access('translate interface') && I18N_MODE_LOCALIZE & i18n_object_translate_mode($type, $object);
-  }
-  /**
-   * Translation mode for object
-   */
-  public static function object_translate_mode($type, $object) {
-    return !i18n_object_langcode($object) ? I18N_MODE_LOCALIZE : I18N_MODE_NONE;
-  }
 }
 
 /**
@@ -766,29 +701,54 @@ class i18n_string_object extends i18n_object_wrapper {
   
   /**
    * Get object strings for translation
+   * 
+ 	 * This will return a simple array of arrays, indexed by string key.
+   * Each item will have the same elements as in i18n_string_object_properties() and
+   * - 'name', full string name array (textgroup, object type, object id, string key)
    */
-  public function get_strings() {
-    return i18n_string_object_strings($object_type, $object);
+  public function get_strings($include_empty = FALSE) {
+    $strings = array();
+    foreach ($this->get_properties() as $textgroup => $textgroup_list) {
+      foreach ($textgroup_list as $type => $type_list) {
+        foreach ($type_list as $object_id => $object_list) {
+          foreach ($object_list as $key => $string) {
+            if ($include_empty || !empty($string['string'])) {
+              $strings[$key] = $string + array(
+                'name' => array($textgroup, $type, $object_id, $key),
+              );
+            }
+          }
+        }
+      }
+    }
+    return $strings;
   }
   /**
    * Get object translatable properties
+   * 
+   * This will return a big array indexed by textgroup, object type, object id and string key.
+   * Each element is an array with string information, and may have these properties:
+   * - 'string', the string itself, will be NULL if the object doesn't have that string
+   * - 'format', string format when needed
+   * - 'title', string readable name
    */
-  public function get_properties($object_type, $object) {
-    $object_keys = array_merge(array($this->textgroup), $this->get_string_context()); 
-    list($string_type, $object_id) = $this->get_object_context($object_type, $object); 
-    $strings = array();
-    $textgroup = $this->get_string_info('textgroup');
+  public function get_properties() {
+    $object_keys = array_merge(array($this->get_textgroup()), $this->get_string_context()); 
+    list($string_type, $object_id) = $this->get_string_context(); 
+    $strings = array();   
     foreach ($this->get_string_info('properties') as $field => $info) {
       $info = is_array($info) ? $info : array('title' => $info);
       $field_name = isset($info['field']) ? $info['field'] : $field;
       $value = $this->get_field($field_name);
-      $strings[$textgroup][$string_type][$object_id][$field] = array(
+      $strings[$this->get_textgroup()][$string_type][$object_id][$field] = array(
         'string' => is_array($value) || isset($info['empty']) && $value === $info['empty'] ? NULL : $value,
         'title' => $info['title'],
         'format' => isset($info['format']) ? $this->get_field($info['format']) : NULL,
         'name' => array_merge($object_keys, array($field)),
       );
     }
+    // Call hook_i18n_string_list_TEXTGROUP_alter(), last chance for modules
+    drupal_alter('i18n_string_list_' . $this->get_textgroup(), $strings, $this->type, $this->object);
     return $strings;
   }
   /**
@@ -801,7 +761,7 @@ class i18n_string_object extends i18n_object_wrapper {
    * Get string context
    */
   public function get_string_context() {
-    return array($this->type, $this->get_key());
+    return array($this->get_string_info('type'), $this->get_key());
   }
   /**
    * Get translate path for object
@@ -813,32 +773,30 @@ class i18n_string_object extends i18n_object_wrapper {
    */
   public function get_translate_path($language = NULL) {
     if ($path = $this->get_string_info('translate path')) {
-      $replace = $this->get_placeholders($type, $object);
+      $replace = $this->get_placeholders();
       $replace['%language'] = $language ? $language->language : '';
       return trim(strtr($path, $replace), '/');
     }    
   }
 
   /**
-   * Access to object translation. This should check object properties and permissions
-   */
-  protected function translate_access() {
-    return user_access('translate interface') && I18N_MODE_LOCALIZE & $this->translate_mode();
-  }
-
-  /**
    * Translation mode for object
    */
-  protected function translate_mode() {
-    return !i18n_object_langcode($this->object) ? I18N_MODE_LOCALIZE : I18N_MODE_NONE;
+  public function get_translate_mode() {
+    return !$this->get_langcode() ? I18N_MODE_LOCALIZE : I18N_MODE_NONE;
   }
-
+  /**
+   * Get textgroup name
+   */
+  public function get_textgroup() {
+    return $this->get_string_info('textgroup');
+  }
   /**
    * Get textgroup object
    */
   protected function textgroup() {
     if (!isset($this->textgroup)) {
-      $this->textgroup = i18n_string_textgroup($this->get_string_info('textgroup'));
+      $this->textgroup = i18n_string_textgroup($this->get_textgroup());
     }
     return $this->textgroup;
   }
@@ -847,7 +805,7 @@ class i18n_string_object extends i18n_object_wrapper {
    * Translate object properties
    */
   public function translate($options = array()) {
-    if ($strings = i18n_string_object_strings($this->type, $this->object)) {
+    if ($strings = $this->get_strings()) {
       $context = $this->get_string_context();
       $context[] = '*';
       $translations = $this->textgroup()->multiple_translate($context, $strings, $options);

@@ -78,7 +78,7 @@ class i18n_object_wrapper {
   /**
    * Get menu placehoders for object
    */
-  protected function get_placeholders($type, $object) {
+  protected function get_placeholders() {
     $placeholders = $this->get_info('placeholders', array());
     foreach ($placeholders as $name => $field) {
       $placeholders[$name] = $this->get_field($field);
@@ -105,7 +105,7 @@ class i18n_object_wrapper {
    * Menu access callback for mixed translation tab
    */
   function get_translate_access() {
-    switch ($this->translate_mode()) {
+    switch ($this->get_translate_mode()) {
       case I18N_MODE_TRANSLATE:
         return $this->translate_access();
       case I18N_MODE_LOCALIZE:
@@ -114,29 +114,26 @@ class i18n_object_wrapper {
         return FALSE;
     }
   }
+
   /**
    * Get translate or localize mode for object
    */
   function get_translate_mode() {
-     return $this->translate_mode();
+    return I18N_MODE_NONE;
   }  
+
   /**
    * Localize access
    */
   protected function translate_access() {
     return FALSE;
   }
+
   /**
-   * Get primary translate or localize mode for object
-   */
-  protected function translate_mode() {
-     return I18N_MODE_NONE;
-  }
-  /**
-   * Translate access (translation sets)
+   * Translate access (localize strings)
    */
   protected function localize_access() {
-    return FALSE;
+    return user_access('translate interface');
   }
 
   /**

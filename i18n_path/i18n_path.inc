@@ -51,5 +51,11 @@ class i18n_path_object extends i18n_object_wrapper {
    */
   public function get_path() {
     return check_url($this->object->path);
-  }  
+  }
+  /**
+   * Get translate mode
+   */
+  public function get_translate_mode() {
+    return I18N_MODE_TRANSLATE;
+  }
 }

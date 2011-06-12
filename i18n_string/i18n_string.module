@@ -716,7 +716,7 @@ function i18n_string_object_translate($type, $object, $options = array()) {
       $translate = $object;
       $translate['i18n_string'] = TRUE;
     }
-    return i18n_string_textgroup($textgroup)->translate_object($type, $translate, $options);
+    return i18n_object($type, $object)->translate($options);
   }
   else {
     return $object;
@@ -727,68 +727,14 @@ function i18n_string_object_translate($type, $object, $options = array()) {
  * Access callback for object translation
  */
 function i18n_string_object_translate_access($type, $object) {
-  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
-    return i18n_string_textgroup($textgroup)->object_translate_access($type, $object);
-  }
-  else {
-    return FALSE;
-  }
+  return i18n_object($type, $object)->get_translate_access();
 }
 
 /**
  * Access callback for object translation
  */
 function i18n_string_object_translate_mode($type, $object) {
-  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
-    return i18n_string_textgroup($textgroup)->object_translate_mode($type, $object);
-  }
-  else {
-    return I18N_MODE_NONE;
-  }
-}
-
-/**
- * Get translatable properties for object
- * 
- * This will return a big array indexed by textgroup, object type, object id and string key.
- * Each element is an array with string information, and may have these properties:
- * - 'string', the string itself, will be NULL if the object doesn't have that string
- * - 'format', string format when needed
- * - 'title', string readable name
- */
-function i18n_string_object_properties($type, $object) {
-  $properties = array();
-  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
-    $properties = i18n_string_textgroup($textgroup)->get_object_properties($type, $object);
-    // Call hook_i18n_string_list_TEXTGROUP_alter(), last chance for modules
-    drupal_alter('i18n_string_list_' . $textgroup, $properties, $type, $object);
-  }
-  return $properties;
-}
-
-/**
- * Translate properties into array of strings, filter out empty ones, etc
- * 
- * This will return a simple array of arrays, indexed by string key.
- * Each item will have the same elements as in i18n_string_object_properties() and
- * - 'name', full string name array (textgroup, object type, object id, string key)
- */
-function i18n_string_object_strings($object_type, $object, $include_empty = FALSE) {
-  $strings = array();
-  foreach (i18n_string_object_properties($object_type, $object) as $textgroup => $textgroup_list) {
-    foreach ($textgroup_list as $type => $type_list) {
-      foreach ($type_list as $object_id => $object_list) {
-        foreach ($object_list as $key => $string) {
-          if ($include_empty || !empty($string['string'])) {
-            $strings[$key] = $string + array(
-              'name' => array($textgroup, $type, $object_id, $key),
-            );
-          }
-        }
-      }
-    }
-  }
-  return $strings;
+  return i18n_object($type, $object)->get_translate_mode();
 }
 
 /**
@@ -800,7 +746,7 @@ function i18n_string_object_strings($object_type, $object, $include_empty = FALS
  *   Object or array
  */
 function i18n_string_object_remove($type, $object, $options = array()) {
-  foreach (i18n_string_object_strings($type, $object, TRUE) as $key => $string) {
+  foreach (i18n_object($type, $object)>get_strings(TRUE) as $key => $string) {
     // Not likely but it may occur that an object triggers an update in another textgroup
     i18n_string_remove($string['name'], $string['string'], $options);
   }
@@ -815,7 +761,7 @@ function i18n_string_object_remove($type, $object, $options = array()) {
  *   Object or array
  */
 function i18n_string_object_update($type, $object, $options = array()) {
-  foreach (i18n_string_object_strings($type, $object, TRUE) as $key => $string) {
+  foreach (i18n_object($type, $object)->get_strings(TRUE) as $key => $string) {
     $field_options = !empty($string['format']) ? array('format' => $string['format']) : array();
     // Not likely but it may occur that an object triggers an update in another textgroup
     i18n_string_update($string['name'], $string['string'], $field_options + $options);
@@ -825,18 +771,17 @@ function i18n_string_object_update($type, $object, $options = array()) {
 /**
  * Generic translation page for i18n_strings objects.
  */
-function i18n_string_object_translate_page($object_type, $object, $langcode = NULL) {
-  $info = i18n_object_info($object_type);
-  $textgroup = i18n_string_textgroup($info['string translation']['textgroup']);
+function i18n_string_object_translate_page($object_type, $object_value, $langcode = NULL) {
+  $object = i18n_object($object_type, $object_value);
 
   // Build the form meta from object type
   $form_meta = array(
-    '#page_title' => t('Translate @name', array('@name' => $info['title'])),
-    '#edit' => $textgroup->get_edit_path($object_type, $object),
-    '#translate' => $textgroup->get_translate_path($object_type, $object),
+    '#page_title' => t('Translate @name', array('@name' => i18n_object_info($object_type, 'title'))),
+    '#edit' => $object->get_edit_path(),
+    '#translate' => $object->get_translate_path(),
   );
   // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
-  $string_list = i18n_string_object_strings($object_type, $object);
+  $string_list = $object->get_strings();
   foreach ($string_list as $key => $string) {
     if ($string['string']) {
       $form_meta['#items'][] = array(

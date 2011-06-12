@@ -79,7 +79,6 @@ function i18n_taxonomy_i18n_string_info() {
     'format' => FALSE, // This group doesn't have strings with format
     'list' => FALSE, // This group cannot list all strings
     'refresh callback' => 'i18n_taxonomy_i18n_string_refresh',
-    'class' => 'i18n_taxonomy_textgroup',
   );
   return $groups;
 }

@@ -44,7 +44,6 @@ function i18n_block_i18n_string_info() {
     'description' => t('Configurable blocks titles and content.'),
     'format' => TRUE, // This group has strings with format (block body)
     'list' => TRUE, // This group can list all strings
-    'class' => 'i18n_block_textgroup',
   );
   return $groups;
 }

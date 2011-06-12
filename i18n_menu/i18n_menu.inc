@@ -45,7 +45,7 @@ class i18n_menu_link extends i18n_string_object {
   /**
    * Translation mode for object
    */
-  protected function translate_mode() {
+  public function get_translate_mode() {
     $mode = i18n_menu_mode($this->object['menu_name']);
     if ($this->get_langcode()) {
       return $mode & I18N_MODE_TRANSLATE;
@@ -61,6 +61,6 @@ class i18n_menu_link extends i18n_string_object {
    * Access to object translation. This should check object properties and permissions
    */
   protected function translate_access() {
-    return user_access('administer menu') && user_access('translate interface') && $this->translate_mode() & I18N_MODE_TRANSLATE;
+    return user_access('administer menu') && user_access('translate interface');
   }
 }

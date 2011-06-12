@@ -91,7 +91,7 @@ function i18n_menu_i18n_string_list($group) {
     $strings = array();
     // Add all menus
     foreach (menu_load_all() as $name => $menu) {
-      $strings['menu']['menu'][$name] = i18n_string_object_strings('menu', $menu);
+      $strings['menu']['menu'][$name] = i18n_object('menu', $menu)->get_strings();
     }
     $query = db_select('menu_links', 'm')
       ->fields('m')
@@ -99,7 +99,7 @@ function i18n_menu_i18n_string_list($group) {
       ->condition('customized', 1);
     foreach ($query->execute()->fetchAll() as $link) {
       $link->options = unserialize($link->options);
-      $strings['menu']['item'][$link->mlid] = i18n_string_object_strings('menu_link', (array)$link);
+      $strings['menu']['item'][$link->mlid] = i18n_object('menu_link', (array)$link)->get_strings();
     }
     return $strings;
   }

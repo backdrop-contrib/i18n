@@ -310,7 +310,10 @@ function i18n_context_language() {
  * Create object wrapper
  */
 function i18n_object($type, $object) {
-  $class = i18n_object_info($type, 'class', 'i18n_object_wrapper');
+  $class = i18n_object_info($type, 'class');
+  if (!$class) {
+    $class = module_exists('i18n_string') ? 'i18n_string_object' : 'i18n_object_wrapper';
+  }
   return new $class($type, $object);
 }
 

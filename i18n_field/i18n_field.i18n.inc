@@ -10,6 +10,7 @@
 function i18n_field_i18n_object_info() {
   $info['field'] = array(
     'title' => t('Field'),
+    'class' => 'i18n_field',
     'key' => 'field',
     'placeholders' => array(
     	'%field_ui_menu' => 'field_name',
@@ -28,6 +29,7 @@ function i18n_field_i18n_object_info() {
   );
   $info['field_instance'] = array(
     'title' => t('Field instance'),
+    'class' => 'i18n_field_instance',
     'key' => array('field_name', 'bundle'),
     'placeholders' => array(
     	'%bundle' => 'bundle',
@@ -64,7 +66,6 @@ function i18n_field_i18n_string_info() {
     'description' => t('Configurable fields descriptions, defaults, options, etc.'),
     'format' => FALSE, // This group doesn't have formatted strings
     'list' => TRUE, // This group can list all strings
-    'class' => 'i18n_field_textgroup',
   );
   return $groups;
 }
