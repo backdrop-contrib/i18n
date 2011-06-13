@@ -28,7 +28,7 @@ class i18n_menu_link_translation_set extends i18n_translation_set {
 /**
  * Menu link object
  */
-class i18n_menu_link extends i18n_string_object {
+class i18n_menu_link extends i18n_string_object_wrapper {
   /**
    * Get path for item
    */

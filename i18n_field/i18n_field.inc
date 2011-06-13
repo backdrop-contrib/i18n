@@ -7,7 +7,7 @@
 /**
  * Field object
  */
-class i18n_field extends i18n_string_object {
+class i18n_field extends i18n_string_object_wrapper {
   /**
    * Get edit path for object
    */
@@ -54,7 +54,7 @@ class i18n_field extends i18n_string_object {
 /**
  * Field instance object
  */
-class i18n_field_instance extends i18n_string_object {
+class i18n_field_instance extends i18n_string_object_wrapper {
   /**
    * Get edit path for object
    */

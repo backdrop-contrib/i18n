@@ -52,15 +52,6 @@ class i18n_string_default {
     return $string;
   }
   /**
-   * Check if text format is allowed for translation
-   *
-   * @param $format
-   *   Text format key or NULL if not format (will be allowed)
-   */
-  public static function allowed_format($format = NULL) {
-    return !$format || in_array($format, i18n_string_allowed_formats());
-  }
-  /**
    * Add source string to the locale tables for translation.
    *
    * It will also add data into i18n_string table for faster retrieval and indexing of groups of strings.
@@ -179,7 +170,7 @@ class i18n_string_default {
    */
   protected static function check_string($i18nstring, $options = array()) {
     $options += array('messages' => FALSE, 'watchdog' => TRUE);
-    if (!empty($i18nstring->format) && !self::allowed_format($i18nstring->format)) {
+    if (!empty($i18nstring->format) && !i18n_string_allowed_format($i18nstring->format)) {
       // This format is not allowed, so we remove the string, in this case we produce a warning
       $params = self::string_params($i18nstring);
       drupal_set_message(t('The string %location for textgroup %textgroup is not allowed for translation because of its text format.', $params), 'warning');
@@ -204,6 +195,8 @@ class i18n_string_default {
     }
     // Search the database using lid if we've got it or textgroup, context otherwise
     $query = db_select('locales_source', 's')->fields('s');
+    $query->leftJoin('i18n_string', 'i', 's.lid = i.lid');
+    $query->fields('i', array('format', 'objectid', 'type', 'property', 'objectindex'));
     if (!empty($i18nstring->lid)) {
       $query->condition('s.lid', $i18nstring->lid);
     }
@@ -668,7 +661,7 @@ class i18n_string_default {
 /**
  * String object wrapper
  */
-class i18n_string_object extends i18n_object_wrapper {
+class i18n_string_object_wrapper extends i18n_object_wrapper {
   // Text group object
   protected $textgroup;
   

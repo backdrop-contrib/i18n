@@ -69,10 +69,15 @@ function i18n_string_textgroup($textgroup) {
 }
 
 /**
- * Get list of allowed formats for text translation
+ * Check whether a string format is allowed for translation.
  */
-function i18n_string_allowed_formats() {
-  return variable_get('i18n_string_allowed_formats', array(filter_fallback_format()));
+function i18n_string_allowed_format($format_id = NULL) {
+  if (!$format_id) {
+    return TRUE;
+  }
+  else {
+    return in_array($format_id, variable_get('i18n_string_allowed_formats', array(filter_fallback_format())));
+  }
 }
 
 /**
@@ -513,9 +518,13 @@ function i18n_string_translate($name, $string, $options = array()) {
  * Check user access to translate a specific string.
  * 
  * If the string has a format the user is not allowed to edit, it will return FALSE
+ * 
+ * @param $string_format;
+ *   String object or $format_id
  */
-function i18n_string_translate_access($i18nstring, $account = NULL) {
-  return empty($i18nstring->format) || in_array($i18nstring->format, i18n_string_allowed_formats()) && ($format = filter_format_load($i18nstring->format)) && filter_access($format, $account) ;
+function i18n_string_translate_access($string_format, $account = NULL) {
+  $format_id = is_object($string_format) ? i18n_object_field($string_format, 'format') : $string_format;
+  return empty($format_id) || i18n_string_allowed_format($format_id) && ($format = filter_format_load($format_id)) && filter_access($format, $account) ;
 }
 
 /**
@@ -528,7 +537,7 @@ function i18n_string_format($i18nstring, $options = array()) {
   if (!isset($debug)) {
     $debug = variable_get('i18n_string_debug', FALSE);
   }
-  $options += array('sanitize' => TRUE, 'cache' => FALSE);
+  $options += array('sanitize' => TRUE, 'cache' => FALSE, 'debug' => $debug);
   if (is_string($i18nstring)) {
     $string = $i18nstring;
   }
@@ -554,7 +563,7 @@ function i18n_string_format($i18nstring, $options = array()) {
     }
   }
   // Add debug information if enabled
-  if ($debug && is_object($i18nstring)) {
+  if ($options['debug'] && is_object($i18nstring)) {
     $info = array($i18nstring->textgroup, $i18nstring->context);
     if (!empty($i18nstring->format)) {
       $info[] = $i18nstring->format;

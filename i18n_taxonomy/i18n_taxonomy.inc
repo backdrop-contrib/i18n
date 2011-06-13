@@ -29,7 +29,7 @@ class i18n_taxonomy_translation_set extends i18n_translation_set {
 /**
  * Taxonomy textgroup handler
  */
-class i18n_taxonomy_term extends i18n_string_object {
+class i18n_taxonomy_term extends i18n_string_object_wrapper {
   /**
    * Translation mode for object
    */

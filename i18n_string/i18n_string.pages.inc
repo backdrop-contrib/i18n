@@ -20,8 +20,7 @@ function i18n_string_translate_page($form_meta, $langcode = NULL) {
     return i18n_string_translate_page_overview($form_meta);
   }
   else {
-    $languages = language_list();
-    drupal_set_title(t('Translate to @language', array('@language' => $languages[$langcode]->name)));
+    drupal_set_title(t('Translate to @language', array('@language' => i18n_language_name($langcode))));
     return drupal_get_form('i18n_string_translate_page_form', $form_meta, $langcode);
   }
 }
@@ -91,26 +90,18 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
   foreach ($form_meta['#items'] as $item) {
     $disabled = FALSE;
     $description = '';
-    list($textgroup, $context) = i18n_string_context($item['#string_key']);
-    $source = db_select('i18n_string', 'i18ns')
-      ->fields('i18ns')
-      ->condition('textgroup', $textgroup)
-      ->condition('context', implode(':', $context))
-      ->execute()
-      ->fetchObject();
-    if ($source) {
-      if ($source->format) {
-        $format = $formats[$source->format];
-        $disabled = !filter_access($format);
-        if ($disabled) {
-          $description = t('This string uses the %name text format. You are not allowed to translate or edit texts with this format.', array('%name' => $format->name));
-        }
-        else {
-          $description = '<h5>' . t('Text format: @name', array('@name' => $format->name)) . '</h5>' . theme('filter_tips', array('tips' => _filter_tips($source->format, FALSE)));
-        }
+    $source = i18n_string_get_source($item['#string_key']);
+    if ($source && $source->format) {
+      $format = filter_format_load($source->format);
+      $disabled = !i18n_string_translate_access($source);
+      if ($disabled) {
+        $description = t('This string uses the %name text format. You are not allowed to translate or edit texts with this format.', array('%name' => $format->name));
+      }
+      else {
+        $description = '<h5>' . t('Text format: @name', array('@name' => $format->name)) . '</h5>' . theme('filter_tips', array('tips' => _filter_tips($source->format, FALSE)));
       }
     }
-    $default_value = i18n_string($item['#string_key'], $item['#default_value'], array('langcode' => $langcode, 'sanitize' => FALSE));
+    $default_value = i18n_string($item['#string_key'], $item['#default_value'], array('langcode' => $langcode, 'sanitize' => FALSE, 'debug' => FALSE));
     $form['strings'][implode(':', $item['#string_key'])] = array(
       '#title' => $item['#title'],
       '#type' => 'textarea',

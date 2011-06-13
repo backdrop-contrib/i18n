@@ -6,7 +6,7 @@
 /**
  * Block object
  */
-class i18n_block_object extends i18n_string_object {
+class i18n_block_object extends i18n_string_object_wrapper {
   /**
    * Get base keys for translating this object
    */

@@ -122,7 +122,7 @@ function i18n_string_admin_settings() {
     '#title' => t('Translatable text formats'),
     '#options' => $format_list,
     '#type' => 'checkboxes',
-    '#default_value' => i18n_string_allowed_formats(),
+    '#default_value' => variable_get('i18n_string_allowed_formats', array(filter_fallback_format())),
     '#description' => t('Only the strings that have the text formats selected will be allowed by the translation system. All the others will be deleted next time the strings are refreshed.'),
   );
   $form['array_filter'] = array('#type' => 'value', '#value' => TRUE);
@@ -284,7 +284,6 @@ function _i18n_string_batch_refresh_callback($group, &$context) {
   }
 }
 
-
 /**
  * Batch callback, delete old strings
  */
@@ -307,5 +306,24 @@ function _i18n_string_batch_refresh_summary($group, &$context) {
   else {
     drupal_set_message(t("Cannot refresh strings for %group.", array('%group' => i18n_string_group_info($group, 'title'))), 'warning');
   }
+}
 
+/**
+ * Get object types for text group
+ */
+function i18n_string_group_object_types($group) {
+  $types = array();
+  foreach (i18n_object_info() as $type => $type_info) {
+    if (!empty($info['string translation']) && $info['string translation']['textgroup'] == $group) {
+      $types[] = $type;
+    }
+  }
+  return $type;
+}
+
+/**
+ * Get object string list
+ */
+function i18n_string_group_object_list($group, $type) {
+  
 }
