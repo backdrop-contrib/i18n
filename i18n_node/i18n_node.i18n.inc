@@ -17,6 +17,9 @@ function i18n_node_i18n_object_info() {
     ),
     'edit path' => 'admin/structure/types/manage/%node_type',
     'translate tab' => 'admin/structure/types/manage/%node_type/translate',
+    // We can easily list all these objects
+    'list callback' => 'node_type_get_types',
+    // Metadata for string translation
     'string translation' => array(
       'textgroup' => 'node',
       'type' => 'type',
@@ -43,21 +46,4 @@ function i18n_node_i18n_string_info() {
     'list' => TRUE, // This group can list all strings
   );
   return $groups;
-}
-/**
- * Implements hook_i18n_string_list()
- */
-function i18n_node_i18n_string_list($group) {
-  if ($group == 'node' || $group = 'all') {
-    $strings = array();
-    foreach (node_type_get_types() as $type) {
-      $strings['node']['type'][$type->type] = array(
-        'name' => $type->name,
-        'title_label' => $type->title_label,
-        'description' => $type->description,
-        'help' => $type->help,
-      );
-    }
-    return $strings;
-  }
 }

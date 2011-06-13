@@ -18,6 +18,9 @@ function i18n_menu_i18n_object_info() {
     'edit path' => 'admin/structure/menu/manage/%menu/edit',
     // Auto-generate translate tab.
     'translate tab' => 'admin/structure/menu/manage/%menu/translate',
+    // We can easily list all these objects
+    'list callback' => 'menu_load_all',
+    // Metadata for string translation
     'string translation' => array(
       'textgroup' => 'menu',
       'type' => 'menu',
@@ -84,22 +87,14 @@ function i18n_menu_i18n_string_info() {
 /**
  * Implements hook_i18n_string_list()
  */
-function i18n_menu_i18n_string_list($group) {
-  if ($group == 'menu' || $group == 'all') {
-    $strings = array();
-    // Add all menus
-    foreach (menu_load_all() as $name => $menu) {
-      $strings['menu']['menu'][$name] = i18n_object('menu', $menu)->get_strings();
-    }
-    $query = db_select('menu_links', 'm')
+function i18n_menu_i18n_string_objects($type) {
+  if ($type == 'menu_item') {
+    // All menu items that have no language and are customized.
+    return db_select('menu_links', 'm')
       ->fields('m')
       ->condition('language', LANGUAGE_NONE)
-      ->condition('customized', 1);
-    foreach ($query->execute()->fetchAll() as $link) {
-      $link->options = unserialize($link->options);
-      $strings['menu']['item'][$link->mlid] = i18n_object('menu_link', (array)$link)->get_strings();
-    }
-    return $strings;
+      ->condition('customized', 1)
+      ->fetchAll();
   }
 }
 

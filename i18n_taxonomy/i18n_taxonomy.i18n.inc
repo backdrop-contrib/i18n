@@ -54,6 +54,9 @@ function i18n_taxonomy_i18n_object_info() {
     'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/edit',
     // Auto-generate translate tab
     'translate tab' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/translate',
+    // We can easily list all these objects
+    'list callback' => 'taxonomy_get_vocabularies',
+    // Metadata for string translation
     'string translation' => array(
       'textgroup' => 'taxonomy',
       'type' => 'vocabulary',
@@ -87,21 +90,19 @@ function i18n_taxonomy_i18n_string_info() {
 }
 
 /**
- * Implements hook_i18n_string_refresh()
+ * Implements hook_i18n_string_objects()
  */
-function i18n_taxonomy_i18n_string_refresh($group) {
-  if ($group == 'taxonomy' || $group == 'all') {
-    foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
-      if (empty($vocabulary->language)) {
-        i18n_string_object_update('taxonomy_vocabulary', $vocabulary);
-      }
-      if (i18n_taxonomy_vocabulary_mode($vid) & I18N_MODE_LOCALIZE) {
+function i18n_taxonomy_i18n_string_objects($type) {
+  if ($type == 'taxonomy_term') {
+    $terms = array();
+    foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) { 
+      if ($vocabulary->i18n_mode & I18N_MODE_LOCALIZE) {
         foreach (taxonomy_get_tree($vid, 0) as $term) {
-          i18n_string_object_update('taxonomy_term', $term);
+          $terms[] = $term;
         }
       }
     }
-    return TRUE; // Meaning it completed with no issues
+    return $terms;
   }
 }
 

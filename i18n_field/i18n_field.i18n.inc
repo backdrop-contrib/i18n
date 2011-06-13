@@ -11,12 +11,14 @@ function i18n_field_i18n_object_info() {
   $info['field'] = array(
     'title' => t('Field'),
     'class' => 'i18n_field',
-    'key' => 'field',
+    'key' => 'field_name',
     'placeholders' => array(
     	'%field_ui_menu' => 'field_name',
       '%field_type' => 'type',
     ),
     'edit path' => 'admin/structure/types/manage/%bundle/fields/%field_ui_menu/field-settings',
+    // We can easily list all these objects
+    'list callback' => 'field_read_fields',
     'string translation' => array(
       'textgroup' => 'field',
       'properties' => array(
@@ -36,6 +38,9 @@ function i18n_field_i18n_object_info() {
       '%field_ui_menu' => 'field_name',
     ),
     'edit path' => 'admin/structure/types/manage/%bundle/fields/%field_ui_menu',
+    // We can easily list all these objects.
+    'list callback' => 'field_read_instances',
+    // Metadata for string translation.
     'string translation' => array(
       'textgroup' => 'field',
       'properties' => array(
@@ -69,38 +74,6 @@ function i18n_field_i18n_string_info() {
   );
   return $groups;
 }
-
-/**
- * Implements hook_i18n_string_list().
- */
-function i18n_field_i18n_string_list($group) {
-  if ($group == 'field'  || $group == 'all') {
-    $strings = array();
-    foreach (field_read_fields() as $field) {
-      if (!empty($field['settings']['allowed_values']) && i18n_field_type_info($field['type'], 'translate_options')) {
-        $strings['field'][$field['field_name']]['#allowed_values'] = $field['settings']['allowed_values'];
-      }
-    }
-    foreach (field_read_instances() as $instance) {
-      $add = array(
-        'label' => $instance['label'],
-        'description' => $instance['description'],
-      );
-      // Only for some field types, like text field
-      $field = field_info_field($instance['field_name']);
-      if (isset($instance['default_value']) && i18n_field_type_info($field['type'], 'translate_default')) {
-        $format = isset($instance['default_value'][0]['format']) ? $instance['default_value'][0]['format'] : NULL;
-        $add['default_value'] = array(
-          'string' => $instance['default_value'][0]['value'],
-          'format' => $format,
-        );
-      }
-      $strings['field'][$instance['field_name']][$instance['bundle']] = $add;
-    }
-    return $strings;
-  }
-}
-
 
 /**
  * Implements hook_i18n_field_info().

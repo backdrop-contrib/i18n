@@ -699,8 +699,12 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * - 'title', string readable name
    */
   public function get_properties() {
-    $object_keys = array_merge(array($this->get_textgroup()), $this->get_string_context()); 
     list($string_type, $object_id) = $this->get_string_context(); 
+    $object_keys = array(
+      $this->get_textgroup(),
+      $string_type,
+      $object_id,
+    );
     $strings = array();   
     foreach ($this->get_string_info('properties') as $field => $info) {
       $info = is_array($info) ? $info : array('title' => $info);

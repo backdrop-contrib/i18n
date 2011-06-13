@@ -30,11 +30,23 @@ class i18n_menu_link_translation_set extends i18n_translation_set {
  */
 class i18n_menu_link extends i18n_string_object_wrapper {
   /**
+   * Class constructor
+   */
+  public function __construct($type, $object) {
+    // Unserialize options if not done
+    if (isset($object->options) && !is_array($object->options)) {
+      $object->options = unserialize($object->options);
+    }
+    parent::__construct($type, $object);
+  }
+
+  /**
    * Get path for item
    */
   public function get_path() {
     return $this->object['link_path'];
   }
+
   /**
    * Get title from item
    */

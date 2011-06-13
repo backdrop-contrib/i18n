@@ -160,7 +160,8 @@ function i18n_string_menu() {
 function i18n_string_hook_info() {
   $hooks['i18n_string_info'] =
   $hooks['i18n_string_list'] =
-  $hooks['i18n_string_refresh'] = array(
+  $hooks['i18n_string_refresh'] = 
+  $hooks['i18n_string_objects'] = array(
     'group' => 'i18n',
   );
   return $hooks;
@@ -472,7 +473,7 @@ function i18n_string_modules_enabled($modules) {
   module_load_include('admin.inc', 'i18n_string');
   // Check if any of the modules has strings to update
   foreach ($modules as $module) {
-    if ($strings = module_invoke($module, 'i18n_string_list', 'all')) {
+    if ($strings = i18n_string_module_string_list($module)) {
       i18n_string_refresh_string_list($strings);
     }
     // Call module refresh if exists

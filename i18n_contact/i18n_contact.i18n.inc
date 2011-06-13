@@ -40,6 +40,8 @@ function i18n_contact_i18n_object_info() {
       'textgroup' => 'contact',
       // Object type property for string translation.
       'type' => 'category',
+      // Table where the object is stored, to automate string lists
+      'table' => 'contact',
       // Translatable properties of these objects.
       'properties' => array(
         'category' => t('Category'),
@@ -50,22 +52,4 @@ function i18n_contact_i18n_object_info() {
     )
   );
   return $info;
-}
-
-/**
- * Implements hook_i18n_string_list().
- */
-function i18n_contact_i18n_string_list($group) {
-  if ($group == 'contact' || $group == 'all') {
-    $strings = array();
-    $query = db_select('contact', 'c')->fields('c');
-    $result = $query->execute()->fetchAll();
-    foreach ($result as $contact) {
-      $strings['contact']['category'][$contact->cid]['category'] = $contact->category;
-      if (!empty($contact->reply)) {
-        $strings['contact']['category'][$contact->cid]['reply'] = $contact->reply;
-      }
-    }
-    return $strings;
-  }
 }
