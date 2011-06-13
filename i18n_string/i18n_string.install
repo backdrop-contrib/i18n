@@ -144,7 +144,7 @@ function i18n_string_update_7000() {
     db_query("UPDATE {i18n_string} s SET s.textgroup = (SELECT l.textgroup FROM {locales_source} l WHERE l.lid = s.lid)");
     // Populate context field. We could use CONCAT_WS but I guess this is more standard.
     db_query("UPDATE {i18n_string} SET context = CONCAT(type, ':', objectid, ':', property)");
-    db_query("UPDATE {locales_source} s SET s.context = (SELECT l.context FROM {i18n_string} l WHERE l.lid = s.lid)");
+    db_query("UPDATE {locales_source} s INNER JOIN {i18n_string} i ON s.lid = i.lid SET s.context = i.context");
   }
 }
 
