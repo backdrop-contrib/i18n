@@ -664,6 +664,8 @@ class i18n_string_default {
 class i18n_string_object_wrapper extends i18n_object_wrapper {
   // Text group object
   protected $textgroup;
+  // Object translations
+  protected $translations;
   
   /**
    * Get object strings for translation
@@ -776,29 +778,29 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * Translate object properties
    */
   public function translate($options = array()) {
-    if ($strings = $this->get_strings()) {
-      $context = $this->get_string_context();
-      $context[] = '*';
-      $translations = $this->textgroup()->multiple_translate($context, $strings, $options);
-      // Clone real objects, mark translated...
-      if (is_object($this->object)) {
-        $object = clone $this->object;
-        $translate->i18n_string = TRUE;
-      }
-      else {
-        $object = $this->object;
-        $object['i18n_string'] = TRUE;
-      }
-      foreach ($translations as $field => $value) {
-        if (is_object($object)) {
-          $object->$field = i18n_string_format($value, $options);
-        }
-        elseif (is_array($object)) {
-          $object[$field] = i18n_string_format($value, $options);
-        }
-      }
+    $options['langcode'] = $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
+    // We may have it already translated
+    if (isset($this->translations[$langcode])) {
+      return $this->translations[$langcode];
     }
-    return $object;
+    else {
+      $object = is_object($this->object) ? clone $this->object : $this->object;
+      if ($strings = $this->get_strings()) {
+        $context = $this->get_string_context();
+        $context[] = '*';
+        $translations = $this->textgroup()->multiple_translate($context, $strings, $options);
+        // Clone real objects, mark translated...
+        foreach ($translations as $field => $value) {
+          if (is_object($object)) {
+            $object->$field = i18n_string_format($value, $options);
+          }
+          elseif (is_array($object)) {
+            $object[$field] = i18n_string_format($value, $options);
+          }
+        }
+      }
+      return $this->translations[$langcode] = $object;
+    }    
   }
 }
 

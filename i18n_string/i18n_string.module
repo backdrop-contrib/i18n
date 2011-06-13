@@ -57,30 +57,6 @@ define('I18N_STRING_STATUS_UPDATE', 1);
 define('I18N_STRING_STATUS_DELETE', 2);
 
 /**
- * Get textgroup handler
- */
-function i18n_string_textgroup($textgroup) {
-  $groups = &drupal_static(__FUNCTION__);
-  if (!isset($groups[$textgroup])) {
-    $class = i18n_string_group_info($textgroup, 'class', 'i18n_string_default');
-    $groups[$textgroup] = new $class($textgroup);
-  }
-  return $groups[$textgroup];
-}
-
-/**
- * Check whether a string format is allowed for translation.
- */
-function i18n_string_allowed_format($format_id = NULL) {
-  if (!$format_id) {
-    return TRUE;
-  }
-  else {
-    return in_array($format_id, variable_get('i18n_string_allowed_formats', array(filter_fallback_format())));
-  }
-}
-
-/**
  * Implements hook_help().
  */
 function i18n_string_help($path, $arg) {
@@ -165,6 +141,37 @@ function i18n_string_hook_info() {
     'group' => 'i18n',
   );
   return $hooks;
+}
+
+/**
+ * Implements hook_locale().
+ *
+ * Provide the information from i18n_string groups to locale module
+ */
+function i18n_string_locale($op = 'groups') {
+  if ($op == 'groups') {
+    $groups = array();
+    foreach (i18n_string_group_info() as $name => $info) {
+      $groups[$name] = $info['title'];
+    }
+    return $groups;
+  }
+}
+
+/**
+ * Implements hook_modules_enabled().
+ */
+function i18n_string_modules_enabled($modules) {
+  module_load_include('admin.inc', 'i18n_string');
+  i18n_string_refresh_enabled_modules($modules);
+}
+
+/**
+ * Implements hook_modules_uninstalled().
+ */
+function i18n_string_modules_uninstalled($modules) {
+  module_load_include('admin.inc', 'i18n_string');
+  i18n_string_refresh_uninstalled_modules($modules);
 }
 
 /**
@@ -282,14 +289,6 @@ function i18n_string_locale_translate_import_form_submit($form, &$form_state) {
 }
 
 /**
- * Get source string object.
- */
-function i18n_string_get_source($name) {
-  list($textgroup, $context) = i18n_string_context($name);
-  return i18n_string_textgroup($textgroup)->get_source($context);
-}
-
-/**
  * Check if translation is required for this language code.
  *
  * Translation is required when default language is different from the given
@@ -358,6 +357,30 @@ function i18n_string_update_context($oldname, $newname) {
 }
 
 /**
+ * Get textgroup handler
+ */
+function i18n_string_textgroup($textgroup) {
+  $groups = &drupal_static(__FUNCTION__);
+  if (!isset($groups[$textgroup])) {
+    $class = i18n_string_group_info($textgroup, 'class', 'i18n_string_default');
+    $groups[$textgroup] = new $class($textgroup);
+  }
+  return $groups[$textgroup];
+}
+
+/**
+ * Check whether a string format is allowed for translation.
+ */
+function i18n_string_allowed_format($format_id = NULL) {
+  if (!$format_id) {
+    return TRUE;
+  }
+  else {
+    return in_array($format_id, variable_get('i18n_string_allowed_formats', array(filter_fallback_format())));
+  }
+}
+
+/**
  * Convert string name into textgroup and string context
  *
  * @param $name
@@ -399,24 +422,13 @@ function i18n_string_element_mark(&$element) {
   }
 }
 
+
 /**
- * Translate / update multiple strings
- *
- * @param $strings
- *   Array of name => string pairs
+ * Get source string object.
  */
-function i18n_string_multiple($operation, $name, $strings, $options = array()) {
-  $result = array();
-  // Strings may be an array of properties, we need to shift it
-  if ($operation == 'remove') {
-    $strings = array_flip($strings);
-  }
-  foreach ($strings as $key => $string) {
-    list($textgroup, $context) = i18n_string_context($name, $key);
-    array_unshift($context, $textgroup);
-    $result[$key] = call_user_func('i18n_string_' . $operation, $context, $string, $options);
-  }
-  return $result;
+function i18n_string_get_source($name) {
+  list($textgroup, $context) = i18n_string_context($name);
+  return i18n_string_textgroup($textgroup)->get_source($context);
 }
 
 /**
@@ -446,41 +458,31 @@ function i18n_string_group_info($group = NULL, $property = NULL, $default = NULL
   }
 }
 
+
 /**
- * Implements hook_locale().
+ * Translate / update multiple strings
  *
- * Provide the information from i18n_string groups to locale module
+ * @param $strings
+ *   Array of name => string pairs
  */
-function i18n_string_locale($op = 'groups') {
-  if ($op == 'groups') {
-    $groups = array();
-    foreach (i18n_string_group_info() as $name => $info) {
-      $groups[$name] = $info['title'];
-    }
-    return $groups;
+function i18n_string_multiple($operation, $name, $strings, $options = array()) {
+  $result = array();
+  // Strings may be an array of properties, we need to shift it
+  if ($operation == 'remove') {
+    $strings = array_flip($strings);
   }
+  foreach ($strings as $key => $string) {
+    list($textgroup, $context) = i18n_string_context($name, $key);
+    array_unshift($context, $textgroup);
+    $result[$key] = call_user_func('i18n_string_' . $operation, $context, $string, $options);
+  }
+  return $result;
 }
 
 /**
  * @ingroup i18napi
  * @{
  */
-
-/**
- * Implements hook_modules_enabled().
- */
-function i18n_string_modules_enabled($modules) {
-  module_load_include('admin.inc', 'i18n_string');
-  i18n_string_refresh_enabled_modules($modules);
-}
-
-/**
- * Implements hook_modules_uninstalled().
- */
-function i18n_string_modules_uninstalled($modules) {
-  module_load_include('admin.inc', 'i18n_string');
-  i18n_string_refresh_uninstalled_modules($modules);
-}
 
 /**
  * Get translation for user defined string.
@@ -714,24 +716,7 @@ function i18n_string_object_info($type = NULL, $property = NULL) {
  *   Object or array
  */
 function i18n_string_object_translate($type, $object, $options = array()) {
-  // If the object is marked as translated do nothing
-  if (i18n_object_field($object, 'i18n_string')) {
-    return $object;
-  }
-  if ($textgroup = i18n_string_object_info($type, 'textgroup')) {
-    if (is_object($object)) {
-      $translate = clone $object;
-      $translate->i18n_string = TRUE;
-    }
-    else {
-      $translate = $object;
-      $translate['i18n_string'] = TRUE;
-    }
-    return i18n_object($type, $object)->translate($options);
-  }
-  else {
-    return $object;
-  }
+  return i18n_object($type, $object)->translate($options);
 }
 
 /**
@@ -800,7 +785,6 @@ function i18n_string_object_translate_page($object_type, $object_value, $langcod
 
 /**
  * Update / create translation for a certain source.
- *
  *
  * @param $name
  *   Array or string concatenated with ':' that contains textgroup and string context

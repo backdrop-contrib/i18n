@@ -30,6 +30,18 @@ class i18n_object_wrapper {
   }
 
   /**
+   * Set field value to object/array
+   */
+  function set_field($field, $value) {
+    if (is_object($this->object)) {
+      $this->object->$field = $value;
+    }
+    elseif (is_array($this->object)) {
+      $this->object[$field] = $value;
+    }    
+  }
+
+  /**
    * Get key value from object/array
    */
   function get_key($default = NULL) {
