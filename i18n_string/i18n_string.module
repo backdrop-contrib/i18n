@@ -467,18 +467,19 @@ function i18n_string_locale($op = 'groups') {
  */
 
 /**
- * Implements hook_modules_enabled()
+ * Implements hook_modules_enabled().
  */
 function i18n_string_modules_enabled($modules) {
   module_load_include('admin.inc', 'i18n_string');
-  // Check if any of the modules has strings to update
-  foreach ($modules as $module) {
-    if ($strings = i18n_string_module_string_list($module)) {
-      i18n_string_refresh_string_list($strings);
-    }
-    // Call module refresh if exists
-    module_invoke($module, 'i18n_string_refresh', 'all');
-  }
+  i18n_string_refresh_enabled_modules($modules);
+}
+
+/**
+ * Implements hook_modules_uninstalled().
+ */
+function i18n_string_modules_uninstalled($modules) {
+  module_load_include('admin.inc', 'i18n_string');
+  i18n_string_refresh_uninstalled_modules($modules);
 }
 
 /**

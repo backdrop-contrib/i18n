@@ -249,6 +249,41 @@ function i18n_string_refresh_batch($groups, $delete = FALSE) {
 }
 
 /**
+ * Refresh strings for enabled modules
+ */
+function i18n_string_refresh_enabled_modules($modules) {
+  // Check if any of the modules has strings to update
+  $count = 0;
+  foreach ($modules as $module) {
+    if ($strings = i18n_string_module_string_list($module)) {
+      $count += i18n_string_refresh_string_list($strings);
+     
+    }
+    // Call module refresh if exists
+    module_invoke($module, 'i18n_string_refresh', 'all');
+  }
+  if ($count) {
+    drupal_set_message(format_plural($count, 'Refresed one string for enabled modules.', 'Refreshed @count strings for the enabled modules.'));
+  }
+}
+
+/**
+ * Purge uninstalled modules.
+ */
+function i18n_string_refresh_uninstalled_modules($modules) {
+  foreach ($modules as $module) {
+    // If the module defines any textgroup, purge all strings.
+    module_load_include('i18n.inc', $module);
+    if ($string_info = module_invoke($module, 'i18n_string_info')) {
+      foreach ($string_info as $group => $group_info) {
+        i18n_string_refresh_reset($group);
+        i18n_string_refresh_cleanup($group);
+      }
+    }
+  }
+}
+
+/**
  * Prepare group for refreshing
  */
 function _i18n_string_batch_refresh_prepare($group, &$context) {
