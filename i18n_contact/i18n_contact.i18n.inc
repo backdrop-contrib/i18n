@@ -21,7 +21,7 @@ function i18n_contact_i18n_string_info() {
  * Implements hook_i18n_object_info().
  */
 function i18n_contact_i18n_object_info() {
-  $info['contact'] = array(
+  $info['contact_category'] = array(
     // Generic object title.
     'title' => t('Contact category'),
     // The object key field.
