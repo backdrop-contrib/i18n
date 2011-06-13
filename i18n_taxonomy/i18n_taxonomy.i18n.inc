@@ -16,6 +16,8 @@ function i18n_taxonomy_i18n_object_info() {
     'placeholders' => array(
       '%taxonomy_term' => 'tid',
     ),
+    // Auto generate edit path
+    'edit path' => 'taxonomy/term/%taxonomy_term/edit',
     // Auto-generate translate tab
     'translate tab' => 'taxonomy/term/%taxonomy_term/translate',
     'translation set' => array(
@@ -43,12 +45,13 @@ function i18n_taxonomy_i18n_object_info() {
   );
   $info['taxonomy_vocabulary'] = array(
     'title' => t('Vocabulary'),
-    'class' => 'i18n_taxonomy_vocabulary',
     'entity' => 'taxonomy_vocabulary',
     'key' => 'vid',
     'placeholders' => array(
       '%taxonomy_vocabulary_machine_name' => 'machine_name',
     ),
+    // Auto generate edit path
+    'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/edit',
     // Auto-generate translate tab
     'translate tab' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/translate',
     'string translation' => array(

@@ -31,18 +31,6 @@ class i18n_taxonomy_translation_set extends i18n_translation_set {
  */
 class i18n_taxonomy_term extends i18n_string_object {
   /**
-   * Get edit path for object
-   */
-  public function get_edit_path() {
-     return 'taxonomy/term/' . $this->object->tid . '/edit';
-  }
-  /**
-   * Get translate path for object
-   */
-  public function get_translate_path($language = NULL) {
-    return 'taxonomy/term/' . $this->object->tid . '/translate' . ($language ? '/' . $language->language : '');
-  }
-  /**
    * Translation mode for object
    */
   public function get_translate_mode() {
@@ -59,23 +47,5 @@ class i18n_taxonomy_term extends i18n_string_object {
    */
   protected function translate_access() {
     return taxonomy_term_edit_access($this->object) && $this->get_langcode() && user_access('translate interface');
-  }
-}
-
-/**
- * Taxonomy textgroup handler
- */
-class i18n_taxonomy_vocabulary extends i18n_string_object {
-  /**
-   * Get edit path for object
-   */
-  public function get_edit_path() {
-    return 'admin/structure/taxonomy/' . $this->object->machine_name . '/edit';
-  }
-  /**
-   * Get translate path for object
-   */
-  public function get_translate_path($language = NULL) {
-    return 'admin/structure/taxonomy/' . $this->object->machine_name . '/translate' . ($language ? '/' . $language->language : '');
   }
 }

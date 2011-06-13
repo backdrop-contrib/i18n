@@ -25,7 +25,6 @@ function i18n_menu_i18n_object_info() {
         'title' => t('Title'),
         'description' => t('Description'),
       ),
-      'translate path' => 'admin/structure/menu/manage/%menu/translate/%language',
     ),
     'translation container' => array(
       'name' => t('menu'),
@@ -53,7 +52,6 @@ function i18n_menu_i18n_object_info() {
         'title' => t('Title'),
         'description' => t('Description'),
       ),
-      'translate path' => 'admin/structure/menu/item/%menu_link/translate/%language',
     ),
     'translation set' => array(
       'class' => 'i18n_menu_link_translation_set',

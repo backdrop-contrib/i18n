@@ -22,8 +22,8 @@ class i18n_field extends i18n_string_object {
   /**
    * Get translate path for object
    */
-  public function get_translate_path($language = NULL) {
-    return $this->get_edit_path() . '/translate/field' . ($language ? '/' . $language->language : '');
+  public function get_translate_path($langcode = NULL) {
+    return $this->get_edit_path() . '/translate/field' . ($langcode ? '/' . $$langcode : '');
   }  
   /**
    * Get string context
@@ -69,8 +69,8 @@ class i18n_field_instance extends i18n_string_object {
   /**
    * Get translate path for object
    */
-  public function get_translate_path($language = NULL) {
-    return $this->get_edit_path() . '/translate/instance' . ($language ? '/' . $language->language : '');
+  public function get_translate_path($langcode = NULL) {
+    return $this->get_edit_path() . '/translate/instance' . ($langcode ? '/' . $$langcode : '');
   }  
   /**
    * Get string context

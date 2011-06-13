@@ -8,34 +8,6 @@
  */
 class i18n_block_object extends i18n_string_object {
   /**
-   * Get base path for object
-   */
-  protected function get_base_path() {
-    return 'admin/structure/block/manage/' . $this->object->module . '/' . $this->object->delta;
-  }
-  /**
-   * Get edit path for object
-   *
-   * @param $type
-   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
-   * @param $object
-   *   The Drupal object itself
-   */
-  public function get_edit_path() {
-     return $this->get_base_path() . '/configure';
-  }
-  /**
-   * Get translate path for object
-   *
-   * @param $type
-   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
-   * @param $object
-   *   The Drupal object itself
-   */
-  public function get_translate_path($language = NULL) {
-    return $this->get_base_path() . '/translate' . ($language ? '/' . $language->language : '');
-  }
-  /**
    * Get base keys for translating this object
    */
   public function get_string_context() {

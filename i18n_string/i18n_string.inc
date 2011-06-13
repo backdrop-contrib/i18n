@@ -739,17 +739,18 @@ class i18n_string_object extends i18n_object_wrapper {
   /**
    * Get translate path for object
    *
-   * @param $type
-   * 	 Object type in this text group, like 'vocabulary', 'term', etc..
-   * @param $object
-   *   The Drupal object itself
+   * @param $langcode
+   * 	 Language code if we want ti for a specific language
    */
-  public function get_translate_path($language = NULL) {
+  public function get_translate_path($langcode = NULL) {
+    $replacements = array('%language' => $langcode ? $langcode : '');
     if ($path = $this->get_string_info('translate path')) {
-      $replace = $this->get_placeholders();
-      $replace['%language'] = $language ? $language->language : '';
-      return trim(strtr($path, $replace), '/');
-    }    
+      return $this->path_replace($path, $replacements);
+    }
+    elseif ($path = $this->get_info('translate tab')) {
+      // If we've got a translate tab path, we just add language to it
+      return $this->path_replace($path . '/%language', $replacements);
+    }
   }
 
   /**

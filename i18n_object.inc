@@ -19,12 +19,7 @@ class i18n_object_wrapper {
    * Get edit path for object
    */
   function get_edit_path() {
-    if ($path = $this->get_info('edit path')) {
-      return strtr($path, $this->get_placeholders());
-    }
-    else {
-      return NULL;
-    }
+    return $this->path_replace($this->get_info('edit path'));
   }
 
   /**
@@ -121,6 +116,25 @@ class i18n_object_wrapper {
     return user_access('translate interface');
   }
 
+  /**
+   * Replace path with placeholders
+   * 
+   * @param $path
+   *   Path to replace
+   * @param $replacements
+   *   Replacement variables to override or add to placeholders
+   */
+  protected function path_replace($path, $replacements = array()) {
+    if ($path) {
+      $path = strtr($path, $replacements + $this->get_placeholders());
+      // Clean up duplicated and final '/' (empty placeholders)
+      $path = strtr($path, array('//' => '/'));
+      return trim($path, '/');
+    }
+    else {
+      return '';
+    }
+  }
   /**
    * Get object info
    */
