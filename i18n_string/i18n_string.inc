@@ -7,7 +7,7 @@
 /**
  * Textgroup handler for i18n_string API
  */
-class i18n_string_default {
+class i18n_string_textgroup_default {
   // Text group name
   public $textgroup;
   // Cached or preloaded translations
@@ -570,75 +570,6 @@ class i18n_string_default {
     }
   }
 
-  /**
-   * Update context for strings.
-   *
-   * As some string locations depend on configurable values, the field needs sometimes to be updated
-   * without losing existing translations. I.e:
-   * - profile fields indexed by field name.
-   * - content types indexted by low level content type name.
-   *
-   * Example:
-   *  'profile:field:oldfield:*' -> 'profile:field:newfield:*'
-   */
-  public static function update_context($oldname, $newname) {
-    // Get context replacing '*' with empty string.
-    $oldcontext = explode(':', $oldname);
-    $newcontext = explode(':', $newname);
-    /*
-    i18n_string_context(str_replace('*', '', $oldname));
-    $newcontext = i18n_string_context(str_replace('*', '', $newname));
-    */
-    // Get location with placeholders.
-    foreach (array('textgroup', 'type', 'objectid', 'property') as $index => $field) {
-      if ($oldcontext[$index] != $newcontext[$index]) {
-        $replace[$field] = $newcontext[$index];
-      }
-    }
-
-    // Query and replace if there are any fields. It is possible that under some circumstances fields are the same
-    if (!empty($replace)) {
-      $textgroup = array_shift($oldcontext);
-      $context = str_replace('*', '%', implode(':', $oldcontext));
-      $count = 0;
-      $query = db_select('i18n_string', 's')
-        ->fields('s')
-        ->condition('s.textgroup', $textgroup)
-        ->condition('s.context', $context, 'LIKE');
-
-      foreach ($query->execute()->fetchAll() as $source) {
-        foreach ($replace as $field => $value) {
-          $source->$field = $value;
-        }
-        // Recalculate location, context, objectindex
-        $source->context = $source->type . ':' . $source->objectid . ':' . $source->property;
-        $source->location = $source->textgroup . ':' . $source->context;
-        $source->objectindex = (int)$source->objectid;
-        // Update source string.
-        $update = array(
-          'textgroup' => $source->textgroup,
-          'context' => $source->context,
-        );
-        db_update('locales_source')
-          ->fields($update + array('location' => $source->location))
-          ->condition('lid', $source->lid)
-          ->execute();
-
-        // Update object data.
-        db_update('i18n_string')
-        ->fields($update + array(
-          'type' => $source->type,
-          'objectid' => $source->objectid,
-          'property' => $source->property,
-          'objectindex' => $source->objectindex,
-        ))
-        ->condition('lid', $source->lid)
-        ->execute();
-        $count++;
-      }
-      drupal_set_message(t('Updated @count string names from %oldname to %newname.', array('@count' => $count, '%oldname' => $oldname, '%newname' => $newname)));
-    }
-  }
 
   /**
    * Recheck strings after update
@@ -779,7 +710,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    */
   public function translate($options = array()) {
     $options['langcode'] = $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
-    // We may have it already translated
+    // We may have it already translated. As objects are statically cached, translations are too.
     if (isset($this->translations[$langcode])) {
       return $this->translations[$langcode];
     }
@@ -801,38 +732,5 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
       }
       return $this->translations[$langcode] = $object;
     }    
-  }
-}
-
-/**
- * Menu callback. Saves a string translation coming as POST data.
- */
-function i18n_string_l10n_client_save_string() {
-  global $user, $language;
-
-  if (user_access('use on-page translation')) {
-    $textgroup = !empty($_POST['textgroup']) ? $_POST['textgroup'] : 'default';
-    // Default textgroup will be handled by l10n_client module
-    if ($textgroup == 'default') {
-      return l10n_client_save_string();
-    }
-    elseif (isset($_POST['source']) && isset($_POST['target']) && !empty($_POST['context']) && !empty($_POST['form_token']) && drupal_valid_token($_POST['form_token'], 'l10n_client_form')) {
-      $name = $textgroup . ':' . $_POST['context'];
-      $result = i18n_string_translation_update($name, $_POST['target'], $language->language, $_POST['source']);
-      if ($result) {
-        $message = theme('l10n_client_message', array('message' => t('Translation saved locally for user defined string.'), 'level' => WATCHDOG_INFO));
-      }
-      elseif ($result === FALSE) {
-        $message = theme('l10n_client_message', array('message' => t('Not saved due to insufficient permissions.')));     
-      }
-      else {
-        $message = theme('l10n_client_message', array('message' => t('Not saved due to source string missing.')));
-      }
-    }
-    else {
-      $message = theme('l10n_client_message', array('message' => t('Not saved due to missing form values.')));
-    }
-    drupal_json_output($message);
-    exit;
   }
 }

@@ -124,7 +124,7 @@ function i18n_string_menu() {
     'title' => 'Save string',
     'page callback' => 'i18n_string_l10n_client_save_string',
     'access arguments' => array('use on-page translation'),
-    'file' => 'i18n_string.inc',
+    'file' => 'i18n_string.pages.inc',
     'type' => MENU_CALLBACK,
   );
   return $items;
@@ -353,7 +353,8 @@ function i18n_string_update($name, $string, $options = array()) {
  *  'profile:field:oldfield:*' -> 'profile:field:newfield:*'
  */
 function i18n_string_update_context($oldname, $newname) {
-  return i18n_string_default::update_context($oldname, $newname);
+  module_load_install('i18n_string');
+  return i18n_string_install_update_context($oldname, $newname);
 }
 
 /**
@@ -362,7 +363,7 @@ function i18n_string_update_context($oldname, $newname) {
 function i18n_string_textgroup($textgroup) {
   $groups = &drupal_static(__FUNCTION__);
   if (!isset($groups[$textgroup])) {
-    $class = i18n_string_group_info($textgroup, 'class', 'i18n_string_default');
+    $class = i18n_string_group_info($textgroup, 'class', 'i18n_string_textgroup_default');
     $groups[$textgroup] = new $class($textgroup);
   }
   return $groups[$textgroup];
@@ -705,6 +706,7 @@ function i18n_string_object_info($type = NULL, $property = NULL) {
     return $list;
   }
 }
+
 /**
  * Translate object properties
  *
@@ -754,33 +756,8 @@ function i18n_string_object_update($type, $object, $options = array()) {
  * Generic translation page for i18n_strings objects.
  */
 function i18n_string_object_translate_page($object_type, $object_value, $langcode = NULL) {
-  $object = i18n_object($object_type, $object_value);
-
-  // Build the form meta from object type
-  $form_meta = array(
-    '#page_title' => t('Translate @name', array('@name' => i18n_object_info($object_type, 'title'))),
-    '#edit' => $object->get_edit_path(),
-    '#translate' => $object->get_translate_path(),
-  );
-  // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
-  $string_list = $object->get_strings();
-  foreach ($string_list as $key => $string) {
-    if ($string['string']) {
-      $form_meta['#items'][] = array(
-        '#title' => $string['title'],
-        '#string_key' => $string['name'],
-        '#default_value' => $string['string'],
-      );      
-    }
-  }
-
-  // Set the default item key, assume it's the first.
-  $default_item = reset($form_meta['#items']);
-  $form_meta['#item_title_key'] = $default_item['#string_key'];
-  $form_meta['#item_title_default'] = $default_item['#default_value'];
-
   module_load_include('inc', 'i18n_string', 'i18n_string.pages');
-  return i18n_string_translate_page($form_meta, $langcode);
+  return i18n_string_translate_page_object($object_type, $object_value, $langcode);
 }
 
 /**

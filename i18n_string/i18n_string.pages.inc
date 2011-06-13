@@ -8,6 +8,37 @@
  */
 
 /**
+ * Generate translate page from object
+ */
+function i18n_string_translate_page_object($object_type, $object_value, $langcode = NULL) {
+  $object = i18n_object($object_type, $object_value);
+
+  // Build the form meta from object type
+  $form_meta = array(
+    '#page_title' => t('Translate @name', array('@name' => i18n_object_info($object_type, 'title'))),
+    '#edit' => $object->get_edit_path(),
+    '#translate' => $object->get_translate_path(),
+  );
+  // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
+  $string_list = $object->get_strings();
+  foreach ($string_list as $key => $string) {
+    if ($string['string']) {
+      $form_meta['#items'][] = array(
+        '#title' => $string['title'],
+        '#string_key' => $string['name'],
+        '#default_value' => $string['string'],
+      );      
+    }
+  }
+
+  // Set the default item key, assume it's the first.
+  $default_item = reset($form_meta['#items']);
+  $form_meta['#item_title_key'] = $default_item['#string_key'];
+  $form_meta['#item_title_default'] = $default_item['#default_value'];
+  return i18n_string_translate_page($form_meta, $langcode);  
+}
+
+/**
  * Generic translation interface for i18n_strings objects.
  */
 function i18n_string_translate_page($form_meta, $langcode = NULL) {
@@ -158,5 +189,39 @@ function i18n_string_validate_submission($formkey, $value) {
   if (!locale_string_is_safe($value)) {
     form_set_error($formkey, t('The submitted string contains disallowed HTML: %string', array('%string' => $value)));
     watchdog('locale', 'Attempted submission of a translation string with disallowed HTML: %string', array('%string' => $value), WATCHDOG_WARNING);
+  }
+}
+
+
+/**
+ * Menu callback. Saves a string translation coming as POST data.
+ */
+function i18n_string_l10n_client_save_string() {
+  global $user, $language;
+
+  if (user_access('use on-page translation')) {
+    $textgroup = !empty($_POST['textgroup']) ? $_POST['textgroup'] : 'default';
+    // Default textgroup will be handled by l10n_client module
+    if ($textgroup == 'default') {
+      return l10n_client_save_string();
+    }
+    elseif (isset($_POST['source']) && isset($_POST['target']) && !empty($_POST['context']) && !empty($_POST['form_token']) && drupal_valid_token($_POST['form_token'], 'l10n_client_form')) {
+      $name = $textgroup . ':' . $_POST['context'];
+      $result = i18n_string_translation_update($name, $_POST['target'], $language->language, $_POST['source']);
+      if ($result) {
+        $message = theme('l10n_client_message', array('message' => t('Translation saved locally for user defined string.'), 'level' => WATCHDOG_INFO));
+      }
+      elseif ($result === FALSE) {
+        $message = theme('l10n_client_message', array('message' => t('Not saved due to insufficient permissions.')));     
+      }
+      else {
+        $message = theme('l10n_client_message', array('message' => t('Not saved due to source string missing.')));
+      }
+    }
+    else {
+      $message = theme('l10n_client_message', array('message' => t('Not saved due to missing form values.')));
+    }
+    drupal_json_output($message);
+    exit;
   }
 }
