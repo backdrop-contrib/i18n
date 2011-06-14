@@ -80,7 +80,18 @@ class i18n_string_object {
    * Get translation to language from string object
    */
   public function get_translation($langcode) {
-    return isset($this->translations[$langcode]) ? $this->translations[$langcode] : NULL;
+    if (!isset($this->translations[$langcode])) {
+      $translation = $this->textgroup()->load_translation($this, $langcode);
+      if ($translation && isset($translation->translation)) {
+        $this->set_translation($translation, $langcode);
+      }
+      else {
+        // No source, no translation
+        $this->translations[$langcode] = FALSE;
+      }      
+    }
+    // Which doesn't mean we've got a translation, only that we've got the result cached
+    return $this->translations[$langcode];
   }
   /**
    * Set translation for language
@@ -158,12 +169,10 @@ class i18n_string_object {
 class i18n_string_textgroup_default {
   // Text group name
   public $textgroup;
-  // Cached or preloaded translations
+  // Cached or preloaded string objects
   public $strings;
   // Context to locale id map
   protected $string_map;
-  // String formats
-  protected $string_format;
   /**
    * Class constructor
    */
@@ -209,16 +218,16 @@ class i18n_string_textgroup_default {
    * @return
    *   Update status.
    */
-  protected function add_string($i18nstring, $options = array()) {
+  protected function string_add($i18nstring, $options = array()) {
     $options += array('watchdog' => TRUE);
     // Default return status if nothing happens
     $status = -1;
     $source = NULL;
     $location = $i18nstring->location;
     // The string may not be allowed for translation depending on its format.
-    if (!$this->check_string($i18nstring, $options)) {
+    if (!$this->string_check($i18nstring, $options)) {
       // The format may have changed and it's not allowed now, delete the source string
-      return $this->remove_string($i18nstring, $options);
+      return $this->string_remove($i18nstring, $options);
     }
     elseif ($source = $i18nstring->get_source()) {
       if ($source->source != $i18nstring->string || $source->location != $location) {
@@ -257,6 +266,101 @@ class i18n_string_textgroup_default {
   }
 
   /**
+   * Check if string is ok for translation
+   */
+  protected static function string_check($i18nstring, $options = array()) {
+    $options += array('messages' => FALSE, 'watchdog' => TRUE);
+    if (!empty($i18nstring->format) && !i18n_string_allowed_format($i18nstring->format)) {
+      // This format is not allowed, so we remove the string, in this case we produce a warning
+      drupal_set_message(t('The string %location for textgroup %textgroup is not allowed for translation because of its text format.', $i18nstring->get_args()), 'warning');
+      return FALSE;
+    }
+    else {
+      return TRUE;
+    }
+  }
+
+  /**
+   * Build query for i18n_string table
+   */
+  protected static function string_query($context, $multiple = FALSE) {
+    // Search the database using lid if we've got it or textgroup, context otherwise
+    $query = db_select('i18n_string', 's')->fields('s');
+    if (!empty($context->lid)) {
+      $query->condition('s.lid', $context->lid);
+    }
+    else {
+      $query->condition('s.textgroup', $context->textgroup);
+      if (!$multiple) {
+        $query->condition('s.context', $context->context);
+      }
+      else {
+        // Query multiple strings
+        foreach (array('type', 'objectid', 'property') as $field) {
+          if (!empty($context->$field)) {
+            $query->condition('s.' . $field, $context->$field);
+          }
+        }
+      }
+    }
+    return $query;
+  }
+
+  /**
+   * Remove string object.
+   */
+  public function string_remove($i18nstring, $options = array()) {
+    $options += array('watchdog' => TRUE);
+    if ($source = $i18nstring->get_source()) {
+      db_delete('locales_target')->condition('lid', $source->lid)->execute();
+      db_delete('i18n_string')->condition('lid', $source->lid)->execute();
+      db_delete('locales_source')->condition('lid', $source->lid)->execute();
+      $this->cache_set($source->context, NULL);
+      if ($options['watchdog']) {
+        watchdog('i18n_string', 'Deleted string %location for textgroup %textgroup: %string', $i18nstring->get_args());
+      }
+      return SAVED_DELETED;
+    }
+  }
+
+  /**
+   * Translate string object
+   *
+   * @param $i18nstring
+   *   String object
+   * @param $options
+   *   Array with aditional options
+   */
+  protected function string_translate($i18nstring, $options = array()) {
+    $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
+    // Search for existing translation (result will be cached in this function call)
+    $i18nstring->get_translation($langcode);
+    return $i18nstring;
+  }
+
+  /**
+   * Update / create / remove string.
+   *
+   * @param $name
+   *   String context.
+   * @pram $string
+   *   New value of string for update/create. May be empty for removing.
+   * @param $format
+   *   Text format, that must have been checked against allowed formats for translation
+   * @return status
+   *   SAVED_UPDATED | SAVED_NEW | SAVED_DELETED
+   */
+  protected function string_update($i18nstring, $options = array()) {
+    if ($i18nstring->get_string()) {
+      $status = $this->string_add($i18nstring, $options);
+    }
+    else {
+      $status = $this->string_remove($i18nstring, $options);
+    }
+    return $status;
+  }
+
+  /**
    * Set string object into cache
    */
   protected function cache_set($context, $string) {
@@ -283,44 +387,6 @@ class i18n_string_textgroup_default {
   }
 
   /**
-   * Check if string is ok for translation
-   */
-  protected static function check_string($i18nstring, $options = array()) {
-    $options += array('messages' => FALSE, 'watchdog' => TRUE);
-    if (!empty($i18nstring->format) && !i18n_string_allowed_format($i18nstring->format)) {
-      // This format is not allowed, so we remove the string, in this case we produce a warning
-      drupal_set_message(t('The string %location for textgroup %textgroup is not allowed for translation because of its text format.', $i18nstring->get_args()), 'warning');
-      return FALSE;
-    }
-    else {
-      return TRUE;
-    }
-  }
-
-  /**
-   * Get translation from the database. Full object with text format.
-   *
-   * This one doesn't return anything if we don't have the full i18n strings data there
-   * to prevent missing data resulting in missing text formats
-   */
-  protected function get_translation($i18nstring, $langcode) {
-    if (!isset($i18nstring->translations[$langcode])) {
-      // Which doesn't mean we've got a translation, only that we've got the result cached
-      $translation = $this->load_translation($i18nstring, $langcode);
-      if ($translation) {
-        $i18nstring->set_translation($translation, $langcode);
-      }
-      else {
-        // No source, no translation
-        $i18nstring->set_translation(FALSE, $langcode);
-      }
-      
-    }
-    // Return the full object if we've got a translation
-    return $i18nstring->get_translation($langcode) !== FALSE ? $i18nstring : NULL;
-  }
-
-  /**
    * Load string source from db
    */
   public static function load_source($i18nstring) {
@@ -338,96 +404,30 @@ class i18n_string_textgroup_default {
     // Speed up the query, we just need one row
     return $query->range(0, 1)->execute()->fetchObject();
   }
+
   /**
    * Load translation from db
    *
    * @todo Optimize when we've already got the source string
    */
-  protected static function load_translation($i18nstring, $langcode, $multiple = FALSE) {
-    $query = self::query_string($i18nstring, $multiple);
+  public static function load_translation($i18nstring, $langcode) {
+    // Search the database using lid if we've got it or textgroup, context otherwise
+    $query = db_select('i18n_string', 's')->fields('s');
+    if (!empty($i18nstring->lid)) {
+      $query->condition('s.lid', $i18nstring->lid);
+    }
+    else {
+      $query->condition('s.textgroup', $i18nstring->textgroup);
+      $query->condition('s.context', $i18nstring->context);
+    }
     $query->leftJoin('locales_target', 't', 's.lid = t.lid');
     $query->fields('t', array('translation', 'i18n_status'));
     $query->condition('t.language', $langcode);
     // Speed up the query, we just need one row
-    if (!$multiple) {
-      $query->range(0, 1);
-    }
-    $translations = $query->execute()->fetchAll();
-
-    foreach ($translations as $translation) {
-      $translation->translation = isset($translation->translation) ? $translation->translation : FALSE;
-    }
-    if (!$multiple) {
-      return reset($translations);
-    }
-    else {
-      return $translations;
-    }
+    $query->range(0, 1);
+    return $query->execute()->fetchObject();
   }
 
-  /**
-   * Build query for i18n_string table
-   */
-  protected static function query_string($context, $multiple = FALSE) {
-    // Search the database using lid if we've got it or textgroup, context otherwise
-    $query = db_select('i18n_string', 's')->fields('s');
-    if (!empty($context->lid)) {
-      $query->condition('s.lid', $context->lid);
-    }
-    else {
-      $query->condition('s.textgroup', $context->textgroup);
-      if (!$multiple) {
-        $query->condition('s.context', $context->context);
-      }
-      else {
-        // Query multiple strings
-        foreach (array('type', 'objectid', 'property') as $field) {
-          if (!empty($context->$field)) {
-            $query->condition('s.' . $field, $context->$field);
-          }
-        }
-      }
-    }
-    return $query;
-  }
-
-  /**
-   * Remove source and translations for user defined string.
-   *
-   * Though for most strings the 'name' or 'string id' uniquely identifies that string,
-   * there are some exceptions (like profile categories) for which we need to use the
-   * source string itself as a search key.
-   *
-   * @param $context
-   *   Textgroup and location glued with ':'.
-   * @param $string
-   *   Optional source string (string in default language).
-   */
-  public function remove($context, $string = NULL, $options = array()) {
-    $options += array('messages' => FALSE);
-    $i18nstring = $this->build_string($context, $string);
-    $status = $this->remove_string($i18nstring, $options);
-    if ($options['messages'] && $status === SAVED_DELETED) {
-      drupal_set_message(t('Deleted string %location for textgroup %textgroup: %string', $i18nstring->get_args()));
-    }
-    return $this;
-  }
-
-  /**
-   * Remove string object.
-   */
-  public function remove_string($i18nstring, $options = array()) {
-    $options += array('watchdog' => TRUE);
-    if ($source = $i18nstring->get_source()) {
-      db_delete('locales_target')->condition('lid', $source->lid)->execute();
-      db_delete('i18n_string')->condition('lid', $source->lid)->execute();
-      db_delete('locales_source')->condition('lid', $source->lid)->execute();
-      if ($options['watchdog']) {
-        watchdog('i18n_string', 'Deleted string %location for textgroup %textgroup: %string', $i18nstring->get_args());
-      }
-      return SAVED_DELETED;
-    }
-  }
   /**
    * Save / update string object
    *
@@ -489,13 +489,121 @@ class i18n_string_textgroup_default {
     }
     return drupal_write_record('locales_source', $source, !empty($source->lid) ? 'lid' : array());
   }
+
+  /**
+   * Remove source and translations for user defined string.
+   *
+   * Though for most strings the 'name' or 'string id' uniquely identifies that string,
+   * there are some exceptions (like profile categories) for which we need to use the
+   * source string itself as a search key.
+   *
+   * @param $context
+   *   Textgroup and location glued with ':'.
+   * @param $string
+   *   Optional source string (string in default language).
+   */
+  public function context_remove($context, $string = NULL, $options = array()) {
+    $options += array('messages' => FALSE);
+    $i18nstring = $this->build_string($context, $string);
+    $status = $this->string_remove($i18nstring, $options);
+    if ($options['messages'] && $status === SAVED_DELETED) {
+      drupal_set_message(t('Deleted string %location for textgroup %textgroup: %string', $i18nstring->get_args()));
+    }
+    return $this;
+  }
+
   /**
    * Translate source string
    */
-  public function translate($context, $string, $options = array()) {
+  public function context_translate($context, $string, $options = array()) {
     $i18nstring = $this->build_string($context, $string);
-    return $this->translate_string($i18nstring, $options);
+    return $this->string_translate($i18nstring, $options);
   }
+
+  /**
+   * Update / create translation source for user defined strings.
+   *
+   * @param $name
+   *   Textgroup and location glued with ':'.
+   * @param $string
+   *   Source string in default language. Default language may or may not be English.
+   * @param $options
+   *   Array with additional options:
+   *   - 'format', String format if the string has text format
+   *   - 'messages', Whether to print out status messages
+   */
+  public function context_update($context, $string, $options = array()) {
+    $options += array('format' => FALSE, 'messages' => FALSE, 'watchdog' => TRUE);
+    $i18nstring = $this->build_string($context, $string);
+    $i18nstring->format = $options['format'];
+    if (!$this->string_check($i18nstring, $options)) {
+      $this->context_remove($context, $string, $options);
+      $status = SAVED_DELETED;
+    }
+    else {
+      $status = $this->string_update($i18nstring, $options);
+    }
+
+    if ($options['messages']) {
+      switch ($status) {
+        case SAVED_UPDATED:
+          drupal_set_message(t('Updated string %location for textgroup %textgroup: %string', $i18nstring->get_args()));
+          break;
+        case SAVED_NEW:
+          drupal_set_message(t('Created string %location for text group %textgroup: %string', $i18nstring->get_args()));
+          break;
+      }
+    }
+    return $this;
+  }
+
+  /**
+   * Get multiple translations with the available key
+   */
+  public function multiple_get_translation($i18nstring, $langcode) {
+    $translations = array();
+    foreach ($this->multiple_load_translation($i18nstring, $langcode) as $index => $translation) {     
+      $string = new i18n_string_object($translation);
+      $string->set_translation($translation, $langcode);
+      if ($translation->translation !== FALSE) {
+        $translations[$langcode] = $string;
+      } 
+      $this->cache_set($string->context, $string);
+    }
+    return $translations;
+  }
+
+  /**
+   * Load multiple translations from db
+   *
+   * @todo Optimize when we've already got the source object
+   */
+  protected static function multiple_load_translation($i18nstring, $langcode = NULL) {
+    $query = db_select('i18n_string', 's')->fields('s');
+    if (!empty($i18nstring->lid)) {
+      $query->condition('s.lid', $i18nstring->lid);
+    }
+    else {
+      $query->condition('s.textgroup', $i18nstring->textgroup);
+      // Query multiple strings
+      foreach (array('type', 'objectid', 'property') as $field) {
+        if (!empty($i18nstring->$field)) {
+          $query->condition('s.' . $field, $i18nstring->$field);
+        }
+      }
+    }
+    $query->leftJoin('locales_target', 't', 's.lid = t.lid');
+    $query->fields('t', array('translation', 'i18n_status'));
+    // We may be querying all translations at the same time.
+    if ($langcode) {
+      $query->condition('t.language', $langcode);
+    }
+    else {
+      $query->fields('t', array('language'));
+    }
+    return $query->execute()->fetchAll();
+  }
+
   /**
    * Translate array of source strings
    */
@@ -527,98 +635,7 @@ class i18n_string_textgroup_default {
     }
     return $result;
   }
-  /**
-   * Get multiple translations with the available key
-   */
-  public function multiple_get_translation($i18nstring, $langcode) {
-    $translations = array();
-    foreach ($this->load_translation($i18nstring, $langcode, TRUE) as $index => $translation) {     
-      $string = new i18n_string_object($translation);
-      $string->set_translation($translation, $langcode);
-      if ($translation->translation !== FALSE) {
-        $translations[$langcode] = $string;
-      } 
-      $this->cache_set($string->context, $string);
-    }
-    return $translations;
-  }
 
-  /**
-   * Translate string object
-   *
-   * @param $i18nstring
-   *   String object
-   * @param $options
-   *   Array with aditional options
-   */
-  protected function translate_string($i18nstring, $options = array()) {
-    $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
-    // Search for existing translation (result will be cached in this function call)
-    if ($translation = $this->get_translation($i18nstring, $langcode)) {
-      return $translation;
-    }
-    else {
-      return $i18nstring;
-    }
-  }
-
-  /**
-   * Update / create translation source for user defined strings.
-   *
-   * @param $name
-   *   Textgroup and location glued with ':'.
-   * @param $string
-   *   Source string in default language. Default language may or may not be English.
-   * @param $options
-   *   Array with additional options:
-   *   - 'format', String format if the string has text format
-   *   - 'messages', Whether to print out status messages
-   */
-  public function update($context, $string, $options = array()) {
-    $options += array('format' => FALSE, 'messages' => FALSE, 'watchdog' => TRUE);
-    $i18nstring = $this->build_string($context, $string);
-    $i18nstring->format = $options['format'];
-    if (!$this->check_string($i18nstring, $options)) {
-      $this->remove($context, $string, $options);
-      $status = SAVED_DELETED;
-    }
-    else {
-      $status = $this->update_string($i18nstring, $options);
-    }
-
-    if ($options['messages']) {
-      switch ($status) {
-        case SAVED_UPDATED:
-          drupal_set_message(t('Updated string %location for textgroup %textgroup: %string', $i18nstring->get_args()));
-          break;
-        case SAVED_NEW:
-          drupal_set_message(t('Created string %location for text group %textgroup: %string', $i18nstring->get_args()));
-          break;
-      }
-    }
-    return $this;
-  }
-  /**
-   * Update / create / remove string.
-   *
-   * @param $name
-   *   String context.
-   * @pram $string
-   *   New value of string for update/create. May be empty for removing.
-   * @param $format
-   *   Text format, that must have been checked against allowed formats for translation
-   * @return status
-   *   SAVED_UPDATED | SAVED_NEW | SAVED_DELETED
-   */
-  protected function update_string($i18nstring, $options = array()) {
-    if ($i18nstring->get_string()) {
-      $status = $this->add_string($i18nstring, $options);
-    }
-    else {
-      $status = $this->remove_string($i18nstring, $options);
-    }
-    return $status;
-  }
   /**
    * Update string translation, only if source exists.
    * 
@@ -637,7 +654,6 @@ class i18n_string_textgroup_default {
       return $source;
     }
   }
-
 
   /**
    * Recheck strings after update

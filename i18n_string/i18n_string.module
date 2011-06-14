@@ -344,7 +344,7 @@ function i18n_string_update($name, $string, $options = array()) {
   else {
     $options += array('messages' => variable_get('i18n_string_debug', FALSE));
     list($textgroup, $context) = i18n_string_context($name);
-    return i18n_string_textgroup($textgroup)->update($context, $string, $options);
+    return i18n_string_textgroup($textgroup)->context_update($context, $string, $options);
   }
 }
 
@@ -515,7 +515,7 @@ function i18n_string_translate($name, $string, $options = array()) {
   }
   elseif (i18n_string_translate_langcode($options['langcode'])) {
     list($textgroup, $context) = i18n_string_context($name);
-    $translation = i18n_string_textgroup($textgroup)->translate($context, $string, $options);
+    $translation = i18n_string_textgroup($textgroup)->context_translate($context, $string, $options);
     // Add for l10n client if available, we pass translation object that contains the format
     i18n_string_l10n_client_add($translation, $options);
     return i18n_string_format($translation, $options);
@@ -663,7 +663,7 @@ function i18n_string_remove($name, $string = NULL, $options = array()) {
   }
   else {
     list($textgroup, $context) = i18n_string_context($name);
-    return i18n_string_textgroup($textgroup)->remove($context, $string, $options);
+    return i18n_string_textgroup($textgroup)->context_remove($context, $string, $options);
   }
 }
 
