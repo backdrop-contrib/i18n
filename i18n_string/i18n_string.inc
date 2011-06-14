@@ -125,7 +125,7 @@ class i18n_string_object {
     elseif (!isset($this->lid) || !isset($this->source)) {
       // We may have lid from loading a translation but not loaded the source yet.
       if ($source = $this->textgroup()->load_source($this)) {
-        $this->set_properties($source);
+        $this->set_properties($source, FALSE);
         if (!isset($this->string)) {
           $this->string = $source->source;
         }
@@ -143,10 +143,15 @@ class i18n_string_object {
   
   /**
    * Set properties from object or array
+   * 
+   * @param $properties
+   *   Obejct or array of properties
+   * @param $set_null
+   *   Whether to set null properties too
    */
-  public function set_properties($properties) {
+  public function set_properties($properties, $set_null = TRUE) {
     foreach ((array)$properties as $field => $value) {
-      if (property_exists($this, $field)) {
+      if (property_exists($this, $field) && ($set_null || isset($value))) {
         $this->$field = $value;
       }
     }
@@ -412,15 +417,19 @@ class i18n_string_textgroup_default {
    */
   public static function load_translation($i18nstring, $langcode) {
     // Search the database using lid if we've got it or textgroup, context otherwise
-    $query = db_select('i18n_string', 's')->fields('s');
     if (!empty($i18nstring->lid)) {
-      $query->condition('s.lid', $i18nstring->lid);
+      // We've alreay got lid, we just need translation data
+      $query = db_select('locales_target', 't');
+      $query->condition('t.lid', $i18nstring->lid);
     }
     else {
+      // Still don't have lid, load string properties too
+      $query = db_select('i18n_string', 's')->fields('s');
+      $query->leftJoin('locales_target', 't', 's.lid = t.lid');
       $query->condition('s.textgroup', $i18nstring->textgroup);
       $query->condition('s.context', $i18nstring->context);
     }
-    $query->leftJoin('locales_target', 't', 's.lid = t.lid');
+    // Add translation fields   
     $query->fields('t', array('translation', 'i18n_status'));
     $query->condition('t.language', $langcode);
     // Speed up the query, we just need one row
@@ -560,15 +569,21 @@ class i18n_string_textgroup_default {
   /**
    * Get multiple translations with the available key
    */
-  public function multiple_get_translation($i18nstring, $langcode) {
+  public function multiple_get_translation($conditions, $property) {
     $translations = array();
-    foreach ($this->multiple_load_translation($i18nstring, $langcode) as $index => $translation) {     
-      $string = new i18n_string_object($translation);
-      $string->set_translation($translation, $langcode);
-      if ($translation->translation !== FALSE) {
-        $translations[$langcode] = $string;
-      } 
-      $this->cache_set($string->context, $string);
+    $langcode = !empty($conditions['language']) && !is_array($conditions['language']) ? $conditions['language'] : NULL;
+    foreach ($this->multiple_load_translation($conditions) as $translation) {     
+      // The string object may be already in cache
+      $string = $this->build_string($translation->context);
+      $string->set_properties($translation);
+      // If this is a translation we set it there too
+      if ($translation->language && $translation->translation) {
+        $string->set_translation($translation);
+      }
+      elseif ($langcode) {
+        $string->set_translation(FALSE, $langcode);
+      }
+      $translations[$translation->$property] = $string;
     }
     return $translations;
   }
@@ -578,62 +593,68 @@ class i18n_string_textgroup_default {
    *
    * @todo Optimize when we've already got the source object
    */
-  protected static function multiple_load_translation($i18nstring, $langcode = NULL) {
+  protected static function multiple_load_translation($conditions) {
+    // We may be querying all translations at the same time or just one language.
+    // The language field needs some special treatment though.
     $query = db_select('i18n_string', 's')->fields('s');
-    if (!empty($i18nstring->lid)) {
-      $query->condition('s.lid', $i18nstring->lid);
-    }
-    else {
-      $query->condition('s.textgroup', $i18nstring->textgroup);
-      // Query multiple strings
-      foreach (array('type', 'objectid', 'property') as $field) {
-        if (!empty($i18nstring->$field)) {
-          $query->condition('s.' . $field, $i18nstring->$field);
-        }
-      }
-    }
     $query->leftJoin('locales_target', 't', 's.lid = t.lid');
-    $query->fields('t', array('translation', 'i18n_status'));
-    // We may be querying all translations at the same time.
-    if ($langcode) {
-      $query->condition('t.language', $langcode);
-    }
-    else {
-      $query->fields('t', array('language'));
+    $query->fields('t', array('translation', 'language', 'i18n_status'));
+    foreach ($conditions as $field => $value) {
+      if ($field == 'language') {
+        $query->condition('t.language', $value);
+      }
+      else {
+        $query->condition('s.' . $field, $value);
+      }
     }
     return $query->execute()->fetchAll();
   }
 
   /**
    * Translate array of source strings
+   * 
+   * @param $context
+   *   Context array with placeholders (*)
+   * @param $strings
+   *   Optional array of source strings indexed by the placeholder property
+   *   
+   * @return array
+   *   Array of string objects (with translation) indexed by the placeholder field
    */
-  public function multiple_translate($context, $strings, $options = array()) {
-    $i18nstring = $this->build_string($context, NULL);
-    // Set the array of keys on the placeholder field
-    foreach (array('type', 'objectid', 'property') as $field) {
-      if ($i18nstring->$field === '*') {
-        $i18nstring->$field = array_keys($strings);
+  public function multiple_translate($context, $strings = array(), $options = array()) {
+    // First, build conditions and identify the variable field
+    $conditions = $context = array_combine(array('type', 'objectid', 'property'), $context);
+    $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
+    // If we've got keyed source strings set the array of keys on the placeholder field
+    // or if not, remove that condition so we search all strings with that keys.   
+    foreach ($conditions as $field => $value) {
+      if ($value === '*') {
         $property = $field;
+        if ($strings) {
+          $conditions[$field] = array_keys($strings);
+        }
+        else {
+          unset($conditions[$field]);
+        }
       }
     }
-    $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
-    $translations = $this->multiple_get_translation($i18nstring, $langcode);
-    // Remap translations using index field
-    $result = $strings;
-    foreach ($translations as $translation) {
-      $index = $translation->$property;
-      $translation->source = is_array($strings[$index]) ? $strings[$index]['string'] : $strings[$index];
-      $result[$index] = $translation;
-      unset($strings[$index]);
+    // Now we'll add the language code to conditions and get the translations indexed by the property field
+    $conditions['language'] = $langcode;
+    $translations = $this->multiple_get_translation($conditions, $property);
+    // Remap translations using property field
+    foreach ($strings as $key => $source) {
+      if (isset($translations[$key])) {
+        $translations[$key]->string = $source;
+      }
+      else {
+        // Not found any string for this property, create it to map in the response
+        // But make sure we set this language's translation to FALSE so we don't search again
+        $newcontext = $context;
+        $newcontext[$property] = $key;
+        $translations[$key] = $this->build_string($newcontext, $source);
+      }
     }
-    // Fill in remaining strings for consistency, l10n_client, etc..
-    foreach ($strings as $index => $string) {
-      $translation = clone $i18nstring;
-      $translation->$property = $index;
-      $translation->source = is_array($strings[$index]) ? $strings[$index]['string'] : $strings[$index];
-      $result[$index] = $translation;
-    }
-    return $result;
+    return $translations;
   }
 
   /**
