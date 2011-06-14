@@ -318,6 +318,13 @@ function i18n_string_translate_langcode($langcode, $reset = FALSE) {
 }
 
 /**
+ * Create string class from string name
+ */
+function i18n_string_build($name) {
+  
+}
+
+/**
  * Update / create translation source for user defined strings.
  *
  * @param $name
@@ -542,12 +549,12 @@ function i18n_string_format($i18nstring, $options = array()) {
   if (!isset($debug)) {
     $debug = variable_get('i18n_string_debug', FALSE);
   }
-  $options += array('sanitize' => TRUE, 'cache' => FALSE, 'debug' => $debug);
+  $options += array('langcode' => i18n_langcode(), 'sanitize' => TRUE, 'cache' => FALSE, 'debug' => $debug);
   if (is_string($i18nstring)) {
     $string = $i18nstring;
   }
-  elseif (!empty($i18nstring->translation)) {
-    $string = $i18nstring->translation;
+  elseif ($translation = $i18nstring->get_translation($options['langcode'])) {
+    $string = $translation;
     if (!empty($i18nstring->format)) {
       $options += array('format' => $i18nstring->format);
     }
@@ -675,10 +682,10 @@ function i18n_string_remove($name, $string = NULL, $options = array()) {
 function i18n_string_l10n_client_add($string, $options) {
   // If current language add to l10n client list for later on page translation.
   // If langcode translation was disabled we are not supossed to reach here.
-  if (($string->language == i18n_langcode()) && function_exists('l10_client_add_string_to_page') && i18n_string_translate_access($string)) {
-    $translation = !empty($string->translation) ? $string->translation : TRUE;
+  if (($options['langcode'] == i18n_langcode()) && function_exists('l10_client_add_string_to_page') && i18n_string_translate_access($string)) {
+    $translation = $string->get_translation($options['langcode']);
     $source = !empty($string->source) ? $string->source : FALSE;
-    l10_client_add_string_to_page($string->source, $translation, $string->textgroup, $string->context);
+    l10_client_add_string_to_page($string->source, $translation ? $translation : FALSE, $string->textgroup, $string->context);
   }
 }
 
