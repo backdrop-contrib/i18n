@@ -110,7 +110,39 @@ class i18n_string_object {
     }
     $this->translations[$langcode] = $string;
   }
-  
+
+  /**
+   * Format the resulting translation or the default string applying callbacks
+   *
+   * There's a hidden variable, 'i18n_string_debug', that when set to TRUE will display additional info
+   */
+  public function format_translation($langcode, $options = array()) {
+    $options += array('langcode' => $langcode, 'sanitize' => TRUE, 'cache' => FALSE, 'debug' => $this->textgroup()->debug);
+    if ($translation = $this->get_translation($langcode)) {
+      $string = $translation;
+      if (!empty($this->format)) {
+        $options += array('format' => $this->format);
+      }
+      if (isset($options['filter'])) {
+        $string = call_user_func($options['filter'], $string);
+      }
+    }
+    else {
+      // Get default source string if no translation.
+      $string = $this->get_string();
+    }
+    // Add debug information if enabled
+    if ($options['debug']) {
+      $info = array($this->textgroup, $this->context);
+      if (!empty($this->format)) {
+        $info[] = $this->format;
+      }
+      $options += array('suffix' => '');
+      $options['suffix'] .= ' [' . implode(':', $info) . ']';
+    }   
+    return i18n_string_format($string, $options);
+  }
+
   /**
    * Get source string provided a string object.
    *
@@ -174,6 +206,8 @@ class i18n_string_object {
 class i18n_string_textgroup_default {
   // Text group name
   public $textgroup;
+  // Debug flag, set to true to print out more information.
+  public $debug;
   // Cached or preloaded string objects
   public $strings;
   // Context to locale id map
@@ -183,6 +217,7 @@ class i18n_string_textgroup_default {
    */
   public function __construct($textgroup) {
     $this->textgroup = $textgroup;
+    $this->debug = variable_get('i18n_string_debug', FALSE);
   }
   /**
    * Build string object
@@ -512,7 +547,7 @@ class i18n_string_textgroup_default {
    *   Optional source string (string in default language).
    */
   public function context_remove($context, $string = NULL, $options = array()) {
-    $options += array('messages' => FALSE);
+    $options += array('messages' => $this->debug);
     $i18nstring = $this->build_string($context, $string);
     $status = $this->string_remove($i18nstring, $options);
     if ($options['messages'] && $status === SAVED_DELETED) {
@@ -542,7 +577,7 @@ class i18n_string_textgroup_default {
    *   - 'messages', Whether to print out status messages
    */
   public function context_update($context, $string, $options = array()) {
-    $options += array('format' => FALSE, 'messages' => FALSE, 'watchdog' => TRUE);
+    $options += array('format' => FALSE, 'messages' => $this->debug, 'watchdog' => TRUE);
     $i18nstring = $this->build_string($context, $string);
     $i18nstring->format = $options['format'];
     if (!$this->string_check($i18nstring, $options)) {
@@ -826,12 +861,12 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
         $context[] = '*';
         $translations = $this->textgroup()->multiple_translate($context, $strings, $options);
         // Clone real objects, mark translated...
-        foreach ($translations as $field => $value) {
+        foreach ($translations as $field => $i18nstring) {
           if (is_object($object)) {
-            $object->$field = i18n_string_format($value, $options);
+            $object->$field = $i18nstring->format_translation($langcode, $options);
           }
           elseif (is_array($object)) {
-            $object[$field] = i18n_string_format($value, $options);
+            $object[$field] = $i18nstring->format_translation($langcode, $options);
           }
         }
       }
