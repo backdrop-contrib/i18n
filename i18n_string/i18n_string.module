@@ -435,8 +435,8 @@ function i18n_string_element_mark(&$element) {
  * Get source string object.
  */
 function i18n_string_get_source($name) {
-  list($textgroup, $context) = i18n_string_context($name);
-  return i18n_string_textgroup($textgroup)->get_source($context);
+  list ($textgroup, $context) = i18n_string_context($name);
+  return i18n_string_textgroup($textgroup)->build_string($context)->get_source();
 }
 
 /**
@@ -563,7 +563,7 @@ function i18n_string_format($i18nstring, $options = array()) {
     }
   }
   else {
-    $string = isset($i18nstring->source) ? $i18nstring->source : '';
+    $string = $i18nstring->get_string();
   }
   // Apply filter and callback to any of the strings
   if ($string) {
