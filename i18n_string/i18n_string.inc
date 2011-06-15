@@ -60,7 +60,8 @@ class i18n_string_object {
     $this->objectid = $parts ? array_shift($parts) : '';
     $this->objectkey = (int)$this->objectid;      
     // Remaining elements glued again with ':'
-    $this->property = $parts ? implode(':', $parts) : '';     
+    $this->property = $parts ? implode(':', $parts) : '';
+    return $this;
   }
   /**
    * Get source string
@@ -75,6 +76,24 @@ class i18n_string_object {
     else {
       return '';
     }
+  }
+  /**
+   * Set source string
+   * 
+   * @param $string
+   *   Plain string or array with 'string', 'format', etc...
+   */
+  public function set_string($string) {
+    if (is_array($string)) {
+      $this->string = isset($string['string']) ? $string['string'] : NULL;
+      if (isset($string['format'])) {
+        $this->format = $string['format'];
+      }
+    }
+    else {
+      $this->string = $string;
+    }
+    return $this;
   }
   /**
    * Get translation to language from string object
@@ -109,6 +128,7 @@ class i18n_string_object {
       $string = $translation;
     }
     $this->translations[$langcode] = $string;
+    return $this;
   }
 
   /**
@@ -139,7 +159,8 @@ class i18n_string_object {
       }
       $options += array('suffix' => '');
       $options['suffix'] .= ' [' . implode(':', $info) . ']';
-    }   
+    }
+    // Finally, apply options, filters, callback, etc...
     return i18n_string_format($string, $options);
   }
 
@@ -679,14 +700,14 @@ class i18n_string_textgroup_default {
     // Remap translations using property field
     foreach ($strings as $key => $source) {
       if (isset($translations[$key])) {
-        $translations[$key]->string = $source;
+        $translations[$key]->set_string($source);
       }
       else {
         // Not found any string for this property, create it to map in the response
         // But make sure we set this language's translation to FALSE so we don't search again
         $newcontext = $context;
         $newcontext[$property] = $key;
-        $translations[$key] = $this->build_string($newcontext, $source);
+        $translations[$key] = $this->build_string($newcontext)->set_string($source);
       }
     }
     return $translations;
@@ -775,29 +796,35 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    */
   public function get_properties() {
     if (!isset($this->properties)) {
-      list($string_type, $object_id) = $this->get_string_context(); 
-      $object_keys = array(
-        $this->get_textgroup(),
-        $string_type,
-        $object_id,
-      );
-      $strings = array();   
-      foreach ($this->get_string_info('properties') as $field => $info) {
-        $info = is_array($info) ? $info : array('title' => $info);
-        $field_name = isset($info['field']) ? $info['field'] : $field;
-        $value = $this->get_field($field_name);
-        $strings[$this->get_textgroup()][$string_type][$object_id][$field] = array(
-          'string' => is_array($value) || isset($info['empty']) && $value === $info['empty'] ? NULL : $value,
-          'title' => $info['title'],
-          'format' => isset($info['format']) ? $this->get_field($info['format']) : NULL,
-          'name' => array_merge($object_keys, array($field)),
-        );
-      }
-      // Call hook_i18n_string_list_TEXTGROUP_alter(), last chance for modules
-      drupal_alter('i18n_string_list_' . $this->get_textgroup(), $strings, $this->type, $this->object);
-      $this->properties = $strings;
+      $this->properties = $this->build_properties();
     }
     return $this->properties;
+  }
+  /**
+   * Build properties from object.
+   */
+  protected function build_properties() {
+    list($string_type, $object_id) = $this->get_string_context(); 
+    $object_keys = array(
+      $this->get_textgroup(),
+      $string_type,
+      $object_id,
+    );
+    $strings = array();   
+    foreach ($this->get_string_info('properties') as $field => $info) {
+      $info = is_array($info) ? $info : array('title' => $info);
+      $field_name = isset($info['field']) ? $info['field'] : $field;
+      $value = $this->get_field($field_name);
+      $strings[$this->get_textgroup()][$string_type][$object_id][$field] = array(
+        'string' => is_array($value) || isset($info['empty']) && $value === $info['empty'] ? NULL : $value,
+        'title' => $info['title'],
+        'format' => isset($info['format']) ? $this->get_field($info['format']) : NULL,
+        'name' => array_merge($object_keys, array($field)),
+      );
+    }
+    // Call hook_i18n_string_list_TEXTGROUP_alter(), last chance for modules
+    drupal_alter('i18n_string_list_' . $this->get_textgroup(), $strings, $this->type, $this->object);
+    return $strings;
   }
   /**
    * Get object info
@@ -853,7 +880,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
   /**
    * Translate object.
    * 
-   * Translations are cached so it runs only one per language.
+   * Translations are cached so it runs only once per language.
    * 
    * @return object/array
    *   A clone of the object with its properties translated.
@@ -862,12 +889,33 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
     $options['langcode'] = $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
     // We may have it already translated. As objects are statically cached, translations are too.
     if (!isset($this->translations[$langcode])) {
+      // Clone object or array so we don't affect the original one.
       $object = is_object($this->object) ? clone $this->object : $this->object;
-      $this->translations[$langcode] = $this->translate_properties($object, $options);
+      $this->translations[$langcode] = $this->translate_object($object, $options);
     }
     return $this->translations[$langcode];
   }
   
+  /**
+   * Set field translation for object.
+   * 
+   * Mot often, this is a direct field set, but sometimes fields may have different formats.
+   * 
+   * @param $object
+   *   A clone of the object or array
+   */
+  protected function translate_object($object, $options) {
+    if ($strings = $this->get_strings()) {
+      $context = $this->get_string_context();
+      $context[] = '*';
+      $translations = $this->textgroup()->multiple_translate($context, $strings, $options);
+    }
+    else {
+      $translations = array();
+    }
+    return $this->translate_properties($object, $translations, $options);
+  }
+
   /**
    * Translate object properties.
    * 
@@ -878,22 +926,16 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * @return object or array
    *   Translated object or array.
    */
-  protected function translate_properties($object, $options) {
-    if ($strings = $this->get_strings()) {
-      $context = $this->get_string_context();
-      $context[] = '*';
-      $translations = $this->textgroup()->multiple_translate($context, $strings, $options);
-      // Clone real objects, mark translated...
-      foreach ($translations as $field => $i18nstring) {
-        $translated = $i18nstring->format_translation($options['langcode'], $options);
-        if (is_object($object)) {
-          $object->$field = $translated;
-        }
-        elseif (is_array($object)) {
-          $object[$field] = $translated;
-        }
+  protected function translate_properties($object, $translations, $options) {
+    foreach ($translations as $field_name => $i18nstring) {
+      $translation = $i18nstring->format_translation($options['langcode'], $options);
+      if (is_object($object)) {
+        $object->$field_name = $translation;
+      }
+      elseif (is_array($object)) {
+        $object[$field_name] = $translation;
       }
     }
-    return $object;    
+    return $object;
   }
 }

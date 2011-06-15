@@ -34,8 +34,8 @@ class i18n_field extends i18n_string_object_wrapper {
   /**
    * Get translatable properties
    */
-  public function get_properties() {
-    $properties = parent::get_properties();
+  protected function build_properties() {
+    $properties = parent::build_properties();
     $object = $this->object;
     // For select fields field:field_name
     if (!empty($object['settings']['allowed_values']) && i18n_field_type_info($object['type'], 'translate_options')) {
@@ -48,21 +48,6 @@ class i18n_field extends i18n_string_object_wrapper {
       }
     }
     return $properties;
-  }
-
-   /**
-   * Translate object properties.
-   * 
-   * @param $object
-   *   Field info array
-   * @param $options
-   *   Translation options, the only require done is 'langcode'
-   * @return object or array
-   *   Translated object or array.
-   */
-  protected function translate_properties($field, $options) {
-    $field = parent::translate_properties($field, $options);
-    return $field;
   }
 }
 
@@ -96,8 +81,8 @@ class i18n_field_instance extends i18n_string_object_wrapper {
   /**
    * Get translatable properties
    */
-  public function get_properties() {
-    $properties = parent::get_properties();
+  protected function build_properties() {
+    $properties = parent::build_properties();
     $object = $this->object;
     $field = field_info_field($object['field_name']);
     // Only for text field types
@@ -109,18 +94,20 @@ class i18n_field_instance extends i18n_string_object_wrapper {
     return $properties;
   }
   
-   /**
-   * Translate object properties.
+  /**
+   * Set field translation for object.
+   * 
+   * Mot often, this is a direct field set, but sometimes fields may have different formats.
    * 
    * @param $object
-   *   Field instance array
-   * @param $options
-   *   Translation options, the only require done is 'langcode'
-   * @return object or array
-   *   Translated object or array.
+   *   A clone of the object or array. Field instance.
    */
-  protected function translate_properties($instance, $options) {
-    $instance = parent::translate_properties($instance, $options);
-    return $instance;
+  protected function translate_properties($object, $translations, $options) {
+    if (isset($translations['default_value'])) {
+      // Render string without applying format
+      $object['default_value'][0]['value'] = $translations['default_value']->format_translation($options['langcode'], array('sanitize' => FALSE) + $options);
+      unset($translations['default_value']);
+    }
+    return parent::translate_properties($object, $translations, $options);
   }
 }
