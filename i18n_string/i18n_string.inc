@@ -865,7 +865,6 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
       $object = is_object($this->object) ? clone $this->object : $this->object;
       $this->translations[$langcode] = $this->translate_properties($object, $options);
     }
-    dpm("returning translated: " . $this->object['field_name']);
     return $this->translations[$langcode];
   }
   
@@ -879,7 +878,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * @return object or array
    *   Translated object or array.
    */
-  protected function translate_properties($object, $options) {dpm($object);
+  protected function translate_properties($object, $options) {
     if ($strings = $this->get_strings()) {
       $context = $this->get_string_context();
       $context[] = '*';
