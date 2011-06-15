@@ -49,6 +49,21 @@ class i18n_field extends i18n_string_object_wrapper {
     }
     return $properties;
   }
+
+   /**
+   * Translate object properties.
+   * 
+   * @param $object
+   *   Field info array
+   * @param $options
+   *   Translation options, the only require done is 'langcode'
+   * @return object or array
+   *   Translated object or array.
+   */
+  protected function translate_properties($field, $options) {
+    $field = parent::translate_properties($field, $options);
+    return $field;
+  }
 }
 
 /**
@@ -92,5 +107,20 @@ class i18n_field_instance extends i18n_string_object_wrapper {
       $properties[$this->get_textgroup()][$object['field_name']][$object['bundle']]['default_value']['format'] = $format;
     }
     return $properties;
-  }  
+  }
+  
+   /**
+   * Translate object properties.
+   * 
+   * @param $object
+   *   Field instance array
+   * @param $options
+   *   Translation options, the only require done is 'langcode'
+   * @return object or array
+   *   Translated object or array.
+   */
+  protected function translate_properties($instance, $options) {
+    $instance = parent::translate_properties($instance, $options);
+    return $instance;
+  }
 }
