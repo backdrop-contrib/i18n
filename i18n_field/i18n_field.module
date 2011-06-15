@@ -221,8 +221,10 @@ function i18n_field_field_storage_info_alter(&$info) {
  * Field API callback to rewrite field element
  *
  * Translate:
+ * - Title (label)
  * - Description (help)
  * - Default value
+ * - List options
  * @see field_default_form()
  */
 function i18n_field_field_widget_form($form, $form_state, $field, $instance, $langcode, $items, $delta, $element) {
@@ -231,11 +233,11 @@ function i18n_field_field_widget_form($form, $form_state, $field, $instance, $la
   $i18n_langcode = empty($element['#language']) || $element['#language'] == LANGUAGE_NONE ? $language->language : $element['#language'];
   $delta = $element['#delta'];
   // Translate field title if set
-  if (!empty($instance['label'])) {
+  if (!empty($instance['label']) && !empty($element['#title'])) {
     $element['#title'] = i18n_field_translate_property($instance, 'label');
   }
   // Translate field description if set
-  if (!empty($instance['description'])) {
+  if (!empty($instance['description']) && !empty($element['#description'])) {
     $element['#description'] = i18n_field_translate_property($instance, 'description');
   }
   // Translate default value if exists and the current value is the default
