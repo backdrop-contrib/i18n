@@ -14,7 +14,6 @@ class i18n_object_wrapper {
     $this->object = $object;
   }
 
-  
   /**
    * Get edit path for object
    */
@@ -77,13 +76,7 @@ class i18n_object_wrapper {
     }
     return $placeholders;
   }
-  /**
-   * Get title from item
-   */
-  public function get_title() {
-    return entity_label($this->type, $this->object);
-  }
-
+  
   /**
    * Get link for item
    */
@@ -91,6 +84,13 @@ class i18n_object_wrapper {
     if ($uri = entity_uri($this->type, $this->object)) {
       return $uri['path'];
     }
+  }
+
+  /**
+   * Get title from item
+   */
+  public function get_title() {
+    return entity_label($this->type, $this->object);
   }
 
   /**

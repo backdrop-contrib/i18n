@@ -49,6 +49,23 @@ class i18n_field extends i18n_string_object_wrapper {
     }
     return $properties;
   }
+  
+  /**
+   * Set field translation for object.
+   * 
+   * Mot often, this is a direct field set, but sometimes fields may have different formats.
+   * 
+   * @param $object
+   *   A clone of the object or array. Field instance.
+   */
+  protected function translate_field(&$object, $i18nstring, $options) {
+    if ($i18nstring->objectid == '#allowed_values') {
+      $object['settings']['#allowed_values'][$i18nstring->key] = $i18nstring->format_translation($options['langcode'], $options);
+    }
+    else {
+      parent::translate_field($object, $i18nstring, $options);
+    }
+  }
 }
 
 /**
@@ -102,12 +119,13 @@ class i18n_field_instance extends i18n_string_object_wrapper {
    * @param $object
    *   A clone of the object or array. Field instance.
    */
-  protected function translate_properties($object, $translations, $options) {
-    if (isset($translations['default_value'])) {
+  protected function translate_field(&$object, $i18nstring, $options) {
+    if ($i18nstring->property == 'default_value') {
       // Render string without applying format
-      $object['default_value'][0]['value'] = $translations['default_value']->format_translation($options['langcode'], array('sanitize' => FALSE) + $options);
-      unset($translations['default_value']);
+      $object['default_value'][0]['value'] = $i18nstring->format_translation($options['langcode'], array('sanitize' => FALSE) + $options);
     }
-    return parent::translate_properties($object, $translations, $options);
+    else {
+      parent::translate_field($object, $i18nstring, $options);
+    }
   }
 }

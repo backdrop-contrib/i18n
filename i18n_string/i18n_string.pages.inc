@@ -20,21 +20,10 @@ function i18n_string_translate_page_object($object_type, $object_value, $langcod
     '#translate' => $object->get_translate_path(),
   );
   // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
-  $string_list = $object->get_strings();
-  foreach ($string_list as $key => $string) {
-    if ($string['string']) {
-      $form_meta['#items'][] = array(
-        '#title' => $string['title'],
-        '#string_key' => $string['name'],
-        '#default_value' => $string['string'],
-      );      
-    }
-  }
-
+  $form_meta['#items'] = $object->get_strings(array('empty' => TRUE));
   // Set the default item key, assume it's the first.
-  $default_item = reset($form_meta['#items']);
-  $form_meta['#item_title_key'] = $default_item['#string_key'];
-  $form_meta['#item_title_default'] = $default_item['#default_value'];
+  $form_meta['#item_title'] = reset($form_meta['#items']);
+
   return i18n_string_translate_page($form_meta, $langcode);  
 }
 
@@ -70,7 +59,7 @@ function i18n_string_translate_page_overview($form_meta) {
     if ($langcode == $default_language->language) {
       $rows[] = array(
         $language->name . ' ' . t('(source)'),
-        $form_meta['#item_title_default'],
+        $form_meta['#item_title']->get_string(),
         t('original'),
         l(t('edit'), $form_meta['#edit']),
       );
@@ -78,18 +67,16 @@ function i18n_string_translate_page_overview($form_meta) {
     else {
       // Try to figure out if this item has any of its properties translated.
       $translated = FALSE;
-      foreach ($form_meta['#items'] as $item) {
-        $str = i18n_string($item['#string_key'], $item['#default_value'], array('langcode' => $langcode, 'sanitize' => FALSE));
-        if ($str != $item['#default_value']) {
+      foreach ($form_meta['#items'] as $i18nstring) {
+        if ($i18nstring->get_translation($langcode)) {
           $translated = TRUE;
           break;
         }
       }
       // Translate the item that was requested to be displayed as title.
-      $item_title = i18n_string_translate($form_meta['#item_title_key'], $form_meta['#item_title_default'], array('langcode' => $langcode));
       $rows[] = array(
         $language->name,
-        $item_title,
+        $form_meta['#item_title']->format_translation($langcode),
         $translated ? t('translated') : t('not translated'),
         l(t('translate'), $form_meta['#translate'] . '/' . $langcode),
       );
@@ -121,7 +108,7 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
   foreach ($form_meta['#items'] as $item) {
     $disabled = FALSE;
     $description = '';
-    $source = i18n_string_get_source($item['#string_key']);
+    $source = $item->get_source();
     if ($source && $source->format) {
       $format = filter_format_load($source->format);
       $disabled = !i18n_string_translate_access($source);
@@ -132,9 +119,9 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
         $description = '<h5>' . t('Text format: @name', array('@name' => $format->name)) . '</h5>' . theme('filter_tips', array('tips' => _filter_tips($source->format, FALSE)));
       }
     }
-    $default_value = i18n_string($item['#string_key'], $item['#default_value'], array('langcode' => $langcode, 'sanitize' => FALSE, 'debug' => FALSE));
-    $form['strings'][implode(':', $item['#string_key'])] = array(
-      '#title' => $item['#title'],
+    $default_value = $item->format_translation($langcode, array('langcode' => $langcode, 'sanitize' => FALSE, 'debug' => FALSE));
+    $form['strings'][$item->get_name()] = array(
+      '#title' => $item->get_title(),
       '#type' => 'textarea',
       '#default_value' => $default_value,
       '#disabled' => $disabled,

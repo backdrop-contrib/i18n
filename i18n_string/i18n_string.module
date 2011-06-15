@@ -711,9 +711,9 @@ function i18n_string_object_info($type = NULL, $property = NULL) {
  *   Object or array
  */
 function i18n_string_object_translate($type, $object, $options = array()) {
-  $options['langcode'] = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
-  if (i18n_string_translate_langcode($options['langcode'])) {
-    return i18n_object($type, $object)->translate($options);
+  $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
+  if (i18n_string_translate_langcode($langcode)) {
+    return i18n_object($type, $object)->translate($langcode, $options);
   }
   else {
     return $object;
@@ -729,14 +729,14 @@ function i18n_string_object_translate($type, $object, $options = array()) {
  *   Object or array
  */
 function i18n_string_object_remove($type, $object, $options = array()) {
-  foreach (i18n_object($type, $object)->get_strings(TRUE) as $key => $string) {
+  foreach (i18n_object($type, $object)->get_strings(array('empty' => TRUE)) as $string) {
     // Not likely but it may occur that an object triggers an update in another textgroup
-    i18n_string_remove($string['name'], $string['string'], $options);
+    i18n_string_remove($string->get_name(), $string['string'], $options);
   }
 }
 
 /**
- * Update object properties
+ * Update object properties.
  * 
  * @param $type
  *   Object type
@@ -744,11 +744,7 @@ function i18n_string_object_remove($type, $object, $options = array()) {
  *   Object or array
  */
 function i18n_string_object_update($type, $object, $options = array()) {
-  foreach (i18n_object($type, $object)->get_strings(TRUE) as $key => $string) {
-    $field_options = !empty($string['format']) ? array('format' => $string['format']) : array();
-    // Not likely but it may occur that an object triggers an update in another textgroup
-    i18n_string_update($string['name'], $string['string'], $field_options + $options);
-  }
+  return i18n_object($type, $object)->update_strings($options);
 }
 
 /**
