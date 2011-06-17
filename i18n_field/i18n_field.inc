@@ -69,12 +69,12 @@ class i18n_field extends i18n_string_object_wrapper {
    * @param $object
    *   A clone of the object or array. Field instance.
    */
-  protected function translate_field(&$object, $i18nstring, $options) {
+  protected function translate_field(&$object, $i18nstring, $langcode, $options) {
     if ($i18nstring->objectid == '#allowed_values') {
-      $object['settings']['#allowed_values'][$i18nstring->key] = $i18nstring->format_translation($options['langcode'], $options);
+      $object['settings']['#allowed_values'][$i18nstring->key] = $i18nstring->format_translation($langcode, $options);
     }
     else {
-      parent::translate_field($object, $i18nstring, $options);
+      parent::translate_field($object, $i18nstring, $langcode, $options);
     }
   }
 }
@@ -130,13 +130,13 @@ class i18n_field_instance extends i18n_string_object_wrapper {
    * @param $object
    *   A clone of the object or array. Field instance.
    */
-  protected function translate_field(&$object, $i18nstring, $options) {
+  protected function translate_field(&$object, $i18nstring, $langcode, $options) {
     if ($i18nstring->property == 'default_value') {
       // Render string without applying format
-      $object['default_value'][0]['value'] = $i18nstring->format_translation($options['langcode'], array('sanitize' => FALSE) + $options);
+      $object['default_value'][0]['value'] = $i18nstring->format_translation($langcode, array('sanitize' => FALSE) + $options);
     }
     else {
-      parent::translate_field($object, $i18nstring, $options);
+      parent::translate_field($object, $i18nstring, $langcode, $options);
     }
   }
   

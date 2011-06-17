@@ -31,7 +31,7 @@ class i18n_string_object {
   public $translations;
   // Textgroup object
   protected $_textgroup;
-  
+ 
   /**
    * Class constructor
    */
@@ -80,6 +80,9 @@ class i18n_string_object {
     }
     elseif (isset($this->source)) {
       return $this->source;
+    }
+    elseif ($this->textgroup()->debug) {
+      return empty($this->lid) ? t('[Source not found]') : t('[String not found]');
     }
     else {
       return '';
@@ -170,7 +173,7 @@ class i18n_string_object {
     }
     // Add debug information if enabled
     if ($options['debug']) {
-      $info = array($this->textgroup, $this->context);
+      $info = array($langcode, $this->textgroup, $this->context);
       if (!empty($this->format)) {
         $info[] = $this->format;
       }
@@ -237,10 +240,16 @@ class i18n_string_object {
     return $this->_textgroup;
   }
   /**
-   * Update this string
+   * Update this string.
    */
   public function update($options = array()) {
     return $this->textgroup()->string_update($this, $options);
+  }
+  /**
+   * Delete this string.
+   */
+  public function remove($options = array()) {
+    return $this->textgroup()->string_remove($this, $options);
   }
 }
 
@@ -258,11 +267,15 @@ class i18n_string_textgroup_default {
   protected $cache_multiple;
 
   /**
-   * Class constructor
+   * Class constructor.
+   * 
+   * There are to hidden variables to produce debugging information:
+   * - 'i18n_string_debug', generic for all text groups.
+   * - 'i18n_string_debug_TEXTGROUP', enable debug only for TEXTGROUP.
    */
   public function __construct($textgroup) {
     $this->textgroup = $textgroup;
-    $this->debug = variable_get('i18n_string_debug', FALSE);
+    $this->debug = variable_get('i18n_string_debug', FALSE) || variable_get('i18n_string_debug_' . $textgroup, FALSE);
   }
   /**
    * Build string object
@@ -278,13 +291,15 @@ class i18n_string_textgroup_default {
     if ($cached = $this->cache_get($context)) {
       $i18nstring = $cached;
     }
-    else {
+    else {    
       $i18nstring = new i18n_string_object();
       $i18nstring->textgroup = $this->textgroup;
       $i18nstring->set_context($context);
       $this->cache_set($context, $i18nstring);
     }
-    $i18nstring->string = $string;
+    if (isset($string)) {
+      $i18nstring->set_string($string);
+    }
     return $i18nstring;
   }
   /**
@@ -420,7 +435,7 @@ class i18n_string_textgroup_default {
    * Remove string object.
    */
   public function string_remove($i18nstring, $options = array()) {
-    $options += array('watchdog' => TRUE);
+    $options += array('watchdog' => TRUE, 'messages' => $this->debug);
     if ($source = $i18nstring->get_source()) {
       db_delete('locales_target')->condition('lid', $source->lid)->execute();
       db_delete('i18n_string')->condition('lid', $source->lid)->execute();
@@ -429,7 +444,16 @@ class i18n_string_textgroup_default {
       if ($options['watchdog']) {
         watchdog('i18n_string', 'Deleted string %location for textgroup %textgroup: %string', $i18nstring->get_args());
       }
+      if ($options['messages']) {
+        drupal_set_message(t('Deleted string %location for textgroup %textgroup: %string', $i18nstring->get_args()));
+      }
       return SAVED_DELETED;
+    }
+    else {
+      if($options['messages']) {
+        drupal_set_message(t('Cannot delete string, not found %location for textgroup %textgroup: %string', $i18nstring->get_args()));
+      }
+      return FALSE;
     }
   }
 
@@ -457,10 +481,16 @@ class i18n_string_textgroup_default {
    *   New value of string for update/create. May be empty for removing.
    * @param $format
    *   Text format, that must have been checked against allowed formats for translation
+   * @param $options
+   *   Processing options, the ones used here are:
+   *   - 'watchdog', whether to produce watchdog messages.
+   *   - 'messages', whether to produce user messages.
+   *   - 'check', whether to check string and then update/delete.
    * @return status
    *   SAVED_UPDATED | SAVED_NEW | SAVED_DELETED
    */
   public function string_update($i18nstring, $options = array()) {
+    $options += array('watchdog' => TRUE, 'messages' => FALSE, 'check' => TRUE);
     if ($i18nstring->get_string()) {
       $status = $this->string_add($i18nstring, $options);
     }
@@ -620,9 +650,7 @@ class i18n_string_textgroup_default {
     $options += array('messages' => $this->debug);
     $i18nstring = $this->build_string($context, $string);
     $status = $this->string_remove($i18nstring, $options);
-    if ($options['messages'] && $status === SAVED_DELETED) {
-      drupal_set_message(t('Deleted string %location for textgroup %textgroup: %string', $i18nstring->get_args()));
-    }
+
     return $this;
   }
 
@@ -971,6 +999,10 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * Get object strings for translation
    * 
  	 * This will return a simple array of string objects, indexed by full string name.
+ 	 * 
+ 	 * @param $options
+ 	 *   Array with processing options.
+ 	 *   - 'empty', whether to return empty strings, defaults to FALSE.
    */
   public function get_strings($options = array()) {
     $options += array('empty' => FALSE);
@@ -1115,11 +1147,11 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
     if ($strings = $this->get_strings()) {
       // We preload some of the property translations with a single query.
       if ($context = $this->get_translate_context($langcode, $options)) {
-        $this->textgroup()->multiple_translation_search($context, $langcode);
+        $found = $this->textgroup()->multiple_translation_search($context, $langcode);
       }
       // Replace all strings in object.
       foreach ($strings as $i18nstring) {
-        $this->translate_field($object, $i18nstring, $options);
+        $this->translate_field($object, $i18nstring, $langcode, $options);
       }
     }
     return $object;
@@ -1140,15 +1172,15 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * 
    * Mot often, this is a direct field set, but sometimes fields may have different formats.
    */
-  protected function translate_field(&$object, $i18nstring, $options) {
+  protected function translate_field(&$object, $i18nstring, $langcode, $options) {
     $field_name = $i18nstring->property;
-    $translation = $i18nstring->format_translation($options['langcode'], $options);
+    $translation = $i18nstring->format_translation($langcode, $options);
     if (is_object($object)) {
       $object->$field_name = $translation;
     }
     elseif (is_array($object)) {
       $object[$field_name] = $translation;
-    }    
+    }
   }
   
   /**
