@@ -5,6 +5,8 @@
 class i18n_object_wrapper {
   protected $type;
   protected $object;
+  // Object translations, static cache.
+  protected $translations;
 
   /**
    * Class constructor
@@ -114,6 +116,30 @@ class i18n_object_wrapper {
     return I18N_MODE_NONE;
   }  
 
+  /**
+   * Localize object if localizable.
+   */
+  function localize($langcode, $options = array()) {
+    if ($this->get_translate_mode() == I18N_MODE_LOCALIZE) {
+      return $this->translate($langcode, $options);
+    }
+    else {
+      return $this->object;
+    }
+  }
+
+  /**
+   * Translate object if translatable.
+   */
+  function translate($langcode, $options = array()) {
+    if (isset($this->translations[$langcode])) {
+      return $this->translations[$langcode];
+    }
+    else {
+      return $this->object;
+    }
+  }
+ 
   /**
    * Localize access
    */

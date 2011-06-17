@@ -712,7 +712,7 @@ function i18n_string_object_info($type = NULL, $property = NULL) {
  */
 function i18n_string_object_translate($type, $object, $options = array()) {
   $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
-  if (i18n_string_translate_langcode($langcode)) {
+  if (!i18n_string_translate_langcode($langcode)) {
     return i18n_object($type, $object)->translate($langcode, $options);
   }
   else {

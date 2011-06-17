@@ -254,8 +254,9 @@ class i18n_string_textgroup_default {
   public $debug;
   // Cached or preloaded string objects
   public $strings;
-  // Context to locale id map
-  protected $string_map;
+  // Multiple translations search map
+  protected $cache_multiple;
+
   /**
    * Class constructor
    */
@@ -362,6 +363,31 @@ class i18n_string_textgroup_default {
     else {
       return TRUE;
     }
+  }
+
+  /**
+   * Filter array of strings
+   * 
+   * @param $filter
+   *   Array of name value conditions. 
+   */
+  protected static function string_filter($string_list, $filter) {
+    // Remove 'language' and '*' conditions.
+    if (isset($filter['language'])) {
+      unset($filter['language']);
+    }
+    while ($field = array_search('*', $filter)) {
+      unset($filter[$field]);
+    }
+    foreach ($string_list as $key => $string) {
+      foreach ($filter as $field => $value) {
+        if ($string->$field != $value) {
+          unset($string_list[$key]);
+          break;
+        }
+      }
+    }
+    return $string_list;
   }
 
   /**
@@ -646,47 +672,203 @@ class i18n_string_textgroup_default {
   }
 
   /**
-   * Get multiple translations with the available key
+   * Build combinations of an array of arrays respecting keys.
+   * 
+   * Example:
+   *   array(array(a,b), array(1,2)) will translate into
+   *   array(a,1), array(a,2), array(b,1), array(b,2)
    */
-  public function multiple_get_translation($conditions, $property) {
-    $translations = array();
-    $langcode = !empty($conditions['language']) && !is_array($conditions['language']) ? $conditions['language'] : NULL;
-    foreach ($this->multiple_load_translation($conditions) as $translation) {     
-      // The string object may be already in cache
-      $string = $this->build_string($translation->context);
-      $string->set_properties($translation);
+  protected static function multiple_combine($properties) {
+    $combinations = array();
+    // Get first key, value. We need to make sure the array pointer is reset.
+    $value = reset($properties);
+    $key = key($properties);
+    array_shift($properties);
+    $values = is_array($value) ? $value : array($value);
+    foreach ($values as $value) {
+      if ($properties) {
+        foreach (self::multiple_combine($properties) as $merge) {
+          $combinations[] = array_merge(array($key => $value), $merge);
+        }
+      }
+      else {
+        $combinations[] = array($key => $value);
+      }
+    }
+    return $combinations;
+  }
+
+  /**
+   * Get multiple translations with search conditions.
+   * 
+   * @param $translations
+   *   Array of translation objects as loaded from the db.
+	 * @param $langcode
+	 *   Language code, array of language codes or * to search all translations.
+	 * 
+   * @return array
+   *   Array of i18n string objects.
+   */
+  protected function multiple_translation_build($translations, $langcode) {
+    $strings = array();
+    foreach ($translations as $translation) {   
+      // The string object may be already in list
+      if (isset($strings[$translation->context])) {
+        $string = $strings[$translation->context];        
+      }
+      else {
+        $string = $this->build_string($translation->context);
+        $string->set_properties($translation);
+        $strings[$string->context] = $string;
+      }
       // If this is a translation we set it there too
       if ($translation->language && $translation->translation) {
         $string->set_translation($translation);
       }
       elseif ($langcode) {
+        // This may only happen when we have a source string but not translation.
         $string->set_translation(FALSE, $langcode);
       }
-      $translations[$translation->$property] = $string;
     }
-    return $translations;
+    return $strings;
   }
 
   /**
    * Load multiple translations from db
    *
    * @todo Optimize when we've already got the source object
+   * 
+   * @param $conditions
+   *   Array of field values to use as query conditions.
+   * @param $langcode
+   *   Language code to search.
+   * @param $index
+   *   Field to use as index for the result.
+   * @return array
+   *   Array of string objects with translation set.
    */
-  protected static function multiple_load_translation($conditions) {
+  protected function multiple_translation_load($conditions, $langcode) {
+    $conditions += array(
+      'language' => $langcode,
+      'textgroup' => $this->textgroup
+    );
     // We may be querying all translations at the same time or just one language.
     // The language field needs some special treatment though.
     $query = db_select('i18n_string', 's')->fields('s');
     $query->leftJoin('locales_target', 't', 's.lid = t.lid');
     $query->fields('t', array('translation', 'language', 'i18n_status'));
     foreach ($conditions as $field => $value) {
-      if ($field == 'language') {
+      // Single array value, reduce array
+      if (is_array($value) && count($value) == 1) {
+        $value = reset($value);
+      }
+      if ($value === '*') {
+        continue;
+      }
+      elseif ($field == 'language') {
         $query->condition('t.language', $value);
       }
       else {
         $query->condition('s.' . $field, $value);
       }
     }
-    return $query->execute()->fetchAll();
+    return $this->multiple_translation_build($query->execute()->fetchAll(), $langcode);
+  }
+
+  /**
+   * Search multiple translations with key combinations.
+   * 
+   * @param $context array()
+   *   String context conditions.
+   *   Each context field may be a single value, an array of values or '*'
+   *   
+   * @return
+   *   Array of translation objects indexed by context.
+   */
+  public function multiple_translation_search($context, $langcode) {
+    // First, build conditions and identify the variable field.
+    $keys = array('type', 'objectid', 'property');
+    $conditions = array_combine($keys, $context) + array('language' => $langcode);
+    // Find existing searches in cache, compile remaining ones.
+    $translations = $search = array();
+    foreach ($this->multiple_combine($conditions) as $combination) {
+      $cached = $this->multiple_cache_get($combination);
+      if (isset($cached)) {
+        // Cache hit. Merge and remove value from search.
+        $translations += $cached;
+      }
+      else {
+        // Not in cache, add to search conditions.
+        $search = array_merge_recursive($search, $combination);
+      }
+    }
+    // If we've got any search values left, find translations.
+    if ($search) {
+      // Prepare conditions for search, de-dupe conditions values.
+      foreach ($search as $key => $value) {
+        if (is_array($value)) {
+          $search[$key] = array_unique($value);
+        }
+      }
+      // Load translations for conditions and set them to the cache
+      $loaded = $this->multiple_translation_load($search, $langcode);
+      if ($loaded) {
+        $translations += $loaded;
+      }
+      // Set cache for each of the multiple search keys.
+      foreach ($this->multiple_combine($search) as $combination) {
+        $list = $loaded ? $this->string_filter($loaded, $combination) : array();
+        $this->multiple_cache_set($combination, $list);
+      }
+    }
+    return $translations;
+  }
+
+  /**
+   * Set multiple cache.
+   * 
+   * @param $context
+   *   String context with language property at the end.
+   * @param $strings
+   *   Array of strings (may be empty) to cache.
+   */
+  protected function multiple_cache_set($context, $strings) {
+    $cache_key = implode(':', $context);
+    $this->cache_multiple[$cache_key] = $strings;
+  }
+  
+  /**
+   * Get strings from multiple cache.
+   * 
+   * @param $context
+   *   String context with language property at the end.
+   * 
+   * @return mixed
+   *   Array of strings (may be empty) if we've got a cache hit.
+   *   Null otherwise.
+   */
+  protected function multiple_cache_get($context) {
+    $cache_key = implode(':', $context);
+    if (isset($this->cache_multiple[$cache_key])) {
+      return $this->cache_multiple[$cache_key];
+    }
+    else {
+      // Now we try more generic keys. For instance, if we are searching 'term:1:*'
+      // we may try too 'term:*:*' and filter out the results.
+      foreach ($context as $key => $value) {
+        if ($value != '*') {
+          $try = array_merge($context, array($key => '*'));
+          $cache_key = implode(':', $try);
+          if (isset($this->cache_multiple[$cache_key])) {         
+            // As we've found some more generic key, we need to filter using original conditions.
+            $strings = $this->string_filter($this->cache_multiple[$cache_key], $context);
+            return $strings;
+          }
+        }
+      }
+      // If we've reached here, we didn't find any cache match.
+      return NULL;
+    }   
   }
 
   /**
@@ -702,27 +884,28 @@ class i18n_string_textgroup_default {
    */
   public function multiple_translate($context, $strings = array(), $options = array()) {
     // First, build conditions and identify the variable field
-    $conditions = $context = array_combine(array('type', 'objectid', 'property'), $context);
+    $search = $context = array_combine(array('type', 'objectid', 'property'), $context);
     $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
     // If we've got keyed source strings set the array of keys on the placeholder field
     // or if not, remove that condition so we search all strings with that keys.   
-    foreach ($conditions as $field => $value) {
+    foreach ($search as $field => $value) {
       if ($value === '*') {
         $property = $field;
         if ($strings) {
-          $conditions[$field] = array_keys($strings);
-        }
-        else {
-          unset($conditions[$field]);
+          $search[$field] = array_keys($strings);
         }
       }
     }
     // Now we'll add the language code to conditions and get the translations indexed by the property field
-    $conditions['language'] = $langcode;
-    $translations = $this->multiple_get_translation($conditions, $property);
-    // Remap translations using property field
+    $result = $this->multiple_translation_search($search, $langcode);
+    // Remap translations using property field. If we've got strings it is important that they are in the same order.
+    $translations = $strings;
+    foreach ($result as $key => $i18nstring) {
+      $translations[$i18nstring->$property] = $i18nstring;
+    }
+    // Set strings as source or create 
     foreach ($strings as $key => $source) {
-      if (isset($translations[$key])) {
+      if (isset($translations[$key]) && is_object($translations[$key])) {
         $translations[$key]->set_string($source);
       }
       else {
@@ -730,7 +913,9 @@ class i18n_string_textgroup_default {
         // But make sure we set this language's translation to FALSE so we don't search again
         $newcontext = $context;
         $newcontext[$property] = $key;
-        $translations[$key] = $this->build_string($newcontext)->set_string($source);
+        $translations[$key] = $this->build_string($newcontext)
+          ->set_string($source)
+          ->set_translation(FALSE, $langcode);
       }
     }
     return $translations;
@@ -781,8 +966,6 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
   protected $textgroup;
   // Properties for translation
   protected $properties;
-  // Object translations, static cache.
-  protected $translations;
   
   /**
    * Get object strings for translation
@@ -912,10 +1095,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
   public function translate($langcode, $options = array()) {
     // We may have it already translated. As objects are statically cached, translations are too.
     if (!isset($this->translations[$langcode])) {
-      $options['langcode'] = $langcode;
-      // Clone object or array so we don't affect the original one.
-      $object = is_object($this->object) ? clone $this->object : $this->object;
-      $this->translations[$langcode] = $this->translate_object($object, $options);
+      $this->translations[$langcode] = $this->translate_object($langcode, $options);
     }
     return $this->translations[$langcode];
   }
@@ -925,40 +1105,34 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * 
    * On top of object strings we search for all textgroup:type:objectid:* properties
    * 
-   * @param $object
+   * @param $langcode
    *   A clone of the object or array
    */
-  protected function translate_object($object, $options) {
-    // Get object strings for properties.
-    $strings = $this->get_strings();
-    // One-query translation of all textgroup:type:objectid:* properties
-    $context = $this->get_string_context();
-    $context[] = '*';
-    $this->textgroup()->multiple_translate($context, array(), $options);
-    // Replace all strings in object.
-    return $this->translate_properties($object, $strings, $options);
+  protected function translate_object($langcode, $options) {
+    // Clone object or array so we don't affect the original one.
+    $object = is_object($this->object) ? clone $this->object : $this->object;
+    // Get object strings for translatable properties.
+    if ($strings = $this->get_strings()) {
+      // We preload some of the property translations with a single query.
+      if ($context = $this->get_translate_context($langcode, $options)) {
+        $this->textgroup()->multiple_translation_search($context, $langcode);
+      }
+      // Replace all strings in object.
+      foreach ($strings as $i18nstring) {
+        $this->translate_field($object, $i18nstring, $options);
+      }
+    }
+    return $object;
   }
 
   /**
-   * Translate object properties.
-   * 
-   * Mot often, this is a direct field set, but sometimes fields may have different formats.
-   * 
-   * @param $object
-   *   A clone of the object or array.
-   * @param $translations
-   *   String objects
-   * @param $options
-   *   Translation options, the only require done is 'langcode'
-   * 
-   * @return object or array
-   *   Translated object or array.
+   * Context to be pre-loaded before translation.
    */
-  protected function translate_properties($object, $translations, $options) {
-    foreach ($translations as $field_name => $i18nstring) {
-      $this->translate_field($object, $i18nstring, $options);
-    }
-    return $object;
+  protected function get_translate_context($langcode, $options) {
+    // One-query translation of all textgroup:type:objectid:* properties
+    $context = $this->get_string_context();
+    $context[] = '*';
+    return $context;
   }
   
   /**

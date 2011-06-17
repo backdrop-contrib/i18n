@@ -49,7 +49,18 @@ class i18n_field extends i18n_string_object_wrapper {
     }
     return $properties;
   }
-  
+ 
+  /**
+   * Context to be pre-loaded before translation.
+   */
+  protected function get_translate_context($langcode, $options) {
+    return array(
+      $this->object['field_name'],
+      array('#field', '#allowed_values'),
+    	'*'
+    );
+  }
+
   /**
    * Set field translation for object.
    * 
@@ -127,5 +138,16 @@ class i18n_field_instance extends i18n_string_object_wrapper {
     else {
       parent::translate_field($object, $i18nstring, $options);
     }
+  }
+  
+  /**
+   * Context to be pre-loaded before translation.
+   */
+  protected function get_translate_context($langcode, $options) {
+    return array(
+      $this->object['field_name'],
+      array('#field', '#allowed_values', $this->object['bundle']),
+    	'*'
+    );   
   }
 }
