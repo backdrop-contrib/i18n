@@ -299,9 +299,7 @@ function i18n_string_locale_translate_import_form_submit($form, &$form_state) {
  * the following to your settings.php
  *
  * @param $langcode
- * @param $reset
- *   Whether to reset the internal cache for the translated langcode.
- *
+ *   Optional language code to check. It will default to current request language.
  * @code
  *   // Enable translation of specific language. Language code is 'xx'
  *   $conf['i18n_string_translate_langcode_xx'] = TRUE;
@@ -309,8 +307,9 @@ function i18n_string_locale_translate_import_form_submit($form, &$form_state) {
  *   $conf['i18n_string_translate_langcode_yy'] = FALSE;
  * @endcode
  */
-function i18n_string_translate_langcode($langcode, $reset = FALSE) {
-  $translate = &drupal_static(__FUNCTION__ , array(), $reset);
+function i18n_string_translate_langcode($langcode = NULL) {
+  $translate = &drupal_static(__FUNCTION__);
+  $langcode = isset($langcode) ? $langcode : i18n_langcode();
   if (!isset($translate[$langcode])) {
     $translate[$langcode] = variable_get('i18n_string_translate_langcode_' . $langcode, language_default('language') != $langcode);
   }
@@ -713,6 +712,8 @@ function i18n_string_object_info($type = NULL, $property = NULL) {
 function i18n_string_object_translate($type, $object, $options = array()) {
   $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
   if (i18n_string_translate_langcode($langcode)) {
+    // Object properties will be returned without filtering as in the original one.
+    $options += array('sanitize' => FALSE);
     return i18n_object($type, $object)->translate($langcode, $options);
   }
   else {
@@ -753,6 +754,31 @@ function i18n_string_object_update($type, $object, $options = array()) {
 function i18n_string_object_translate_page($object_type, $object_value, $langcode = NULL) {
   module_load_include('inc', 'i18n_string', 'i18n_string.pages');
   return i18n_string_translate_page_object($object_type, $object_value, $langcode);
+}
+
+/**
+ * Preload all strings for this textroup/context.
+ * 
+ * This is a performance optimization to load all needed strings with a single query.
+ * 
+ * Examples of valid string name to search are:
+ *  - 'taxonomy:term:*:title'
+ *    This will find all titles for taxonomy terms
+ *  - array('taxonomy', 'term', array(1,2), '*')
+ *    This will find all properties for taxonomy terms 1 and 2
+ * 
+ * @param $name
+ *   Specially crafted string name, it may take '*' and array parameters for each element.
+ * @param $langcode
+ *   Language code to search translations. Defaults to current language.
+ *   
+ * @return array()
+ *   String objects indexed by context.
+ */
+function i18n_string_translation_search($name, $langcode = NULL) {
+  $langcode = isset($langcode) ? $langcode : i18n_langcode();
+  list ($textgroup, $context) = i18n_string_context($name);
+  return i18n_string_textgroup($textgroup)->multiple_translation_search($context, $langcode);
 }
 
 /**

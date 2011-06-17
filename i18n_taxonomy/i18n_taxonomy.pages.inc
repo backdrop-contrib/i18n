@@ -14,7 +14,7 @@
  *   The page content.
  */
 function i18n_taxonomy_term_page($term) {
-  i18n_taxonomy_localize_terms($term);
+  $term = i18n_taxonomy_localize_terms($term);
   // Build breadcrumb based on the hierarchy of the term.
   $current = (object) array(
     'tid' => $term->tid,
@@ -23,7 +23,7 @@ function i18n_taxonomy_term_page($term) {
   //   presumption. Make this behavior configurable per vocabulary or term.
   $breadcrumb = array();
   while ($parents = taxonomy_get_parents($current->tid)) {
-    i18n_taxonomy_localize_terms($parents);
+    $parents = i18n_taxonomy_localize_terms($parents);
     $current = array_shift($parents);
     $breadcrumb[] = l($current->name, 'taxonomy/term/' . $current->tid);
   }
@@ -77,18 +77,11 @@ function theme_i18n_taxonomy_term_page($tids, $result) {
 
   // Only display the description if we have a single term, to avoid clutter and confusion.
   if (count($tids) == 1) {
-    $term = taxonomy_get_term($tids[0]);
-    if (i18n_taxonomy_vocabulary($term->vid) & I18N_MODE_LOCALIZE) {
-      $description = i18n_string("taxonomy:term:$term->tid:description", $term->description);
-    }
-    else {
-      $description = $term->description;
-    }
-
+    $term = i18n_taxonomy_localize_terms(taxonomy_get_term($tids[0]));
     // Check that a description is set.
-    if (!empty($description)) {
+    if (!empty($term->description)) {
       $output .= '<div class="taxonomy-term-description">';
-      $output .= filter_xss_admin($description);
+      $output .= filter_xss_admin($term->description);
       $output .= '</div>';
     }
   }

@@ -140,15 +140,16 @@ function i18n_taxonomy_menu_alter(&$items) {
   // Also views module takes over this page so this won't work if views enabled.
   if (variable_get('page_manager_term_view_disabled', TRUE)) {
     // Taxonomy term page. Localize terms.
-    $items['taxonomy/term/%taxonomy_term']['module'] = 'i18n_taxonomy';
     $items['taxonomy/term/%taxonomy_term']['page callback'] = 'i18n_taxonomy_term_page';
+    $items['taxonomy/term/%taxonomy_term']['title callback'] = 'i18n_taxonomy_term_name';
     $items['taxonomy/term/%taxonomy_term']['file'] = 'i18n_taxonomy.pages.inc';
+    $items['taxonomy/term/%taxonomy_term']['module'] = 'i18n_taxonomy';
   }
 
   // Localize autocomplete
-  $items['taxonomy/autocomplete']['module'] = 'i18n_taxonomy';
   $items['taxonomy/autocomplete']['page callback'] = 'i18n_taxonomy_autocomplete_field';
   $items['taxonomy/autocomplete']['file'] = 'i18n_taxonomy.pages.inc';
+  $items['taxonomy/autocomplete']['module'] = 'i18n_taxonomy';
 }
 
 /**
@@ -995,30 +996,31 @@ function i18n_taxonomy_translate_terms($taxonomy, $langcode, $fullterms = TRUE) 
  * Localize taxonomy terms for localizable vocabularies.
  *
  * @param $terms
- *   Array of term objects.
- * @param $fields
- *   Object properties to localize.
+ *   Array of term objects or term object.
  * @return
  *   Array of terms with the right ones localized.
  */
-function i18n_taxonomy_localize_terms($terms, $fields = array('name')) {
+function i18n_taxonomy_localize_terms($terms) {
+  // If not localizable language just return. Performance optimizations.
+  if (!i18n_string_translate_langcode()) {
+    return $terms;
+  }
   $object_info = i18n_object_info('taxonomy_term');
-  $terms = is_array($terms) ? $terms : array($terms);
-  foreach ($terms as $index => $term) {
+  $list = is_array($terms) ? $terms : array($terms);
+  foreach ($list as $index => $term) {
     if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_LOCALIZE)) {
-      foreach ($fields as $property) {
-        // Allow to translate descriptions, therefore the format is needed.
-        $info = $object_info['string translation']['properties'][$property];
-        if (!is_array($info) || !isset($info['format'])) {
-          $term->$property = i18n_string(array('taxonomy', 'term', $term->tid, $property), $term->$property);
-        }
-        else {
-          $term->$property = i18n_string(array('taxonomy', 'term', $term->tid, $property), $term->$property, array('format' => $term->format, 'sanitize' => FALSE));
-        }
-      }
+      $localize[$index] = $term->tid;
     }
   }
-  return $terms;
+  // If multiple terms, preload all translations, then run object translation.
+  if (!empty($localize)) {
+    i18n_string_translation_search(array('taxonomy', 'term', $localize, '*'));
+    foreach ($localize as $index => $tid) {
+      $list[$index] = i18n_string_object_translate('taxonomy_term', $list[$index]);
+    }
+  }
+  // Return array or simple object, depending on incoming format.
+  return is_array($terms) ? $list : reset($list);
 }
 
 /**
