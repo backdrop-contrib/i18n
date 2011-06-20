@@ -442,16 +442,16 @@ class i18n_string_textgroup_default {
       db_delete('locales_source')->condition('lid', $source->lid)->execute();
       $this->cache_set($source->context, NULL);
       if ($options['watchdog']) {
-        watchdog('i18n_string', 'Deleted string %location for textgroup %textgroup: %string', $i18nstring->get_args());
+        watchdog('i18n_string', 'Deleted string %location for text group %textgroup: %string', $i18nstring->get_args());
       }
       if ($options['messages']) {
-        drupal_set_message(t('Deleted string %location for textgroup %textgroup: %string', $i18nstring->get_args()));
+        drupal_set_message(t('Deleted string %location for tex tgroup %textgroup: %string', $i18nstring->get_args()));
       }
       return SAVED_DELETED;
     }
     else {
       if($options['messages']) {
-        drupal_set_message(t('Cannot delete string, not found %location for textgroup %textgroup: %string', $i18nstring->get_args()));
+        drupal_set_message(t('Cannot delete string, not found %location for text group %textgroup: %string', $i18nstring->get_args()));
       }
       return FALSE;
     }
@@ -497,6 +497,26 @@ class i18n_string_textgroup_default {
     else {
       $status = $this->string_remove($i18nstring, $options);
     }
+    if ($options['messages']) {
+      switch ($status) {
+        case SAVED_UPDATED:
+          drupal_set_message(t('Updated string %location for text group %textgroup: %string', $i18nstring->get_args()));
+          break;
+        case SAVED_NEW:
+          drupal_set_message(t('Created string %location for text group %textgroup: %string', $i18nstring->get_args()));
+          break;
+      }
+    }
+    if ($options['watchdog']) {
+      switch ($status) {
+        case SAVED_UPDATED:
+          watchdog('i18n_string', 'Updated string %location for text group %textgroup: %string', $i18nstring->get_args());
+          break;
+        case SAVED_NEW:
+          watchdog('i18n_string', 'Created string %location for text group %textgroup: %string', $i18nstring->get_args());
+          break;
+      }
+    } 
     return $status;
   }
 
@@ -504,9 +524,6 @@ class i18n_string_textgroup_default {
    * Set string object into cache
    */
   protected function cache_set($context, $string) {
-    if ($string && !empty($this->strings[$context])) {
-      // Merge translations
-    }
     $this->strings[$context] = $string;
   }
 
@@ -684,17 +701,6 @@ class i18n_string_textgroup_default {
     }
     else {
       $status = $this->string_update($i18nstring, $options);
-    }
-
-    if ($options['messages']) {
-      switch ($status) {
-        case SAVED_UPDATED:
-          drupal_set_message(t('Updated string %location for textgroup %textgroup: %string', $i18nstring->get_args()));
-          break;
-        case SAVED_NEW:
-          drupal_set_message(t('Created string %location for text group %textgroup: %string', $i18nstring->get_args()));
-          break;
-      }
     }
     return $this;
   }
@@ -1039,6 +1045,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
     }
     return $this->properties;
   }
+
   /**
    * Build properties from object.
    */
@@ -1065,18 +1072,21 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
     drupal_alter('i18n_string_list_' . $this->get_textgroup(), $strings, $this->type, $this->object);
     return $strings;
   }
+
   /**
    * Get object info
    */
   public function get_string_info($property) {
     return i18n_string_object_info($this->type, $property);
   }
+
   /**
    * Get string context
    */
   public function get_string_context() {
     return array($this->get_string_info('type'), $this->get_key());
   }
+
   /**
    * Get translate path for object
    *
@@ -1100,12 +1110,14 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
   public function get_translate_mode() {
     return !$this->get_langcode() ? I18N_MODE_LOCALIZE : I18N_MODE_NONE;
   }
+
   /**
    * Get textgroup name
    */
   public function get_textgroup() {
     return $this->get_string_info('textgroup');
   }
+
   /**
    * Get textgroup object
    */
