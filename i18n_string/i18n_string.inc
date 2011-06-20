@@ -1184,15 +1184,36 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
   }
   
   /**
-   * Update all strings for this object
+   * Remove all strings for this object.
    */
-  public function update_strings($options = array()) {
-    $options += array('empty' => TRUE, 'update' => TRUE);
+  public function strings_remove($options = array()) {
+    return $this->strings_operation('remove', $options + array('empty' => TRUE)); 
+  }
+
+  /**
+   * Update all strings for this object.
+   */
+  public function strings_update($options = array()) {
+    return $this->strings_operation('update', $options + array('empty' => TRUE, 'update' => TRUE));
+  }
+  
+  /**
+   * Run some operation on all this object's strings.
+   * 
+   * @param $method
+   *   Operation to run on all strings: 'update', 'remove'.
+   * @param $options
+   *   Array of options to pass to the string method.
+   *   
+   * @return array
+   *   Count for each result
+   */
+  protected function strings_operation($method, $options = array()) {
     $result = array();
     foreach ($this->get_strings($options) as $string) {
-      $status = $string->update($options);
+      $status = $string->$method($options);
       $result[$status] = isset($result[$status]) ? $result[$status] +1 : 1;
     }
-    return $result;
+    return $result;    
   }
 }
