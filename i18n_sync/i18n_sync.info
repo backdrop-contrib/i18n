@@ -1,6 +1,7 @@
 name = Synchronize translations
 description = Synchronizes taxonomy and fields accross translations of the same content.
 dependencies[] = i18n
+dependencies[] = translation
 package = Multilingual - Internationalization
 core = 7.x
 
