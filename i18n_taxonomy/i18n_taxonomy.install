@@ -90,7 +90,8 @@ function i18n_taxonomy_disable() {
 function i18n_taxonomy_update_7000() {
   if ($options = variable_get('i18ntaxonomy_vocabulary')) {
     foreach ($options as $vid => $mode) {
-      db_update('taxononomy_vocabulary')
+      $mode = $mode == 3 ? I18N_MODE_TRANSLATE : $mode;
+      db_update('taxonomy_vocabulary')
         ->fields(array('i18n_mode' => $mode))
         ->condition('vid', $vid)
         ->execute();
@@ -99,15 +100,30 @@ function i18n_taxonomy_update_7000() {
   }
   // Move to new translation set system
   if (db_field_exists('taxonomy_term_data', 'trid')) {
-    $trids = db_query("SELECT DISTINCT trid FROM {taxonomy_term_data} WHERE trid > 0")->fetchColumn();
-    if ($trids) {
-      foreach ($trids as $trid) {
-        $tset = i18n_translation_set_create('taxonomy_term');
-        db_update('taxonomy_term_data')
-          ->fields(array('trid' => 0, 'i18n_tsid' => $tset->tsid))
-          ->condition('trid', $trid)
-          ->execute();
-      }
+    $query = db_select('taxonomy_term_data', 't');
+    $query->join('taxonomy_vocabulary', 'v', 't.vid = v.vid');
+    $query
+      ->fields('t', array('trid'))
+      ->fields('v', array('machine_name'))
+      ->condition('t.trid', 0, '>')
+      ->distinct();
+
+    foreach ($query->execute() as $record) {
+      $tset = i18n_translation_set_create('taxonomy_term', $record->machine_name);
+      db_update('taxonomy_term_data')
+        ->fields(array('trid' => 0, 'i18n_tsid' => $tset->tsid))
+        ->condition('trid', $record->trid)
+        ->execute();
     }
+    db_drop_field('taxonomy_term_data', 'trid');
+  }
+}
+
+/**
+ * Drop trid column used in D6 if exists
+ */
+function i18n_taxonomy_update_7001() {
+  if (db_field_exists('taxonomy_term_data', 'trid')) {
+    db_drop_field('taxonomy_term_data', 'trid');
   }
 }
