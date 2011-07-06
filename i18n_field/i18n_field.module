@@ -231,15 +231,21 @@ function i18n_field_field_widget_form($form, &$form_state, $field, $instance, $l
   global $language;
   // The field language may affect some variables (default) but not others (description will be in current page language)
   $i18n_langcode = empty($element['#language']) || $element['#language'] == LANGUAGE_NONE ? $language->language : $element['#language'];
-
+  // Translate instance to current page language and set to form_state
+  // so it will be used for validation messages later.
+  $instance_current = i18n_string_object_translate('field_instance', $instance);
+  if (isset($form_state['field'][$instance['field_name']][$langcode]['instance'])) {
+    $form_state['field'][$instance['field_name']][$langcode]['instance'] = $instance_current;
+  }
+  // Now replace some form elements one at a time.
   $delta = $element['#delta'];
   // Translate field title if set
-  if (!empty($instance['label']) && !empty($element['#title'])) {
-    $element['#title'] = i18n_field_translate_property($instance, 'label');
+  if (!empty($instance_current['label']) && !empty($element['#title'])) {
+    $element['#title'] = $instance_current['label'];
   }
   // Translate field description if set
-  if (!empty($instance['description']) && !empty($element['#description'])) {
-    $element['#description'] = i18n_field_translate_property($instance, 'description');
+  if (!empty($instance_current['description']) && !empty($element['#description'])) {
+    $element['#description'] = $instance_current['description'];
   }
   // Translate default value if exists and the current value is the default
   if (($translate = i18n_field_type_info($field['type'], 'translate_default')) && !empty($instance['default_value'][$delta]['value']) && !empty($items[$delta]['value']) && $instance['default_value'][$delta]['value'] === $items[$delta]['value']) {
@@ -249,6 +255,7 @@ function i18n_field_field_widget_form($form, &$form_state, $field, $instance, $l
   if (($translate = i18n_field_type_info($field['type'], 'translate_options')) && !empty($field['settings']['allowed_values'])) {
     $field['settings']['allowed_values'] = $translate($field, $i18n_langcode);
   }
+
   // Redirect through original module_field_widget_form()
   if (!empty($instance['widget']['i18n_field_callbacks'])) {
     foreach ($instance['widget']['i18n_field_callbacks'] as $function) {
