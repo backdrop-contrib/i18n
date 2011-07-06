@@ -34,8 +34,8 @@ class i18n_menu_link extends i18n_string_object_wrapper {
    */
   public function __construct($type, $object) {
     // Unserialize options if not done
-    if (isset($object->options) && !is_array($object->options)) {
-      $object->options = unserialize($object->options);
+    if (isset($object['options']) && !is_array($object['options'])) {
+      $object['options'] = unserialize($object['options']);
     }
     parent::__construct($type, $object);
   }
