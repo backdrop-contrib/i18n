@@ -28,7 +28,7 @@ function i18n_field_update_7000() {
     ->fields('s')
     ->condition('textgroup', 'cck')
     ->condition('type', 'field');
-  foreach ($query->execute->fetchAll() as $string) {
+  foreach ($query->execute() as $string) {
     $string->textgroup = 'field';
     list($bundle, $field) = split('-', $string->objectid);
     $string->type = $field;
@@ -42,7 +42,7 @@ function i18n_field_update_7000() {
     ->fields('s')
     ->condition('textgroup', 'profile')
     ->condition('type', 'field');
-  foreach ($query->execute->fetchAll() as $string) {
+  foreach ($query->execute() as $string) {
     $string->textgroup = 'field';
     $string->type = $string->property;
     if ($string->objectid == 'options') {
