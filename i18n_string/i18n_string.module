@@ -115,10 +115,8 @@ function i18n_string_menu() {
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('variable_edit_form', array('i18n_string_allowed_formats', 'i18n_string_source_language')),
-    'file' => 'i18n_string.admin.inc',
     'access arguments' => array('administer filters'),
   );
-
   // AJAX callback path for strings.
   $items['i18n_string/save'] = array(
     'title' => 'Save string',

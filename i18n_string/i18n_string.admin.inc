@@ -107,29 +107,6 @@ function i18n_string_admin_update($language, $groups) {
 }
 
 /**
- * Configure filters for string translation.
- *
- * This has serious security implications so this form needs the 'administer filters' permission
- */
-function i18n_string_admin_settings() {
-  module_load_include('inc', 'i18n_string');
-  include_once './includes/locale.inc';
-  // As the user has administer filters permissions we get a full list here
-  foreach (filter_formats() as $fid => $format) {
-    $format_list[$fid] = $format->name;
-  }
-  $form['i18n_string_allowed_formats'] = array(
-    '#title' => t('Translatable text formats'),
-    '#options' => $format_list,
-    '#type' => 'checkboxes',
-    '#default_value' => variable_get('i18n_string_allowed_formats', array(filter_fallback_format())),
-    '#description' => t('Only the strings that have the text formats selected will be allowed by the translation system. All the others will be deleted next time the strings are refreshed.'),
-  );
-  $form['array_filter'] = array('#type' => 'value', '#value' => TRUE);
-  return system_settings_form($form);
-}
-
-/**
  * Refresh all user defined strings for a given text group.
  *
  * @param $group
