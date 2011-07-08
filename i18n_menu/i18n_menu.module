@@ -298,6 +298,10 @@ function i18n_menu_help($path, $arg) {
       $output .= '<p>' . t('The multilingual options of a menu must be configured before individual menu items can be translated. Go to the <a href="@menu-admin">Menus administration page</a> and follow the "edit menu" link to the menu in question.', array('@menu-admin' => url('admin/structure/menu') ) ) . '</p>';
       $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
       return $output;
+      
+    case 'admin/config/regional/i18n':
+      $output = '<p>'. t('Menus and menu items can be translated on the <a href="@configure_menus">Menu administration page</a>.', array('@configure_menus' => url('admin/structure/menu'))) .'</p>';
+      return $output;
   }
 }
 
