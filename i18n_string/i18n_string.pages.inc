@@ -59,7 +59,7 @@ function i18n_string_translate_page_overview($form_meta) {
     if ($langcode == $default_language->language) {
       $rows[] = array(
         $language->name . ' ' . t('(source)'),
-        $form_meta['#item_title']->get_string(),
+        check_plain($form_meta['#item_title']->get_string()),
         t('original'),
         l(t('edit'), $form_meta['#edit']),
       );
@@ -108,10 +108,12 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
   foreach ($form_meta['#items'] as $item) {
     $disabled = FALSE;
     $description = '';
+    // We may have a source or not. Maybe the format is disallowed for all.
     $source = $item->get_source();
-    if ($source && $source->format) {
-      $format = filter_format_load($source->format);
-      $disabled = !i18n_string_translate_access($source);
+    $format_id = $source ? $source->format : $item->format;
+    if ($format_id) {
+      $format = filter_format_load($format_id);
+      $disabled = !i18n_string_translate_access($item);
       if ($disabled) {
         $description = t('This string uses the %name text format. You are not allowed to translate or edit texts with this format.', array('%name' => $format->name));
       }

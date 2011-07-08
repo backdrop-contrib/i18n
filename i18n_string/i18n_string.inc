@@ -160,9 +160,6 @@ class i18n_string_object {
     $options += array('langcode' => $langcode, 'sanitize' => TRUE, 'cache' => FALSE, 'debug' => $this->textgroup()->debug);
     if ($translation = $this->get_translation($langcode)) {
       $string = $translation;
-      if (!empty($this->format)) {
-        $options += array('format' => $this->format);
-      }
       if (isset($options['filter'])) {
         $string = call_user_func($options['filter'], $string);
       }
@@ -170,6 +167,13 @@ class i18n_string_object {
     else {
       // Get default source string if no translation.
       $string = $this->get_string();
+    }
+    if (!empty($this->format)) {
+      $options += array('format' => $this->format);
+    }
+    elseif (empty($translation) && $options['sanitize']) {
+      // We are bout to display the source string without text format, force check_plain.
+      $string = check_plain($string);
     }
     // Add debug information if enabled
     if ($options['debug']) {
@@ -485,13 +489,16 @@ class i18n_string_textgroup_default {
    *   Processing options, the ones used here are:
    *   - 'watchdog', whether to produce watchdog messages.
    *   - 'messages', whether to produce user messages.
-   *   - 'check', whether to check string and then update/delete.
+   *   - 'check', whether to check string format and then update/delete if not allowed.
    * @return status
    *   SAVED_UPDATED | SAVED_NEW | SAVED_DELETED
    */
   public function string_update($i18nstring, $options = array()) {
     $options += array('watchdog' => TRUE, 'messages' => FALSE, 'check' => TRUE);
-    if ($i18nstring->get_string()) {
+    if (!$options['check'] || !$this->string_check($i18nstring, $options)) {
+      $status = $this->string_remove($i18nstring, $options);
+    }
+    elseif ($i18nstring->get_string()) {
       $status = $this->string_add($i18nstring, $options);
     }
     else {
@@ -688,20 +695,15 @@ class i18n_string_textgroup_default {
    *   Source string in default language. Default language may or may not be English.
    * @param $options
    *   Array with additional options:
-   *   - 'format', String format if the string has text format
-   *   - 'messages', Whether to print out status messages
+   *   - 'format', String format if the string has text format.
+   *   - 'messages', Whether to print out status messages.
+   *   - 'check', whether to check string format and then update/delete if not allowed.
    */
   public function context_update($context, $string, $options = array()) {
-    $options += array('format' => FALSE, 'messages' => $this->debug, 'watchdog' => TRUE);
+    $options += array('format' => FALSE, 'messages' => $this->debug, 'watchdog' => TRUE, 'check' => TRUE);
     $i18nstring = $this->build_string($context, $string);
     $i18nstring->format = $options['format'];
-    if (!$this->string_check($i18nstring, $options)) {
-      $this->context_remove($context, $string, $options);
-      $status = SAVED_DELETED;
-    }
-    else {
-      $status = $this->string_update($i18nstring, $options);
-    }
+    $this->string_update($i18nstring, $options);
     return $this;
   }
 
