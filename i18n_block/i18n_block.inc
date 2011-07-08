@@ -23,8 +23,14 @@ class i18n_block_object extends i18n_string_object_wrapper {
       $this->object->body = $block->body;
       $this->object->format = $block->format;
     }
-    return parent::build_properties();
+    $properties = parent::build_properties();
+    // Body is available only for custom blocks.
+    if ($this->object->module != 'block') {
+      unset($properties[$this->get_textgroup()][$this->object->module][$this->object->delta]['body']);
+    }
+    return $properties;
   }
+
   /**
    * Translation mode for object
    */
