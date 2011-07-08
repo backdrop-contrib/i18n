@@ -46,6 +46,17 @@ function i18n_node_variable_info($options = array()) {
     'description' => t('If enabled, all defined languages will be allowed for this content type in addition to only enabled ones. This is useful to have more languages for content than for the interface.', array(), $options),
     'group' => 'i18n',
   );
+  $variables['i18n_node_default_language_none'] = array(
+    'title' => t('Default language for content types with Multilingual support disabled.', array(), $options),
+    'description' => t('Determines which language will be set for newly created content of types that don\'t have have Multilingual support enabled.', array(), $options),
+    'type' => 'select',
+    'options' => array(
+      0 => t('The site\'s default language (Default behaviour).', array(), $options),
+      1 => t('Language neutral', array(), $options)
+    ),
+    'default' => 0,
+    'group' => 'i18n',
+  );
   return $variables;
 }
 
