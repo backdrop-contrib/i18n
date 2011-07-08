@@ -5,6 +5,19 @@
  */
 
 /**
+ * Implements hook_variable_group_info().
+ */
+function i18n_variable_group_info() {
+  $groups['i18n_node'] = array(
+    'title' => t('Multilingual node options'),
+    'description' => t('Extended node options for multilingual sites.'),
+    'access' => 'administer site configuration',
+    'path' => 'admin/config/regional/i18n/node',
+  );
+  return $groups;
+}
+
+/**
  * Implements hook_variable_info().
  */
 function i18n_node_variable_info($options = array()) {
@@ -13,14 +26,25 @@ function i18n_node_variable_info($options = array()) {
     'title' => t('Hide content translation links', array(), $options),
     'description' => t('Hide the links to translations in content body and teasers. If you choose this option, switching language will only be available from the language switcher block.', array(), $options),
     'default' => 0,
-    'group' => 'i18n',
+    'group' => 'i18n_node',
   );
   $variables['i18n_node_translation_switch'] = array(
     'type' => 'boolean',
     'title' => t('Switch interface for translating', array(), $options),
     'default' => 1,
-    'group' => 'i18n',
+    'group' => 'i18n_node',
     'description' => t('Switch interface language to fit node language when creating or editing a translation. If not checked the interface language will be independent from node language. This may have some unintended effects like references not matching the node language.', array(), $options),
+  );
+  $variables['i18n_node_default_language_none'] = array(
+    'title' => t('Default language for content types with Multilingual support disabled.', array(), $options),
+    'description' => t('Determines which language will be set for newly created content of types that don\'t have have Multilingual support enabled.', array(), $options),
+    'type' => 'select',
+    'options' => array(
+      0 => t('The site\'s default language (Default behaviour).', array(), $options),
+      1 => t('Language neutral (Recommended).', array(), $options)
+    ),
+    'default' => 0,
+    'group' => 'i18n_node',
   );
   $variables['i18n_node_options_[node_type]'] = array(
     'type' => 'multiple',
@@ -46,17 +70,7 @@ function i18n_node_variable_info($options = array()) {
     'description' => t('If enabled, all defined languages will be allowed for this content type in addition to only enabled ones. This is useful to have more languages for content than for the interface.', array(), $options),
     'group' => 'i18n',
   );
-  $variables['i18n_node_default_language_none'] = array(
-    'title' => t('Default language for content types with Multilingual support disabled.', array(), $options),
-    'description' => t('Determines which language will be set for newly created content of types that don\'t have have Multilingual support enabled.', array(), $options),
-    'type' => 'select',
-    'options' => array(
-      0 => t('The site\'s default language (Default behaviour).', array(), $options),
-      1 => t('Language neutral', array(), $options)
-    ),
-    'default' => 0,
-    'group' => 'i18n',
-  );
+
   return $variables;
 }
 
