@@ -7,7 +7,7 @@
 /**
  * Implements hook_variable_group_info().
  */
-function i18n_variable_group_info() {
+function i18n_node_variable_group_info() {
   $groups['i18n_node'] = array(
     'title' => t('Multilingual node options'),
     'description' => t('Extended node options for multilingual sites.'),
