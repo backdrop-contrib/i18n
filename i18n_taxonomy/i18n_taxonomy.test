@@ -27,7 +27,7 @@ class i18nTaxonomyTestCase extends Drupali18nTestCase {
       'administer field_test content',
       'administer taxonomy',
       'administer languages',
-      'administer filters',
+      'administer site configuration',
       filter_permission_name($filtered_html_format),
       filter_permission_name($full_html_format),
     ));

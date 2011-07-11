@@ -19,6 +19,7 @@ function i18n_string_variable_info($options = array()) {
     'options callback' => 'i18n_string_variable_format_list',
     'type' => 'options',
     'default callback' => 'i18n_string_variable_format_default',
+    'access' => 'administer filters',
     'description' => t('Only the strings that have the text formats selected will be allowed by the translation system. All the others will be deleted next time the strings are refreshed.'),
   );
   $variables['i18n_string_source_language'] = array(
