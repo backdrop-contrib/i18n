@@ -393,7 +393,8 @@ class i18n_translation_set {
     $this->get_translations();
     if ($langcode && isset($this->translations[$langcode])) {
       unset($this->translations[$langcode]);
-    }    
+    }
+    return $this;   
   }
 
   /**

@@ -565,25 +565,24 @@ function i18n_taxonomy_taxonomy_term_insert($term) {
 /**
  * Implements hook_taxonomy_term_update()
  */
-function i18n_taxonomy_taxonomy_term_update($term) {
+function i18n_taxonomy_taxonomy_term_update($term) {  
   if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_LOCALIZE)) {
     i18n_string_object_update('taxonomy_term', $term);
   }
-  // Multilingual terms, translatable.
-  if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_TRANSLATE)) {
-    if ($term->language !== LANGUAGE_NONE) {
-      $vocabulary = taxonomy_vocabulary_load($term->vid);
-
-      // If the term translation set id is not set, we will create a new translation set.
-      $translation_set = isset($term->translation_set) ? $term->translation_set : i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
-      $translation_set->get_translations();
-
-      // Add the current term to the translation set.
-      $translation_set->add_item($term);
-      $translation_set->save(TRUE);
+  // Multilingual terms, translatable. Link / unlink from translation set.
+  if (i18n_taxonomy_vocabulary_mode($term->vid, I18N_MODE_TRANSLATE) && !empty($term->translation_set)) {
+    if (i18n_object_langcode($term)) {
+      $term->translation_set
+        ->add_item($term)
+        ->save();
+    }
+    elseif (!empty($term->original)) {
+      // Term set to language neutral, remove it from translation set and update set (delete if empty)
+      $term->translation_set
+        ->remove_item($term->original)
+        ->update_delete();
     }
   }
-  // TODO: Remove the term from it's translation set if the language is set to LANGUAGE_NONE
 }
 
 /**
@@ -738,11 +737,12 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
         // Add the translation set to the form so we know the new term
         // needs to be added to that set.
         if (!empty($source_term->i18n_tsid)) {
-          $form['translation_set'] = array(
-            '#type' => 'value',
-            '#value' => i18n_translation_set_load($source_term->i18n_tsid),
-          );
-          // $form['#term']['i18n_tsid'] = $source_term->i18n_tsid;
+          $translation_set = i18n_taxonomy_translation_set_load($source_term->i18n_tsid);
+        }
+        else {
+          // No translation set yet, build a new one with the source term.
+          $translation_set = i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name)
+          ->add_item($source_term);
         }
 
         $form['language']['#default_value'] = $_GET['target'];
@@ -750,22 +750,29 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
 
         drupal_set_title(t('%language translation of term %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_term->name)), PASS_THROUGH);
       }
-
-      // If the current term is part of a translation set,
-      // remove all other languages of the option list.
-      if (isset($term->language) && $term->language !== LANGUAGE_NONE) {
-        $translation_set = i18n_translation_set_load($term->i18n_tsid);
+      elseif (i18n_object_langcode($term) && !empty($term->i18n_tsid)) {
+        // If the current term is part of a translation set,
+        // remove all other languages of the option list.        
+        $translation_set = i18n_taxonomy_translation_set_load($term->i18n_tsid);
         $translations = $translation_set->get_translations();
 
         // If the number of translations equals 1, there's only a source translation.
         if (count($translations) > 1) {
-          unset($form['language']['#options'][LANGUAGE_NONE]);
+          //unset($form['language']['#options'][LANGUAGE_NONE]);
           foreach ($translations as $langcode => $translation) {
             if ($translation->tid !== $term->tid) {
               unset($form['language']['#options'][$langcode]);
             }
           }
+          $form['language']['#description'] = t('This term already belongs to a <a href="@term-translation">translation set</a>. Changing language to <i>Language neutral</i> will remove it from the set.', array('@term-translation' => url('taxonomy/term/' . $term->tid . '/translate')));
         }
+      }
+      // If we've got a translation set, add it to the form.
+      if (!empty($translation_set)) {
+        $form['translation_set'] = array(
+          '#type' => 'value',
+          '#value' => $translation_set,
+        );
       }
       break;
 
