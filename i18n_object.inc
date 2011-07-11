@@ -39,7 +39,16 @@ class i18n_object_wrapper {
     }
     elseif (is_array($this->object)) {
       $this->object[$field] = $value;
-    }    
+    }
+    return $this;   
+  }
+  
+  /**
+   * Get string numeric key for indexing.
+   */
+  function get_index() {
+    $key = $this->get_key();
+    return is_array($key) ? implode(':', $key) : $key;
   }
 
   /**
@@ -117,6 +126,20 @@ class i18n_object_wrapper {
   }  
 
   /**
+   * Get translation set id if any
+   */
+  function get_tsid() {
+    return $this->get_field($this->get_translation_info('field', 'i18n_tsid'));
+  }
+
+  /**
+   * Set translation set id
+   */
+  function set_tsid($tsid) {
+    return $this->set_field($this->get_translation_info('field', 'i18n_tsid'), $tsid);
+  }
+
+  /**
    * Localize object if localizable.
    */
   function localize($langcode, $options = array()) {
@@ -176,7 +199,21 @@ class i18n_object_wrapper {
   /**
    * Get object info
    */
-  public function get_info($property) {
-    return i18n_object_info($this->type, $property);
+  public function get_info($property, $default = NULL) {
+    return i18n_object_info($this->type, $property, $default);
+  }
+  /**
+   * Get object translation set info
+   */
+  public function get_translation_info($property, $default = NULL) {
+    $info = $this->get_info('translation set');
+    return $info && isset($info[$property]) ? $info[$property] : $default;
+  }
+  /**
+   * Get object string translation info
+   */
+  public function get_string_info($property, $default = NULL) {
+    $info = $this->get_info('string translation');
+    return $info && isset($info[$property]) ? $info[$property] : $default;
   }
 }

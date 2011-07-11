@@ -1076,13 +1076,6 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
   }
 
   /**
-   * Get object info
-   */
-  public function get_string_info($property) {
-    return i18n_string_object_info($this->type, $property);
-  }
-
-  /**
    * Get string context
    */
   public function get_string_context() {
