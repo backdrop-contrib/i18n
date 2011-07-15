@@ -199,7 +199,10 @@ class i18n_translation_set {
   public function get_objects() {
     if (!isset($this->translations)) {
       $this->translations = array();
+      // Disable selection query altering, just in case
+      $previous = i18n_select(FALSE);
       $this->add_translations($this->load_translations());
+      i18n_select($previous);
     }
     return $this->translations;
   }
