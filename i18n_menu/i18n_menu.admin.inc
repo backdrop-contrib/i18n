@@ -7,7 +7,7 @@
 
 
 /**
- * Produces a vocabulary translation form.
+ * Produces a menu translation form.
  */
 function i18n_menu_translation_form($form, $form_state, $menu = NULL, $item = NULL, $translation_set = NULL) {
   $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
@@ -143,8 +143,10 @@ function i18n_menu_parent_options($menus, $item, $langcode) {
       $available_menus[$name] = $menu;
     }
   }
-
+  // Disable i18n selection, enable after the query.
+  $previous = i18n_select(FALSE);
   $options = _i18n_menu_get_options($menus, $available_menus, $item, $langcode);
+  i18n_select($previous);
   return $options;
 }
 
