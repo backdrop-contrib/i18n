@@ -31,7 +31,7 @@ function i18n_menu_menu() {
   $items['admin/structure/menu/manage/translation/edit/%i18n_menu_translation'] = array(
     'title' => 'Edit translation',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('i18n_menu_translation_form', NULL, NULL, 6),
+    'page arguments' => array('i18n_menu_translation_form', 6),
     'access arguments' => array('administer menu'),
     'type' => MENU_CALLBACK,
     'file' => 'i18n_menu.admin.inc',
