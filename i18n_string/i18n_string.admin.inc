@@ -340,7 +340,7 @@ function i18n_string_module_string_list($module) {
   // If the module defines any textgroup, get all strings for this group
   if ($groups = module_invoke($module, 'i18n_string_info')) {
     foreach ($groups as $group) {
-      $strings = array_merge_recursive($strings, i18n_string_group_string_list($group));
+      $strings = i18n_string_array_merge($strings, i18n_string_group_string_list($group));
     }   
   }
   else {
@@ -359,7 +359,7 @@ function i18n_string_module_string_list($module) {
     foreach ($object_types as $type => $type_info) {
       if (($group = i18n_string_object_info($type, 'textgroup')) && !in_array($group, $groups)) {
         if ($group_strings = i18n_string_object_type_string_list($type)) {
-          $strings = array_merge_recursive($strings, $group_strings);
+          $strings = i18n_string_array_merge($strings, $group_strings);
         }
       }
     }

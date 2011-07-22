@@ -33,7 +33,7 @@ function i18n_string_i18n_string_list($group) {
     foreach (i18n_string_group_object_types($group) as $type) {
       $type_strings = i18n_string_object_type_string_list($type);
       if ($type_strings && !empty($type_strings[$group])) {
-        $strings[$group] = isset($strings[$group]) ? array_merge_recursive($strings[$group], $type_strings[$group]) : $type_strings[$group];
+        $strings[$group] = isset($strings[$group]) ? i18n_string_array_merge($strings[$group], $type_strings[$group]) : $type_strings[$group];
       }
     }
   }
@@ -64,9 +64,42 @@ function i18n_string_object_type_string_list($type) {
   if ($objects = module_invoke_all('i18n_string_objects', $type)) {
     foreach ($objects as $object) {
       if ($object_strings = i18n_object($type, $object)->get_properties()) {
-        $strings = array_merge_recursive($strings, $object_strings);
+        $strings = i18n_string_array_merge($strings, $object_strings);
       }
     }
   }
   return $strings;
+}
+
+/**
+ * Merges multiple arrays, recursively, and returns the merged array.
+ *
+ * This function is not equivalent to PHP's array_merge_recursive(),
+ * as this version leaves integer keys intact.
+ *
+ * @see drupal_array_merge_deep(), @see array_merge_recursive()
+ *
+ * @param ...
+ *   Arrays to merge.
+ * @return
+ *   The merged array.
+ */
+function i18n_string_array_merge() {
+  $arrays = func_get_args();
+  $result = array();
+
+  foreach ($arrays as $array) {
+    foreach ($array as $key => $value) {
+      // Recurse when both values are arrays.
+      if (isset($result[$key]) && is_array($result[$key]) && is_array($value)) {
+        $result[$key] = i18n_string_array_merge($result[$key], $value);
+      }
+      // Otherwise, use the latter value, overriding any previous value.
+      else {
+        $result[$key] = $value;
+      }
+    }
+  }
+
+  return $result;
 }
