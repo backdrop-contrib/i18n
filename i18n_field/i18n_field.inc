@@ -5,25 +5,44 @@
  */
 
 /**
+ * Base object for field and field instance
+ */
+class i18n_field_base extends i18n_string_object_wrapper {
+  /**
+   * Get base path for object
+   */
+  protected function get_base_path() {
+    $info = entity_get_info($this->object['entity_type']);
+    if (isset($info['bundles'][$this->object['bundle']]['admin'])) {
+      $admin = $info['bundles'][$this->object['bundle']]['admin'];
+      // Extract path information from the bundle.
+      if (isset($admin['real path'])) {
+        return $admin['real path'] . '/fields/' . $this->object['field_name'];
+      }
+      else {
+        // We don't have real path, use path instead, may work or not.
+        return $admin['path'] . '/fields/' . $this->object['field_name'];
+      }
+    }
+  }  
+}
+
+/**
  * Field object
  */
-class i18n_field extends i18n_string_object_wrapper {
+class i18n_field extends i18n_field_base {
   /**
    * Get edit path for object
    */
   public function get_edit_path() {
-    $info = entity_get_info($this->object['entity_type']);
-    if (isset($info['bundles'][$this->object['bundle']]['admin'])) {
-      // Extract path information from the bundle.
-      $path = $info['bundles'][$this->object['bundle']]['admin']['real path'];
-      return $path . '/fields/' . $this->object['field_name'];
-    }
+    return $this->get_base_path() . '/field-settings';
   }
+
   /**
    * Get translate path for object
    */
   public function get_translate_path($langcode = NULL) {
-    return $this->get_edit_path() . '/translate/field' . ($langcode ? '/' . $$langcode : '');
+    return $this->get_base_path() . '/translate/field' . ($langcode ? '/' . $$langcode : '');
   }  
   /**
    * Get string context
@@ -82,23 +101,18 @@ class i18n_field extends i18n_string_object_wrapper {
 /**
  * Field instance object
  */
-class i18n_field_instance extends i18n_string_object_wrapper {
+class i18n_field_instance extends i18n_field_base {
   /**
    * Get edit path for object
    */
   public function get_edit_path() {
-    $info = entity_get_info($this->object['entity_type']);
-    if (isset($info['bundles'][$this->object['bundle']]['admin'])) {
-      // Extract path information from the bundle.
-      $path = $info['bundles'][$this->object['bundle']]['admin']['real path'];
-      return $path . '/fields/' . $this->object['field_name'];
-    }
+    return $this->get_base_path();
   }  
   /**
    * Get translate path for object
    */
   public function get_translate_path($langcode = NULL) {
-    return $this->get_edit_path() . '/translate/instance' . ($langcode ? '/' . $$langcode : '');
+    return $this->get_base_path() . '/translate/instance' . ($langcode ? '/' . $$langcode : '');
   }  
   /**
    * Get string context
