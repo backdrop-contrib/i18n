@@ -298,7 +298,7 @@ function _i18n_string_batch_refresh_callback($group, &$context) {
  * Batch callback, delete old strings
  */
 function _i18n_string_batch_refresh_cleanup($group, &$context) {
-  if (!empty($context[$group]['result'])) {
+  if (!empty($context['results'][$group]['result'])) {
     $context['results'][$group]['deleted'] = i18n_string_refresh_cleanup($group);
   }
 }
