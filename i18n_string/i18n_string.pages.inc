@@ -103,6 +103,7 @@ function i18n_string_translate_page_form_base($form, $langcode, $redirect = NULL
       $redirect,
     );
   }
+  // Add explicit validate and submit hooks so this can be used from inside any form.
   $form['#validate'] = array('i18n_string_translate_page_form_validate');
   $form['#submit'] = array('i18n_string_translate_page_form_submit');
   return $form;  
@@ -181,7 +182,6 @@ function i18n_string_validate_submission($formkey, $value) {
     watchdog('locale', 'Attempted submission of a translation string with disallowed HTML: %string', array('%string' => $value), WATCHDOG_WARNING);
   }
 }
-
 
 /**
  * Menu callback. Saves a string translation coming as POST data.
