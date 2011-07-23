@@ -68,40 +68,10 @@ function i18n_field_menu() {
             'file' => 'i18n_field.pages.inc',
             'type' => MENU_CALLBACK,
           ) + $access;
-          /*          
-          $items["$path/fields/%field_ui_menu/translate/instance"] = array(
-            'title' => 'Instance',
-            'type' => MENU_DEFAULT_LOCAL_TASK,
-          );
-         
-          $items["$path/fields/%field_ui_menu/translate/instance/%language"] = array(
-            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
-            'title' => 'Instance',
-            'page callback' => 'i18n_string_object_translate_page',
-            'page arguments' => array('field_instance', $field_position, $field_position + 3),
-            'type' => MENU_CALLBACK,
-          ) + $access;
-
-          $items["$path/fields/%field_ui_menu/translate/field"] = array(
-            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
-            'title' => 'Field',
-            'page callback' => 'i18n_string_object_translate_page',
-            'page arguments' => array('field', $field_position),
-            'type' => MENU_LOCAL_TASK,
-          ) + $access;
-          $items["$path/fields/%field_ui_menu/translate/field/%language"] = array(
-            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
-            'title' => 'Field',
-            'page callback' => 'i18n_string_object_translate_page',
-            'page arguments' => array('field', $field_position, $field_position + 3),
-            'type' => MENU_CALLBACK,
-          ) + $access;
-          */
         }      
       }
     }
   }
-  dpm($items);
   return $items;
 }
 
