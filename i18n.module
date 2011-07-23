@@ -92,7 +92,7 @@ function i18n_element_language_select($default = LANGUAGE_NONE) {
 }
 
 /**
- * Get language field for hook_fields_extra_fields()
+ * Get language field for hook_field_extra_fields()
  */
 function i18n_language_field_extra() {
   return array(

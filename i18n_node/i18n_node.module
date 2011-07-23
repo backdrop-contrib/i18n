@@ -10,7 +10,7 @@
 
 
 /**
- * Replacement for node_add
+ * Replacement for node_add.
  *
  * This just calls node_add() and switches title. This has to be done here to work always
  */
