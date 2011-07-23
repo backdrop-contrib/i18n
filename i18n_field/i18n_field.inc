@@ -32,6 +32,20 @@ class i18n_field_base extends i18n_string_object_wrapper {
  */
 class i18n_field extends i18n_field_base {
   /**
+   * Class constructor
+   * 
+   * For convenience field objects can be built from field info and from field instance
+   */
+  public function __construct($type, $object) {
+    // If this is a field instance, get field info but add instance data too.
+    // This instance data will be used to get the paths to get the edit/translate path.
+    if (isset($object['bundle']) && isset($object['entity_type'])) {
+      $object = field_info_field($object['field_name']) + array('bundle' => $object['bundle'], 'entity_type' => $object['entity_type']);
+    }
+    parent::__construct($type, $object);
+  }
+
+  /**
    * Get edit path for object
    */
   public function get_edit_path() {
@@ -112,7 +126,7 @@ class i18n_field_instance extends i18n_field_base {
    * Get translate path for object
    */
   public function get_translate_path($langcode = NULL) {
-    return $this->get_base_path() . '/translate/instance' . ($langcode ? '/' . $$langcode : '');
+    return $this->get_base_path() . '/translate' . ($langcode ? '/' . $langcode : '');
   }  
   /**
    * Get string context

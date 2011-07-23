@@ -223,18 +223,3 @@ function i18n_taxonomy_translation_term_overview($term) {
 
   return $build;
 }
-
-/**
- * Callback for vocabulary translation tab.
- */
-function i18n_taxonomy_translation_vocabulary_page($vocabulary, $language = NULL) {
-  module_load_include('inc', 'i18n_string', 'i18n_string.pages');
-  $form_meta = array(
-    '#page_title' => t('Translate vocabulary'),
-    '#edit' => 'admin/structure/taxonomy/' . $vocabulary->machine_name . '/edit',
-    '#translate' => 'admin/structure/taxonomy/' . $vocabulary->machine_name . '/translate',
-    '#type' => 'taxonomy_vocabulary',
-    '#object' => $vocabulary,
-  );
-  return i18n_string_translate_page($form_meta, $language);
-}

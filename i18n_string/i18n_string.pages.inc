@@ -11,47 +11,28 @@
  * Generate translate page from object
  */
 function i18n_string_translate_page_object($object_type, $object_value, $langcode = NULL) {
-  $object = i18n_object($object_type, $object_value);
-
-  // Build the form meta from object type
-  $form_meta = array(
-    '#page_title' => t('Translate @name', array('@name' => i18n_object_info($object_type, 'title'))),
-    '#edit' => $object->get_edit_path(),
-    '#translate' => $object->get_translate_path(),
-  );
   // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
-  $form_meta['#items'] = $object->get_strings(array('empty' => TRUE));
-  // Set the default item key, assume it's the first.
-  $form_meta['#item_title'] = reset($form_meta['#items']);
-
-  return i18n_string_translate_page($form_meta, $langcode);  
-}
-
-/**
- * Generic translation interface for i18n_strings objects.
- */
-function i18n_string_translate_page($form_meta, $langcode = NULL) {
-  $form_meta += array(
-    '#item_title_header' => t('Title'),
-  );
+  $object = i18n_object($object_type, $object_value);
+  $strings = $object->get_strings(array('empty' => TRUE));
 
   if (empty($langcode)) {
-    drupal_set_title($form_meta['#page_title']);
-    return i18n_string_translate_page_overview($form_meta);
+    drupal_set_title(t('Translate @name', array('@name' => i18n_object_info($object_type, 'title'))));
+    return i18n_string_translate_page_overview($object, $strings);
   }
   else {
     drupal_set_title(t('Translate to @language', array('@language' => i18n_language_name($langcode))));
-    return drupal_get_form('i18n_string_translate_page_form', $form_meta, $langcode);
+    return drupal_get_form('i18n_string_translate_page_form', $strings, $langcode);
   }
 }
 
 /**
  * Provide a core translation module like overview page for this object.
  */
-function i18n_string_translate_page_overview($form_meta) {
+function i18n_string_translate_page_overview($object, $strings) {
   include_once DRUPAL_ROOT . '/includes/language.inc';
-
-  $header = array(t('Language'), $form_meta['#item_title_header'], t('Status'), t('Operations'));
+  // Set the default item key, assume it's the first.
+  $item_title = reset($strings);
+  $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
   $default_language = language_default();
   $rows = array();
 
@@ -59,15 +40,15 @@ function i18n_string_translate_page_overview($form_meta) {
     if ($langcode == $default_language->language) {
       $rows[] = array(
         $language->name . ' ' . t('(source)'),
-        check_plain($form_meta['#item_title']->get_string()),
+        check_plain($item_title->get_string()),
         t('original'),
-        l(t('edit'), $form_meta['#edit']),
+        l(t('edit'), $object->get_edit_path()),
       );
     }
     else {
       // Try to figure out if this item has any of its properties translated.
       $translated = FALSE;
-      foreach ($form_meta['#items'] as $i18nstring) {
+      foreach ($strings as $i18nstring) {
         if ($i18nstring->get_translation($langcode)) {
           $translated = TRUE;
           break;
@@ -76,9 +57,9 @@ function i18n_string_translate_page_overview($form_meta) {
       // Translate the item that was requested to be displayed as title.
       $rows[] = array(
         $language->name,
-        $form_meta['#item_title']->format_translation($langcode),
+        $item_title->format_translation($langcode),
         $translated ? t('translated') : t('not translated'),
-        l(t('translate'), $form_meta['#translate'] . '/' . $langcode),
+        l(t('translate'), $object->get_translate_path($langcode), array('query' => drupal_get_destination())),
       );
     }
   }
@@ -95,8 +76,16 @@ function i18n_string_translate_page_overview($form_meta) {
 /**
  * Form builder callback for in-place string translation.
  */
-function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langcode) {
-  $formats = filter_formats();
+function i18n_string_translate_page_form($form, &$form_state, $strings, $langcode) {
+  $form = i18n_string_translate_page_form_base($form, $langcode);
+  $form['strings'] += i18n_string_translate_page_form_strings($strings, $langcode);
+  return $form;
+}
+
+/**
+ * Create base form for string translation
+ */
+function i18n_string_translate_page_form_base($form, $langcode, $redirect = NULL) {
   $form['langcode'] = array(
     '#type' => 'value',
     '#value' => $langcode,
@@ -105,7 +94,26 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
     // Use a tree, so we can access the values easily.
     '#tree' => TRUE,
   );
-  foreach ($form_meta['#items'] as $item) {
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save translation'),
+  );
+  if ($redirect) {
+    $form['#redirect'] = array(
+      $redirect,
+    );
+  }
+  $form['#validate'] = array('i18n_string_translate_page_form_validate');
+  $form['#submit'] = array('i18n_string_translate_page_form_submit');
+  return $form;  
+}
+
+/**
+ * Create field elements for strings
+ */
+function i18n_string_translate_page_form_strings($strings, $langcode) {
+  $formats = filter_formats();
+  foreach ($strings as $item) {
     $disabled = FALSE;
     $description = '';
     // We may have a source or not. Maybe the format is disallowed for all.
@@ -122,7 +130,7 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
       }
     }
     $default_value = $item->format_translation($langcode, array('langcode' => $langcode, 'sanitize' => FALSE, 'debug' => FALSE));
-    $form['strings'][$item->get_name()] = array(
+    $form[$item->get_name()] = array(
       '#title' => $item->get_title(),
       '#type' => 'textarea',
       '#default_value' => $default_value,
@@ -130,19 +138,10 @@ function i18n_string_translate_page_form($form, &$form_state, $form_meta, $langc
       '#description' => $description,
       '#i18n_string_format' => !empty($source) ? $source->format : 0,
       '#rows' => min(ceil(str_word_count($default_value) / 12), 10),
+      '#parents' => array('strings', $item->get_name()),
     );
   }
-  $form['submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Save translation'),
-  );
-  $form['#validate'] = array(
-    'i18n_string_translate_page_form_validate'
-  );
-  $form['#redirect'] = array(
-    $form_meta['#translate'],
-  );
-  return $form;
+  return $form; 
 }
 
 /**
@@ -167,7 +166,9 @@ function i18n_string_translate_page_form_submit($form, &$form_state) {
     i18n_string_textgroup($textgroup)->update_translation($context, $form_state['values']['langcode'], $value);
   }
   drupal_set_message(t('Translations saved.'));
-  $form_state['redirect'] = $form['#redirect'];
+  if (isset($form['#redirect'])) {
+    $form_state['redirect'] = $form['#redirect'];
+  }
 }
 
 /**
