@@ -57,7 +57,7 @@ function i18n_string_translate_page_overview($object, $strings) {
       // Translate the item that was requested to be displayed as title.
       $rows[] = array(
         $language->name,
-        $item_title->format_translation($langcode),
+        $item_title->format_translation($langcode, array('sanitize default' => TRUE)),
         $translated ? t('translated') : t('not translated'),
         l(t('translate'), $object->get_translate_path($langcode), array('query' => drupal_get_destination())),
       );

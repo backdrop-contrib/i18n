@@ -504,6 +504,8 @@ function i18n_string_multiple($operation, $name, $strings, $options = array()) {
  *   - 'filter' Filtering callback to apply to the translated string only
  *   - 'format' Input format to apply to the translated string only
  *   - 'callback' Callback to apply to the result (both to translated or untranslated string
+ *   - 'sanitize' Whether to filter the translation applying the text format if any, default is TRUE
+ *   - 'sanitize default' Whether to filter the default value if no translation found, default is FALSE
  */
 function i18n_string_translate($name, $string, $options = array()) {
   if (is_array($string)) {
@@ -520,6 +522,9 @@ function i18n_string_translate($name, $string, $options = array()) {
     }
     else {
       // If we don't want to translate to this language, format and return
+      if (!empty($options['sanitize default']) && empty($options['format'])) {
+        $string = check_plain($string);
+      }
       return i18n_string_format($string, $options);
     }
   }
