@@ -15,6 +15,17 @@ function i18n_field_install() {
   }
 }
 
+
+/**
+ * Implements hook_update_dependencies()
+ */
+function i18n_field_update_dependencies() {
+  $dependencies['i18n_field'][7000] = array(
+    'i18n_string' => 7001,
+  );
+  return $dependencies;
+}
+
 /**
  * Implements hook_i18n_drupal6_update().
  *
