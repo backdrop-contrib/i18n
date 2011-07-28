@@ -1139,7 +1139,14 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
     }
     return $this->translations[$langcode];
   }
-  
+
+  /**
+   * Translate access (localize strings)
+   */
+  protected function localize_access() {
+    return user_access('translate interface');
+  }
+
   /**
    * Translate all properties for object.
    * 

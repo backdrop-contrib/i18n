@@ -164,7 +164,7 @@ class i18n_object_wrapper {
   }
  
   /**
-   * Localize access
+   * Translate access (translation sets)
    */
   protected function translate_access() {
     return FALSE;
@@ -174,7 +174,7 @@ class i18n_object_wrapper {
    * Translate access (localize strings)
    */
   protected function localize_access() {
-    return user_access('translate interface');
+    return FALSE;
   }
 
   /**
