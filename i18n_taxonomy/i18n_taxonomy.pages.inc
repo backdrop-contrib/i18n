@@ -77,7 +77,7 @@ function theme_i18n_taxonomy_term_page($tids, $result) {
 
   // Only display the description if we have a single term, to avoid clutter and confusion.
   if (count($tids) == 1) {
-    $term = i18n_taxonomy_localize_terms(taxonomy_get_term($tids[0]));
+    $term = i18n_taxonomy_localize_terms(taxonomy_term_load($tids[0]));
     // Check that a description is set.
     if (!empty($term->description)) {
       $output .= '<div class="taxonomy-term-description">';
