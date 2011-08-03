@@ -33,11 +33,11 @@ function i18n_string_translate_page_overview($object, $strings) {
   // Set the default item key, assume it's the first.
   $item_title = reset($strings);
   $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
-  $default_language = language_default();
+  $source_language = variable_get_value('i18n_string_source_language');
   $rows = array();
 
   foreach (language_list() as $langcode => $language) {
-    if ($langcode == $default_language->language) {
+    if ($langcode == $source_language) {
       $rows[] = array(
         $language->name . ' ' . t('(source)'),
         check_plain($item_title->get_string()),
