@@ -184,11 +184,12 @@ class Drupali18nTestCase extends DrupalWebTestCase {
   function createNodeTranslation($node, $language, $title = NULL, $body = NULL) {
     $body = $body ? $body : $this->randomName();
     $title = $title ? $title : $this->randomName();
-    $this->drupalGet('node/add/' . $node->type, array('query' => array('translation' => $node->nid, 'target' => $language->language)));
+    $this->drupalGet('node/add/' . $node->type, array('query' => array('translation' => $node->nid, 'target' => $language->language)));    
 
-    $body_key = "body[$language->language][0][value]";
+    $body_key = "body[und][0][value]";
     $this->assertFieldByXPath('//input[@id="edit-title"]', $node->title, "Original title value correctly populated.");
-    $this->assertFieldByXPath("//textarea[@name='$body_key']", $node->body[$node->language][0]['value'], "Original body value correctly populated.");
+    $langcode = field_language('node', $node, 'body');
+    $this->assertFieldByXPath("//textarea[@name='$body_key']", $node->body[$langcode][0]['value'], "Original body value correctly populated.");
 
     $edit = array();
     $edit["title"] = $title;
