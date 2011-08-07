@@ -9,3 +9,4 @@ files[] = i18n_sync.module
 files[] = i18n_sync.install
 files[] = i18n_sync.module.inc
 files[] = i18n_sync.node.inc
+files[] = i18n_sync.test

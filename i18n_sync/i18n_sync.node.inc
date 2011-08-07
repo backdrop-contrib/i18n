@@ -121,8 +121,12 @@ function i18n_sync_node_translation_default_field($node, $translation, $field, $
       break;
     default:
       // For fields that don't need special handling, just copy it over if defined.
-      if (isset($node->{$field}[$node->language])) {
-        $translation->{$field}[$translation->language] = $node->{$field}[$node->language];
+      // Field languages are completely unconsistent, for not to say broken
+      // both in Drupal core and entity translation. Let's hope this works. 
+      $source_lang = field_language('node', $node, $field);
+      $translation_lang = field_language('node', $translation, $field);
+      if (isset($node->{$field}[$source_lang])) {
+        $translation->{$field}[$translation_lang] = $node->{$field}[$source_lang];
       }
       break;
   }

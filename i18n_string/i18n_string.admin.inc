@@ -240,7 +240,7 @@ function i18n_string_refresh_enabled_modules($modules) {
     module_invoke($module, 'i18n_string_refresh', 'all');
   }
   if ($count) {
-    drupal_set_message(format_plural($count, 'Refresed one string for enabled modules.', 'Refreshed @count strings for the enabled modules.'));
+    drupal_set_message(format_plural($count, 'Refreshed one string for enabled modules.', 'Refreshed @count strings for the enabled modules.'));
   }
 }
 

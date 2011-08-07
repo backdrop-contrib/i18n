@@ -61,13 +61,6 @@ function i18n_sync_hook_info() {
 }
 
 /**
- * Implements hook_field_attach_prepare_translation_alter()
- */
-function i18n_sync_field_attach_prepare_translation_alter(&$entity, $context) {
-
-}
-
-/**
  * Implements hook_field_info_alter()
  */
 function i18n_sync_field_info_alter(&$info) {
@@ -302,20 +295,22 @@ function i18n_sync_options($entity_type, $bundle_name) {
  */
 function i18n_sync_field_translation_sync($entity_type, $bundle_name, $entity, $langcode, $source_entity, $source_langcode, $field_name) {
   $field = field_info_field($field_name);
-  $instance = field_info_instance($entity_type, $field_name, $bundle_name); 
-  if (isset($source_entity->{$field_name}[$source_langcode])) {
-    $items = $source_entity->{$field_name}[$source_langcode];
-    // Determine the function to synchronize this field
+  $instance = field_info_instance($entity_type, $field_name, $bundle_name);
+  $source_lang = field_language($entity_type, $source_entity, $field_name);
+  $translation_lang = field_language($entity_type, $entity, $field_name);
+  if (isset($source_entity->{$field_name}[$source_lang])) {
+    $items = $source_entity->{$field_name}[$source_lang];
+    // Determine the function to synchronize this field. If none, just copy over.
     $type_info = field_info_field_types($field['type']);
     if (isset($type_info['i18n_sync_callback'])) {
       $function = $type_info['i18n_sync_callback'];
       $function($entity_type, $entity, $field, $instance, $langcode, $items, $source_entity, $source_langcode);
     }
-    $entity->{$field_name}[$langcode] = $items;
+    $entity->{$field_name}[$translation_lang] = $items;
   }
   else {
     // If source not set, unset translation too
-    unset($entity->{$field_name}[$langcode]);
+    unset($entity->{$field_name}[$translation_lang]);
   }
 }
 

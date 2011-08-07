@@ -1060,7 +1060,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
       $object_id,
     );
     $strings = array();   
-    foreach ($this->get_string_info('properties') as $field => $info) {
+    foreach ($this->get_string_info('properties', array()) as $field => $info) {
       $info = is_array($info) ? $info : array('title' => $info);
       $field_name = isset($info['field']) ? $info['field'] : $field;
       $value = $this->get_field($field_name);
