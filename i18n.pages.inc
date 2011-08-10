@@ -60,7 +60,6 @@ function i18n_page_menu_items() {
     }
     
   }
-  dpm($items);
   return $items;
 }
 
