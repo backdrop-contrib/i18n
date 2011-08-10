@@ -26,6 +26,7 @@ function i18n_string_install() {
   // If updating from D6, module changed name
   if (variable_get('i18n_drupal6_update')) {
     i18n_string_update_7000();
+    i18n_string_update_7001();
   }
 }
 
@@ -219,11 +220,12 @@ function i18n_string_update_7000() {
 }
 
 /**
- * Rename i18n_strings table to i18n_string to avoid clashes when upgrading
+ * Drop obsoleted i18n_strings table if exists
  */
 function i18n_string_update_7001() {
-  db_rename_table('i18n_strings', 'i18n_string');
-  drupal_get_schema(NULL, TRUE);
+  if (db_table_exists('i18n_strings')) {
+    db_drop_table('i18n_strings');
+  }
 }
 
 /**
