@@ -56,7 +56,7 @@ class i18n_field extends i18n_field_base {
    * Get translate path for object
    */
   public function get_translate_path($langcode = NULL) {
-    return $this->get_base_path() . '/translate/field' . ($langcode ? '/' . $$langcode : '');
+    return $this->get_base_path() . '/translate/field' . ($langcode ? '/' . $langcode : '');
   }  
   /**
    * Get string context
