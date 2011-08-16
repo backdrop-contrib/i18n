@@ -1104,7 +1104,7 @@ function i18n_taxonomy_get_tree($vid, $langcode, $parent = 0, $max_depth = NULL,
         unset($term->parent);
         $term->parents = $parents[$vid][$langcode][$term->tid];
         $tree[] = $term;
-        if (!empty($children[$vid][$term->tid])) {
+        if (!empty($children[$vid][$langcode][$term->tid])) {
           $has_children = TRUE;
 
           // We have to continue with this parent later.
