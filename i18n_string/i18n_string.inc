@@ -287,7 +287,7 @@ class i18n_string_textgroup_default {
    * 
    * @param $context
    *   Context array or string
-   * @param $string
+   * @param $string string
    *   Current value for string source
    */
   public function build_string($context, $string = NULL) {
@@ -988,8 +988,8 @@ class i18n_string_textgroup_default {
     $alias = $query->leftJoin('i18n_string', 's', 'l.lid = s.lid');
     $query->condition('s.lid', NULL);
     foreach ($query->execute()->fetchAll() as $string) {
-      list($string->type, $string->objectid, $string->property) = explode(':', $string->context);
-      $this->save_string($string);
+      $i18nstring = $this->build_string($string->context, $string->source);
+      $this->save_string($i18nstring)
     }
   }
 
