@@ -129,6 +129,22 @@ function i18n_string_menu() {
 }
 
 /**
+ * Implements hook_menu_alter().
+ *
+ * Take over the locale translation page.
+ */
+function i18n_string_menu_alter(&$items) {
+  $items['admin/config/regional/translate/edit/%'] = array(
+    'title' => 'Edit string',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('i18n_string_locale_translate_edit_form', 5),
+    'access arguments' => array('translate interface'),
+    'file' => 'i18n_string.admin.inc',
+    'file path' => drupal_get_path('module', 'i18n_string'),
+  );
+}
+
+/**
  * Implements hook_hook_info().
  */
 function i18n_string_hook_info() {
@@ -182,41 +198,6 @@ function i18n_string_form_l10n_client_form_alter(&$form, &$form_state) {
 /**
  * Implements hook_form_FORM_ID_alter()
  */
-function i18n_string_form_locale_translate_edit_form_alter(&$form, &$form_state) {
-  // Restrict filter permissions and handle validation and submission for i18n strings
-  $context = db_select('i18n_string', 'i18ns')
-    ->fields('i18ns')
-    ->condition('lid', $form['lid']['#value'])
-    ->execute()
-    ->fetchObject();
-  if ($context) {
-    $form['i18n_string_context'] = array('#type' => 'value', '#value' => $context);
-    // Replace validate callback
-    $form['#validate'] = array('i18n_string_translate_edit_form_validate');
-    if ($context->format) {
-      $formats = filter_formats();
-      $format = $formats[$context->format];
-      $disabled = !filter_access($format);
-      if ($disabled) {
-        drupal_set_message(t('This string uses the %name text format. You are not allowed to translate or edit texts with this format.', array('%name' => $format->name)), 'warning');
-      }
-      foreach (element_children($form['translations']) as $langcode) {
-        $form['translations'][$langcode]['#disabled'] = $disabled;
-      }
-      $form['translations']['format_help'] = array(
-        '#type' => 'markup',
-        '#markup' => '<h5>' . t('Text format: @name', array('@name' => $format->name)) . '</h5>' . theme('filter_tips', array('tips' => _filter_tips($context->format, FALSE))),
-      );
-      $form['submit']['#disabled'] = $disabled;
-    }
-  }
-  // Aditional submit callback
-  $form['#submit'][] = 'i18n_string_translate_edit_form_submit';
-}
-
-/**
- * Implements hook_form_FORM_ID_alter()
- */
 function i18n_string_form_locale_translate_export_po_form_alter(&$form, $form_state) {
   $names = locale_language_list('name', TRUE);
   if (i18n_string_source_language() != 'en' && array_key_exists('en', $names)) {
@@ -238,43 +219,6 @@ function i18n_string_form_locale_translate_import_form_alter(&$form, $form_state
     }
   }
   $form['#submit'][] = 'i18n_string_locale_translate_import_form_submit';
-}
-
-/**
- * Process string editing form validations.
- *
- * If it is an allowed format, skip default validation, the text will be filtered later
- */
-function i18n_string_translate_edit_form_validate($form, &$form_state) {
-  $context = $form_state['values']['i18n_string_context'];
-  if (empty($context->format)) {
-    // If not text format use regular validation for all strings
-    $copy_state = $form_state;
-    $copy_state['values']['textgroup'] = 'default';
-    locale_translate_edit_form_validate($form, $copy_state);
-  }
-  elseif (!i18n_string_translate_access($context)) {
-    form_set_error('translations', t('You are not allowed to translate or edit texts with this text format.'));
-  }
-}
-
-/**
- * Process string editing form submissions.
- *
- * Mark translations as current.
- */
-function i18n_string_translate_edit_form_submit($form, &$form_state) {
-  $lid = $form_state['values']['lid'];
-  foreach ($form_state['values']['translations'] as $key => $value) {
-    if (!empty($value)) {
-      // An update has been made, so we assume the translation is now current.
-      db_update('locales_target')
-        ->fields(array('i18n_status' => I18N_STRING_STATUS_CURRENT))
-        ->condition('lid', $lid)
-        ->condition('language', $key)
-        ->execute();
-    }
-  }
 }
 
 /**
