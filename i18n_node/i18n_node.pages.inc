@@ -114,7 +114,9 @@ function i18n_node_translation_link($text, $path, $langcode, $options = array())
     // When node not published, links don't have href so we use path instead
     // Note: this is a bug in Core translation module, see http://drupal.org/node/1137074
     if (!empty($links->links[$langcode]) && !empty($links->links[$langcode]['href'])) {
-      $options = array_merge_recursive($links->links[$langcode], $options);
+      $options += array('attributes' => array(), 'html' => FALSE);
+      $options['attributes'] += $links->links[$langcode]['attributes'];
+      $options += $links->links[$langcode];
       $path = $links->links[$langcode]['href'];
     }
   }
