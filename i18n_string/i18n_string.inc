@@ -989,7 +989,7 @@ class i18n_string_textgroup_default {
     $query->condition('s.lid', NULL);
     foreach ($query->execute()->fetchAll() as $string) {
       $i18nstring = $this->build_string($string->context, $string->source);
-      $this->save_string($i18nstring)
+      $this->save_string($i18nstring);
     }
   }
 
