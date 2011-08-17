@@ -34,19 +34,6 @@ function i18n_string_admin_refresh_form() {
     '#value' => t('Refresh strings'),
     '#suffix' => '<p>' . t('This will create all the missing strings for the selected text groups.') . '</p>',
   );
-  // Get all languages, except default language.
-  $languages = locale_language_list('name', TRUE);
-  unset($languages[language_default('language')]);
-  $form['languages'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Select languages'),
-    '#options' => $languages,
-  );
-  $form['update'] = array(
-    '#type' => 'submit',
-    '#value' => t('Update translations'),
-    '#suffix' => '<p>' . t('This will fetch all existing translations from the localization tables for the selected text groups and languages.') . '</p>',
-  );
   return $form;
 }
 
@@ -56,55 +43,13 @@ function i18n_string_admin_refresh_form() {
 function i18n_string_admin_refresh_form_submit($form, &$form_state) {
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
   $groups = array_filter($form_state['values']['groups']);
-  $languages = array_filter($form_state['values']['languages']);
   $group_names = module_invoke_all('locale', 'groups');
   if ($op == t('Refresh strings') && $groups) {
     $batch = i18n_string_refresh_batch($groups, $form_state['values']['delete']);
     batch_set($batch);
   }
-  elseif ($op == t('Update translations') && $groups && $languages) {
-    $count = 0;
-    foreach ($languages as $language) {
-      $count += i18n_string_admin_update($language, $groups);
-    }
-    drupal_set_message(format_plural($count, '1 string has been updated.', '@count strings have been updated.'));
-  }
 }
 
-/**
- * Update strings for language.
- */
-function i18n_string_admin_update($language, $groups) {
-  $query = db_select('locales_source', 'g')
-    ->fields('g')
-    ->fields('t', array('translation'))
-    ->fields('i', array('format'))
-    ->condition('t2.lid', NULL)
-    ->condition('g.textgroup', $groups)
-    ->condition('t.language', $language);
-  $query->addField('t', 'lid', 'tlid');
-  $query->join('locales_source', 's', 'g.source = s.source AND s.lid <> g.lid');
-  $query->join('locales_target', 't', 's.lid = t.lid');
-  $query->join('locales_target', 't2', 'g.lid = t2.lid');
-  $query->join('i18n_string', 'i', 'i.lid = g.lid');
-  $result = $query->execute()->fetchAll(PDO::FETCH_OBJ);
-
-  $count = 0;
-  foreach ($result as $string) {
-    // Just update strings when no text format, otherwise it could be dangerous under some circumstances.
-    if (empty($string->format) && !empty($string->translation)) {
-      $count++;
-      db_insert(locales_target)
-      ->fields(array(
-        'translation' => $string->translation,
-        'lid' => $string->lid,
-        'language' => $language,
-      ))
-      ->execute();
-    }
-  }
-  return $count;
-}
 
 /**
  * Refresh all user defined strings for a given text group.
