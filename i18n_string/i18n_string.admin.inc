@@ -419,7 +419,7 @@ function i18n_string_locale_translate_edit_form_validate($form, &$form_state) {
     module_load_include('admin.inc', 'locale');
     locale_translate_edit_form_validate($form, $copy_state);
   }
-  elseif (!i18n_string_translate_access($context)) {
+  elseif (!i18n_string_translate_access($form_state['values']['i18n_string_context'])) {
     form_set_error('translations', t('You are not allowed to translate or edit texts with this text format.'));
   }
 }
