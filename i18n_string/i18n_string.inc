@@ -203,7 +203,8 @@ class i18n_string_object {
     elseif (!isset($this->lid) || !isset($this->source)) {
       // We may have lid from loading a translation but not loaded the source yet.
       if ($source = $this->textgroup()->load_source($this)) {
-        $this->set_properties($source, FALSE);
+        // Set properties but don't override existing ones
+        $this->set_properties($source, FALSE, FALSE);
         if (!isset($this->string)) {
           $this->string = $source->source;
         }
@@ -226,10 +227,12 @@ class i18n_string_object {
    *   Obejct or array of properties
    * @param $set_null
    *   Whether to set null properties too
+   * @param $override
+   *   Whether to set properties that are already set in this object
    */
-  public function set_properties($properties, $set_null = TRUE) {
+  public function set_properties($properties, $set_null = TRUE, $override = TRUE) {
     foreach ((array)$properties as $field => $value) {
-      if (property_exists($this, $field) && ($set_null || isset($value))) {
+      if (property_exists($this, $field) && ($set_null || isset($value)) && ($override || !isset($this->$field))) {
         $this->$field = $value;
       }
     }
