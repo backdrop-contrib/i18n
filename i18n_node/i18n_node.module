@@ -178,9 +178,11 @@ function i18n_node_get_lang($nid, $default = '') {
  * @param $node
  *   Node to retrieve language list for.
  * @param $translate
- *   Only languages available for translation. Filter out existing translations.
+ *   Only languages available for translation.
+ * @param $select
+ *   Only languages that can be selected for this node
  */
-function i18n_node_language_list($node, $translate = FALSE) {
+function i18n_node_language_list($node, $translate = FALSE, $select = FALSE) {
   // Check if the node module manages its own language list.
   $languages = node_invoke($node, 'language_list', $translate);
 
@@ -193,7 +195,7 @@ function i18n_node_language_list($node, $translate = FALSE) {
       }
     }
     // Language may be locked for this node type, restrict options to current one
-    if (i18n_node_language_options($node, 'lock') && !empty($node->language) && !empty($languages[$node->language])) {
+    if ($select && i18n_node_language_options($node, 'lock') && !empty($node->language) && !empty($languages[$node->language])) {
       $languages = array($node->language => $languages[$node->language]);
     }
     // Check language required for this type (no language neutral)
@@ -461,7 +463,7 @@ function _i18n_node_form_node_form_alter($form, &$form_state) {
   $node = $form['#node'];
   if (i18n_node_type_enabled($node)) {
     if (!empty($form['language']['#options'])) {
-      $form['language']['#options'] = i18n_node_language_list($node, TRUE);
+      $form['language']['#options'] = i18n_node_language_list($node, TRUE, TRUE);
     }
   }
   elseif (variable_get('i18n_node_default_language_none', 0) && !isset($form['#node']->nid)) {
