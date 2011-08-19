@@ -818,9 +818,17 @@ class i18n_string_textgroup_default {
   /**
    * Search multiple translations with key combinations.
    * 
-   * @param $context array()
+   * Each $context field may be a single value, an array of values or '*'.
+   * Example:
+   * 	array('term', array(1,2), '*')
+   * This will be mapped into the following conditions (provided language code is 'es')
+   *  array('type' => 'term', 'objectid' => array(1,2), 'property' => '*', 'language' => 'es')
+   * And will result in these combinations to search for
+   *  array('type' => 'term', 'objectid' => 1, 'property' => '*', 'language' => 'es')
+   *  array('type' => 'term', 'objectid' => 2, 'property' => '*', 'language' => 'es')
+   * 
+   * @param $context array
    *   String context conditions.
-   *   Each context field may be a single value, an array of values or '*'
    *   
    * @return
    *   Array of translation objects indexed by context.
@@ -880,8 +888,8 @@ class i18n_string_textgroup_default {
   /**
    * Get strings from multiple cache.
    * 
-   * @param $context
-   *   String context with language property at the end.
+   * @param $context array
+   *   String context as array with language property at the end.
    * 
    * @return mixed
    *   Array of strings (may be empty) if we've got a cache hit.
