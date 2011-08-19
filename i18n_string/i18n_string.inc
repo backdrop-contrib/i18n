@@ -828,7 +828,7 @@ class i18n_string_textgroup_default {
    *  array('type' => 'term', 'objectid' => 2, 'property' => '*', 'language' => 'es')
    * 
    * @param $context array
-   *   String context conditions.
+   *   Array with String context conditions.
    *   
    * @return
    *   Array of translation objects indexed by context.
@@ -846,18 +846,18 @@ class i18n_string_textgroup_default {
         $translations += $cached;
       }
       else {
-        // Not in cache, add to search conditions.
-        $search = array_merge_recursive($search, $combination);
+        // Not in cache, add to search conditions skipping duplicated values.
+        // As array_merge_recursive() has some bug in PHP 5.2, http://drupal.org/node/1244598
+        // we use our simplified version here, instead of $search = array_merge_recursive($search, $combination);
+        foreach ($combination as $key => $value) {
+          if (!isset($search[$key]) || !in_array($value, $search[$key], TRUE)) {
+            $search[$key][] = $value;
+          }
+        }
       }
     }
     // If we've got any search values left, find translations.
     if ($search) {
-      // Prepare conditions for search, de-dupe conditions values.
-      foreach ($search as $key => $value) {
-        if (is_array($value)) {
-          $search[$key] = array_unique($value);
-        }
-      }
       // Load translations for conditions and set them to the cache
       $loaded = $this->multiple_translation_load($search, $langcode);
       if ($loaded) {
