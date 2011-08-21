@@ -494,12 +494,10 @@ function _i18n_menu_link_description($link, $langcode = NULL) {
  * There's no api function to do this?
  *
  * @param $path
- *   The patch to fetch from the router.
- * @param $reset
- * 	 Whether to reset the internal cache for the menu router.
+ *   The path to fetch from the router.
  */
-function i18n_menu_get_router($path, $reset = FALSE) {
-  $cache = &drupal_static(__FUNCTION__ , array(), $reset);
+function i18n_menu_get_router($path) {
+  $cache = &drupal_static(__FUNCTION__ , array());
   if (!array_key_exists($path, $cache)) {
     $cache[$path] = db_select('menu_router', 'mr')
       ->fields('mr', array('title'))
