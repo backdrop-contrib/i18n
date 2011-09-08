@@ -78,7 +78,7 @@ function i18n_node_translation_overview($node) {
     else {
       // No such translation in the set yet: help user to create it.
       $title = t('n/a');
-      if (node_access('create', $node)) {
+      if (node_access('create', $node->type)) {
         $text = t('add translation');
         $path = 'node/add/' . str_replace('_', '-', $node->type);
         $query = array('query' => array('translation' => $node->nid, 'target' => $langcode));
