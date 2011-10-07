@@ -251,6 +251,15 @@ function i18n_field_field_widget_form(&$form, &$form_state, $field, $instance, $
   // Translate list options
   if (($translate = i18n_field_type_info($field['type'], 'translate_options')) && !empty($field['settings']['allowed_values'])) {
     $element['#options'] = $translate($field, $i18n_langcode);
+
+    if ($field['type'] == 'list_boolean') {
+      $on_value = $element['#on_value'];
+      $element['#title'] = $element['#options'][$on_value];
+
+      if ($instance['widget']['settings']['display_label']) {
+        $element['#title'] = $instance_current['label'];
+      }
+    }
   }
   return $element;
 }
