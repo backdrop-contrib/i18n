@@ -1034,7 +1034,7 @@ function i18n_taxonomy_vocabulary_mode($vid, $mode = NULL) {
   }
   else {
     if (!isset($modes[$vid])) {
-      $modes[$vid] = taxonomy_vocabulary_load($vid)->i18n_mode;
+      $modes[$vid] = i18n_object_field(taxonomy_vocabulary_load($vid), 'i18n_mode', I18N_MODE_NONE);
     }
     return isset($mode) ? $mode & $modes[$vid] : $modes[$vid];
   }
