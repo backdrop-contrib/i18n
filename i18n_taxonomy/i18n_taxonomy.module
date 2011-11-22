@@ -1177,3 +1177,22 @@ function _i18n_taxonomy_filter_terms($term) {
 function i18n_taxonomy_translation_set_load($tsid) {
   return i18n_translation_set_load($tsid, 'taxonomy_term');
 }
+
+/**
+ * Implements hook_entity_info_alter().
+ */
+function i18n_taxonomy_entity_info_alter(&$entity_info) {
+  if (isset($entity_info['taxonomy_term'])) {
+    // Core doesn't provide a label callback for taxonomy terms. By setting one
+    // we can use it to return the correct localized term name.
+    $entity_info['taxonomy_term']['label callback'] = 'i18n_taxonomy_taxonomy_term_label';
+  }
+}
+
+/**
+ * Providing a hook_entity_info() 'label callback' to ensure modules that use
+ * entity_label() get the correct localized taxonomy term.
+ */
+function i18n_taxonomy_taxonomy_term_label($term, $entity_type) {
+  return i18n_taxonomy_term_name($term, i18n_language()->language);
+}
