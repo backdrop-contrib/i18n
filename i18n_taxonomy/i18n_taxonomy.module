@@ -1194,6 +1194,19 @@ function i18n_taxonomy_translation_set_load($tsid) {
 }
 
 /**
+ * Implements hook_field_uuid_load().
+ */
+function i18n_taxonomy_field_uuid_load($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  taxonomy_field_uuid_load($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+
+/**
+ * Implements hook_field_uuid_presave().
+ */
+function i18n_taxonomy_field_uuid_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
+  taxonomy_field_uuid_presave($entity_type, $entity, $field, $instance, $langcode, $items);
+}
+/**
  * Implements hook_entity_info_alter().
  */
 function i18n_taxonomy_entity_info_alter(&$entity_info) {
