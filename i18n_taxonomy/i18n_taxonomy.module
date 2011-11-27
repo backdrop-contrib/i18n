@@ -280,6 +280,21 @@ function i18n_taxonomy_field_info_alter(&$info) {
 }
 
 /**
+ * Implements hook_field_storage_details_alter().
+ *
+ * We don't alter the storage details but the stored details of the field itself...
+ *
+ * @param array $field
+ *   The field record just read from the database.
+ */
+function i18n_taxonomy_field_storage_details_alter($details, &$field, $instance) {
+  if ($field['type'] === 'taxonomy_term_reference') {
+    // We also take over existing taxonomy_term_reference fields.
+    $field['module'] = 'i18n_taxonomy';
+  }
+}
+
+/**
  * Implements hook_field_prepare_translation().
  * 
  * Prepare and synchronize translation for term reference fields
