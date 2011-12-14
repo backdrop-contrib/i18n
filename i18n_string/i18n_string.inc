@@ -997,7 +997,7 @@ class i18n_string_textgroup_default {
     ->fields('l')
     ->condition('l.textgroup', $this->textgroup);
     $alias = $query->leftJoin('i18n_string', 's', 'l.lid = s.lid');
-    $query->condition('s.lid', NULL);
+    $query->isNull('s.lid');
     foreach ($query->execute()->fetchAll() as $string) {
       $i18nstring = $this->build_string($string->context, $string->source);
       $this->save_string($i18nstring);
