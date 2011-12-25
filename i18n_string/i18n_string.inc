@@ -1101,13 +1101,13 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * 	 Language code if we want ti for a specific language
    */
   public function get_translate_path($langcode = NULL) {
-    $replacements = array('%language' => $langcode ? $langcode : '');
+    $replacements = array('%i18n_language' => $langcode ? $langcode : '');
     if ($path = $this->get_string_info('translate path')) {
       return $this->path_replace($path, $replacements);
     }
     elseif ($path = $this->get_info('translate tab')) {
       // If we've got a translate tab path, we just add language to it
-      return $this->path_replace($path . '/%language', $replacements);
+      return $this->path_replace($path . '/%i18n_language', $replacements);
     }
   }
 

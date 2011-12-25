@@ -60,7 +60,7 @@ function i18n_field_menu() {
             'type' => MENU_LOCAL_TASK,
           ) + $access;
 
-          $items["$path/fields/%field_ui_menu/translate/%language"] = array(
+          $items["$path/fields/%field_ui_menu/translate/%i18n_language"] = array(
             'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
             'title' => 'Instance',
             'page callback' => 'i18n_field_page_translate',

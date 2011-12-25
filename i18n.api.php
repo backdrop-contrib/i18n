@@ -48,7 +48,7 @@ function hook_node_i18n_object_info() {
         'description' => t('Description'),
         'help' => t('Help text'),
       ),
-      'translate path' => 'admin/structure/types/manage/%node_type/translate/%language',
+      'translate path' => 'admin/structure/types/manage/%node_type/translate/%i18n_language',
     )
   );
   // Example information for taxonomy term object, see i18n_taxonomy_i18n_object_info().

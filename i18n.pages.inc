@@ -47,7 +47,7 @@ function i18n_page_menu_items() {
         );
       }
       if ($localize) {
-        $items[$path . '/%language'] = array(
+        $items[$path . '/%i18n_language'] = array(
           'title' => 'Translate',
           'page callback' => $page_callback,
           'page arguments' => array($type, $position, count($parts)),
