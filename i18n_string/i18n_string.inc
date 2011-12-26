@@ -1056,6 +1056,9 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
   public function get_properties() {
     if (!isset($this->properties)) {
       $this->properties = $this->build_properties();
+      // Call hook_i18n_string_list_TEXTGROUP_alter(), last chance for modules
+      drupal_alter('i18n_string_list_' . $this->get_textgroup(), $this->properties, $this->type, $this->object);
+      
     }
     return $this->properties;
   }
@@ -1082,8 +1085,6 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
         'name' => array_merge($object_keys, array($field)),
       );
     }
-    // Call hook_i18n_string_list_TEXTGROUP_alter(), last chance for modules
-    drupal_alter('i18n_string_list_' . $this->get_textgroup(), $strings, $this->type, $this->object);
     return $strings;
   }
 

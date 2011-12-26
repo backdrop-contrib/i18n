@@ -95,6 +95,5 @@ function hook_node_i18n_object_info() {
  * 
  * @see i18n_object_info()
  */
-function hook_i18n_string_info_alter(&$info) {
-  
+function hook_i18n_object_info_alter(&$info) {
 }
