@@ -16,7 +16,7 @@
  * Other features like translation sets (i18n_translation) or string translation (i18n_string)
  * rely on the information provided by this hook for automating string translation
  */
-function hook_node_i18n_object_info() {
+function hook_i18n_object_info() {
   // Information for node type object, see i18n_node_i18n_object_info()
   $info['node_type'] = array(
     // Generic object properties, title, etc..
@@ -96,4 +96,34 @@ function hook_node_i18n_object_info() {
  * @see i18n_object_info()
  */
 function hook_i18n_object_info_alter(&$info) {
+}
+
+/**
+ * Provide information about available translations for specific path.
+ * 
+ * @see i18n_get_path_translations($path)
+ * 
+ * @param $path
+ *   Internal path to translate.
+ * @return array
+ *   Translations indexed by language code. Each translation is an array with:
+ *   - 'path'
+ *   - 'title'
+ *   - 'options'
+ */
+function hook_i18n_translate_path($path) {
+  if ($path == 'mypath') {
+    $translations['es'] = array(
+      'path' => 'mypath/spanish',
+      'title' => t('My Spanish translation'),
+    );
+    return $translations;
+  }
+}
+
+/**
+ * Alter path translations
+ */
+fuction hook_i18n_translate_path_alter(&$translations, $path) {
+  
 }
