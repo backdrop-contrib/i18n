@@ -54,7 +54,7 @@ function i18n_page_menu_items() {
           'access callback' => 'i18n_object_translate_access',
           'access arguments' => array($type, $position),
           'type' => MENU_CALLBACK,
-          'field' => 'i18n.pages.inc',
+          'file' => 'i18n.pages.inc',
         );
       }
     }
