@@ -23,7 +23,7 @@ class i18nVariableTestCase extends Drupali18nTestCase {
   /**
    * Set up translation for content type (page)
    */
-  function setUpContentTranslation() {
+  function setUpContentTranslation($settings = array()) {
     $this->translator = $this->drupalCreateUser(array('create page content', 'edit own page content', 'translate content'));
     $this->drupalLogin($this->admin_user);
     // Set "Basic page" content type to use multilingual support with
