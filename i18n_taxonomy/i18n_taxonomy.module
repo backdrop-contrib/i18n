@@ -369,8 +369,29 @@ function i18n_taxonomy_allowed_values($field) {
 function i18n_taxonomy_i18n_translate_path($path) {
   if (preg_match("/^(taxonomy\/term\/)([^\/]*)(.*)$/", $path, $matches)) {
     $links = array();
+    // If single term, treat it differently
+    if (is_numeric($matches[2]) && !$matches[3]) {
+      $term = taxonomy_term_load($matches[2]);
+      if (!empty($term->i18n_tsid)) {
+        $set = i18n_translation_set_load($term->i18n_tsid);
+      }
+    }
     foreach (language_list() as $langcode => $language) {
-      if ($str_tids = i18n_taxonomy_translation_tids($matches[2], $langcode)) {
+      if ($term) {
+        if (!empty($set) && ($translation = $set->get_item($langcode))) {
+          $links[$langcode] = array(
+            'href' => 'taxonomy/term/' . $translation->tid,
+            'title' => $translation->name,
+          );
+        }
+        else {
+          $links[$langcode] = array(
+            'href' => $path,
+            'title' => i18n_taxonomy_term_name($term, $langcode),
+          );
+        }
+      }
+      elseif ($str_tids = i18n_taxonomy_translation_tids($matches[2], $langcode)) {
         $links[$langcode]['href'] = "taxonomy/term/$str_tids". $matches[3];
       }
     }
