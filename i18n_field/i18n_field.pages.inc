@@ -15,7 +15,7 @@ function i18n_field_page_translate($instance, $language = NULL) {
     return i18n_string_translate_page_object('field_instance', $instance);
   }
   else {
-    drupal_set_title(t('Translate to @language', array('@language' => i18n_language_name($language))));
+    drupal_set_title(t('Translate to @language', array('@language' => i18n_language_name($language->language))));
     return drupal_get_form('i18n_field_page_translate_form', $instance, $language->language);
   }
 }
