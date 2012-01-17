@@ -369,6 +369,7 @@ function i18n_taxonomy_allowed_values($field) {
 function i18n_taxonomy_i18n_translate_path($path) {
   if (preg_match("/^(taxonomy\/term\/)([^\/]*)(.*)$/", $path, $matches)) {
     $links = array();
+    $term = FALSE;
     // If single term, treat it differently
     if (is_numeric($matches[2]) && !$matches[3]) {
       $term = taxonomy_term_load($matches[2]);
