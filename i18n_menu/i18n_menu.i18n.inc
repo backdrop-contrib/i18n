@@ -11,6 +11,7 @@ function i18n_menu_i18n_object_info() {
   $info['menu'] = array(
     'title' => t('Menu'),
     'key' => 'menu_name',
+    'load callback' => 'menu_load',
     'base path' => 'admin/structure/menu/manage',
     'placeholders' => array(
       '%menu' => 'menu_name',
