@@ -87,7 +87,8 @@ class i18n_object_wrapper {
       $this->object = call_user_func($callback, $object);
     }
     elseif ($entity_type = $this->get_info('entity', NULL)) {
-      $this->object = entity_load($entity_type, $object);
+      $entity = entity_load($entity_type, array($object));
+      $this->object = $entity ? reset($entity) : FALSE;
     }
 
     return $this->get_object();
