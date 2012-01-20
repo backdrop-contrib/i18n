@@ -32,20 +32,33 @@ function i18n_string_translate_page_object($object_type, $object_value, $languag
  * Provide a core translation module like overview page for this object.
  */
 function i18n_string_translate_page_overview($object, $strings) {
-  include_once DRUPAL_ROOT . '/includes/language.inc';
+  $build['i18n_overview'] = drupal_get_form('i18n_string_translate_page_overview_form', $object, $strings);
+  return $build;
+}
+
+/**
+ * Provide a core translation module like overview page for this object.
+ */
+function i18n_string_translate_page_overview_form($form, &$form_state, $object, $strings) {
+  //include_once DRUPAL_ROOT . '/includes/language.inc';
   // Set the default item key, assume it's the first.
   $item_title = reset($strings);
-  $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
+  $header = array(
+    'language' => t('Language'), 
+    'title' => t('Title'), 
+    'status' => t('Status'), 
+    'operations' => t('Operations')
+  );
   $source_language = variable_get_value('i18n_string_source_language');
   $rows = array();
 
   foreach (language_list() as $langcode => $language) {
     if ($langcode == $source_language) {
-      $rows[] = array(
-        $language->name . ' ' . t('(source)'),
-        check_plain($item_title->get_string()),
-        t('original'),
-        l(t('edit'), $object->get_edit_path()),
+      $items = array(
+        'language' => check_plain($language->name) . ' ' . t('(source)'),
+        'title' => check_plain($item_title->get_string()),
+        'status' => t('original'),
+        'operations' => l(t('edit'), $object->get_edit_path()),
       );
     }
     else {
@@ -58,22 +71,27 @@ function i18n_string_translate_page_overview($object, $strings) {
         }
       }
       // Translate the item that was requested to be displayed as title.
-      $rows[] = array(
-        $language->name,
-        $item_title->format_translation($langcode, array('sanitize default' => TRUE)),
-        $translated ? t('translated') : t('not translated'),
-        l(t('translate'), $object->get_translate_path($langcode), array('query' => drupal_get_destination())),
+      $items = array(
+        'language' => check_plain($language->name),
+        'title' => $item_title->format_translation($langcode, array('sanitize default' => TRUE)),
+        'status' => $translated ? t('translated') : t('not translated'),
+        'operations' => l(t('translate'), $object->get_translate_path($langcode), array('query' => drupal_get_destination())),
       );
     }
+    foreach ($items as $key => $markup) {
+      $rows[$langcode][$key] = $markup;
+      //$form['#rows'][$langcode][$key]['#markup'] = $markup;
+    }
   }
-
-  $build['i18n_string_translation_overview'] = array(
-    '#theme' => 'table',
+  // Build a form so it can be altered later, with all this information.
+  $form['object'] = array('#type' => 'value', '#value' => $object);
+  $form['source_language'] = array('#type' => 'value', '#value' => $source_language);
+  $form['languages'] = array(
     '#header' => $header,
     '#rows' => $rows,
+    '#theme' => 'table',
   );
-
-  return $build;
+  return $form;
 }
 
 /**
