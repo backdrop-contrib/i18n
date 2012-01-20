@@ -41,7 +41,7 @@ class i18n_field extends i18n_field_base {
 
     // If this is a field instance, get field info but add instance data too.
     // This instance data will be used to get the paths to get the edit/translate path.
-    if (isset($this->$object['bundle']) && isset($this->object['entity_type'])) {
+    if (isset($this->object['bundle']) && isset($this->object['entity_type'])) {
       $this->object = field_info_field($this->object['field_name']) + array('bundle' => $this->object['bundle'], 'entity_type' => $object['entity_type']);
     }
   }
