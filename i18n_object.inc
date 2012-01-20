@@ -120,6 +120,12 @@ class i18n_object_wrapper {
   public function get_title() {
     return entity_label($this->type, $this->object);
   }
+  /**
+   * Get object type
+   */
+  public function get_type() {
+    return $this->type;
+  }
 
   /**
    * Menu access callback for mixed translation tab
