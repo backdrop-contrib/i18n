@@ -44,18 +44,6 @@ function i18n_taxonomy_schema_alter(&$schema) {
 }
 
 /**
- * Implements hook_enable()
- */
-function i18n_taxonomy_enable() {
-  foreach (field_info_fields() as $fieldname => $field) {
-    if ($field['type'] == 'taxonomy_term_reference') {
-      $field['settings']['options_list_callback'] = 'i18n_taxonomy_allowed_values';
-      field_update_field($field);
-    }
-  }
-}
-
-/**
  * Implements hook_disable()
  */
 function i18n_taxonomy_disable() {
