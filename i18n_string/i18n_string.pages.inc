@@ -151,10 +151,17 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
         $description = '<h5>' . t('Text format: @name', array('@name' => $format->name)) . '</h5>' . theme('filter_tips', array('tips' => _filter_tips($format->format, FALSE)));
       }
     }
-    // If we don't have a source we create it
-    if (!$source && empty($disabled)) {
-      $item->update(array('messages' => TRUE));
-      $source = $item->get_source();
+    // If we don't have a source we create it.
+    if (!$source && !$disabled) {
+      // Enable messages just as a reminder these strings are not being updated properly.
+      $status = $item->update(array('messages' => TRUE));
+      if ($status === FALSE || $status === SAVED_DELETED) {
+        // We don't have a source string so nothing to translate here
+        $disabled = TRUE;
+      }
+      else {
+        $source = $item->get_source();
+      }
     }
     $default_value = $item->format_translation($langcode, array('langcode' => $langcode, 'sanitize' => FALSE, 'debug' => FALSE));
     $form[$item->get_name()] = array(
@@ -163,8 +170,9 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
       '#default_value' => $default_value,
       '#disabled' => $disabled,
       '#description' => $description,
-      '#i18n_string_format' => !empty($source) ? $source->format : 0,
-      '#rows' => min(ceil(str_word_count($default_value) / 12), 10),
+      '#i18n_string_format' => $source ? $source->format : 0,
+      // If disabled, provide smaller textarea (that can be expanded anyway).
+      '#rows' => $disabled ? 1 : min(ceil(str_word_count($default_value) / 12), 10),
       '#parents' => array('strings', $item->get_name()),
     );
   }
