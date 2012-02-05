@@ -96,10 +96,32 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
 
 /**
  * Form builder callback for in-place string translation.
+ * 
+ * @param $strings
+ *   Array of strings indexed by string name (may be indexed by group key too if $groups is present)
+ * @param $langcode
+ *   Language code to translate to.
+ * @param $groups
+ *   Optional groups to provide some string grouping. Array with group key and title pairs.
  */
-function i18n_string_translate_page_form($form, &$form_state, $strings, $langcode) {
+function i18n_string_translate_page_form($form, &$form_state, $strings, $langcode, $groups = NULL) {
   $form = i18n_string_translate_page_form_base($form, $langcode);
-  $form['strings'] += i18n_string_translate_page_form_strings($strings, $langcode);
+  if ($groups) {
+    $form['string_groups'] = array('#type' => 'value', '#value' => $groups);
+    foreach ($groups as $key => $title) {
+      $form['display'] = array(
+        '#type' => 'vertical_tabs',
+      );
+      $form['strings'][$key] = array(
+        '#group' => 'display',
+        '#title' => $title,
+        '#type' => 'fieldset',
+      ) + i18n_string_translate_page_form_strings($strings[$key], $langcode);
+    }
+  }
+  else {
+    $form['strings']['all'] = i18n_string_translate_page_form_strings($strings, $langcode);
+  }
   return $form;
 }
 
@@ -111,13 +133,10 @@ function i18n_string_translate_page_form_base($form, $langcode, $redirect = NULL
     '#type' => 'value',
     '#value' => $langcode,
   );
-  $form['strings'] = array(
-    // Use a tree, so we can access the values easily.
-    '#tree' => TRUE,
-  );
   $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save translation'),
+    '#weight' => 10,
   );
   if ($redirect) {
     $form['#redirect'] = array(
