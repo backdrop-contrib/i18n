@@ -339,15 +339,16 @@ function i18n_sync_field_file_sync($entity_type, $entity, $field, $instance, $la
   // Build a copy of the existing files in the translation node
   // indexed by fid for easy retrieval in the copy loop below
   $existing_files = array();
-  if (isset($entity->{$field_name}[$langcode])) {
-    foreach ($entity->{$field_name}[$langcode] as $delta => $file) {
+  $field_language = field_language($entity_type, $entity, $field_name, $langcode);
+  if (isset($entity->{$field_name}[$field_language])) {
+    foreach ($entity->{$field_name}[$field_language] as $delta => $file) {
       $existing_files[$file['fid']] = $file;
     }
   }
   // Start creating the translated copy
   foreach ($items as $delta => &$file) {
     // keep alt, title, description if they already exist
-    if (array_key_exists($file['fid'], $existing_files)) {
+    if (isset($existing_files[$file['fid']])) {
       foreach (array('title', 'description', 'alt') as $property) {
         if (!empty($existing_files[$file['fid']][$property])) {
           $file[$property] = $existing_files[$file['fid']][$property];
