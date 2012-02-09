@@ -7,3 +7,4 @@ package = Multilingual - Internationalization
 core = 7.x
 configure = admin/config/regional/i18n/node
 files[]=i18n_node.test
+files[]=i18n_node.variable.inc
