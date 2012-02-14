@@ -58,17 +58,26 @@ function i18n_menu_i18n_object_info() {
         'description' => t('Description'),
       ),
     ),
-    'translation set' => array(
-      'class' => 'i18n_menu_link_translation_set',
-      'table' => 'menu_links',
-      'field' => 'i18n_tsid',
-      'parent' => 'menu',
-      'placeholder' => '%i18n_menu_translation',
-      'list path' => 'admin/structure/menu/manage/translation',
-      'edit path' => 'admin/structure/menu/manage/translation/edit/%i18n_menu_translation',
-      'delete path' => 'admin/structure/menu/manage/translation/delete/%i18n_menu_translation',
-      'page callback' => 'i18n_menu_item_translation_page',
-    ),
+    'translation set' => TRUE,
+  );
+  return $info;
+}
+
+/**
+ * Implements hook_i18n_translation_set_info()
+ */
+function i18n_menu_i18n_translation_set_info() {
+  $info['menu_link'] = array(
+    'title' => t('Menu link'),
+    'class' => 'i18n_menu_link_translation_set',
+    'table' => 'menu_links',
+    'field' => 'i18n_tsid',
+    'parent' => 'menu',
+    'placeholder' => '%i18n_menu_translation',
+    'list path' => 'admin/structure/menu/manage/translation',
+    'edit path' => 'admin/structure/menu/manage/translation/edit/%i18n_menu_translation',
+    'delete path' => 'admin/structure/menu/manage/translation/delete/%i18n_menu_translation',
+    'page callback' => 'i18n_menu_item_translation_page',
   );
   return $info;
 }
