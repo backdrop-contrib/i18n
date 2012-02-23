@@ -14,12 +14,13 @@ function i18n_block_i18n_object_info() {
     'load callback' => 'block_load',
     'key' => array('module', 'delta'),
     'placeholders' => array(
-    	'%module' => 'module',
+      '%module' => 'module',
       '%delta' => 'delta',
     ),
     'edit path' => 'admin/structure/block/manage/%module/%delta/configure',
     'string translation' => array(
       'textgroup' => 'blocks',
+      'type' => 'block',
       'properties' => array(
         'title' => array(
           'title' => t('Title'),
