@@ -242,7 +242,7 @@ function i18n_menu_menu_link_update($link) {
       ->execute();
   }
   // Update translatable strings if any
-  if (isset($link['options']['attributes']['title']) && !empty($link['customized']) && i18n_menu_mode($link['menu_name'], I18N_MODE_LOCALIZE) && !i18n_object_langcode($link)) {
+  if (!empty($link['customized']) && i18n_menu_mode($link['menu_name'], I18N_MODE_LOCALIZE) && !i18n_object_langcode($link)) {
     i18n_string_object_update('menu_link', $link);
   }
 }
@@ -289,7 +289,7 @@ function i18n_menu_mode($name, $mode = NULL) {
  */
 function i18n_menu_translated_menu_link_alter(&$item, $map) {
   if (!empty($item['customized']) && empty($item['language']) && !empty($item['access']) && empty($item['hidden']) && empty($item['i18n_menu'])) {
-    $item['title'] = _i18n_menu_link_title($item);
+    $item['link_title'] = _i18n_menu_link_title($item);
     if ($description = _i18n_menu_link_description($item)) {
       $item['localized_options']['attributes']['title'] = $description;
     }

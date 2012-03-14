@@ -54,7 +54,10 @@ function i18n_menu_i18n_object_info() {
       'textgroup' => 'menu',
       'type' => 'item',
       'properties' => array(
-        'title' => t('Title'),
+        'title' => array(
+          'title' => t('Title'),
+          'field' => 'link_title',
+        ),
         'description' => t('Description'),
       ),
     ),
@@ -127,9 +130,8 @@ function i18n_menu_item_translation_page($type, $item) {
  */
 function i18n_menu_i18n_string_list_menu_alter(&$strings, $type = NULL, $object = NULL) {
   if ($type == 'menu_link' && $object) {
-    if (isset($object['options']['attributes']['title'])) {
-    	$strings['menu']['item'][$object['mlid']]['title']['string'] = $object['link_title']; 
+    if (!empty($object['options']['attributes']['title'])) {
       $strings['menu']['item'][$object['mlid']]['description']['string'] = $object['options']['attributes']['title'];
-    }  
+    }
   }
 }
