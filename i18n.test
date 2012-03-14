@@ -48,6 +48,7 @@ class Drupali18nTestCase extends DrupalWebTestCase {
       'create ' . $type->type . ' content',
       'edit own ' . $type->type . ' content',
       'translate content',
+      'translate interface',
     ));
 
     $this->drupalLogin($this->admin_user);
