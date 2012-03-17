@@ -58,7 +58,10 @@ function i18n_menu_i18n_object_info() {
           'title' => t('Title'),
           'field' => 'link_title',
         ),
-        'description' => t('Description'),
+        'description' => array(
+          'title' => t('Description'),
+          'field' => 'options.attributes.title',
+        ),
       ),
     ),
     'translation set' => TRUE,
@@ -125,13 +128,3 @@ function i18n_menu_item_translation_page($type, $item) {
   return $build;
 }
 
-/**
- * Implements hook_i18n_string_list_TEXTGROUP_alter()
- */
-function i18n_menu_i18n_string_list_menu_alter(&$strings, $type = NULL, $object = NULL) {
-  if ($type == 'menu_link' && $object) {
-    if (!empty($object['options']['attributes']['title'])) {
-      $strings['menu']['item'][$object['mlid']]['description']['string'] = $object['options']['attributes']['title'];
-    }
-  }
-}
