@@ -644,8 +644,8 @@ function i18n_string_l10n_client_add($string, $langcode) {
   // If langcode translation was disabled we are not supossed to reach here.
   if (($langcode == i18n_langcode()) && function_exists('l10_client_add_string_to_page') && i18n_string_translate_access($string)) {
     $translation = $string->get_translation($langcode);
-    $source = !empty($string->source) ? $string->source : FALSE;
-    l10_client_add_string_to_page($source, $translation ? $translation : FALSE, $string->textgroup, $string->context);
+    $source = !empty($string->source) ? $string->source : $string->string;
+    l10_client_add_string_to_page($source, $translation ? $translation : TRUE, $string->textgroup, $string->context);
   }
 }
 
