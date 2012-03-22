@@ -57,6 +57,4 @@ function i18n_variable_admin_settings_submit($form, $form_state) {
   variable_set('i18n_variable_conf', $variables);
   // Spawn multiple variables and translate into actual variables
   variable_set('i18n_variable_list', variable_children($variables));
-  // Clear list from cache
-  cache_clear_all('*', I18N_VARIABLE_CACHE, TRUE);
 }
