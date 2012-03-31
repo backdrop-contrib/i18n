@@ -16,6 +16,7 @@ class i18nMenuTestCase extends Drupali18nTestCase {
   function setUp() {
     parent::setUp(array('i18n_menu', 'translation'));
     parent::setUpLanguages(array('administer menu'));
+    $this->translator = $this->drupalCreateUser(array('translate interface', 'translate user-defined strings'));
   }
 
   function testMenuTranslateLocalize() {
@@ -84,7 +85,7 @@ class i18nMenuTestCase extends Drupali18nTestCase {
   function testNodeMenuItems() {
     // Create menu and display it in a block.
     $menu = $this->createMenu(array(
-    	'i18n_mode' => I18N_MODE_MULTIPLE,
+      'i18n_mode' => I18N_MODE_MULTIPLE,
       'language' => LANGUAGE_NONE,
       'menu_name' => 'test',
     ));

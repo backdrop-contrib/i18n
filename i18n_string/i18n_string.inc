@@ -157,7 +157,7 @@ class i18n_string_object {
    * There's a hidden variable, 'i18n_string_debug', that when set to TRUE will display additional info
    */
   public function format_translation($langcode, $options = array()) {
-    $options += array('langcode' => $langcode, 'sanitize' => TRUE, 'sanitize default' => FALSE, 'cache' => FALSE, 'debug' => $this->textgroup()->debug);
+    $options += array('langcode' => $langcode, 'sanitize' => TRUE, 'cache' => FALSE, 'debug' => $this->textgroup()->debug);
     if ($translation = $this->get_translation($langcode)) {
       $string = $translation;
       if (isset($options['filter'])) {
@@ -167,14 +167,10 @@ class i18n_string_object {
     else {
       // Get default source string if no translation.
       $string = $this->get_string();
-      $options['sanitize'] = $options['sanitize default'];
+      $options['sanitize'] = !empty($options['sanitize default']);
     }
     if (!empty($this->format)) {
       $options += array('format' => $this->format);
-    }
-    elseif (empty($translation) && $options['sanitize']) {
-      // We are bout to display the source string without text format, force check_plain.
-      $string = check_plain($string);
     }
     // Add debug information if enabled
     if ($options['debug']) {
@@ -258,6 +254,19 @@ class i18n_string_object {
    */
   public function remove($options = array()) {
     return $this->textgroup()->string_remove($this, $options);
+  }
+  /**
+   * Check whether there is any problem for the  user to translate a this string.
+   *
+   * @param $account
+   *   Optional user account, defaults to current user.
+   *
+   * @return
+   *   None if the user has access to translate the string.
+   *   Error message if the user cannot translate that string.
+   */
+  public function check_translate_access($account = NULL) {
+    return i18n_string_translate_check_string($this, $account);
   }
 }
 
@@ -441,7 +450,7 @@ class i18n_string_textgroup_default {
 
   /**
    * Remove string object.
-   * 
+   *
    * @return
    *   SAVED_DELETED | FALSE (If the operation failed because no source)
    */
@@ -749,9 +758,9 @@ class i18n_string_textgroup_default {
    *
    * @param $translations
    *   Array of translation objects as loaded from the db.
-	 * @param $langcode
-	 *   Language code, array of language codes or * to search all translations.
-	 *
+   * @param $langcode
+   *   Language code, array of language codes or * to search all translations.
+   *
    * @return array
    *   Array of i18n string objects.
    */
@@ -1024,11 +1033,11 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
   /**
    * Get object strings for translation
    *
- 	 * This will return a simple array of string objects, indexed by full string name.
- 	 *
- 	 * @param $options
- 	 *   Array with processing options.
- 	 *   - 'empty', whether to return empty strings, defaults to FALSE.
+    * This will return a simple array of string objects, indexed by full string name.
+    *
+    * @param $options
+    *   Array with processing options.
+    *   - 'empty', whether to return empty strings, defaults to FALSE.
    */
   public function get_strings($options = array()) {
     $options += array('empty' => FALSE);
@@ -1064,7 +1073,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
       $this->properties = $this->build_properties();
       // Call hook_i18n_string_list_TEXTGROUP_alter(), last chance for modules
       drupal_alter('i18n_string_list_' . $this->get_textgroup(), $this->properties, $this->type, $this->object);
-      
+
     }
     return $this->properties;
   }
@@ -1162,7 +1171,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * Translate access (localize strings)
    */
   protected function localize_access() {
-    return user_access('translate interface');
+    return user_access('translate interface') && user_access('translate user-defined strings');
   }
 
   /**
