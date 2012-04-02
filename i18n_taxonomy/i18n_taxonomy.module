@@ -257,14 +257,6 @@ function i18n_taxonomy_field_extra_fields() {
  * Implements hook_field_attach_view_alter().
  */
 function i18n_taxonomy_field_attach_view_alter(&$output, $context) {
-  if ($context['entity_type'] == 'taxonomy_term' && i18n_taxonomy_vocabulary_mode($context['entity']->vid, I18N_MODE_TRANSLATE)) {
-    $output['language'] = array(
-      '#type' => 'item',
-      '#title' => t('Language'),
-      '#markup' => i18n_language_name($context['entity']->language),
-    );
-  }
-
   // Copied from rdf_field_attach_view_alter of modules/rdf/rdf.module since we have another #formatter
   // Append term mappings on displayed taxonomy links.
   foreach (element_children($output) as $field_name) {
@@ -285,6 +277,14 @@ function i18n_taxonomy_field_attach_view_alter(&$output, $context) {
         }
       }
     }
+  }
+  // Add language field for display
+  if ($context['entity_type'] == 'taxonomy_term' && i18n_taxonomy_vocabulary_mode($context['entity']->vid, I18N_MODE_TRANSLATE)) {
+    $output['language'] = array(
+      '#type' => 'item',
+      '#title' => t('Language'),
+      '#markup' => i18n_language_name($context['entity']->language),
+    );
   }
 }
 
