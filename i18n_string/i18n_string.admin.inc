@@ -6,7 +6,7 @@
  */
 
 // Load locale library
-include_once './includes/locale.inc';
+include_once DRUPAL_ROOT . '/includes/locale.inc';
 
 /**
  * Form callback. Refresh textgroups.
