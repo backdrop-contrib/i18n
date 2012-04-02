@@ -8,8 +8,8 @@
  */
 
 // Load locale libraries
-require_once './includes/locale.inc';
-require_once drupal_get_path('module', 'locale') . '/locale.admin.inc';
+include_once DRUPAL_ROOT . '/includes/locale.inc';
+include_once drupal_get_path('module', 'locale') . '/locale.admin.inc';
 
 /**
  * Generate translate page from object
