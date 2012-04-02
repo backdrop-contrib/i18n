@@ -429,16 +429,31 @@ function i18n_string_get_string($name, $default = NULL) {
  * Get full string object by lid.
  */
 function i18n_string_get_by_lid($lid) {
-  $string = db_select('i18n_string', 's')
-    ->fields('s', array('textgroup', 'context'))
-    ->condition('lid', $lid)
-    ->execute()
-    ->fetchObject();
-  if ($string) {
-    $i18nstring = i18n_string_textgroup($string->textgroup)->build_string($string->context);
-    $i18nstring->get_source();
-    return $i18nstring;
+  $strings = i18n_string_load_multiple(array('lid' => $lid));
+  return reset($strings);
+}
+
+/**
+ * Load multiple strings, including string source
+ *
+ * @param $conditions
+ *   Array of conditions for i18n_string table.
+ *
+ * @return $strings
+ *   List of i18n string objects
+ */
+function i18n_string_load_multiple($conditions) {
+  // The primary table here will be i18n_string, though we add source too.
+  $query = db_select('i18n_string', 'i')
+    ->fields('i');
+  $query->leftJoin('locales_source', 's', 'i.lid = s.lid');
+  $query->fields('s', array('source', 'version', 'location'));
+  // Add text group condition and add conditions to the query
+  foreach ($conditions as $field => $value) {
+    $alias = in_array($field, array('source', 'version', 'location')) ? 's' : 'i';
+    $query->condition($alias . '.' . $field, $value);
   }
+  return $query->execute()->fetchAll(PDO::FETCH_CLASS, 'i18n_string_object');
 }
 
 /**
@@ -707,8 +722,8 @@ function i18n_string_translate_list($name, $strings, $options = array()) {
  * there are some exceptions (like profile categories) for which we need to use the
  * source string itself as a search key.
  *
- * @param $context
- *   String context
+ * @param $name
+ *   String name
  * @param $string
  *   Optional source string (string in default language).
  *   Array of string properties to remove
@@ -892,4 +907,16 @@ function i18n_string_translation_update($name, $translation, $langcode, $source_
   else {
     return NULL;
   }
+}
+
+/**
+ * Count operation results by result value
+ */
+function _i18n_string_result_count($list) {
+  $result = array();
+  foreach ($list as $value) {
+    $key = (string)$value;
+    $result[$key] = isset($result[$key]) ? $result[$key] +1 : 1;
+  }
+  return $result;
 }

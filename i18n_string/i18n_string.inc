@@ -570,6 +570,23 @@ class i18n_string_textgroup_default {
   }
 
   /**
+   * Load multiple strings.
+   *
+   * @return array
+   *   List of strings indexed by full string name.
+   */
+  public function load_strings($conditions = array()) {
+    // Add textgroup condition and load all
+    $conditions['textgroup'] = $this->textgroup;
+    $list = array();
+    foreach (i18n_string_load_multiple($conditions) as $string) {
+      $list[$string->get_name()] = $string;
+      $this->cache_set($string->context, $string);
+    }
+    return $list;
+  }
+
+  /**
    * Load string source from db
    */
   public static function load_source($i18nstring) {
@@ -1229,33 +1246,37 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * Remove all strings for this object.
    */
   public function strings_remove($options = array()) {
-    return $this->strings_operation('remove', $options + array('empty' => TRUE));
+    $result = array();
+    foreach ($this->load_strings() as $key => $string) {
+      $result[$key] = $string->remove($options);
+    }
+    return _i18n_string_result_count($result);
   }
 
   /**
    * Update all strings for this object.
    */
   public function strings_update($options = array()) {
-    return $this->strings_operation('update', $options + array('empty' => TRUE, 'update' => TRUE));
+    $options += array('empty' => TRUE, 'update' => TRUE);
+    $result = array();
+    $existing = $this->load_strings();
+    // Update object strings
+    foreach ($this->get_strings($options) as $key => $string) {
+      $result[$key] = $string->update($options);
+      unset($existing[$key]);
+    }
+    // Delete old existing strings.
+    foreach ($existing as $key => $string) {
+      $result[$key] = $string->remove($options);
+    }
+    return _i18n_string_result_count($result);
   }
 
   /**
-   * Run some operation on all this object's strings.
-   *
-   * @param $method
-   *   Operation to run on all strings: 'update', 'remove'.
-   * @param $options
-   *   Array of options to pass to the string method.
-   *
-   * @return array
-   *   Count for each result
+   * Load all existing strings for this object.
    */
-  protected function strings_operation($method, $options = array()) {
-    $result = array();
-    foreach ($this->get_strings($options) as $string) {
-      $status = $string->$method($options);
-      $result[$status] = isset($result[$status]) ? $result[$status] +1 : 1;
-    }
-    return $result;
+  public function load_strings() {
+    list($type, $id) = $this->get_string_context();
+    return $this->textgroup()->load_strings(array('type' => $type, 'objectid' => $id));
   }
 }
