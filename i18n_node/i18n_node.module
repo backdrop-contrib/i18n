@@ -60,6 +60,16 @@ function i18n_node_block_view_system_help_alter(&$block) {
       }
     }
   }
+  elseif ($arg[0] == 'node' && $arg[2] == 'edit') {
+    $node = menu_get_object();
+    if ($node && isset($node->type)) {
+      $type = node_type_get_type($node->type);
+      $help = i18n_node_translate_type($type, 'help');
+      if ($help !== $type->help) {
+        $block['content'] = str_replace(filter_xss_admin($type->help), filter_xss_admin($help), $block['content']);
+      }
+    }
+  }
 }
 
 /**
