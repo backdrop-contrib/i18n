@@ -91,7 +91,7 @@ class i18n_field extends i18n_field_base {
     return array(
       $this->object['field_name'],
       array('#field', '#allowed_values'),
-    	'*'
+      '*'
     );
   }
 
@@ -176,7 +176,7 @@ class i18n_field_instance extends i18n_field_base {
     return array(
       $this->object['field_name'],
       array('#field', '#allowed_values', $this->object['bundle']),
-    	'*'
+      '*'
     );   
   }
 }

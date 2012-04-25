@@ -1,5 +1,6 @@
 <?php
 /**
+ * @file
  * Translation page for fields.
  */
 
@@ -17,7 +18,7 @@ function i18n_field_page_translate($instance, $language = NULL) {
   else {
     // Because of some weird menu mapping for comment fields language object loader is not working.
     $language = is_object($language) ? $language : i18n_language($language);
-    drupal_set_title(t('Translate to @language', array('@language' => i18n_language_name($language->language))));
+    drupal_set_title(t('Translate to !language', array('!language' => i18n_language_name($language->language))));
     //return drupal_get_form('i18n_field_page_translate_form', $instance, $language->language);
     // Create form with two tabs, one for instance, once for field.
     $groups = array(

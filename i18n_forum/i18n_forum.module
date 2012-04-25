@@ -49,8 +49,8 @@ function i18n_forum_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
   if ($vid && !isset($form_state['confirm_delete']) && isset($form['vid']) && $form['vid']['#value'] == $vid) {
     // Only two options for this vocabulary
     $replacements = array(
-    	'@item_name_multiple' => t('forum containers'),
-    	'@item_name_multiple_capitalized' => t('Forum containers'),
+      '@item_name_multiple' => t('forum containers'),
+      '@item_name_multiple_capitalized' => t('Forum containers'),
     );
     $form['i18n_translation']['i18n_mode']['#options'] = i18n_translation_options_list($replacements, array(I18N_MODE_LOCALIZE, I18N_MODE_TRANSLATE));
   }
@@ -87,8 +87,8 @@ function i18n_forum_preprocess_forum_list(&$variables) {
   $vid = variable_get('forum_nav_vocabulary', 0);
   if (i18n_taxonomy_vocabulary_mode($vid)) {
     foreach ($variables['forums'] as $id => $forum) {
-      $variables['forums'][$id]->description = i18n_string('taxonomy:term:'. $forum->tid .':description', $forum->description);
-      $variables['forums'][$id]->name = i18n_string('taxonomy:term:'. $forum->tid .':name', $forum->name);
+      $variables['forums'][$id]->description = i18n_string('taxonomy:term:' . $forum->tid . ':description', $forum->description);
+      $variables['forums'][$id]->name = i18n_string('taxonomy:term:' . $forum->tid . ':name', $forum->name);
     }
   }
 }
@@ -105,7 +105,7 @@ function i18n_forum_preprocess_forums(&$variables) {
     }
     // This one is from advanced forum, http://drupal.org/project/advanced_forum
     if (!empty($variables['forum_description'])) {
-      $variables['forum_description'] = i18n_string('taxonomy:term:'. $variables['tid'] .':description', $variables['forum_description']);
+      $variables['forum_description'] = i18n_string('taxonomy:term:' . $variables['tid'] . ':description', $variables['forum_description']);
     }
     $vocabulary = taxonomy_vocabulary_load($vid);
     // Translate breadrumb and page title.

@@ -1,5 +1,10 @@
 <?php
 /**
+ * @file
+ * i18n Object Class
+ */
+
+/**
  * Object wrapper
  */
 class i18n_object_wrapper {

@@ -23,11 +23,11 @@ function i18n_string_translate_page_object($object_type, $object_value, $languag
   $strings = $object->get_strings(array('empty' => TRUE));
 
   if (empty($langcode)) {
-    drupal_set_title(t('Translate @name', array('@name' => i18n_object_info($object_type, 'title'))));
+    drupal_set_title(t('Translate !name', array('!name' => i18n_object_info($object_type, 'title'))));
     return i18n_string_translate_page_overview($object, $strings);
   }
   else {
-    drupal_set_title(t('Translate to @language', array('@language' => i18n_language_name($langcode))));
+    drupal_set_title(t('Translate to !language', array('!language' => i18n_language_name($langcode))));
     return drupal_get_form('i18n_string_translate_page_form', $strings, $langcode);
   }
 }

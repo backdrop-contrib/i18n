@@ -79,17 +79,17 @@ function i18n_node_help($path, $arg) {
   switch ($path) {
     case 'admin/help#i18n_node':
       $output = '<p>' . t('Provides some extended multilingual options for nodes.') . '</p>';
-      $output .= '<p>'. t('Additionally, if <em>String translation</em> enabled, this module will localize all content type configuration texts.') .'</p>';
+      $output .= '<p>' . t('Additionally, if <em>String translation</em> enabled, this module will localize all content type configuration texts.') . '</p>';
       $output .= '<ul>';
-      $output .= '<li>'. t('Content type names') .'</li>';
-      $output .= '<li>'. t('Submission guidelines') .'</li>';
-      $output .= '<li>'. t("Content type descriptions were previously localized so they won't be affected.") .'</li>';
+      $output .= '<li>' . t('Content type names') . '</li>';
+      $output .= '<li>' . t('Submission guidelines') . '</li>';
+      $output .= '<li>' . t("Content type descriptions were previously localized so they won't be affected.") . '</li>';
       $output .= '</ul>';
-      $output .= '<p>'. t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) .'</p>';
+      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
       return $output;
     case 'admin/config/regional/i18n':
     case 'admin/config/regional/i18n/node':
-      $output = '<p>' . t('You can find some more per content type options on the <a href="@configure_content">Content types administration page</a>.', array('@configure_content' => url('admin/structure/types'))) .'</p>';
+      $output = '<p>' . t('You can find some more per content type options on the <a href="@configure_content">Content types administration page</a>.', array('@configure_content' => url('admin/structure/types'))) . '</p>';
       return $output;
   }
 }
@@ -211,7 +211,7 @@ function i18n_node_language_options($node, $option) {
  */
 function i18n_node_language_mode($type) {
   $type = is_object($type) ? $type->type : $type;
-  return variable_get('i18n_node_extended_'. $type, I18N_LANGUAGE_ENABLED);
+  return variable_get('i18n_node_extended_' . $type, I18N_LANGUAGE_ENABLED);
 }
 
 /**
@@ -276,7 +276,7 @@ function i18n_node_node_view_alter(&$build) {
     $links = &$build['links']['translation']['#links'];
     $translations = translation_node_get_translations($node->tnid);
     foreach (i18n_node_language_list($node) as $langcode => $langname) {
-      $index = 'translation_'. $langcode;
+      $index = 'translation_' . $langcode;
       if ($langcode != $node->language && isset($translations[$langcode]) && $translations[$langcode]->status && !isset($links[$index])) {
         // This a published translation to a disabled language. As the node is language extended, display the linkso
         // These links shouldn't switch the interface, though they have a language so the right language icon will be added
@@ -306,7 +306,7 @@ function i18n_node_node_type_insert($info) {
  * Implements hook_node_type_update()
  */
 function i18n_node_node_type_update($info) {
-  if(!empty($info->old_type) && $info->old_type != $info->type) {
+  if (!empty($info->old_type) && $info->old_type != $info->type) {
     i18n_string_update_context("node:type:$info->old_type:*", "node:type:$info->type:*");
   }
   i18n_string_object_update('node_type', $info);
@@ -382,7 +382,7 @@ function i18n_node_textfield_process($element) {
  */
 function i18n_node_form_search_form_alter(&$form, &$form_state) {
   // Advanced search form. Add language and localize content type names
-  if ($form['module']['#value'] == 'node' && !empty($form['advanced'])){
+  if ($form['module']['#value'] == 'node' && !empty($form['advanced'])) {
     // @todo Handle language search conditions
     //$form['advanced']['language'] = _i18n_language_select();
     if (!empty($form['advanced']['type'])) {
