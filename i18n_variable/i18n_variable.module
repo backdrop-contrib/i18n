@@ -5,6 +5,11 @@
  */
 
 /**
+ * The type of language used for variables.
+ */
+define('I18N_VARIABLE_LANGUAGE_TYPE', 'language_variable');
+
+/**
  * Implements hook_language_init()
  */
 function i18n_variable_language_init() {
@@ -48,7 +53,7 @@ function i18n_variable_menu() {
  */
 function i18n_variable_initialize($language = NULL) {
   $language = $language ? $language : i18n_variable_language();
-  $GLOBALS['language_variable'] = $language;
+  $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE] = $language;
   $variables = i18n_variable_load($language->language);
   variable_realm_add('language', $language->language, $variables, 10);
   variable_realm_switch('language', $language->language);
@@ -59,15 +64,15 @@ function i18n_variable_initialize($language = NULL) {
  */
 function i18n_variable_language($initialize = TRUE) {
   // If we've got a variables language, it will be that one
-  if (!isset($GLOBALS['language_variable'])) {
+  if (!isset($GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE])) {
     if (!empty($_GET['i18n_variable_language']) && arg(0) == 'admin') {
-      $GLOBALS['language_variable'] = i18n_language($_GET['i18n_variable_language']);
+      $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE] = i18n_language($_GET['i18n_variable_language']);
     }
     else {
-      $GLOBALS['language_variable'] = i18n_language();
+      $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE] = i18n_language();
     }
   }
-  return $GLOBALS['language_variable'];
+  return $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE];
 }
 
 /**
