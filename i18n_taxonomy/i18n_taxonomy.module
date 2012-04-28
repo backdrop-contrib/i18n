@@ -389,7 +389,26 @@ function i18n_taxonomy_allowed_values($field) {
  * Implements hook_i18n_translate_path()
  */
 function i18n_taxonomy_i18n_translate_path($path) {
-  if (preg_match("/^(taxonomy\/term\/)([^\/]*)(.*)$/", $path, $matches)) {
+  if (strpos($path, 'taxonomy/term/') === 0) {
+    return i18n_taxonomy_translate_path($path);
+  }
+}
+
+/**
+ * Find translations for taxonomy paths.
+ *
+ * @param $path
+ *   Path to translate.
+ * @param $path_prefix
+ *   Path prefix, including trailing slash, defaults to 'taxonomy/term/'.
+ *   It will be different for taxonomy term pages and for forum pages.
+ *
+ * @return
+ *   Array of links (each an array with href, title), indexed by language code.
+ */
+function i18n_taxonomy_translate_path($path, $path_prefix = 'taxonomy/term/') {
+  $prefix_match = strtr($path_prefix, array('/' => '\/'));
+  if (preg_match("/^($prefix_match)([^\/]*)(.*)$/", $path, $matches)) {
     $links = array();
     $term = FALSE;
     // If single term, treat it differently
@@ -403,7 +422,7 @@ function i18n_taxonomy_i18n_translate_path($path) {
       if ($term) {
         if (!empty($set) && ($translation = $set->get_item($langcode))) {
           $links[$langcode] = array(
-            'href' => 'taxonomy/term/' . $translation->tid,
+            'href' => $path_prefix . $translation->tid,
             'title' => $translation->name,
           );
         }
@@ -415,13 +434,12 @@ function i18n_taxonomy_i18n_translate_path($path) {
         }
       }
       elseif ($str_tids = i18n_taxonomy_translation_tids($matches[2], $langcode)) {
-        $links[$langcode]['href'] = "taxonomy/term/$str_tids" . $matches[3];
+        $links[$langcode]['href'] = $path_prefix . $str_tids . $matches[3];
       }
     }
     return $links;
   }
 }
-
 /**
  * Implements hook_theme().
  */
