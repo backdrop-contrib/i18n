@@ -45,9 +45,9 @@ class i18n_object_wrapper {
     elseif (is_array($this->object)) {
       $this->object[$field] = $value;
     }
-    return $this;   
+    return $this;
   }
-  
+
   /**
    * Get string numeric key for indexing.
    */
@@ -109,7 +109,7 @@ class i18n_object_wrapper {
     }
     return $placeholders;
   }
-  
+
   /**
    * Get link for item
    */
@@ -151,7 +151,7 @@ class i18n_object_wrapper {
    */
   function get_translate_mode() {
     return I18N_MODE_NONE;
-  }  
+  }
 
   /**
    * Get translation set id if any
@@ -190,7 +190,7 @@ class i18n_object_wrapper {
       return $this->object;
     }
   }
- 
+
   /**
    * Translate access (translation sets)
    */
@@ -207,7 +207,7 @@ class i18n_object_wrapper {
 
   /**
    * Replace path with placeholders
-   * 
+   *
    * @param $path
    *   Path to replace
    * @param $replacements

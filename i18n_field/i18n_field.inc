@@ -24,7 +24,7 @@ class i18n_field_base extends i18n_string_object_wrapper {
         return $admin['path'] . '/fields/' . $this->object['field_name'];
       }
     }
-  }  
+  }
 }
 
 /**
@@ -58,7 +58,7 @@ class i18n_field extends i18n_field_base {
    */
   public function get_translate_path($langcode = NULL) {
     return $this->get_base_path() . '/translate/field' . ($langcode ? '/' . $langcode : '');
-  }  
+  }
   /**
    * Get string context
    */
@@ -83,7 +83,7 @@ class i18n_field extends i18n_field_base {
     }
     return $properties;
   }
- 
+
   /**
    * Context to be pre-loaded before translation.
    */
@@ -97,9 +97,9 @@ class i18n_field extends i18n_field_base {
 
   /**
    * Set field translation for object.
-   * 
+   *
    * Mot often, this is a direct field set, but sometimes fields may have different formats.
-   * 
+   *
    * @param $object
    *   A clone of the object or array. Field instance.
    */
@@ -122,13 +122,13 @@ class i18n_field_instance extends i18n_field_base {
    */
   public function get_edit_path() {
     return $this->get_base_path();
-  }  
+  }
   /**
    * Get translate path for object
    */
   public function get_translate_path($langcode = NULL) {
     return $this->get_base_path() . '/translate' . ($langcode ? '/' . $langcode : '');
-  }  
+  }
   /**
    * Get string context
    */
@@ -150,12 +150,12 @@ class i18n_field_instance extends i18n_field_base {
     }
     return $properties;
   }
-  
+
   /**
    * Set field translation for object.
-   * 
+   *
    * Mot often, this is a direct field set, but sometimes fields may have different formats.
-   * 
+   *
    * @param $object
    *   A clone of the object or array. Field instance.
    */
@@ -168,7 +168,7 @@ class i18n_field_instance extends i18n_field_base {
       parent::translate_field($object, $i18nstring, $langcode, $options);
     }
   }
-  
+
   /**
    * Context to be pre-loaded before translation.
    */
@@ -177,6 +177,6 @@ class i18n_field_instance extends i18n_field_base {
       $this->object['field_name'],
       array('#field', '#allowed_values', $this->object['bundle']),
       '*'
-    );   
+    );
   }
 }
