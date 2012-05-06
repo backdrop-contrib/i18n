@@ -36,8 +36,8 @@ class i18n_field extends i18n_field_base {
    *
    * For convenience field objects can be built from field info and from field instance.
    */
-  public function __construct($type, $object) {
-    parent::__construct($type, $object);
+  public function __construct($type, $key, $object) {
+    parent::__construct($type, $key, $object);
 
     // If this is a field instance, get field info but add instance data too.
     // This instance data will be used to get the paths to get the edit/translate path.

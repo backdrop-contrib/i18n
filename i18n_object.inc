@@ -9,6 +9,7 @@
  */
 class i18n_object_wrapper {
   protected $type;
+  protected $key;
   protected $object;
   // Object translations, static cache.
   protected $translations;
@@ -16,9 +17,10 @@ class i18n_object_wrapper {
   /**
    * Class constructor
    */
-  public function __construct($type, $object) {
+  public function __construct($type, $key, $object) {
     $this->type = $type;
-    $this->object = is_scalar($object) ? $this->load_object($object) : $object;
+    $this->key = $key;
+    $this->object = $object ? $object : $this->load_object($key);
   }
 
   /**

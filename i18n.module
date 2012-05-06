@@ -315,20 +315,42 @@ function i18n_context_language() {
 }
 
 /**
- * Create object wrapper
+ * Get object wrapper.
+ *
+ * Create an object wrapper or retrieve it from the static cache if
+ * a wrapper for the same object was created before.
+ *
+ * @see i18n_object_info()
+ *
+ * @param $type
+ *   The object type.
  */
 function i18n_object($type, $object) {
-  $i18n_object = &drupal_static(__FUNCTION__);
   $key = i18n_object_key($type, $object);
-  $key = is_array($key) ? implode(':', $key) : $key;
-  if (!isset($i18n_object[$type][$key])) {
-    $class = i18n_object_info($type, 'class');
-    if (!$class) {
-      $class = module_exists('i18n_string') ? 'i18n_string_object_wrapper' : 'i18n_object_wrapper';
-    }
-    $i18n_object[$type][$key] = new $class($type, $object);
+  return i18n_get_object($type, $key, $object);
+}
+
+/**
+ * Get object wrapper by object key.
+ *
+ * @param $type
+ *   The object type to load e.g. node_type, menu, taxonomy_term.
+ * @param $key
+ *   The object key, can be an scalar or an array.
+ * @param $object
+ *   Optional Drupal object or array. It will be autoloaded using the key if not present.
+ *
+ * @return
+ *   A fully-populated object wrapper.
+ */
+function i18n_get_object($type, $key, $object = NULL) {
+  $cache = &drupal_static(__FUNCTION__);
+  $index = is_array($key) ? implode(':', $key) : $key;
+  if (!isset($cache[$type][$index])) {
+    $class = i18n_object_info($type, 'class', 'i18n_object_wrapper');
+    $cache[$type][$index] = new $class($type, $key, $object);
   }
-  return $i18n_object[$type][$key];
+  return $cache[$type][$index];
 }
 
 /**
