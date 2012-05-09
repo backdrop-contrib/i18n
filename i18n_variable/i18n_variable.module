@@ -243,7 +243,6 @@ function i18n_variable_theme_form_submit($form, &$form_state) {
  *   Language code.
  */
 function i18n_variable_set($name, $value, $langcode) {
-  variable_store_set('language', $langcode, $name, $value);
   variable_realm_set('language', $langcode, $name, $value);
 }
 
@@ -251,7 +250,7 @@ function i18n_variable_set($name, $value, $langcode) {
  * Get single multilingual variable
  */
 function i18n_variable_get($name, $langcode, $default = NULL) {
-  return variable_store_get('language', $langcode, $name, $default);
+  return variable_realm_get('language', $langcode, $name, $default);
 }
 
 /**
@@ -263,7 +262,6 @@ function i18n_variable_get($name, $langcode, $default = NULL) {
  *   Language code.
  */
 function i18n_variable_del($name, $langcode) {
-  variable_store_del('language', $langcode, $name);
   variable_realm_del('language', $langcode, $name);
 }
 
