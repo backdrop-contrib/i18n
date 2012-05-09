@@ -54,8 +54,6 @@ function i18n_variable_menu() {
 function i18n_variable_initialize($language = NULL) {
   $language = $language ? $language : i18n_variable_language();
   $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE] = $language;
-  $variables = i18n_variable_load($language->language);
-  variable_realm_add('language', $language->language, $variables, 10);
   variable_realm_switch('language', $language->language);
 }
 
@@ -139,11 +137,13 @@ function i18n_variable_form_selector() {
  * Get list of multilingual variables or check whether a variable is multilingual
  */
 function i18n_variable_list($name = NULL) {
-  static $variables;
-  if (!isset($variables)) {
+  static $drupal_static_fast;
+  if (!isset($drupal_static_fast)) {
     // Note that variables being a global static, any other module can initialize or alter it.
-    $variables = &drupal_static(__FUNCTION__, variable_get('i18n_variable_list', array()));
+    $drupal_static_fast['variables'] = &drupal_static(__FUNCTION__, variable_get('i18n_variable_list', array()));
+    //$drupal_static_fast['variables'] = &drupal_static(__FUNCTION__, variable_children(variable_realm_list('language')));
   }
+  $variables = $drupal_static_fast['variables'];
   return $name ? in_array($name, $variables) : $variables;
 }
 
