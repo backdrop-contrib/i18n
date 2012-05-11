@@ -28,10 +28,18 @@ function i18n_variable_variable_realm_info() {
   $realm['language'] = array(
     'title' => t('Language'),
     'keys' => locale_language_list('name', TRUE),
+    // The default key will match the default language.
+    'default key' => language_default('language'),
     // Array of variable names that may be set for this realm.
     'options' => _i18n_variable_variable_realm_list(),
     // Variables for this realm can be selected from a list.
     'select' => TRUE,
+    'select path' => 'admin/config/regional/i18n/variable',
+    // Name for variables that belong to this realm: 'multilingual' variable/s
+    'variable name' => t('multilingual'),
+    'variable class' => 'i18n-variable',
+    // Automatically handle these variables in system settings forms.
+    'form settings' => TRUE,
   );
   return $realm;
 }

@@ -86,6 +86,7 @@ function i18n_variable_global($name = NULL, $default = NULL) {
  *
  * This is the place to add language fields to all forms.
  */
+/*
 function i18n_variable_variable_settings_form_alter(&$form, &$form_state, $form_id) {
   // Multilingual variables in settings form.
   if ($variables = i18n_variable_list()) {
@@ -109,10 +110,11 @@ function i18n_variable_variable_settings_form_alter(&$form, &$form_state, $form_
     }
   }
 }
-
+*/
 /**
  * Variable form language switcher
  */
+/*
 function i18n_variable_form_selector() {
   $current = i18n_variable_language();
   $form['i18n_variable'] = array(
@@ -133,7 +135,7 @@ function i18n_variable_form_selector() {
   );
   return $form;
 }
-
+*/
 /**
  * Get list of multilingual variables or check whether a variable is multilingual
  */
