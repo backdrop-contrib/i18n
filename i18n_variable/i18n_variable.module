@@ -61,15 +61,10 @@ function i18n_variable_initialize($language = NULL) {
 /**
  * Get variables language, make sure it is initialized
  */
-function i18n_variable_language($initialize = TRUE) {
+function i18n_variable_language() {
   // If we've got a variables language, it will be that one
   if (!isset($GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE])) {
-    if (!empty($_GET['i18n_variable_language']) && arg(0) == 'admin') {
-      $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE] = i18n_language($_GET['i18n_variable_language']);
-    }
-    else {
-      $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE] = i18n_language();
-    }
+    $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE] = i18n_language();
   }
   return $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE];
 }
@@ -167,6 +162,7 @@ function i18n_variable_load($langcode) {
 /**
  * Check for multilingual variables in form.
  */
+/*
 function i18n_variable_form_alter_settings(&$form, $variables) {
   $result = array();
   foreach (element_children($form) as $field) {
@@ -185,10 +181,11 @@ function i18n_variable_form_alter_settings(&$form, $variables) {
   }
   return $result;
 }
-
+*/
 /**
  * Save multilingual variables and remove them from form.
  */
+/*
 function i18n_variable_form_submit($form, &$form_state) {
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : '';
   $language = i18n_language($form_state['values']['i18n_variable_language']);
@@ -214,12 +211,14 @@ function i18n_variable_form_submit($form, &$form_state) {
   }
   // The form will go now through system_settings_form_submit()
 }
+*/
 
 /**
  * Save multilingual variables and remove them from form.
  *
  * Note the theme variable has already been set into 'i18n_variable_theme_settings'
  */
+/*
 function i18n_variable_theme_form_submit($form, &$form_state) {
   $language = i18n_language($form_state['values']['i18n_variable_language']);
   unset($form_state['values']['i18n_variable_language']);
@@ -232,7 +231,7 @@ function i18n_variable_theme_form_submit($form, &$form_state) {
   }
   variable_del('i18n_variable_theme_settings');
 }
-
+*/
 /**
  * Set a persistent language dependent variable.
  *
