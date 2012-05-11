@@ -82,13 +82,13 @@ function i18n_variable_global($name = NULL, $default = NULL) {
 }
 
 /**
- * Implements hook_form_alter();
+ * Implements hook_variable_settings_form_alter();
  *
  * This is the place to add language fields to all forms.
  */
-function i18n_variable_form_alter(&$form, &$form_state, $form_id) {
+function i18n_variable_variable_settings_form_alter(&$form, &$form_state, $form_id) {
   // Multilingual variables in settings form.
-  if (isset($form['#theme']) && $form['#theme'] == 'system_settings_form' && $variables = i18n_variable_list()) {
+  if ($variables = i18n_variable_list()) {
     if ($form_id == 'system_theme_settings') {
       // Special treatment for theme settings
       if (!empty($form['var']) && !empty($form['var']['#value']) && in_array($form['var']['#value'], $variables)) {
@@ -265,21 +265,3 @@ function i18n_variable_del($name, $langcode) {
   variable_realm_del('language', $langcode, $name);
 }
 
-/**
- * Implements hook_module_implements_alter().
- *
- * Move i18n_variable_form_alter() to the end of the list to
- * translate variables added while hook_form_alter().
- *
- * @param $implementations
- *   All implementations of the given hook.
- * @param $hook
- *   Name of the hook.
- */
-function i18n_variable_module_implements_alter(&$implementations, $hook) {
-  if ($hook == 'form_alter') {
-    $group = $implementations['i18n_variable'];
-    unset($implementations['i18n_variable']);
-    $implementations['i18n_variable'] = $group;
-  }
-}
