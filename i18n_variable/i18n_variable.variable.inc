@@ -40,6 +40,7 @@ function i18n_variable_variable_realm_info() {
     'variable class' => 'i18n-variable',
     // Automatically handle these variables in system settings forms.
     'form settings' => TRUE,
+    'form switcher' => TRUE,
   );
   return $realm;
 }
