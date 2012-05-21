@@ -80,12 +80,10 @@ function i18n_variable_global($name = NULL, $default = NULL) {
  * Get list of multilingual variables or check whether a variable is multilingual
  */
 function i18n_variable_list($name = NULL) {
-  static $drupal_static_fast;
-  if (!isset($drupal_static_fast)) {
-    // Note that variables being a global static, any other module can initialize or alter it.
-    $drupal_static_fast['variables'] = &drupal_static(__FUNCTION__, variable_children(variable_realm_get_variable_list('language')));
+  $variables = &drupal_static(__FUNCTION__);
+  if (!isset($variables)) {
+    $variables = variable_children(variable_get('variable_realm_list_language', array()));
   }
-  $variables = $drupal_static_fast['variables'];
   return $name ? in_array($name, $variables) : $variables;
 }
 
