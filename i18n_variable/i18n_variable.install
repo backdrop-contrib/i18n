@@ -60,9 +60,10 @@ function i18n_variable_update_7002() {
  * Update list of realm variables.
  */
 function i18n_variable_update_7003() {
-  variable_set('variable_realm_list_language', variable_get('i18n_variable_conf', array()));
+  $variable_list = variable_get('i18n_variable_conf', array());
+  variable_set('variable_realm_list_language', $variable_list));
   // Delete old variables from store that are not in the list.
-  $old_variables = array_diff(variable_store_list_all('language'), i18n_variable_list());
+  $old_variables = array_diff(variable_store_list_all('language'), variable_children($variable_list));
   foreach ($old_variables as $name) {
     variable_store_delete_all('language', NULL, $name);
   }
