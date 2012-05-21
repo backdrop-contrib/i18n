@@ -1,7 +1,7 @@
 name = Variable translation
 description = Multilingual variables that switch language depending on page language.
 dependencies[] = i18n
-dependencies[] = variable_store
+dependencies[] = variable_store (2.x)
 dependencies[] = variable_realm (2.x)
 package = Multilingual - Internationalization
 core = 7.x
