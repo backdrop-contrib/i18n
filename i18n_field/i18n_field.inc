@@ -143,7 +143,7 @@ class i18n_field_instance extends i18n_field_base {
     $object = $this->object;
     $field = field_info_field($object['field_name']);
     // Only for text field types
-    if (isset($object['default_value']) && i18n_field_type_info($field['type'], 'translate_default')) {
+    if (!empty($object['default_value']) && i18n_field_type_info($field['type'], 'translate_default')) {
       $format = isset($object['default_value'][0]['format']) ? $object['default_value'][0]['format'] : NULL;
       $properties[$this->get_textgroup()][$object['field_name']][$object['bundle']]['default_value']['string'] = $object['default_value'][0]['value'];
       $properties[$this->get_textgroup()][$object['field_name']][$object['bundle']]['default_value']['format'] = $format;
