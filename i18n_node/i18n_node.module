@@ -469,7 +469,6 @@ function _i18n_node_form_node_form_alter($form, &$form_state) {
     // Override locale module setting default language to nodes. It is already in form_state.
     $form['language']['#value'] = $form_state['values']['language'] = LANGUAGE_NONE;
   }
-
   // Translate field names for title and body for the node edit form.
   if (!empty($form['title']['#title'])) {
     $form['title']['#title'] = i18n_node_translate_type($node->type, 'title_label', $form['title']['#title']);
@@ -528,6 +527,7 @@ function i18n_node_type_name($type, $name) {
  *   Node, node type object, or node type name
  */
 function i18n_node_type_enabled($type) {
+  $type = is_object($type) ? $type->type : $type;
   $mode = variable_get('language_content_type_' . $type, 0);
   return $mode == 1 || $mode == 2; // 2 == TRANSLATION_ENABLED
 }
