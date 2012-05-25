@@ -528,6 +528,6 @@ function i18n_node_type_name($type, $name) {
  *   Node, node type object, or node type name
  */
 function i18n_node_type_enabled($type) {
-  $type = is_object($type) ? $type->type : $type;
-  return locale_multilingual_node_type($type);
+  $mode = variable_get('language_content_type_' . $type, 0);
+  return $mode == 1 || $mode == 2; // 2 == TRANSLATION_ENABLED
 }
