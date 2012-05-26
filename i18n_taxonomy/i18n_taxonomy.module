@@ -395,6 +395,18 @@ function i18n_taxonomy_i18n_translate_path($path) {
 }
 
 /**
+ * Implements hook_i18n_context_language().
+ */
+function i18n_taxonomy_i18n_context_language() {
+  if (arg(0) == 'taxonomy') {
+    // Taxonomy term pages
+    if (arg(1) == 'term' && is_numeric(arg(2)) && ($term = menu_get_object('taxonomy_term', 2)) && ($langcode = i18n_object_langcode($term))) {
+      return i18n_language_object($langcode);
+    }
+  }
+}
+
+/**
  * Find translations for taxonomy paths.
  *
  * @param $path
@@ -730,8 +742,9 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
       // If the term to be added will be a translation of a source term,
       // set the default value of the option list to the target language and
       // create a form element for storing the translation set of the source term.
-      if (isset($_GET['translation']) && isset($_GET['target'])) {
-        $source_term = taxonomy_term_load($_GET['translation']);
+      if (empty($term->tid) && isset($_GET['translation']) && isset($_GET['target']) && ($source_term = taxonomy_term_load($_GET['translation'])) && ($target_language = i18n_language_object($_GET['target']))) {
+        // Set context language to target language.
+        $GLOBALS[I18N_LANGUAGE_TYPE_CONTEXT] = $target_language;
 
         // Add the translation set to the form so we know the new term
         // needs to be added to that set.
@@ -744,12 +757,12 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
           ->add_item($source_term);
         }
 
-        $form['language']['#default_value'] = $_GET['target'];
+        $form['language']['#default_value'] = $target_language->language;
         $form['language']['#disabled'] = TRUE;
 
         drupal_set_title(t('%language translation of term %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_term->name)), PASS_THROUGH);
       }
-      elseif (i18n_object_langcode($term) && !empty($term->i18n_tsid)) {
+      elseif (!empty($term->tid) && i18n_object_langcode($term) && !empty($term->i18n_tsid)) {
         // If the current term is part of a translation set,
         // remove all other languages of the option list.
         $translation_set = i18n_taxonomy_translation_set_load($term->i18n_tsid);
