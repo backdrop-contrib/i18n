@@ -198,7 +198,7 @@ function i18n_taxonomy_field_formatter_prepare_view($entity_type, $entities, $fi
  */
 function i18n_taxonomy_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
-  $language = i18n_language();
+  $language = i18n_language_interface();
 
   // Terms whose tid is 'autocreate' do not exist
   // yet and $item['taxonomy_term'] is not set. Theme such terms as
@@ -510,7 +510,7 @@ function i18n_taxonomy_vocabulary_name($vocabulary, $langcode = NULL) {
 function i18n_taxonomy_translation_term_tid($tid, $language = NULL, $default = NULL) {
   $translation = db_query('SELECT t.tid FROM {taxonomy_term_data} t INNER JOIN {taxonomy_term_data} a ON t.i18n_tsid = a.i18n_tsid AND t.tid <> a.tid WHERE a.tid = :tid AND t.language = :language AND t.i18n_tsid > 0', array(
     ':tid' => $tid,
-    ':language' => $language ? $language : i18n_language()->language
+    ':language' => $language ? $language : i18n_language_content()->language
   ))->fetchField();
   return $translation ? $translation : $default;
 }
@@ -1203,7 +1203,7 @@ function i18n_taxonomy_entity_info_alter(&$entity_info) {
  * entity_label() get the correct localized taxonomy term.
  */
 function i18n_taxonomy_taxonomy_term_label($term, $entity_type) {
-  return i18n_taxonomy_term_name($term, i18n_language()->language);
+  return i18n_taxonomy_term_name($term, i18n_language_interface()->language);
 }
 
 /**

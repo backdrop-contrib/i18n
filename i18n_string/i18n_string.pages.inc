@@ -16,7 +16,7 @@ include_once drupal_get_path('module', 'locale') . '/locale.admin.inc';
  */
 function i18n_string_translate_page_object($object_type, $object_value, $language = NULL) {
   // For backwards compatibility, ensure parameter is a language object
-  $language = $language ? i18n_language($language) : NULL;
+  $language = i18n_language_object($language);
   $langcode = $language ? $language->language : NULL;
   // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
   $object = i18n_object($object_type, $object_value);

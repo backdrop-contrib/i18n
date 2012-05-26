@@ -7,7 +7,7 @@
 /**
  * The type of language used for variables.
  */
-define('I18N_VARIABLE_LANGUAGE_TYPE', 'language_variable');
+define('I18N_VARIABLE_LANGUAGE_TYPE', 'i18n_language_variable');
 
 /**
  * Implements hook_language_init()
@@ -64,7 +64,7 @@ function i18n_variable_menu() {
 function i18n_variable_language() {
   // If we've got a variables language, it will be that one
   if (!isset($GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE])) {
-    $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE] = i18n_language();
+    $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE] = i18n_language_interface();
   }
   return $GLOBALS[I18N_VARIABLE_LANGUAGE_TYPE];
 }

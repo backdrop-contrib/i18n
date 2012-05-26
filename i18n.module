@@ -35,6 +35,11 @@ define('I18N_MODE_TRANSLATE', 4);
 define('I18N_MODE_MULTIPLE', I18N_MODE_LOCALIZE | I18N_MODE_TRANSLATE);
 
 /**
+ * Global variable for i18n context language.
+ */
+define('I18N_LANGUAGE_TYPE_CONTEXT', 'i18n_language_context');
+
+/**
  * Implements hook_boot().
  */
 function i18n_boot() {
@@ -52,28 +57,85 @@ function i18n_hook_info() {
 }
 
 /**
+ * WARNING: Obsolete function, use other i18n_language_* instead.
+ *
  * Get global language object, make sure it is initialized
  *
  * @param $language
  *   Language code or language object to convert to valid language object
  */
 function i18n_language($language = NULL) {
-  if ($language) {
-    if (is_object($language)) {
-      return $language;
-    }
-    else {
-      $list = language_list();
-      return isset($list[$language]) ? $list[$language] : i18n_language();
-    }
+  if ($language && ($language_object = i18n_language_object($language))) {
+    return $language_object;
   }
   else {
-    if (empty($GLOBALS[LANGUAGE_TYPE_INTERFACE])) {
-      // We don't have language yet, initialize the language system and retry
-      drupal_bootstrap(DRUPAL_BOOTSTRAP_LANGUAGE);
-    }
-    return $GLOBALS[LANGUAGE_TYPE_INTERFACE];
+    return i18n_language_interface();
   }
+}
+
+/**
+ * Get language object from language code or object.
+ *
+ * @param $language
+ *   Language code or language object to convert to valid language object.
+ * @return
+ *   Language object if this is an object or a valid language code.
+ */
+function i18n_language_object($language) {
+  if (is_object($language)) {
+    return $language;
+  }
+  else {
+    $list = language_list();
+    return isset($list[$language]) ? $list[$language] : NULL;
+  }
+}
+
+/**
+ * Get interface language, make sure it is initialized.
+ */
+function i18n_language_interface() {
+  if (empty($GLOBALS[LANGUAGE_TYPE_INTERFACE])) {
+    // We don't have language yet, initialize the language system and retry
+    drupal_bootstrap(DRUPAL_BOOTSTRAP_LANGUAGE);
+  }
+  return $GLOBALS[LANGUAGE_TYPE_INTERFACE];
+}
+
+/**
+ * Get content language, make sure it is initialized.
+ */
+function i18n_language_content() {
+  if (empty($GLOBALS[LANGUAGE_TYPE_CONTENT])) {
+    // We don't have language yet, initialize the language system and retry
+    drupal_bootstrap(DRUPAL_BOOTSTRAP_LANGUAGE);
+  }
+  return $GLOBALS[LANGUAGE_TYPE_CONTENT];
+}
+
+/**
+ * Get language from current context / content.
+ *
+ * Depending on the page content we may need to use a different language for some operations.
+ *
+ * This should be the language of the specific page content. I.e. node language for node pages
+ * or term language for taxonomy term page.
+ *
+ * @see hook_i18n_context_language().
+ */
+function i18n_language_context() {
+  if (!isset($GLOBALS[I18N_LANGUAGE_TYPE_CONTEXT])) {
+    // It will default to content language.
+    $GLOBALS[I18N_LANGUAGE_TYPE_CONTEXT] = i18n_language_content();
+    // Get language from the first module that provides it.
+    foreach (module_implements('i18n_context_language') as $module) {
+      if ($language = module_invoke($module, 'i18n_context_language')) {
+        $GLOBALS[I18N_LANGUAGE_TYPE_CONTEXT] = $language;
+        break;
+      }
+    }
+  }
+  return $GLOBALS[I18N_LANGUAGE_TYPE_CONTEXT];
 }
 
 /**
@@ -300,21 +362,6 @@ function i18n_string($name, $string, $options = array()) {
 }
 
 /**
- * Get language from context.
- *
- * Depending on the page content we may need to use a different language for some operations.
- */
-function i18n_context_language() {
-  // Get language from the first module that provides it
-  foreach (module_implements('i18n_context_language') as $module) {
-    if ($language = module_invoke($module, 'i18n_context_language')) {
-      return $language;
-    }
-  }
-  return i18n_language();
-}
-
-/**
  * Get object wrapper.
  *
  * Create an object wrapper or retrieve it from the static cache if
@@ -484,7 +531,7 @@ function i18n_language_switch_links_alter(array &$links, $type, $path) {
  * Build translation link
  */
 function i18n_translation_link($path, $langcode, $link = array()) {
-  $language = i18n_language($langcode);
+  $language = i18n_language_object($langcode);
   $link += array(
     'href' => $path,
     'title' => $language->native,
