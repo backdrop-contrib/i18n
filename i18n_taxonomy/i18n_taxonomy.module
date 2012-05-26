@@ -744,7 +744,7 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
       // create a form element for storing the translation set of the source term.
       if (empty($term->tid) && isset($_GET['translation']) && isset($_GET['target']) && ($source_term = taxonomy_term_load($_GET['translation'])) && ($target_language = i18n_language_object($_GET['target']))) {
         // Set context language to target language.
-        $GLOBALS[I18N_LANGUAGE_TYPE_CONTEXT] = $target_language;
+        i18n_language_context($target_language);
 
         // Add the translation set to the form so we know the new term
         // needs to be added to that set.
@@ -762,21 +762,24 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
 
         drupal_set_title(t('%language translation of term %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_term->name)), PASS_THROUGH);
       }
-      elseif (!empty($term->tid) && i18n_object_langcode($term) && !empty($term->i18n_tsid)) {
+      elseif (!empty($term->tid) && i18n_object_langcode($term)) {
+        // Set context language to term language.
+        i18n_language_context(i18n_language_object($term->language));
         // If the current term is part of a translation set,
         // remove all other languages of the option list.
-        $translation_set = i18n_taxonomy_translation_set_load($term->i18n_tsid);
-        $translations = $translation_set->get_translations();
-
-        // If the number of translations equals 1, there's only a source translation.
-        if (count($translations) > 1) {
-          //unset($form['language']['#options'][LANGUAGE_NONE]);
-          foreach ($translations as $langcode => $translation) {
-            if ($translation->tid !== $term->tid) {
-              unset($form['language']['#options'][$langcode]);
+        if (!empty($term->i18n_tsid)) {
+          $translation_set = i18n_taxonomy_translation_set_load($term->i18n_tsid);
+          $translations = $translation_set->get_translations();
+          // If the number of translations equals 1, there's only a source translation.
+          if (count($translations) > 1) {
+            //unset($form['language']['#options'][LANGUAGE_NONE]);
+            foreach ($translations as $langcode => $translation) {
+              if ($translation->tid !== $term->tid) {
+                unset($form['language']['#options'][$langcode]);
+              }
             }
+            $form['language']['#description'] = t('This term already belongs to a <a href="@term-translation">translation set</a>. Changing language to <i>Language neutral</i> will remove it from the set.', array('@term-translation' => url('taxonomy/term/' . $term->tid . '/translate')));
           }
-          $form['language']['#description'] = t('This term already belongs to a <a href="@term-translation">translation set</a>. Changing language to <i>Language neutral</i> will remove it from the set.', array('@term-translation' => url('taxonomy/term/' . $term->tid . '/translate')));
         }
       }
       // If we've got a translation set, add it to the form.
@@ -789,6 +792,8 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
       break;
 
     case I18N_MODE_LANGUAGE:
+      // Set context language to vocabulary language and add value to the form.
+      i18n_language_context(i18n_language_object($vocabulary->language));
       $form['language'] = array(
         '#type' => 'value',
         '#value' => $vocabulary->language
