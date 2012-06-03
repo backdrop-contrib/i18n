@@ -665,8 +665,9 @@ function i18n_taxonomy_taxonomy_term_presave($term) {
       break;
     case I18N_MODE_TRANSLATE: // Multilingual terms, translatable
       if (!isset($term->language)) {
-         // The term may come from a node tags field, just if this is not a taxonomy form
-        $term->language = i18n_langcode();
+         // The term may come from a node tags field, just if this is not a taxonomy form.
+         // Or from any other object we are editing. So we use 'context' language here.
+        $term->language = i18n_language_context()->language;
       }
       // Only for the case the term has no language, it may need to be removed from translation set
       if (empty($term->language)) {
