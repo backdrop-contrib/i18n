@@ -14,7 +14,7 @@ define('I18N_VARIABLE_LANGUAGE_TYPE', 'i18n_language_variable');
  */
 function i18n_variable_language_init() {
   if (drupal_multilingual()) {
-    variable_realm_initialize('language');
+    module_invoke('variable_realm', 'initialize', 'language');
   }
 }
 
