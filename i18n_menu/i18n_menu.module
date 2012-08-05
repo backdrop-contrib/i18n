@@ -457,7 +457,7 @@ function i18n_menu_navigation_links($menu_name, $level = 0) {
  */
 function i18n_menu_preprocess_page(&$vars) {
   if (!empty($vars['main_menu']) && theme_get_setting('toggle_main_menu')) {
-    $vars['main_menu'] = i18n_menu_navigation_links(variable_get('menu_main_links_source', 'main-menu'));;
+    $vars['main_menu'] = i18n_menu_navigation_links(variable_get('menu_main_links_source', 'main-menu'));
   }
   if (!empty($vars['secondary_menu']) && theme_get_setting('toggle_secondary_menu')) {
     // If the secondary menu source is set as the primary menu, we display the
