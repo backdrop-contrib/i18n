@@ -660,7 +660,7 @@ function i18n_taxonomy_taxonomy_vocabulary_delete($vocabulary) {
  */
 function i18n_taxonomy_taxonomy_term_presave($term) {
   switch (i18n_taxonomy_vocabulary_mode($term->vid)) {
-    case I18N_MODE_LANGUAGE; // Predefined language for all terms
+    case I18N_MODE_LANGUAGE: // Predefined language for all terms
       $term->language = taxonomy_vocabulary_load($term->vid)->language;
       break;
     case I18N_MODE_TRANSLATE: // Multilingual terms, translatable
