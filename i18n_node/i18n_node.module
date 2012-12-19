@@ -517,7 +517,7 @@ function _i18n_node_form_node_form_alter($form, &$form_state) {
   }
   // Translate page title for node/add/% and node/%/edit pages.
   $types = node_type_get_types();
-  if (empty($node->nid) && $_GET['q'] == 'node/add/' . str_replace('_', '-', $node->type)) {
+  if (empty($node->nid) && strpos($_GET['q'], 'node/add/' . str_replace('_', '-', $node->type)) === 0) {
     drupal_set_title(t('Create @name', array('@name' => i18n_node_translate_type($types[$node->type], 'name'))), PASS_THROUGH);
   }
   elseif (!empty($node->nid) && $_GET['q'] == 'node/' . $node->nid . '/edit') {
