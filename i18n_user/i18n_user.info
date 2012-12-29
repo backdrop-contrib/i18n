@@ -1,0 +1,5 @@
+name = User mail translation
+description = "Translate emails sent from the User module."
+core = 7.x
+package = Multilingual - Internationalization
+dependencies[] = i18n_variable
