@@ -302,7 +302,6 @@ function i18n_menu_mode($name, $mode = NULL) {
  * @see i18n_menu_menu_link_alter()
  */
 function i18n_menu_translated_menu_link_alter(&$item) {
-
   // Only process links to be displayed not processed before by i18n_menu.
   if (_i18n_menu_link_process($item)) {
     if (!_i18n_menu_link_is_visible($item)) {
@@ -367,7 +366,6 @@ function i18n_menu_translated_tree($menu_name, $langcode = NULL, $reset = FALSE)
   return $menu_output[$langcode][$menu_name];
 }
 
-
 /**
  * Localize menu tree.
  */
@@ -411,7 +409,6 @@ function i18n_menu_localize_elements(&$elements) {
     i18n_menu_localize_elements($elements[$mlid]);
   }
 }
-
 
 /**
  * Return an array of localized links for a navigation menu.
@@ -519,6 +516,15 @@ function _i18n_menu_link_process(&$link) {
   if (empty($link['i18n_menu']) && !empty($link['language']) && !empty($link['access']) && empty($link['hidden']) && i18n_menu_mode($link['menu_name'])) {
     // Mark so it won't be processed twice.
     $link['i18n_menu'] = TRUE;
+    // Skip if administering this menu or this menu item.
+    if (arg(0) == 'admin' && arg(1) == 'structure' && arg(2) == 'menu') {
+      if (arg(3) == 'manage' && $link['menu_name'] == arg(4)) {
+        return FALSE;
+      }
+      elseif (arg(3) == 'item' && arg(4) == $link['mlid']) {
+        return FALSE;
+      }
+    }
     return TRUE;
   }
   else {
@@ -825,6 +831,7 @@ function i18n_menu_edit_item_form_submit($form, &$form_state) {
   return 'admin/build/menu';
 }
 */
+
 /**
  * Load translation set. Menu loading callback.
  */
