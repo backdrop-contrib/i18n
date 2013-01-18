@@ -344,7 +344,7 @@ function i18n_field_translate_allowed_values($field, $langcode = NULL) {
 }
 
 /**
- * Translate field default
+ * Translate field default.
  */
 function i18n_field_translate_default($instance, $value, $langcode = NULL) {
   return i18n_string_translate(array('field', $instance['field_name'], $instance['bundle'], 'default_value'), $value, array('langcode' => $langcode));
@@ -360,7 +360,17 @@ function i18n_field_translate_property($instance, $property, $langcode = NULL) {
 }
 
 /**
- * Get i18n information for fields
+ * Get i18n information for translating fields.
+ *
+ * @param $type
+ *   Optional field type.
+ * @param $property
+ *   Optional property to get from field type.
+ *
+ * @return
+ *   - The property for the field if $type and $property set.
+ *   - Array of properties for the field type if only $type is set.
+ *   - Array of translation information for all field types.
  */
 function i18n_field_type_info($type = NULL, $property = NULL) {
   $info = &drupal_static(__FUNCTION__);
