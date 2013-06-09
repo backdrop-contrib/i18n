@@ -223,8 +223,8 @@ function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
 
   // Translate field title if set and it is the default one.
   if (!empty($instance_current['label']) && $instance_current['label'] != $instance['label']) {
-    if (!empty($alter_element['#title']) && $alter_element['#title'] == $instance['label']) {
-      $alter_element['#title'] = $instance_current['label'];
+    if (!empty($alter_element['#title']) && $alter_element['#title'] == check_plain($instance['label'])) {
+      $alter_element['#title'] = check_plain($instance_current['label']);
     }
   }
 
@@ -240,20 +240,20 @@ function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
       $no_default = empty($alter_element['#default_value']['fid']);
       if ($filefield && $single_value && $no_default) {
         $help_variables = array(
-          'description' => $instance['description'],
+          'description' => field_filter_xss($instance['description']),
           'upload_validators' => $alter_element['#upload_validators'],
         );
         $original_description = theme('file_upload_help', $help_variables);
         if ($alter_element['#description'] == $original_description) {
           $help_variables = array(
-            'description' => $instance_current['description'],
+            'description' => field_filter_xss($instance_current['description']),
             'upload_validators' => $alter_element['#upload_validators'],
           );
           $alter_element['#description'] = theme('file_upload_help', $help_variables);
         }
       }
-      elseif ($alter_element['#description'] == $instance['description']) {
-        $alter_element['#description'] = $instance_current['description'];
+      elseif ($alter_element['#description'] == field_filter_xss($instance['description'])) {
+        $alter_element['#description'] = field_filter_xss($instance_current['description']);
       }
     }
   }
