@@ -1260,10 +1260,10 @@ function i18n_taxonomy_modules_enabled($modules) {
   $modules = drupal_map_assoc($modules);
   if (isset($modules['i18n_taxonomy'])) {
     foreach (field_info_fields() as $fieldname => $field) {
-        if ($field['type'] == 'taxonomy_term_reference') {
-          $field['settings']['options_list_callback'] = 'i18n_taxonomy_allowed_values';
-          field_update_field($field);
-        }
+      if ($field['type'] == 'taxonomy_term_reference') {
+        $field['settings']['options_list_callback'] = 'i18n_taxonomy_allowed_values';
+        field_update_field($field);
       }
+    }
   }
 }
