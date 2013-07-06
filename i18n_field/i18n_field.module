@@ -202,13 +202,20 @@ function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
     // Entityreference fields using the entityreference_autocomplete widget.
     $alter_element = &$element['target_id'];
   }
-  elseif ($field['type'] == 'email') {
-    // Email fields.
-    $alter_element = &$element['email'];
-  }
   else {
     // All other fields.
     $alter_element = &$element;
+  }
+
+  // If a subelement has the same title as the parent, translate it instead.
+  // Allows fields such as email and commerce_price to be translated.
+  foreach (element_get_visible_children($element) as $key) {
+    $single_value = ($field['cardinality'] == 1);
+    $has_title = (isset($element['#title']) && isset($element[$key]['#title']));
+    if ($single_value && $has_title && $element[$key]['#title'] == $element['#title']) {
+      $alter_element = &$element[$key];
+      break;
+    }
   }
 
   // The field language may affect some variables (default) but not others (description will be in current page language)
