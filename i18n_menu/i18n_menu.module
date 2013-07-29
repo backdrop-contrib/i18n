@@ -862,6 +862,14 @@ function i18n_menu_link_load($path, $langcode) {
 }
 
 /**
+ * Implements hook_query_TAG_alter() for features_menu_links.
+ * Add needed fields to properly serialize localization information.
+ */
+function i18n_menu_query_features_menu_link_alter($query) {
+  $query->fields('menu_links', array('language', 'customized'));
+}
+
+/**
  * Implements hook_init().
  */
 function i18n_menu_init() {
