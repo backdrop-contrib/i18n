@@ -10,7 +10,7 @@
  * Produces a menu translation form.
  */
 function i18n_menu_translation_form($form, $form_state, $translation_set = NULL, $item = NULL) {
-  $translation_set = $translation_set ? $translation_set : i18n_translation_set_create('menu_link');
+  $translation_set = $translation_set ? $translation_set : i18n_translation_set_build('menu_link');
   $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
   $translations = $translation_set->get_translations();
   // What to do with title? Let's make it a hidden field for now, some tests relay on it
@@ -55,7 +55,7 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
   }
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['update'] = array('#type' => 'submit', '#value' => t('Save'));
-  if ($translation_set) {
+  if (!empty($translation_set->tsid)) {
     $form['actions']['delete'] = array('#type' => 'submit', '#value' => t('Delete'));
   }
   return $form;
