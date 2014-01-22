@@ -100,13 +100,14 @@ class i18n_string_object {
       if (isset($string['format'])) {
         $this->format = $string['format'];
       }
+      if (isset($string['title'])) {
+        $this->title = $string['title'];
+      }
     }
     else {
       $this->string = $string;
     }
-    if (isset($string['title'])) {
-      $this->title = $string['title'];
-    }
+
     return $this;
   }
   /**
