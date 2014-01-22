@@ -244,12 +244,16 @@ function i18n_menu_translation_item_overview($item, $translation_set = NULL) {
       $title = t('n/a');
       $options[] = l(t('add translation'), 'admin/structure/menu/manage/' . $item['menu_name'] . '/add', array('query' => array('translation' => $item['mlid'], 'target' => $langcode) + drupal_get_destination()));
     }
-    $rows[] = array($language_name, $title, implode(" | ", $options));
+    $rows[$langcode] = array(
+      'language' => $language_name,
+      'title' => $title,
+      'operations' => implode(" | ", $options)
+    );
   }
 
   drupal_set_title(t('Translations of menu item %title', array('%title' => $item['link_title'])), PASS_THROUGH);
 
-  $build['translation_item_overview'] = array(
+  $build['translation_overview'] = array(
     '#theme' => 'table',
     '#header' => $header,
     '#rows' => $rows,
