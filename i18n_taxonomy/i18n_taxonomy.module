@@ -1220,6 +1220,9 @@ function i18n_taxonomy_entity_info_alter(&$entity_info) {
     // Core doesn't provide a label callback for taxonomy terms. By setting one
     // we can use it to return the correct localized term name.
     $entity_info['taxonomy_term']['label callback'] = 'i18n_taxonomy_taxonomy_term_label';
+
+    // Also let core know terms have languages, now.
+    $entity_info['taxonomy_term']['entity keys']['language'] = 'language';
   }
 }
 
