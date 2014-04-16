@@ -121,6 +121,8 @@ function i18n_node_i18n_translate_path($path) {
           'href' => 'node/' . $node_translation->nid . $matches[2],
           'title' => $node_translation->title,
           'object' => $node_translation,
+          // Performance: for node view add access information right away.
+          'access' => !$matches[2] ? $node_translation->status : NULL,
         );
       }
       return $result;
