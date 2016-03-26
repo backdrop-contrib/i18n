@@ -8,8 +8,8 @@
  */
 
 // Load locale libraries
-include_once DRUPAL_ROOT . '/includes/locale.inc';
-include_once drupal_get_path('module', 'locale') . '/locale.admin.inc';
+include_once BACKDROP_ROOT . '/includes/locale.inc';
+include_once backdrop_get_path('module', 'locale') . '/locale.admin.inc';
 
 /**
  * Generate translate page from object.
@@ -17,7 +17,7 @@ include_once drupal_get_path('module', 'locale') . '/locale.admin.inc';
  * @param string $object_type
  *   Obejct type as declared in hook_i18n_object_info().
  * @param object $object_value
- *   Drupal object to translate.
+ *   Backdrop object to translate.
  * @param object $language
  *   Optional language object.
  */
@@ -31,18 +31,18 @@ function i18n_string_translate_page_object($object_type, $object_value, $languag
 
   // If no localizable strings, print message and fail gracefully.
   // Possibly this object comes from some other contrib module.
-  // See http://drupal.org/node/1889878
+  // See http://backdrop.org/node/1889878
   if (!$strings) {
     return t('This object has no strings available for translation.');
   }
 
   if (empty($langcode)) {
-    drupal_set_title(t('Translate !name', array('!name' => i18n_object_info($object_type, 'title'))));
+    backdrop_set_title(t('Translate !name', array('!name' => i18n_object_info($object_type, 'title'))));
     return i18n_string_translate_page_overview($object, $strings);
   }
   else {
-    drupal_set_title(t('Translate to !language', array('!language' => i18n_language_name($langcode))));
-    return drupal_get_form('i18n_string_translate_page_form', $strings, $langcode);
+    backdrop_set_title(t('Translate to !language', array('!language' => i18n_language_name($langcode))));
+    return backdrop_get_form('i18n_string_translate_page_form', $strings, $langcode);
   }
 }
 
@@ -50,7 +50,7 @@ function i18n_string_translate_page_object($object_type, $object_value, $languag
  * Provide a core translation module like overview page for this object.
  */
 function i18n_string_translate_page_overview($object, $strings) {
-  $build['i18n_overview'] = drupal_get_form('i18n_string_translate_page_overview_form', $object, $strings);
+  $build['i18n_overview'] = backdrop_get_form('i18n_string_translate_page_overview_form', $object, $strings);
   return $build;
 }
 
@@ -92,7 +92,7 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
         'language' => check_plain($language->name),
         'title' => $item_title->format_translation($langcode, array('sanitize default' => TRUE)),
         'status' => $translated ? t('translated') : t('not translated'),
-        'operations' => l(t('translate'), $object->get_translate_path($langcode), array('query' => drupal_get_destination())),
+        'operations' => l(t('translate'), $object->get_translate_path($langcode), array('query' => backdrop_get_destination())),
       );
     }
     foreach ($items as $key => $markup) {
@@ -230,10 +230,10 @@ function i18n_string_translate_page_form_submit($form, &$form_state) {
     $success += ($result ? 1 : 0);
   }
   if ($success) {
-    drupal_set_message(format_plural($success, 'A translation was saved successfully.', '@count translations were saved successfully.'));
+    backdrop_set_message(format_plural($success, 'A translation was saved successfully.', '@count translations were saved successfully.'));
   }
   if ($error = $count - $success) {
-    drupal_set_message(format_plural($error, 'A translation could not be saved.', '@count translations could not be saved.'), 'warning');
+    backdrop_set_message(format_plural($error, 'A translation could not be saved.', '@count translations could not be saved.'), 'warning');
   }
   if (isset($form['#redirect'])) {
     $form_state['redirect'] = $form['#redirect'];
@@ -252,7 +252,7 @@ function i18n_string_l10n_client_save_string() {
     if (!i18n_string_group_info($textgroup)) {
       return l10n_client_save_string();
     }
-    elseif (isset($_POST['source']) && isset($_POST['target']) && !empty($_POST['context']) && !empty($_POST['form_token']) && drupal_valid_token($_POST['form_token'], 'l10n_client_form')) {
+    elseif (isset($_POST['source']) && isset($_POST['target']) && !empty($_POST['context']) && !empty($_POST['form_token']) && backdrop_valid_token($_POST['form_token'], 'l10n_client_form')) {
       $name = $textgroup . ':' . $_POST['context'];
       if ($i18nstring = i18n_string_get_source($name)) {
         // Since this is not a real form, we double check access permissions here too.
@@ -279,7 +279,7 @@ function i18n_string_l10n_client_save_string() {
     else {
       $message = theme('l10n_client_message', array('message' => t('Not saved due to missing form values.')));
     }
-    drupal_json_output($message);
+    backdrop_json_output($message);
     exit;
   }
 }
@@ -292,8 +292,8 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
   // Fetch source string, if possible.
   $source = db_query('SELECT source, context, textgroup, location FROM {locales_source} WHERE lid = :lid', array(':lid' => $lid))->fetchObject();
   if (!$source) {
-    drupal_set_message(t('String not found.'), 'error');
-    drupal_goto('admin/config/regional/translate/translate');
+    backdrop_set_message(t('String not found.'), 'error');
+    backdrop_goto('admin/config/regional/translate/translate');
   }
 
   // Add original text to the top and some values for form altering.
@@ -355,14 +355,14 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
     if ($i18nstring = i18n_string_get_by_lid($form['lid']['#value'])) {
       $form['i18n_string'] = array('#type' => 'value', '#value' => $i18nstring);
       if ($message = $i18nstring->check_translate_access()) {
-        drupal_set_message($message);
+        backdrop_set_message($message);
         $disabled = TRUE;
       }
       // Add format help anyway, though the form may be disabled.
       $form['translations']['format_help']['#markup'] = _i18n_string_translate_format_help($i18nstring->format);
     }
     else {
-      drupal_set_message(t('Source string not found.'), 'warning');
+      backdrop_set_message(t('Source string not found.'), 'warning');
       $disabled = TRUE;
     }
     if (!empty($disabled)) {

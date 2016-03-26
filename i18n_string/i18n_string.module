@@ -73,12 +73,12 @@ function i18n_string_help($path, $arg) {
   switch ($path) {
     case 'admin/help#i18n_string':
       $output = '<p>' . t('This module adds support for other modules to translate user defined strings. Depending on which modules you have enabled that use this feature you may see different text groups to translate.') . '<p>';
-      $output .= '<p>' . t('This works differently to Drupal standard localization system: The strings will be translated from the <a href="@configure-strings">source language</a>, which defaults to the site default language (it may not be English), so changing the default language may cause all these translations to be broken.', array('@configure-strings' => url('admin/config/regional/i18n/strings'))) . '</p>';
+      $output .= '<p>' . t('This works differently to Backdrop standard localization system: The strings will be translated from the <a href="@configure-strings">source language</a>, which defaults to the site default language (it may not be English), so changing the default language may cause all these translations to be broken.', array('@configure-strings' => url('admin/config/regional/i18n/strings'))) . '</p>';
       $output .= '<ul>';
       $output .= '<li>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</li>';
       $output .= '<li>' . t('If you are missing strings to translate, use the <a href="@refresh-strings">refresh strings</a> page.', array('@refresh-strings' => url('admin/build/translate/refresh'))) . '</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('Read more on the <em>Internationalization handbook</em>: <a href="http://drupal.org/node/313293">Translating user defined strings</a>.') . '</p>';
+      $output .= '<p>' . t('Read more on the <em>Internationalization handbook</em>: <a href="http://backdrop.org/node/313293">Translating user defined strings</a>.') . '</p>';
       return $output;
 
     case 'admin/config/regional/translate/i18n_string':
@@ -113,7 +113,7 @@ function i18n_string_menu() {
     'description' => 'Refresh user defined strings.',
     'weight' => 20,
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_string_admin_refresh_form'),
     'file' => 'i18n_string.admin.inc',
     'access arguments' => array('translate interface'),
@@ -123,7 +123,7 @@ function i18n_string_menu() {
     'description' => 'Options for user defined strings.',
     'weight' => 20,
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('variable_edit_form', array('i18n_string_allowed_formats', 'i18n_string_source_language')),
     'access arguments' => array('administer site configuration'),
   );
@@ -146,11 +146,11 @@ function i18n_string_menu() {
 function i18n_string_menu_alter(&$items) {
   $items['admin/config/regional/translate/edit/%'] = array(
     'title' => 'Edit string',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_string_locale_translate_edit_form', 5),
     'access arguments' => array('translate interface'),
     'file' => 'i18n_string.pages.inc',
-    'file path' => drupal_get_path('module', 'i18n_string'),
+    'file path' => backdrop_get_path('module', 'i18n_string'),
   );
 }
 
@@ -253,7 +253,7 @@ function i18n_string_form_locale_translate_import_form_alter(&$form, $form_state
  * Update string data after import form submit
  */
 function i18n_string_locale_translate_import_form_submit($form, &$form_state) {
-  if (!drupal_get_messages('error', FALSE) && i18n_string_group_info($form_state['values']['group'])) {
+  if (!backdrop_get_messages('error', FALSE) && i18n_string_group_info($form_state['values']['group'])) {
     i18n_string_textgroup($form_state['values']['group'])->update_check();
   }
 }
@@ -278,7 +278,7 @@ function i18n_string_locale_translate_import_form_submit($form, &$form_state) {
  * @endcode
  */
 function i18n_string_translate_langcode($langcode = NULL) {
-  $translate = &drupal_static(__FUNCTION__);
+  $translate = &backdrop_static(__FUNCTION__);
   $langcode = isset($langcode) ? $langcode : i18n_langcode();
   if (!isset($translate[$langcode])) {
     $translate[$langcode] = variable_get('i18n_string_translate_langcode_' . $langcode, i18n_string_source_language() != $langcode);
@@ -337,7 +337,7 @@ function i18n_string_update_context($oldname, $newname) {
  * Get textgroup handler
  */
 function i18n_string_textgroup($textgroup) {
-  $groups = &drupal_static(__FUNCTION__);
+  $groups = &backdrop_static(__FUNCTION__);
   if (!isset($groups[$textgroup])) {
     $class = i18n_string_group_info($textgroup, 'class', 'i18n_string_textgroup_default');
     $groups[$textgroup] = new $class($textgroup);
@@ -454,7 +454,7 @@ function i18n_string_load_multiple($conditions) {
     $query->condition($alias . '.' . $field, $value);
   }
   // this patch  is a workaround for core file bug in file
-  // include/database/prefetch.inc (see: http://drupal.org/node/1567216)
+  // include/database/prefetch.inc (see: http://backdrop.org/node/1567216)
   // return $query->execute()->fetchAll(PDO::FETCH_CLASS, 'i18n_string_object');
   $stmt = $query->execute();
   $stmt->setFetchMode(PDO::FETCH_CLASS, 'i18n_string_object');
@@ -470,11 +470,11 @@ function i18n_string_load_multiple($conditions) {
  *   Default value to return for a property if not set.
  */
 function i18n_string_group_info($group = NULL, $property = NULL, $default = NULL) {
-  $info = &drupal_static(__FUNCTION__ , NULL);
+  $info = &backdrop_static(__FUNCTION__ , NULL);
 
   if (!isset($info)) {
     $info = module_invoke_all('i18n_string_info');
-    drupal_alter('i18n_string_info', $info);
+    backdrop_alter('i18n_string_info', $info);
   }
 
   if ($group && $property) {

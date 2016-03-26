@@ -12,7 +12,7 @@
  */
 
 
-class i18nStringTestCase extends Drupali18nTestCase {
+class i18nStringTestCase extends Backdropi18nTestCase {
 
   public static function getInfo() {
     return array(
@@ -26,7 +26,7 @@ class i18nStringTestCase extends Drupali18nTestCase {
     // We can use any of the modules that define a text group, to use it for testing
     parent::setUp('i18n_string', 'i18n_menu', 'i18n_test');
     parent::setUpLanguages();
-    $this->translator = $this->drupalCreateUser(array('translate interface', 'translate user-defined strings'));
+    $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
   }
 
   /**
@@ -62,7 +62,7 @@ class i18nStringTestCase extends Drupali18nTestCase {
       'group' => 'default',
       'string' => '',
     );
-    $this->drupalPost('admin/config/regional/translate/translate', $search, t('Filter'));
+    $this->backdropPost('admin/config/regional/translate/translate', $search, t('Filter'));
     $this->clickLink(t('edit'));
     // Just add a random translation.
     $translation = $this->randomString();
@@ -71,7 +71,7 @@ class i18nStringTestCase extends Drupali18nTestCase {
       $langcode = $language->language;
       $edit["translations[$langcode]"] = $translation;
     }
-    $this->drupalPost(NULL, $edit, t('Save translations'));
+    $this->backdropPost(NULL, $edit, t('Save translations'));
     $this->assertText(t('The string has been saved.'), t('The string has been saved.'));
     $this->assertEqual($this->getUrl(), url('admin/config/regional/translate/translate', array('absolute' => TRUE)), t('Correct page redirection.'));
 
@@ -95,10 +95,10 @@ class i18nStringTestCase extends Drupali18nTestCase {
 
     // Now fetch the strings to fill the cache.
     foreach ($textgroup_object->strings as $context => $string_object) {
-      $this->drupalGet('tests/i18n/i18n_string_build/' . $textgroup . ':' . $context);
+      $this->backdropGet('tests/i18n/i18n_string_build/' . $textgroup . ':' . $context);
     }
     foreach ($strings as $key => $string) {
-      $this->drupalGet('tests/i18n/i18n_string_translation_search/' . $textgroup . ':item:' . $key . ':*/es');
+      $this->backdropGet('tests/i18n/i18n_string_translation_search/' . $textgroup . ':item:' . $key . ':*/es');
     }
 
     // Check the persistent cache for contents.
@@ -138,7 +138,7 @@ class i18nStringTestCase extends Drupali18nTestCase {
         cache_set($string_object->get_cid(), $string_cache->data, 'cache', CACHE_TEMPORARY);
 
         // Check if modification is reflected on the next page call.
-        $this->drupalGet('tests/i18n/i18n_string_build/' . $textgroup . ':' . $context);
+        $this->backdropGet('tests/i18n/i18n_string_build/' . $textgroup . ':' . $context);
         $this->assertText($string_cache->data['string']);
       }
     }
@@ -159,7 +159,7 @@ class i18nStringTestCase extends Drupali18nTestCase {
     $textgroup_object = i18n_string_textgroup($textgroup);
     $textgroup_object->__destruct();
     $this->assertTrue(cache_get($string_object->get_cid()) !== FALSE, "Cache entry created.");
-    drupal_static_reset('i18n_string_textgroup');
+    backdrop_static_reset('i18n_string_textgroup');
 
     // Reset the loaded translation variable.
     variable_del('i18n_loaded_translations');

@@ -6,10 +6,10 @@
  *
  * This module takes care of translating common field elements like title and
  * description for all fields, plus some field specific values (default, options)
- * for field types defined by Drupal core.
+ * for field types defined by Backdrop core.
  *
  * Before implementing any of these hooks, consider whether you would be better
- * off implementing Drupal core's hook_field_widget_form_alter().
+ * off implementing Backdrop core's hook_field_widget_form_alter().
  *
  * @see i18n_field_field_widget_form_alter()
  */

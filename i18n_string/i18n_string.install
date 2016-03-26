@@ -24,7 +24,7 @@ function i18n_string_install() {
   // Set module weight for it to run after core modules.
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'i18n_string' AND type = 'module'");
   // If updating from D6, module changed name
-  if (variable_get('i18n_drupal6_update')) {
+  if (variable_get('i18n_backdrop6_update')) {
     i18n_string_update_7000();
     i18n_string_update_7001();
   }
@@ -134,8 +134,8 @@ function i18n_string_install_update_string($string) {
   $string->context = $string->type . ':' . $string->objectid . ':' . $string->property;
   $string->location = $string->textgroup . ':' . $string->context;
   $string->objectindex = (int)$string->objectid;
-  drupal_write_record('i18n_string', $string, 'lid');
-  drupal_write_record('locales_source', $string, 'lid');
+  backdrop_write_record('i18n_string', $string, 'lid');
+  backdrop_write_record('locales_source', $string, 'lid');
 }
 
 /**
@@ -204,7 +204,7 @@ function i18n_string_install_update_context($oldname, $newname) {
       ->execute();
       $count++;
     }
-    drupal_set_message(t('Updated @count string names from %oldname to %newname.', array('@count' => $count, '%oldname' => $oldname, '%newname' => $newname)));
+    backdrop_set_message(t('Updated @count string names from %oldname to %newname.', array('@count' => $count, '%oldname' => $oldname, '%newname' => $newname)));
   }
 }
 
@@ -216,7 +216,7 @@ function i18n_string_update_7000() {
   variable_del('i18nstrings_allowed_textgroups');
   // If we've got old table from D6, move data to new one
   if (db_table_exists('i18n_strings')) {
-    // First of all clean up strings that don't have a locale source, see http://drupal.org/node/1186692
+    // First of all clean up strings that don't have a locale source, see http://backdrop.org/node/1186692
     db_query("DELETE FROM {i18n_strings} WHERE lid NOT IN (SELECT lid FROM {locales_source})");
     db_query("INSERT INTO {i18n_string}(lid, objectid, type, property, objectindex, format) SELECT lid, objectid, type, property, objectindex, format FROM {i18n_strings}");
     // Update and populate textgroup field

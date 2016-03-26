@@ -1,7 +1,7 @@
 
 README.txt
 ==========
-Drupal module: i18n_sync (Synchronization)
+Backdrop module: i18n_sync (Synchronization)
 
 This module will handle content synchronization accross translations.
 

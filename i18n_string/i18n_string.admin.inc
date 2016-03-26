@@ -6,7 +6,7 @@
  */
 
 // Load locale library
-include_once DRUPAL_ROOT . '/includes/locale.inc';
+include_once BACKDROP_ROOT . '/includes/locale.inc';
 
 /**
  * Form callback. Refresh textgroups.
@@ -89,7 +89,7 @@ function i18n_string_refresh_cleanup($group) {
     ->execute()
     ->fetchCol();
   if ($lids) {
-    drupal_set_message(t('Performing cleanup for text group %textgroup, deleting @count left over strings.', array('%textgroup' => $group, '@count' => count($lids))));
+    backdrop_set_message(t('Performing cleanup for text group %textgroup, deleting @count left over strings.', array('%textgroup' => $group, '@count' => count($lids))));
     db_delete('locales_target')->condition('lid', $lids)->execute();
     db_delete('locales_source')->condition('lid', $lids)->execute();
     db_delete('i18n_string')->condition('lid', $lids)->execute();
@@ -164,7 +164,7 @@ function i18n_string_refresh_batch($groups, $delete = FALSE) {
     'title'         => t('Refreshing user defined strings'),
     'init_message'  => t('Starting string refresh'),
     'error_message' => t('Error refreshing user defined strings'),
-    'file' => drupal_get_path('module', 'i18n_string') . '/i18n_string.admin.inc',
+    'file' => backdrop_get_path('module', 'i18n_string') . '/i18n_string.admin.inc',
   );
   return $batch;
 }
@@ -184,7 +184,7 @@ function i18n_string_refresh_enabled_modules($modules) {
     module_invoke($module, 'i18n_string_refresh', 'all');
   }
   if ($count) {
-    drupal_set_message(format_plural($count, 'Refreshed one string for enabled modules.', 'Refreshed @count strings for the enabled modules.'));
+    backdrop_set_message(format_plural($count, 'Refreshed one string for enabled modules.', 'Refreshed @count strings for the enabled modules.'));
   }
 }
 
@@ -252,13 +252,13 @@ function _i18n_string_batch_refresh_cleanup($group, &$context) {
  */
 function _i18n_string_batch_refresh_summary($group, &$context) {
   if ($context['results'][$group]['result']) {
-    drupal_set_message(t("Successfully refreshed @count strings for %group", array('@count' => $context['results'][$group]['refresh'], '%group' => i18n_string_group_info($group, 'title'))));
+    backdrop_set_message(t("Successfully refreshed @count strings for %group", array('@count' => $context['results'][$group]['refresh'], '%group' => i18n_string_group_info($group, 'title'))));
     if (!empty($context['results'][$group]['deleted'])) {
-      drupal_set_message(t('Deleted @count left over strings.', array('@count' => $context['results'][$group]['deleted'])));
+      backdrop_set_message(t('Deleted @count left over strings.', array('@count' => $context['results'][$group]['deleted'])));
     }
   }
   else {
-    drupal_set_message(t("Cannot refresh strings for %group.", array('%group' => i18n_string_group_info($group, 'title'))), 'warning');
+    backdrop_set_message(t("Cannot refresh strings for %group.", array('%group' => i18n_string_group_info($group, 'title'))), 'warning');
   }
 }
 
@@ -270,7 +270,7 @@ function i18n_string_group_string_list($group) {
   // Note that i18n_string module itself will also collect all strings for this group's objects
   $strings = module_invoke_all('i18n_string_list', $group);
   // Invoke hook_i18n_string_list_TEXTGROUP_alter()
-  drupal_alter('i18n_string_list_' . $group, $strings);
+  backdrop_alter('i18n_string_list_' . $group, $strings);
   return $strings;
 }
 

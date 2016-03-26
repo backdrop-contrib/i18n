@@ -30,7 +30,7 @@ function i18n_node_menu() {
   $items['admin/config/regional/i18n/node'] = array(
     'title' => 'Node options',
     'description' => 'Configure extended options for multilingual content and translations.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('variable_group_form', 'i18n_node'),
     'access arguments' => array('administer site configuration'),
     'type' => MENU_LOCAL_TASK,
@@ -51,7 +51,7 @@ function i18n_node_menu() {
  * Set translated help text for node/add pages, replace node_help() text.
  */
 function i18n_node_block_view_system_help_alter(&$block) {
-  $arg = drupal_help_arg(arg(NULL));
+  $arg = backdrop_help_arg(arg(NULL));
   if ($arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {
     if (($type = node_type_get_type(str_replace('-', '_', $arg[2]))) && !empty($type->help)) {
       $help = i18n_node_translate_type($type, 'help', NULL, array('sanitize' => FALSE));
@@ -144,7 +144,7 @@ function i18n_node_menu_alter(&$items) {
   // Take over node/add pages for string translation
   $items['node/add']['page callback'] =  'i18n_node_add_page';
   $items['node/add']['file'] = 'i18n_node.pages.inc';
-  $items['node/add']['file path'] = drupal_get_path('module', 'i18n_node');
+  $items['node/add']['file path'] = backdrop_get_path('module', 'i18n_node');
   // @TODO avoid iterating over every router path.
   foreach (node_type_get_types() as $type) {
     $path = 'node/add/' . str_replace('_', '-', $type->type);
@@ -362,7 +362,7 @@ function i18n_node_textfield_process($element) {
       if ($node_language != $language->language) {
         $languages = language_list();
         if (isset($languages[$node_language])) {
-          drupal_add_js(drupal_get_path('module', 'i18n_node') . '/i18n_node.js');
+          backdrop_add_js(backdrop_get_path('module', 'i18n_node') . '/i18n_node.js');
           // Pass the interface and content language base paths.
           // Remove any trailing forward slash. Doing so prevents a mismatch
           // that occurs when a language has no prefix and hence gets a path
@@ -370,7 +370,7 @@ function i18n_node_textfield_process($element) {
           $interface = rtrim(url('', array('absolute' => TRUE)), '/');
           $content = rtrim(url('', array('absolute' => TRUE, 'language' => $languages[$node_language])), '/');
           $data = array('interface_path' => $interface, 'content_path' => $content);
-          drupal_add_js(array('i18n' => $data), 'setting');
+          backdrop_add_js(array('i18n' => $data), 'setting');
         }
       }
     }
@@ -436,13 +436,13 @@ function i18n_node_form_node_form_alter(&$form, $form_state) {
   $node = $form['#node'];
   /**
    * i18n has to override locale.module
-   * drupal_alter() fails to order modules correctly in some cases
+   * backdrop_alter() fails to order modules correctly in some cases
    * for example specific hooks like hook_form_BASE_FORM_ID_alter
    *
    * its not possbile to reorder hook_form_BASE_FORM_ID_alter with
    * hook_module_implements_alter
    *
-   * @see http://drupal.org/node/765860
+   * @see http://backdrop.org/node/765860
   */
 
   // Replace core's node submit callback with our own,
@@ -473,11 +473,11 @@ function i18n_node_form_submit($form, &$form_state) {
 
   if ($insert) {
     watchdog('content', '@type: added %title.', $watchdog_args, WATCHDOG_NOTICE, $node_link);
-    drupal_set_message(t('@type %title has been created.', $t_args));
+    backdrop_set_message(t('@type %title has been created.', $t_args));
   }
   else {
     watchdog('content', '@type: updated %title.', $watchdog_args, WATCHDOG_NOTICE, $node_link);
-    drupal_set_message(t('@type %title has been updated.', $t_args));
+    backdrop_set_message(t('@type %title has been updated.', $t_args));
   }
   if ($node->nid) {
     $form_state['values']['nid'] = $node->nid;
@@ -487,7 +487,7 @@ function i18n_node_form_submit($form, &$form_state) {
   else {
     // In the unlikely case something went wrong on save, the node will be
     // rebuilt and node form redisplayed the same way as in preview.
-    drupal_set_message(t('The post could not be saved.'), 'error');
+    backdrop_set_message(t('The post could not be saved.'), 'error');
     $form_state['rebuild'] = TRUE;
   }
   // Clear the page and block caches.
@@ -518,10 +518,10 @@ function _i18n_node_form_node_form_alter($form, &$form_state) {
   }
   // Translate page title for node/add/% and node/%/edit pages.
   if (empty($node->nid) && strpos($_GET['q'], 'node/add/' . str_replace('_', '-', $node->type)) === 0) {
-    drupal_set_title(t('Create @name', array('@name' => i18n_node_type_name($node->type))), PASS_THROUGH);
+    backdrop_set_title(t('Create @name', array('@name' => i18n_node_type_name($node->type))), PASS_THROUGH);
   }
   elseif (!empty($node->nid) && $_GET['q'] == 'node/' . $node->nid . '/edit') {
-    drupal_set_title(t('<em>Edit @type</em> @title', array('@type' => i18n_node_type_name($node->type), '@title' => $node->title)), PASS_THROUGH);
+    backdrop_set_title(t('<em>Edit @type</em> @title', array('@type' => i18n_node_type_name($node->type), '@title' => $node->title)), PASS_THROUGH);
   }
   return $form;
 }

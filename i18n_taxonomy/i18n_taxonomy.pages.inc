@@ -17,7 +17,7 @@ function i18n_taxonomy_term_page($term) {
   $term = i18n_taxonomy_localize_terms($term);
 
   // Assign the term name as the page title.
-  drupal_set_title($term->name);
+  backdrop_set_title($term->name);
 
   // Build breadcrumb based on the hierarchy of the term.
   $current = (object) array(
@@ -33,8 +33,8 @@ function i18n_taxonomy_term_page($term) {
   }
   $breadcrumb[] = l(t('Home'), NULL);
   $breadcrumb = array_reverse($breadcrumb);
-  drupal_set_breadcrumb($breadcrumb);
-  drupal_add_feed('taxonomy/term/' . $term->tid . '/feed', 'RSS - ' . $term->name);
+  backdrop_set_breadcrumb($breadcrumb);
+  backdrop_add_feed('taxonomy/term/' . $term->tid . '/feed', 'RSS - ' . $term->name);
 
   $build = array();
 
@@ -92,8 +92,8 @@ function i18n_taxonomy_autocomplete_language($langcode, $vocabulary, $tags_typed
  */
 function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
   // The user enters a comma-separated list of tags. We only autocomplete the last tag.
-  $tags_typed = drupal_explode_tags($tags_typed);
-  $tag_last = drupal_strtolower(array_pop($tags_typed));
+  $tags_typed = backdrop_explode_tags($tags_typed);
+  $tag_last = backdrop_strtolower(array_pop($tags_typed));
 
   $matches = array();
   if ($langcode && $tag_last != '') {
@@ -121,7 +121,7 @@ function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
       ->execute()
       ->fetchAllKeyed();
 
-    $prefix = count($tags_typed) ? drupal_implode_tags($tags_typed) . ', ' : '';
+    $prefix = count($tags_typed) ? backdrop_implode_tags($tags_typed) . ', ' : '';
 
     $term_matches = array();
     foreach ($tags_return as $tid => $name) {
@@ -134,5 +134,5 @@ function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
     }
   }
 
-  drupal_json_output($term_matches);
+  backdrop_json_output($term_matches);
 }

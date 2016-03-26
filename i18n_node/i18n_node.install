@@ -10,7 +10,7 @@
  */
 function i18n_node_install() {
   // If updating from D6, module changed name
-  if (variable_get('i18n_drupal6_update')) {
+  if (variable_get('i18n_backdrop6_update')) {
     i18n_node_update_7000();
   }
 }
@@ -37,7 +37,7 @@ function i18n_node_update_dependencies() {
 }
 
 /**
- * Implements hook_i18n_update_drupal6().
+ * Implements hook_i18n_update_backdrop6().
  *
  * Update old string names
  */

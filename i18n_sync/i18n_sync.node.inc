@@ -66,7 +66,7 @@ function i18n_sync_node_translation($node, $translations, $field_names, $op) {
   }
   i18n_sync(TRUE);
   i18n_select($i18n_select);
-  drupal_set_message(format_plural($count, 'One node translation has been synchronized.', 'All @count node translations have been synchronized.'));
+  backdrop_set_message(format_plural($count, 'One node translation has been synchronized.', 'All @count node translations have been synchronized.'));
 }
 
 /**
@@ -132,7 +132,7 @@ function i18n_sync_node_translation_default_field($node, $translation, $field, $
     default:
       // For fields that don't need special handling, just copy it over if defined.
       // Field languages are completely unconsistent, for not to say broken
-      // both in Drupal core and entity translation. Let's hope this works.
+      // both in Backdrop core and entity translation. Let's hope this works.
       $source_lang = field_language('node', $node, $field);
       $translation_lang = field_language('node', $translation, $field);
       if (isset($node->{$field}[$source_lang])) {

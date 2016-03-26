@@ -57,7 +57,7 @@ function i18n_select_menu() {
   $items['admin/config/regional/i18n/select'] = array(
     'title' => 'Selection',
     'description' => 'Configure extended options for multilingual content and translations.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_select_admin_settings'),
     'access arguments' => array('administer site configuration'),
     'file' => 'i18n_select.admin.inc',
@@ -93,19 +93,19 @@ function i18n_select_page() {
   static $mode;
 
   if (!isset($mode)) {
-    $mode = &drupal_static(__FUNCTION__);
+    $mode = &backdrop_static(__FUNCTION__);
     $visibility = variable_get('i18n_select_page_mode', I18N_SELECT_PAGE_NOTLISTED);
     if ($pages = variable_get('i18n_select_page_list', 'admin/*')) {
       // Convert path to lowercase. This allows comparison of the same path
       // with different case. Ex: /Page, /page, /PAGE.
-      $pages = drupal_strtolower($pages);
+      $pages = backdrop_strtolower($pages);
       if ($visibility < I18N_SELECT_PAGE_PHP) {
-        // Convert the Drupal path to lowercase
-        $path = drupal_strtolower(drupal_get_path_alias($_GET['q']));
+        // Convert the Backdrop path to lowercase
+        $path = backdrop_strtolower(backdrop_get_path_alias($_GET['q']));
         // Compare the lowercase internal and lowercase path alias (if any).
-        $page_match = drupal_match_path($path, $pages);
+        $page_match = backdrop_match_path($path, $pages);
         if ($path != $_GET['q']) {
-          $page_match = $page_match || drupal_match_path($_GET['q'], $pages);
+          $page_match = $page_match || backdrop_match_path($_GET['q'], $pages);
         }
         // When $visibility has a value of 0 (I18N_SELECT_PAGE_NOTLISTED),
         // the block is displayed on all pages except those listed in $pages.
@@ -189,7 +189,7 @@ function i18n_select_check_table($query, $table_name, $field_name) {
   elseif (i18n_select_check_conditions($query)) {
     // Try to find the right field in the table schema.
     foreach ($tables as $table) {
-      $schema = drupal_get_schema($table['table']);
+      $schema = backdrop_get_schema($table['table']);
       if ($schema && !empty($schema['fields'][$field_name])) {
         $join_table = _i18n_select_table_alias($table);
         break;

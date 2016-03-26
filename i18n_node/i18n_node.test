@@ -5,7 +5,7 @@
  * Contains test cases for the i18n_node module.
  */
 
-class I18nNodeTestCase extends Drupali18nTestCase {
+class I18nNodeTestCase extends Backdropi18nTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Content translation',
@@ -23,7 +23,7 @@ class I18nNodeTestCase extends Drupali18nTestCase {
     // Add a disabled language.
     $this->addLanguage('it');
     $edit = array('enabled[it]' => FALSE);
-    $this->drupalPost('admin/config/regional/language', $edit, t('Save configuration'));
+    $this->backdropPost('admin/config/regional/language', $edit, t('Save configuration'));
   }
 
   /**
@@ -46,23 +46,23 @@ class I18nNodeTestCase extends Drupali18nTestCase {
     $ptbr_node = $this->createNode('page', $ptbr_title, $ptbr_body, 'pt-br');
 
     // Check the autocomplete suggestions.
-    $this->drupalGet('i18n/node/autocomplete/page/es/' . substr($es_title, 0, 3));
+    $this->backdropGet('i18n/node/autocomplete/page/es/' . substr($es_title, 0, 3));
     $this->assertText($es_title);
     $this->assertNoText($en_title);
     $this->assertNoText($ptbr_title);
 
-    $this->drupalGet('i18n/node/autocomplete/page/es/' . substr($en_title, 0, 3));
+    $this->backdropGet('i18n/node/autocomplete/page/es/' . substr($en_title, 0, 3));
     $this->assertNoText($es_title);
     $this->assertNoText($en_title);
     $this->assertNoText($ptbr_title);
 
-    $this->drupalGet('i18n/node/autocomplete/page/pt-br/' . substr($ptbr_title, 0, 3));
+    $this->backdropGet('i18n/node/autocomplete/page/pt-br/' . substr($ptbr_title, 0, 3));
     $this->assertNoText($es_title);
     $this->assertNoText($en_title);
     $this->assertText($ptbr_title);
 
     // Go to the translations tab.
-    $this->drupalGet('node/' . $en_node->nid);
+    $this->backdropGet('node/' . $en_node->nid);
     $this->clickLink(t('Translate'));
 
     // Make sure that the disabled language doesn't show up.
@@ -72,7 +72,7 @@ class I18nNodeTestCase extends Drupali18nTestCase {
     $edit = array(
       'translations[node][es]' => $ptbr_title,
     );
-    $this->drupalPost(NULL, $edit, t('Update translations'));
+    $this->backdropPost(NULL, $edit, t('Update translations'));
     $this->assertText(t('Found no valid post with that title: @title', array('@title' => $ptbr_title)));
 
     // Add two translated nodes.
@@ -80,7 +80,7 @@ class I18nNodeTestCase extends Drupali18nTestCase {
       'translations[node][pt-br]' => $ptbr_title,
       'translations[node][es]' => $es_title,
     );
-    $this->drupalPost(NULL, $edit, t('Update translations'));
+    $this->backdropPost(NULL, $edit, t('Update translations'));
     $this->assertText(t('Added @count nodes to the translation set.', array('@count' => 2)));
 
     $this->assertFieldByName('translations[node][es]', i18n_node_nid2autocomplete($es_node->nid));
@@ -90,7 +90,7 @@ class I18nNodeTestCase extends Drupali18nTestCase {
     $edit = array(
       'translations[node][pt-br]' => '',
     );
-    $this->drupalPost(NULL, $edit, t('Update translations'));
+    $this->backdropPost(NULL, $edit, t('Update translations'));
     $this->assertText(t('Removed a node from the translation set.'));
 
     $this->assertFieldByName('translations[node][es]', i18n_node_nid2autocomplete($es_node->nid));

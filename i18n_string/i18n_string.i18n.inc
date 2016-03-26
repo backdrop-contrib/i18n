@@ -77,7 +77,7 @@ function i18n_string_object_type_string_list($type) {
  * This function is not equivalent to PHP's array_merge_recursive(),
  * as this version leaves integer keys intact.
  *
- * @see drupal_array_merge_deep(), @see array_merge_recursive()
+ * @see backdrop_array_merge_deep(), @see array_merge_recursive()
  *
  * @param ...
  *   Arrays to merge.

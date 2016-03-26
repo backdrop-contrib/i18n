@@ -47,6 +47,43 @@ function i18n_boot() {
 }
 
 /**
+ * Implements hook_config_info().
+ */
+function i18n_config_info() {
+  $prefixes['i18n.settings'] = array(
+    'label' => t('Internationalization settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
+ * Implements hook_autoload_info().
+ */
+function i18n_autoload_info() {
+  return array(
+    'i18n_block_object' => 'i18n_block/i18n_block.inc',
+    'i18n_field_base' => 'i18n_field/i18n_field.inc',
+    'i18n_field' => 'i18n_field/i18n_field.inc',
+    'i18n_field_instance' => 'i18n_field/i18n_field.inc',
+    'i18n_menu_link_translation_set' => 'i18n_menu\i18n_menu.inc',
+    'i18n_menu_link' => 'i18n_menu\i18n_menu.inc',
+    'i18n_object_wrapper' => 'i18n_object.inc',
+    'i18n_path_translation_set' => 'i18n_path\i18n_path.inc',
+    'i18n_path_object' => 'i18n_path\i18n_path.inc',
+    'i18n_string_object' => 'i18n_string\i18n_string.inc',
+    'i18n_string_textgroup_default' => 'i18n_string\i18n_string.inc',
+    'i18n_string_object_wrapper' => 'i18n_string\i18n_string.inc',
+    'i18n_taxonomy_translation_set' => 'i18n_taxonomy\i18n_taxonomy.inc',
+    'i18n_taxonomy_term extends' => 'i18n_taxonomy\i18n_taxonomy.inc',
+    'i18n_string_textgroup_cached' => 'i18n_string\i18n_string.inc',
+    'i18n_translation_set' => 'i18n_translation\i18n_translation.inc',
+    'I18nTranslationSetController' => 'i18n_translation\i18n_translation.module',
+    'I18nVariableLanguageRealm' => 'i18n_variable\i18n_variable.module',
+  );
+}
+
+/**
  * Implements hook_hook_info().
  */
 function i18n_hook_info() {
@@ -97,7 +134,7 @@ function i18n_language_object($language) {
 function i18n_language_interface() {
   if (empty($GLOBALS[LANGUAGE_TYPE_INTERFACE])) {
     // We don't have language yet, initialize the language system and retry
-    drupal_bootstrap(DRUPAL_BOOTSTRAP_LANGUAGE);
+    backdrop_bootstrap(BACKDROP_BOOTSTRAP_LANGUAGE);
   }
   return $GLOBALS[LANGUAGE_TYPE_INTERFACE];
 }
@@ -108,7 +145,7 @@ function i18n_language_interface() {
 function i18n_language_content() {
   if (empty($GLOBALS[LANGUAGE_TYPE_CONTENT])) {
     // We don't have language yet, initialize the language system and retry
-    drupal_bootstrap(DRUPAL_BOOTSTRAP_LANGUAGE);
+    backdrop_bootstrap(BACKDROP_BOOTSTRAP_LANGUAGE);
   }
   return $GLOBALS[LANGUAGE_TYPE_CONTENT];
 }
@@ -207,7 +244,7 @@ function i18n_language_list($field = 'name', $mode = NULL) {
  * @see locale_language_list()
  */
 function i18n_language_name($lang) {
-  $list = &drupal_static(__FUNCTION__);
+  $list = &backdrop_static(__FUNCTION__);
   if (!isset($list)) {
     $list = locale_language_list('name', TRUE);
   }
@@ -235,7 +272,7 @@ function i18n_langcode($langcode = NULL) {
 function i18n_help($path = 'admin/help#i18n', $arg) {
   switch ($path) {
     case 'admin/help#i18n' :
-      $output = '<p>' . t('This module improves support for multilingual content in Drupal sites:') . '</p>';
+      $output = '<p>' . t('This module improves support for multilingual content in Backdrop sites:') . '</p>';
       $output .= '<ul>';
       $output .= '<li>' . t('Shows content depending on page language.') . '</li>';
       $output .= '<li>' . t('Handles multilingual variables.') . '</li>';
@@ -247,7 +284,7 @@ function i18n_help($path = 'admin/help#i18n', $arg) {
       $output .= '<li>' . t('Multilingual menu items.') . '</li>';
       $output .= '<li>' . t('Multilingual taxonomy adds a language field for taxonomy vocabularies and terms.') . '</li>';
       $output .= '</ul>';
-      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) . '</p>';
+      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://backdrop.org/node/133977')) . '</p>';
       return $output;
 
     case 'admin/config/language/i18n':
@@ -265,7 +302,7 @@ function i18n_menu() {
   $items['admin/config/regional/i18n'] = array(
     'title' => 'Multilingual settings',
     'description' => 'Configure extended options for multilingual content and translations.',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('variable_module_form', 'i18n'),
     'access arguments' => array('administer site configuration'),
     'weight' => 10,
@@ -393,13 +430,13 @@ function i18n_object($type, $object) {
  * @param $key
  *   The object key, can be an scalar or an array.
  * @param $object
- *   Optional Drupal object or array. It will be autoloaded using the key if not present.
+ *   Optional Backdrop object or array. It will be autoloaded using the key if not present.
  *
  * @return
  *   A fully-populated object wrapper.
  */
 function i18n_get_object($type, $key, $object = NULL) {
-  $cache = &drupal_static(__FUNCTION__);
+  $cache = &backdrop_static(__FUNCTION__);
   $index = is_array($key) ? implode(':', $key) : $key;
   if (!isset($cache[$type][$index])) {
     $class = i18n_object_info($type, 'class', 'i18n_object_wrapper');
@@ -433,10 +470,10 @@ function i18n_object_langcode($object, $default = FALSE, $field = 'language') {
  * Get translation information for objects
  */
 function i18n_object_info($type = NULL, $property = NULL, $default = NULL) {
-  $info = &drupal_static(__FUNCTION__);
+  $info = &backdrop_static(__FUNCTION__);
   if (!$info) {
     $info = module_invoke_all('i18n_object_info');
-    drupal_alter('i18n_object_info', $info);
+    backdrop_alter('i18n_object_info', $info);
   }
   if ($property) {
     return isset($info[$type][$property]) ? $info[$type][$property] : $default;
@@ -510,7 +547,7 @@ function i18n_object_translate_access($type, $object) {
  *   Whether to check access to paths, defaults to TRUE
  */
 function i18n_get_path_translations($path, $check_access = TRUE) {
-  $translations = &drupal_static(__FUNCTION__);
+  $translations = &backdrop_static(__FUNCTION__);
 
   if (!isset($translations[$path])) {
     $translations[$path] = array();
@@ -530,7 +567,7 @@ function i18n_get_path_translations($path, $check_access = TRUE) {
       }
     }
     // Chance for altering the results.
-    drupal_alter('i18n_translate_path', $translations[$path], $path);
+    backdrop_alter('i18n_translate_path', $translations[$path], $path);
   }
 
   if ($check_access) {
@@ -554,7 +591,7 @@ function _i18n_get_path_translations_access($path) {
  * Replaces links with pointers to translated versions of the content.
  */
 function i18n_language_switch_links_alter(array &$links, $type, $path) {
-  // For the front page we have nothing to add to Drupal core links.
+  // For the front page we have nothing to add to Backdrop core links.
   if ($path != '<front>' && ($translations = i18n_get_path_translations($path))) {
     foreach ($translations as $langcode => $translation) {
       if (isset($links[$langcode])) {
@@ -601,7 +638,7 @@ function i18n_form_block_admin_display_form_submit($form, &$form_state) {
     $previous = $form['blocks'][$key]['region']['#default_value'];
     if (empty($previous) && $block['region'] != -1 && $block['module'] == 'locale') {
       $message = t('The language switcher will appear only after configuring <a href="!url">language detection</a>. You need to enable at least one method that alters URLs like <em>URL</em> or <em>Session</em>.', array('!url' => url('admin/config/regional/language/configure')));
-      drupal_set_message($message, 'warning', FALSE);
+      backdrop_set_message($message, 'warning', FALSE);
       break;
     }
   }
@@ -612,9 +649,9 @@ function i18n_form_block_admin_display_form_submit($form, &$form_state) {
  * troubles when a node and it's translation has the same url alias.
  */
 function i18n_prepare_normal_path($link_path, $language) {
-  $normal_path = drupal_get_normal_path($link_path, $language);
+  $normal_path = backdrop_get_normal_path($link_path, $language);
   if ($link_path != $normal_path) {
-    drupal_set_message(t('The menu system stores system paths only, but will use the URL alias for display. %link_path has been stored as %normal_path', array('%link_path' => $link_path, '%normal_path' => $normal_path)));
+    backdrop_set_message(t('The menu system stores system paths only, but will use the URL alias for display. %link_path has been stored as %normal_path', array('%link_path' => $link_path, '%normal_path' => $normal_path)));
   }
   return $normal_path;
 }
@@ -624,7 +661,7 @@ function i18n_prepare_normal_path($link_path, $language) {
  * @param $entity_type
  */
 function i18n_entity_translation_enabled($entity_type) {
-  $cache = &drupal_static(__FUNCTION__);
+  $cache = &backdrop_static(__FUNCTION__);
   if (!isset($cache[$entity_type])) {
     // Check if the entity_translation module exists and if so if the given
     // entity type is handled.
@@ -637,5 +674,5 @@ function i18n_entity_translation_enabled($entity_type) {
  * Implements hook_modules_enabled().
  */
 function i18n_modules_enabled($modules) {
-  drupal_static_reset('i18n_object_info');
+  backdrop_static_reset('i18n_object_info');
 }

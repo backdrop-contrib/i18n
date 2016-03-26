@@ -17,8 +17,8 @@
 function i18n_taxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
   switch ($op) {
     case 'edit':
-      drupal_set_title(t('Edit term translations'));
-      $output = drupal_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $tid);
+      backdrop_set_title(t('Edit term translations'));
+      $output = backdrop_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $tid);
       break;
 
     default:
@@ -91,7 +91,7 @@ function i18n_taxonomy_autocomplete_validate($element, &$form_state) {
     $vocabularies[$vocabulary->vid] = $vocabulary;
 
     // Translate term names into actual terms.
-    $typed_terms = drupal_explode_tags($tags);
+    $typed_terms = backdrop_explode_tags($tags);
     foreach ($typed_terms as $typed_term) {
       // See if the term exists in the chosen vocabulary and return the tid;
       // otherwise, create a new 'autocreate' term for insert/update.
@@ -145,16 +145,16 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
         $translation_set
           ->reset_translations($translations)
           ->save(TRUE);
-        drupal_set_message(t('Term translations have been updated.'));
+        backdrop_set_message(t('Term translations have been updated.'));
       }
       else {
-        drupal_set_message(t('There are no translations to be saved.'), 'error');
+        backdrop_set_message(t('There are no translations to be saved.'), 'error');
       }
       break;
 
     case t('Delete'):
       $translation_set->delete(TRUE);
-      drupal_set_message(t('The term translation has been deleted.'));
+      backdrop_set_message(t('The term translation has been deleted.'));
       $form_state['redirect'] = 'admin/structure/taxonomy/' . $form_state['values']['vocabulary']->machine_name . '/translation';
       break;
   }
@@ -165,7 +165,7 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
  */
 function i18n_taxonomy_translation_sets_overview($vocabulary) {
   module_load_include('admin.inc', 'i18n_translation');
-  drupal_set_title($vocabulary->name);
+  backdrop_set_title($vocabulary->name);
   $query = db_select('i18n_translation_set', 't')
     ->condition('t.bundle', $vocabulary->machine_name);
   return i18n_translation_admin_overview('taxonomy_term', $query);
@@ -204,7 +204,7 @@ function i18n_taxonomy_translation_term_overview($term) {
         '#title' => t('edit'),
         '#href' => $path . '/edit',
         '#options' => array(
-          'query' => drupal_get_destination(),
+          'query' => backdrop_get_destination(),
         ),
       );
 
@@ -220,7 +220,7 @@ function i18n_taxonomy_translation_term_overview($term) {
         '#title' => t('add translation'),
         '#href' => 'admin/structure/taxonomy/' . $term->vocabulary_machine_name . '/add',
         '#options' => array(
-          'query' => array('translation' => $term->tid, 'target' => $langcode) + drupal_get_destination()
+          'query' => array('translation' => $term->tid, 'target' => $langcode) + backdrop_get_destination()
         ),
       );
     }
@@ -231,7 +231,7 @@ function i18n_taxonomy_translation_term_overview($term) {
     );
   }
 
-  drupal_set_title(t('Translations of term %title', array('%title' => $term->name)), PASS_THROUGH);
+  backdrop_set_title(t('Translations of term %title', array('%title' => $term->name)), PASS_THROUGH);
 
   $build['translation_overview'] = array(
     '#theme' => 'table',

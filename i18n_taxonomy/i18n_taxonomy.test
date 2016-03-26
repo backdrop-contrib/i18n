@@ -5,7 +5,7 @@
  */
 
 
-class i18nTaxonomyTestCase extends Drupali18nTestCase {
+class i18nTaxonomyTestCase extends Backdropi18nTestCase {
 
   public static function getInfo() {
     return array(
@@ -22,7 +22,7 @@ class i18nTaxonomyTestCase extends Drupali18nTestCase {
     // Create users.
     $filtered_html_format = filter_format_load('filtered_html');
     $full_html_format = filter_format_load('full_html');
-    $this->admin_user = $this->drupalCreateUser(array(
+    $this->admin_user = $this->backdropCreateUser(array(
       'access field_test content',
       'administer field_test content',
       'administer taxonomy',
@@ -31,17 +31,17 @@ class i18nTaxonomyTestCase extends Drupali18nTestCase {
       filter_permission_name($filtered_html_format),
       filter_permission_name($full_html_format),
     ));
-    $this->translator = $this->drupalCreateUser(array('translate interface', 'translate user-defined strings'));
+    $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
   }
 
 function testTaxonomyTermLocalize() {
-    $this->drupalLogin($this->admin_user);
+    $this->backdropLogin($this->admin_user);
     // Make Input Format "Filter Text" translatable
     $edit = array(
       'i18n_string_allowed_formats[filtered_html]' => 'filtered_html',
       'i18n_string_allowed_formats[plain_text]' => 'plain_text',
     );
-    $this->drupalPost('admin/config/regional/i18n/strings', $edit, t('Save configuration'));
+    $this->backdropPost('admin/config/regional/i18n/strings', $edit, t('Save configuration'));
 
     // Create a localizable vocabulary.
     $vocab = $this->createVocabulary(array('i18n_mode' => I18N_MODE_LOCALIZE));
@@ -53,7 +53,7 @@ function testTaxonomyTermLocalize() {
     $prefix = $this->randomName() . '_';
     $term = $this->createTerm(array('vid' => $vocab->vid, 'name' => $prefix . $this->randomName()));
 
-    $this->drupalLogin($this->translator);
+    $this->backdropLogin($this->translator);
 
     // Create and Save Spanish translation, again using the same prefix.
     $term_translation = array(
@@ -61,7 +61,7 @@ function testTaxonomyTermLocalize() {
       'description' => $this->createStringTranslation('taxonomy', $term->description, array($this->secondary_language => $prefix . $this->randomName())),
     );
 
-    $this->drupalLogin($this->admin_user);
+    $this->backdropLogin($this->admin_user);
 
     $langcode = LANGUAGE_NONE;
     $edit = array(
@@ -69,38 +69,38 @@ function testTaxonomyTermLocalize() {
     );
 
     // Test the widgets in the original language.
-    $this->drupalGet('test-entity/add/test-bundle');
+    $this->backdropGet('test-entity/add/test-bundle');
     $this->assertText($term->name, 'Widget values are displayed correctly in default language.');
 
-    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->backdropPost(NULL, $edit, t('Save'));
     $this->assertText($term->name, 'Field values are displayed correctly in default language.');
 
     // Terms should be localized in the field widget.
-    $this->drupalGet($this->secondary_language . '/test-entity/add/test-bundle');
+    $this->backdropGet($this->secondary_language . '/test-entity/add/test-bundle');
     $this->assertText($term_translation['name'][$this->secondary_language], 'Widget values are displayed correctly in non-default languages.');
 
-    $this->drupalPost(NULL, $edit, t('Save'));
+    $this->backdropPost(NULL, $edit, t('Save'));
     $this->assertText($term_translation['name'][$this->secondary_language], 'Field values are displayed correctly in non-default languages.');
 
     // Term name and term description should be localized
-    $this->drupalGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->default_language)));
+    $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->default_language)));
     $this->assertText($term->name, 'Term title is displayed correctly in default language.');
     $this->assertText($term->description, 'Term description is displayed correctly in default language.');
 
     // Term name and term description should be localized
-    $this->drupalGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->secondary_language)));
+    $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->secondary_language)));
     $this->assertText($term_translation['name'][$this->secondary_language], 'Term title is displayed correctly in non-default language.');
     $this->assertText($term_translation['description'][$this->secondary_language], 'Term description is displayed correctly in non-default language.');
 
     // Autocomplete should respect localization.
     $autocomplete_path = 'taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
-    $autocomplete_values = $this->drupalGetAJAX($autocomplete_path);
+    $autocomplete_values = $this->backdropGetAJAX($autocomplete_path);
     $this->assertTrue(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in default language.');
     $this->assertFalse(isset($autocomplete_values[$term_translation['name'][$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages');
 
  // Autocomplete should respect localization, but doesn't.
  //   $autocomplete_path = $this->secondary_language . '/taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
- //   $autocomplete_values = $this->drupalGetAJAX($autocomplete_path);
+ //   $autocomplete_values = $this->backdropGetAJAX($autocomplete_path);
  //   $this->assertFalse(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in non-default languages.');
  //   $this->assertTrue(isset($autocomplete_values[$term_translation[$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages.');
   }
@@ -117,15 +117,15 @@ function testTaxonomyTermLocalize() {
     $en_term = $this->createTerm(array('vid' => $vocab->vid, 'language' => $this->default_language));
     $es_term = $this->createTerm(array('vid' => $vocab->vid, 'language' => $this->secondary_language));
 
-    $this->drupalLogin($this->admin_user);
+    $this->backdropLogin($this->admin_user);
 
     // Set terms as translations of each other.
     $edit = array(
       'translations[' . $this->default_language . ']' => $en_term->name,
       'translations[' . $this->secondary_language . ']' => $es_term->name,
     );
-    $this->drupalPost('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets/add', $edit, t('Save'));
-    $this->drupalGet('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets');
+    $this->backdropPost('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets/add', $edit, t('Save'));
+    $this->backdropGet('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets');
 
     // Freetagging creates terms with the correct language.
     $new_term_name = $this->randomName();
@@ -133,7 +133,7 @@ function testTaxonomyTermLocalize() {
     $edit = array(
       "{$this->field_autocomplete}[$langcode]" => $new_term_name,
     );
-    $this->drupalPost($this->secondary_language . '/test-entity/add/test-bundle', $edit, t('Save'));
+    $this->backdropPost($this->secondary_language . '/test-entity/add/test-bundle', $edit, t('Save'));
     $new_term = current(taxonomy_get_term_by_name($new_term_name));
     $this->assertEqual($new_term->language,  $this->secondary_language, 'Freetagging creates terms with the correct language.');
 
@@ -162,13 +162,13 @@ function testTaxonomyTermLocalize() {
   }
 
   // Create vocabulary with given fields
-  function drupalCreateVocabulary($vocab = array()) {
+  function backdropCreateVocabulary($vocab = array()) {
     $vocab += array('name' => $this->randomName(10), 'description' => $this->randomName(20));
     taxonomy_vocabulary_save($vocab);
     return (object)$vocab;
   }
   // Create term with given fields
-  function drupalCreateTerms($number = 1, $data = array()) {
+  function backdropCreateTerms($number = 1, $data = array()) {
     $list = array();
     for ($i = 1; $i <= $number ; $i++ ) {
       $term = $this->createTerm($data);
@@ -186,7 +186,7 @@ function testTaxonomyTermLocalize() {
       'i18n_mode' => I18N_MODE_LOCALIZE,
       'name' => $this->randomName(),
       'description' => $this->randomName(),
-      'machine_name' => drupal_strtolower($this->randomName()),
+      'machine_name' => backdrop_strtolower($this->randomName()),
       'help' => '',
       'nodes' => array('article' => 'article'),
       'weight' => mt_rand(0, 10),
@@ -216,7 +216,7 @@ function testTaxonomyTermLocalize() {
    * Setup a field and instance.
    */
   function createTermField($machine_name, $widget = 'options_select') {
-    $field_name = drupal_strtolower($this->randomName());
+    $field_name = backdrop_strtolower($this->randomName());
 
     $this->field = array(
       'field_name' => $field_name,

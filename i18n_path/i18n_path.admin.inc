@@ -33,7 +33,7 @@ function i18n_path_admin_form($form, $form_state, $translation_set = NULL) {
     '#type' => 'fieldset',
     '#title' => t('Translations'),
     '#tree' => TRUE,
-    '#description' => t('The path for this menu link. This can be an internal Drupal path such as %add-node or an external URL such as %drupal. Enter %front to link to the front page.', array('%front' => '<front>', '%add-node' => 'node/add', '%drupal' => 'http://drupal.org')),
+    '#description' => t('The path for this menu link. This can be an internal Backdrop path such as %add-node or an external URL such as %backdrop. Enter %front to link to the front page.', array('%front' => '<front>', '%add-node' => 'node/add', '%backdrop' => 'http://backdrop.org')),
   );
   foreach (i18n_language_list() as $langcode => $name) {
     $form['translations'][$langcode] = array(
@@ -113,12 +113,12 @@ function i18n_path_admin_form_submit($form, &$form_state) {
       }
 
       $translation_set->save(TRUE);
-      drupal_set_message(t('The path translation has been saved.'));
+      backdrop_set_message(t('The path translation has been saved.'));
       break;
     case 'delete':
       $destination = array();
       if (isset($_GET['destination'])) {
-        $destination = drupal_get_destination();
+        $destination = backdrop_get_destination();
         unset($_GET['destination']);
       }
       $form_state['redirect'] = array($translation_set->get_delete_path(), array('query' => $destination));

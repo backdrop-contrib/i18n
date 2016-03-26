@@ -1,7 +1,7 @@
 
 README.txt
 ==========
-Drupal module: Translation set API
+Backdrop module: Translation set API
 ==================================
 
 This is a generic API to handle translation sets. It is being used for now

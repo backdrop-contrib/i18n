@@ -62,7 +62,7 @@ function i18n_test_menu() {
     'page callback' => 'i18n_string_build',
     'page arguments' => array(3),
     'type' => MENU_CALLBACK,
-    'delivery callback' => 'drupal_json_output',
+    'delivery callback' => 'backdrop_json_output',
   );
   $items['tests/i18n/i18n_string_build/%/%'] = array(
     'title' => 'Load string',
@@ -70,7 +70,7 @@ function i18n_test_menu() {
     'page callback' => 'i18n_string_build',
     'page arguments' => array(3, 4),
     'type' => MENU_CALLBACK,
-    'delivery callback' => 'drupal_json_output',
+    'delivery callback' => 'backdrop_json_output',
   );
   $items['tests/i18n/i18n_string_translation_search/%'] = array(
     'title' => 'Search string translations',
@@ -78,7 +78,7 @@ function i18n_test_menu() {
     'page callback' => 'i18n_string_translation_search',
     'page arguments' => array(3),
     'type' => MENU_CALLBACK,
-    'delivery callback' => 'drupal_json_output',
+    'delivery callback' => 'backdrop_json_output',
   );
   $items['tests/i18n/i18n_string_translation_search/%/%'] = array(
     'title' => 'Search string translations',
@@ -86,7 +86,7 @@ function i18n_test_menu() {
     'page callback' => 'i18n_string_translation_search',
     'page arguments' => array(3, 4),
     'type' => MENU_CALLBACK,
-    'delivery callback' => 'drupal_json_output',
+    'delivery callback' => 'backdrop_json_output',
   );
   return $items;
 }

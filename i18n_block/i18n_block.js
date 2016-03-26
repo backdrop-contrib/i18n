@@ -4,23 +4,23 @@
 /**
  * Provide the summary information for the block settings vertical tab.
  */
-Drupal.behaviors.i18nSettingsSummary = {
+Backdrop.behaviors.i18nSettingsSummary = {
   attach: function (context) {
 
-    $('fieldset#edit-languages', context).drupalSetSummary(function (context) {
+    $('fieldset#edit-languages', context).backdropSetSummary(function (context) {
       var summary = '';
       if ($('.form-item-i18n-mode input[type=checkbox]:checked', context).val()) {
-        summary += Drupal.t('Translatable');
+        summary += Backdrop.t('Translatable');
       }
       else {
-        summary += Drupal.t('Not translatable');
+        summary += Backdrop.t('Not translatable');
       }
       summary += ', ';
       if ($('.form-item-languages input[type=checkbox]:checked', context).val()) {
-        summary += Drupal.t('Restricted to certain languages');
+        summary += Backdrop.t('Restricted to certain languages');
       }
       else {
-        summary += Drupal.t('Not restricted');
+        summary += Backdrop.t('Not restricted');
       }
       return summary;
     });

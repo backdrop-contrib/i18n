@@ -4,7 +4,7 @@
  * Test field synchronization
  */
 
-class i18nSyncTestCase extends Drupali18nTestCase {
+class i18nSyncTestCase extends Backdropi18nTestCase {
 
   public static function getInfo() {
     return array(
@@ -21,7 +21,7 @@ class i18nSyncTestCase extends Drupali18nTestCase {
   }
 
   function testIi18nSync() {
-    drupal_static_reset('language_list');
+    backdrop_static_reset('language_list');
     $language_list = language_list();
     $language_count = count($language_list);
 
@@ -31,29 +31,29 @@ class i18nSyncTestCase extends Drupali18nTestCase {
       'fields[_add_existing_field][field_name]' => 'field_tags',
       'fields[_add_existing_field][widget_type]' => 'taxonomy_autocomplete',
     );
-    $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
-    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->backdropPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
+    $this->backdropPost(NULL, array(), t('Save settings'));
 
     // Create some content and check selection modes
-    $this->drupalLogin($this->content_editor);
+    $this->backdropLogin($this->content_editor);
 
     // variable_set('language_content_type_story', 1);
     $source = $this->createNode('page', $this->randomName(), $this->randomString(20), language_default('language'), array('field_tags[und]' => $tag_name = $this->randomName()));
-    $this->drupalGet('node/' . $source->nid . '/translate');
+    $this->backdropGet('node/' . $source->nid . '/translate');
     $translations = $this->createNodeTranslationSet($source);
 
-    drupal_static_reset('translation_node_get_translations');
+    backdrop_static_reset('translation_node_get_translations');
     $this->assertEqual(count(translation_node_get_translations($source->tnid)), $language_count, "Created $language_count $source->type translations.");
 
     // Set up fields for synchronization: promoted, field_tags
-    $this->drupalLogin($this->admin_user);
+    $this->backdropLogin($this->admin_user);
     $edit = array(
       'i18n_sync_node_type[sticky]' => 1,
       'i18n_sync_node_type[promote]' => 1,
       'i18n_sync_node_type[field_tags]' => 1,
     );
-    $this->drupalPost('admin/structure/types/manage/page', $edit, t('Save content type'));
-    $this->drupalGet('admin/structure/types/manage/page');
+    $this->backdropPost('admin/structure/types/manage/page', $edit, t('Save content type'));
+    $this->backdropGet('admin/structure/types/manage/page');
     // Update source fields and check translations have been updated.
     $new_title = $this->randomName();
     $new_tag = $this->randomName();
@@ -62,11 +62,11 @@ class i18nSyncTestCase extends Drupali18nTestCase {
       'sticky' => 1,
       'field_tags[und]' => $new_tag,
     );
-    $this->drupalPost('node/' . $source->nid . '/edit', $edit, t('Save'));
+    $this->backdropPost('node/' . $source->nid . '/edit', $edit, t('Save'));
     $terms = taxonomy_get_term_by_name($new_tag);
     $term = reset($terms);
     // Refresh cache and load translations again.
-    drupal_static_reset('translation_node_get_translations');
+    backdrop_static_reset('translation_node_get_translations');
 
     // For some reason the field cache for the node translation gets outdated values.
     // This only happens when running unit tests.
@@ -78,7 +78,7 @@ class i18nSyncTestCase extends Drupali18nTestCase {
       $node = node_load($node->nid, NULL, TRUE);
       $this->assertTrue($node->promote && $node->sticky, "Translation for language $lang has been promoted an made sticky.");
       $this->assertEqual($node->field_tags['und'][0]['tid'], $term->tid, "Tag for translation $lang has been properly updated.");
-      $this->drupalGet('node/' . $node->nid);
+      $this->backdropGet('node/' . $node->nid);
       $this->assertRaw($new_tag, "New tag for translation $lang is showing up.");
     }
   }

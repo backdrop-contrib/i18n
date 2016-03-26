@@ -13,7 +13,7 @@
 function i18n_page_menu_items() {
   $items = array();
   // Menus are rebuilt right after other modules are disabled, if no reset we get tabs for disabled modules.
-  drupal_static_reset('i18n_object_info');
+  backdrop_static_reset('i18n_object_info');
   foreach (i18n_object_info() as $type => $info) {
     // These objects should have a 'translate tab' property
     if (!empty($info['translate tab'])) {
@@ -74,7 +74,7 @@ function i18n_page_translate_tab($type, $object, $language = NULL) {
      case I18N_MODE_LOCALIZE:
        return i18n_page_translate_localize($type, $object, $language);
      default:
-       drupal_access_denied();
+       backdrop_access_denied();
    }
 }
 

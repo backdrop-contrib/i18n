@@ -4,7 +4,7 @@
  * Test case for multilingual blocks
  */
 
-class i18nBlocksTestCase extends Drupali18nTestCase {
+class i18nBlocksTestCase extends Backdropi18nTestCase {
 
   public static function getInfo() {
     return array(
@@ -17,16 +17,16 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
   function setUp() {
     parent::setUp('i18n_block');
     parent::setUpLanguages();
-    $this->translator = $this->drupalCreateUser(array('translate interface', 'translate user-defined strings'));
+    $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
 
     $format = filter_default_format();
     variable_set('i18n_string_allowed_formats', array($format => $format));
-    $this->drupalLogin($this->admin_user);
+    $this->backdropLogin($this->admin_user);
   }
 
   function testBlockTranslation() {
 
-    $block_translater = $this->drupalCreateUser(array('administer blocks', 'translate interface', 'translate user-defined strings'));
+    $block_translater = $this->backdropCreateUser(array('administer blocks', 'translate interface', 'translate user-defined strings'));
 
     // Display Language switcher block
     $switcher = array('module' => 'locale', 'delta' => 'language', 'title' => t('Languages'));
@@ -60,12 +60,12 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $this->i18nAssertTranslations($translations['body'], '', 'Custom block body translation displayed.');
 
     // Test the translate tab.
-    $this->drupalLogin($this->admin_user);
-    $this->drupalGet('admin/structure/block/manage/' . $box2['module'] . '/' . $box2['delta'] . '/configure');
+    $this->backdropLogin($this->admin_user);
+    $this->backdropGet('admin/structure/block/manage/' . $box2['module'] . '/' . $box2['delta'] . '/configure');
     $this->assertNoFieldByName('save_and_translate');
 
-    $this->drupalLogin($block_translater);
-    $this->drupalPost('admin/structure/block/manage/' . $box2['module'] . '/' . $box2['delta'] . '/configure', array(), t('Save and translate'));
+    $this->backdropLogin($block_translater);
+    $this->backdropPost('admin/structure/block/manage/' . $box2['module'] . '/' . $box2['delta'] . '/configure', array(), t('Save and translate'));
     // @todo Improve these checks.
     $this->assertText(t('Spanish'));
     $this->assertText(t('translated'));
@@ -82,7 +82,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
       'strings[blocks:block:' . $box2['delta'] . ':title]' => $translations['title']['es'],
       'strings[blocks:block:' . $box2['delta'] . ':body]' => $translations['body']['es'],
     );
-    $this->drupalPost(NULL, $edit, t('Save translation'));
+    $this->backdropPost(NULL, $edit, t('Save translation'));
     $this->i18nAssertTranslations($translations['title'], '', 'Updated block title translation displayed.');
     $this->i18nAssertTranslations($translations['body'], '', 'Updated block body translation displayed.');
 
@@ -94,7 +94,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     // This should be the actual HTML displayed
     $title = check_plain($box3['title']);
     $body = check_markup($box3['body'], $box3['format']);
-    $this->drupalGet('');
+    $this->backdropGet('');
     $this->assertRaw($title, "Title being displayed for default language: " . $title);
     $this->assertRaw($body, "Body being displayed for default language: " . $body);
 
@@ -111,11 +111,11 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
     $this->i18nAssertTranslations($filtered);
 
     // Assert translatable descriptions.
-    $this->drupalLogin($this->admin_user);
-    $this->drupalGet('admin/structure/block/manage/system/powered-by/configure');
+    $this->backdropLogin($this->admin_user);
+    $this->backdropGet('admin/structure/block/manage/system/powered-by/configure');
     $this->assertText(t('This block has generated content, only the title can be translated here.'));
 
-    $this->drupalGet('admin/structure/block/manage/system/navigation/configure');
+    $this->backdropGet('admin/structure/block/manage/system/navigation/configure');
     $this->assertText(t('To translate the block content itself, translate the menu that is being shown.'));
   }
 
@@ -131,7 +131,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
    * Test creating custom block (i.e. box), moving it to a specific region and then deleting it.
    */
   function i18nCreateBlock($block = array(), $region = 'sidebar_first', $check_display = TRUE) {
-    $this->drupalLogin($this->admin_user);
+    $this->backdropLogin($this->admin_user);
     // Add a new custom block by filling out the input form on the admin/structure/block/add page.
     $block += array(
       'info' => $this->randomName(8),
@@ -145,7 +145,7 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
       'i18n_mode' => $block['i18n_mode'],
       'body[value]' => $block['body'],
     );
-    $this->drupalPost('admin/structure/block/add', $custom_block, t('Save block'));
+    $this->backdropPost('admin/structure/block/add', $custom_block, t('Save block'));
 
     // Confirm that the custom block has been created, and then query the created bid.
     $this->assertText(t('The block has been created.'), t('Custom block successfully created.'));
@@ -190,8 +190,8 @@ class i18nBlocksTestCase extends Drupali18nTestCase {
    * Update block
    */
   function updateBlock($block, $edit) {
-    $this->drupalLogin($this->admin_user);
-    $this->drupalPost('admin/structure/block/manage/' . $block['module'] . '/' . $block['delta'] . '/configure', $edit, t('Save block'));
+    $this->backdropLogin($this->admin_user);
+    $this->backdropPost('admin/structure/block/manage/' . $block['module'] . '/' . $block['delta'] . '/configure', $edit, t('Save block'));
   }
 
 }

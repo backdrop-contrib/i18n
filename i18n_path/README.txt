@@ -1,7 +1,7 @@
 
 README.txt
 ==========
-Drupal module: Path translation
+Backdrop module: Path translation
 ==================================
 
 This module provides some basic path translation feature for generic paths.

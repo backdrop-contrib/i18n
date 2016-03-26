@@ -436,7 +436,7 @@ class i18n_string_textgroup_default {
     $options += array('messages' => FALSE, 'watchdog' => TRUE);
     if (!empty($i18nstring->format) && !i18n_string_allowed_format($i18nstring->format)) {
       // This format is not allowed, so we remove the string, in this case we produce a warning
-      drupal_set_message(t('The string %location for textgroup %textgroup is not allowed for translation because of its text format.', $i18nstring->get_args()), 'warning');
+      backdrop_set_message(t('The string %location for textgroup %textgroup is not allowed for translation because of its text format.', $i18nstring->get_args()), 'warning');
       return FALSE;
     }
     else {
@@ -517,13 +517,13 @@ class i18n_string_textgroup_default {
         watchdog('i18n_string', 'Deleted string %location for text group %textgroup: %string', $i18nstring->get_args());
       }
       if ($options['messages']) {
-        drupal_set_message(t('Deleted string %location for text group %textgroup: %string', $i18nstring->get_args()));
+        backdrop_set_message(t('Deleted string %location for text group %textgroup: %string', $i18nstring->get_args()));
       }
       return SAVED_DELETED;
     }
     else {
       if ($options['messages']) {
-        drupal_set_message(t('Cannot delete string, not found %location for text group %textgroup: %string', $i18nstring->get_args()));
+        backdrop_set_message(t('Cannot delete string, not found %location for text group %textgroup: %string', $i18nstring->get_args()));
       }
       return FALSE;
     }
@@ -578,10 +578,10 @@ class i18n_string_textgroup_default {
     if ($options['messages']) {
       switch ($status) {
         case SAVED_UPDATED:
-          drupal_set_message(t('Updated string %location for text group %textgroup: %string', $i18nstring->get_args()));
+          backdrop_set_message(t('Updated string %location for text group %textgroup: %string', $i18nstring->get_args()));
           break;
         case SAVED_NEW:
-          drupal_set_message(t('Created string %location for text group %textgroup: %string', $i18nstring->get_args()));
+          backdrop_set_message(t('Created string %location for text group %textgroup: %string', $i18nstring->get_args()));
           break;
       }
     }
@@ -747,7 +747,7 @@ class i18n_string_textgroup_default {
     if (empty($source->version)) {
       $source->version = 1;
     }
-    return drupal_write_record('locales_source', $source, !empty($source->lid) ? 'lid' : array());
+    return backdrop_write_record('locales_source', $source, !empty($source->lid) ? 'lid' : array());
   }
 
   /**
@@ -935,7 +935,7 @@ class i18n_string_textgroup_default {
       }
       else {
         // Not in cache, add to search conditions skipping duplicated values.
-        // As array_merge_recursive() has some bug in PHP 5.2, http://drupal.org/node/1244598
+        // As array_merge_recursive() has some bug in PHP 5.2, http://backdrop.org/node/1244598
         // we use our simplified version here, instead of $search = array_merge_recursive($search, $combination);
         foreach ($combination as $key => $value) {
           if (!isset($search[$key]) || !in_array($value, $search[$key], TRUE)) {
@@ -1145,7 +1145,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
     if (!isset($this->properties)) {
       $this->properties = $this->build_properties();
       // Call hook_i18n_string_list_TEXTGROUP_alter(), last chance for modules
-      drupal_alter('i18n_string_list_' . $this->get_textgroup(), $this->properties, $this->type, $this->object);
+      backdrop_alter('i18n_string_list_' . $this->get_textgroup(), $this->properties, $this->type, $this->object);
 
     }
     return $this->properties;

@@ -13,7 +13,7 @@ define('I18N_ENTITY_LANGUAGES_EXTENDED', 1);
 /**
  * Default entity controller for notifications objects
  */
-class I18nTranslationSetController extends DrupalDefaultEntityController {
+class I18nTranslationSetController extends BackdropDefaultEntityController {
   /**
    * Builds objects of specific classes upon loading.
    *
@@ -230,10 +230,10 @@ function i18n_translation_object($type, $object, $create = FALSE) {
  * Get information about translation sets
  */
 function i18n_translation_set_info($type = NULL, $property = NULL, $default = NULL) {
-  $info = &drupal_static(__FUNCTION__);
+  $info = &backdrop_static(__FUNCTION__);
   if (!$info) {
     $info = module_invoke_all('i18n_translation_set_info');
-    drupal_alter('i18n_translation_set_info', $info);
+    backdrop_alter('i18n_translation_set_info', $info);
   }
   if ($property && $type) {
     return isset($info[$type][$property]) ? $info[$type][$property] : $default;
@@ -344,7 +344,7 @@ function i18n_translation_set_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {
     $set = i18n_translation_set_load($form_state['values']['tsid']);
     $set->delete(TRUE);
-    drupal_set_message(t('The translation set has been deleted.'));
+    backdrop_set_message(t('The translation set has been deleted.'));
   }
 
   $form_state['redirect'] = i18n_translation_set_info($set->type, 'list path');

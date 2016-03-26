@@ -28,7 +28,7 @@ function i18n_taxonomy_help($path, $arg) {
       $output .= '<li>' . t('Terms can be common to all languages, but may be localized.') . '</li>';
       $output .= '</ul>';
       $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
-      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) . '</p>';
+      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://backdrop.org/node/133977')) . '</p>';
       return $output;
 
     case 'admin/config/regional/i18n':
@@ -39,13 +39,13 @@ function i18n_taxonomy_help($path, $arg) {
       $vocabulary = taxonomy_vocabulary_machine_name_load($arg[3]);
       switch (i18n_taxonomy_vocabulary_mode($vocabulary)) {
         case I18N_MODE_LOCALIZE:
-          return '<p>' . t('%capital_name is a localizable vocabulary. You will be able to translate term names and descriptions using the <a href="@translate-interface">translate interface</a> pages.', array('%capital_name' => drupal_ucfirst($vocabulary->name), '%name' => $vocabulary->name, '@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
+          return '<p>' . t('%capital_name is a localizable vocabulary. You will be able to translate term names and descriptions using the <a href="@translate-interface">translate interface</a> pages.', array('%capital_name' => backdrop_ucfirst($vocabulary->name), '%name' => $vocabulary->name, '@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
 
         case I18N_MODE_LANGUAGE:
-          return '<p>' . t('%capital_name is a vocabulary with a fixed language. All the terms in this vocabulary will have %language language.', array('%capital_name' => drupal_ucfirst($vocabulary->name), '%name' => $vocabulary->name, '%language' => i18n_language_property($vocabulary->language, 'name'))) . '</p>';
+          return '<p>' . t('%capital_name is a vocabulary with a fixed language. All the terms in this vocabulary will have %language language.', array('%capital_name' => backdrop_ucfirst($vocabulary->name), '%name' => $vocabulary->name, '%language' => i18n_language_property($vocabulary->language, 'name'))) . '</p>';
 
         case I18N_MODE_TRANSLATE:
-          return '<p>' . t('%capital_name is a full multilingual vocabulary. You will be able to set a language for each term and create translation relationships.', array('%capital_name' => drupal_ucfirst($vocabulary->name))) . '</p>';
+          return '<p>' . t('%capital_name is a full multilingual vocabulary. You will be able to set a language for each term and create translation relationships.', array('%capital_name' => backdrop_ucfirst($vocabulary->name))) . '</p>';
       }
       break;
 
@@ -72,7 +72,7 @@ function i18n_taxonomy_menu() {
   );
   $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/add'] = array(
     'title' => 'Create new translation',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_taxonomy_translation_term_form', 3),
     'access callback' => 'i18n_taxonomy_vocabulary_translation_tab_sets_access',
     'access arguments' => array(3),
@@ -82,7 +82,7 @@ function i18n_taxonomy_menu() {
   );
   $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/edit/%i18n_taxonomy_translation_set'] = array(
     'title' => 'Edit translation',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_taxonomy_translation_term_form', 3, 7),
     'access callback' => 'i18n_taxonomy_vocabulary_translation_tab_sets_access',
     'access arguments' => array(3),
@@ -92,7 +92,7 @@ function i18n_taxonomy_menu() {
   );
   $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/delete/%i18n_taxonomy_translation_set'] = array(
     'title' => 'Delete translation',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_translation_set_delete_confirm', 7),
     'access callback' => 'i18n_taxonomy_vocabulary_translation_tab_sets_access',
     'access arguments' => array(3),
@@ -136,19 +136,19 @@ function i18n_taxonomy_admin_paths() {
 function i18n_taxonomy_menu_alter(&$items) {
   // If ctool's page manager is active for the path skip this modules override.
   // Also views module takes over this page so this won't work if views enabled.
-  // Skip when taxonomy_display enabled, see http://drupal.org/node/1280194
+  // Skip when taxonomy_display enabled, see http://backdrop.org/node/1280194
   if (variable_get('page_manager_term_view_disabled', TRUE) && !module_exists('taxonomy_display')) {
     // Taxonomy term page. Localize terms.
     $items['taxonomy/term/%taxonomy_term']['page callback'] = 'i18n_taxonomy_term_page';
     $items['taxonomy/term/%taxonomy_term']['title callback'] = 'i18n_taxonomy_term_name';
     $items['taxonomy/term/%taxonomy_term']['file'] = 'i18n_taxonomy.pages.inc';
-    $items['taxonomy/term/%taxonomy_term']['file path'] = drupal_get_path('module', 'i18n_taxonomy');
+    $items['taxonomy/term/%taxonomy_term']['file path'] = backdrop_get_path('module', 'i18n_taxonomy');
   }
 
   // Localize autocomplete
   $items['taxonomy/autocomplete']['page callback'] = 'i18n_taxonomy_autocomplete_field';
   $items['taxonomy/autocomplete']['file'] = 'i18n_taxonomy.pages.inc';
-  $items['taxonomy/autocomplete']['file path'] = drupal_get_path('module', 'i18n_taxonomy');
+  $items['taxonomy/autocomplete']['file path'] = backdrop_get_path('module', 'i18n_taxonomy');
 }
 
 /**
@@ -646,7 +646,7 @@ function i18n_taxonomy_taxonomy_vocabulary_update($vocabulary) {
       ->fields($update)
       ->condition('vid', $vocabulary->vid)
       ->execute();
-    drupal_set_message(t('Reset language for all terms.'));
+    backdrop_set_message(t('Reset language for all terms.'));
   }
   // Update strings, always add translation if no language
   if (!i18n_object_langcode($vocabulary)) {
@@ -767,7 +767,7 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
         $form['language']['#default_value'] = $target_language->language;
         $form['language']['#disabled'] = TRUE;
 
-        drupal_set_title(t('%language translation of term %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_term->name)), PASS_THROUGH);
+        backdrop_set_title(t('%language translation of term %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_term->name)), PASS_THROUGH);
       }
       elseif (!empty($term->tid) && i18n_object_langcode($term)) {
         // Set context language to term language.
@@ -1048,7 +1048,7 @@ function i18n_taxonomy_localize_terms($terms) {
  *
  */
 function i18n_taxonomy_vocabulary_mode($vid, $mode = NULL) {
-  $modes = &drupal_static(__FUNCTION__);
+  $modes = &backdrop_static(__FUNCTION__);
   if (is_object($vid)) {
     $vid_mode = i18n_object_field($vid, 'i18n_mode', I18N_MODE_NONE);
     return isset($mode) ? $mode & $vid_mode : $vid_mode;
@@ -1072,9 +1072,9 @@ function i18n_taxonomy_vocabulary_mode($vid, $mode = NULL) {
  *   Parent term id for the tree
  */
 function i18n_taxonomy_get_tree($vid, $langcode, $parent = 0, $max_depth = NULL, $load_entities = FALSE) {
-  $children = &drupal_static(__FUNCTION__, array());
-  $parents = &drupal_static(__FUNCTION__ . ':parents', array());
-  $terms = &drupal_static(__FUNCTION__ . ':terms', array());
+  $children = &backdrop_static(__FUNCTION__, array());
+  $parents = &backdrop_static(__FUNCTION__ . ':parents', array());
+  $terms = &backdrop_static(__FUNCTION__ . ':terms', array());
 
   // We cache trees, so it's not CPU-intensive to call get_tree() on a term
   // and its children, too.
@@ -1251,7 +1251,7 @@ function i18n_taxonomy_views_api() {
  * @param $modules
  */
 function i18n_taxonomy_modules_enabled($modules) {
-  $modules = drupal_map_assoc($modules);
+  $modules = backdrop_map_assoc($modules);
   if (isset($modules['i18n_taxonomy'])) {
     foreach (field_info_fields() as $fieldname => $field) {
       if ($field['type'] == 'taxonomy_term_reference') {

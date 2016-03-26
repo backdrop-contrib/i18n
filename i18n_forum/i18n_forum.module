@@ -77,7 +77,7 @@ function i18n_forum_node_view($node, $view_mode, $langcode) {
           $breadcrumb[] = l(i18n_taxonomy_term_name($parent), 'forum/' . $parent->tid);
         }
       }
-      drupal_set_breadcrumb($breadcrumb);
+      backdrop_set_breadcrumb($breadcrumb);
     }
   }
 }
@@ -113,7 +113,7 @@ function i18n_forum_preprocess_forums(&$variables) {
     if (isset($variables['links']['forum'])) {
       $variables['links']['forum']['title'] = i18n_string('nodetype:type:forum:post_button', 'Post new Forum topic');
     }
-    // This one is from advanced forum, http://drupal.org/project/advanced_forum
+    // This one is from advanced forum, http://backdrop.org/project/advanced_forum
     if (!empty($variables['forum_description'])) {
       $variables['forum_description'] = i18n_string('taxonomy:term:' . $variables['tid'] . ':description', $variables['forum_description']);
     }
@@ -134,8 +134,8 @@ function i18n_forum_preprocess_forums(&$variables) {
         }
       }
     }
-    drupal_set_breadcrumb($breadcrumb);
-    drupal_set_title($title);
+    backdrop_set_breadcrumb($breadcrumb);
+    backdrop_set_title($title);
   }
 }
 

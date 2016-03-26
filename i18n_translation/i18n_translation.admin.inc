@@ -38,7 +38,7 @@ function i18n_translation_admin_overview($type = NULL, $query = NULL) {
     ->fetchCol();
   $translations = $tsids ? entity_load('i18n_translation', $tsids) : array();
   
-  $form = drupal_get_form('i18n_translation_admin_form', $translations, $header);
+  $form = backdrop_get_form('i18n_translation_admin_form', $translations, $header);
 
   $form['pager'] = array('#markup' => theme('pager'));  
   return $form;  
@@ -48,7 +48,7 @@ function i18n_translation_admin_overview($type = NULL, $query = NULL) {
  * Admin form
  */
 function i18n_translation_admin_form($form, &$form_state, $translations, $header) {
-  $destination = drupal_get_destination();
+  $destination = backdrop_get_destination();
   $rows = array();
   foreach ($translations as $set) {
     $info = i18n_object_info($set->type);

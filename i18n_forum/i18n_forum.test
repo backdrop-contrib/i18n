@@ -4,7 +4,7 @@
  * @file
  * Test case for multilingual forums.
  */
-class i18nForumTestCase extends Drupali18nTestCase {
+class i18nForumTestCase extends Backdropi18nTestCase {
   public static function getInfo() {
     return array(
       'name' => 'Multilingual forum',
@@ -24,7 +24,7 @@ class i18nForumTestCase extends Drupali18nTestCase {
    */
   public function testI18nSelectTest() {
     // @TODO: improve test. its just a quick test against the PDO exception
-    // @see http://drupal.org/node/1437932
+    // @see http://backdrop.org/node/1437932
     $this->i18nGet($this->default_language, 'forum');
   }
 }

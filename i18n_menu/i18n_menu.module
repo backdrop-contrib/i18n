@@ -22,7 +22,7 @@ function i18n_menu_menu() {
   );
   $items['admin/structure/menu/manage/translation/add'] = array(
     'title' => 'Add translation',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_menu_translation_form'),
     'access arguments' => array('administer menu'),
     'type' => MENU_LOCAL_ACTION,
@@ -30,7 +30,7 @@ function i18n_menu_menu() {
   );
   $items['admin/structure/menu/manage/translation/edit/%i18n_menu_translation'] = array(
     'title' => 'Edit translation',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_menu_translation_form', 6),
     'access arguments' => array('administer menu'),
     'type' => MENU_CALLBACK,
@@ -38,7 +38,7 @@ function i18n_menu_menu() {
   );
   $items['admin/structure/menu/manage/translation/delete/%i18n_menu_translation'] = array(
     'title' => 'Delete translation',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_translation_set_delete_confirm', 6),
     'access arguments' => array('administer menu'),
     'type' => MENU_CALLBACK,
@@ -358,7 +358,7 @@ function i18n_menu_variable_info_alter(&$variables, $options) {
  *   Whether to reset the internal i18n_menu_translated_tree cache.
  */
 function i18n_menu_translated_tree($menu_name, $langcode = NULL, $reset = FALSE) {
-  $menu_output = &drupal_static(__FUNCTION__);
+  $menu_output = &backdrop_static(__FUNCTION__);
   $langcode = $langcode ? $langcode : i18n_language_interface()->language;
   if (!isset($menu_output[$langcode][$menu_name]) || $reset) {
     $tree = menu_tree_page_data($menu_name);
@@ -616,7 +616,7 @@ function _i18n_menu_link_localizable_properties($link) {
  *   The path to fetch from the router.
  */
 function _i18n_menu_get_router($path) {
-  $cache = &drupal_static(__FUNCTION__, array());
+  $cache = &backdrop_static(__FUNCTION__, array());
   if (!array_key_exists($path, $cache)) {
     $cache[$path] = db_select('menu_router', 'mr')
       ->fields('mr', array('title', 'title_callback', 'description'))
@@ -676,7 +676,7 @@ function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
       $form['i18n']['language']['#default_value'] = $_GET['target'];
       $form['i18n']['language']['#disabled'] = TRUE;
 
-      drupal_set_title(t('%language translation of menu item %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_item['link_title'])), PASS_THROUGH);
+      backdrop_set_title(t('%language translation of menu item %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_item['link_title'])), PASS_THROUGH);
     }
     elseif (!empty($item['i18n_tsid'])) {
       $translation_set = i18n_translation_set_load($item['i18n_tsid']);
@@ -811,7 +811,7 @@ function i18n_menu_form_node_form_alter(&$form, &$form_state, $form_id) {
  * Check whether a node type has multilingual support (but not entity translation).
  */
 function i18n_menu_node_supported_type($type) {
-  $supported = &drupal_static(__FUNCTION__);
+  $supported = &backdrop_static(__FUNCTION__);
   if (!isset($supported[$type])) {
     $mode = variable_get('language_content_type_' . $type, 0);
     $supported[$type] = $mode == 1 || $mode == 2; // 2 == TRANSLATION_ENABLED
@@ -918,7 +918,7 @@ function i18n_menu_init() {
   // TODO: Adding an alter tag to the query would allow to do this with a simple
   // hook_query_alter() implementation.
 
-  $preferred_links = &drupal_static('menu_link_get_preferred');
+  $preferred_links = &backdrop_static('menu_link_get_preferred');
 
   $path = $_GET['q'];
 

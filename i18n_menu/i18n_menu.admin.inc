@@ -101,11 +101,11 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
       }
       $translation_set->title = !empty($form_state['values']['title']) ? $form_state['values']['title'] : '';
       $translation_set->save(TRUE);
-      drupal_set_message(t('The item translation has been saved.'));
+      backdrop_set_message(t('The item translation has been saved.'));
       break;
     case t('Delete'):
       $translation_set->delete(TRUE);
-      drupal_set_message(t('The item translation has been deleted.'));
+      backdrop_set_message(t('The item translation has been deleted.'));
       break;
   }
 
@@ -242,7 +242,7 @@ function i18n_menu_translation_item_overview($item, $translation_set = NULL) {
     else {
       // No such translation in the set yet: help user to create it.
       $title = t('n/a');
-      $options[] = l(t('add translation'), 'admin/structure/menu/manage/' . $item['menu_name'] . '/add', array('query' => array('translation' => $item['mlid'], 'target' => $langcode) + drupal_get_destination()));
+      $options[] = l(t('add translation'), 'admin/structure/menu/manage/' . $item['menu_name'] . '/add', array('query' => array('translation' => $item['mlid'], 'target' => $langcode) + backdrop_get_destination()));
     }
     $rows[$langcode] = array(
       'language' => $language_name,
@@ -251,7 +251,7 @@ function i18n_menu_translation_item_overview($item, $translation_set = NULL) {
     );
   }
 
-  drupal_set_title(t('Translations of menu item %title', array('%title' => $item['link_title'])), PASS_THROUGH);
+  backdrop_set_title(t('Translations of menu item %title', array('%title' => $item['link_title'])), PASS_THROUGH);
 
   $build['translation_overview'] = array(
     '#theme' => 'table',

@@ -4,7 +4,7 @@
  * Test language selection modes
  */
 
-class i18nSelectTestCase extends Drupali18nTestCase {
+class i18nSelectTestCase extends Backdropi18nTestCase {
 
   public static function getInfo() {
     return array(
@@ -21,13 +21,13 @@ class i18nSelectTestCase extends Drupali18nTestCase {
   }
 
   function testIi18nSelect() {
-    drupal_static_reset('language_list');
+    backdrop_static_reset('language_list');
     $language_list = language_list();
     $language_count = count($language_list);
     // Set site name for each language and check pages later
     variable_set('i18n_variable_list', array('site_name'));
     foreach (i18n_language_list() as $langcode => $name) {
-      i18n_variable_set('site_name', "Drupal-$name", $langcode);
+      i18n_variable_set('site_name', "Backdrop-$name", $langcode);
     }
 
     // Enable tags field for page content type.
@@ -36,28 +36,28 @@ class i18nSelectTestCase extends Drupali18nTestCase {
       'fields[_add_existing_field][field_name]' => 'field_tags',
       'fields[_add_existing_field][widget_type]' => 'taxonomy_autocomplete',
     );
-    $this->drupalPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
-    $this->drupalPost(NULL, array(), t('Save settings'));
+    $this->backdropPost('admin/structure/types/manage/page/fields', $edit, t('Save'));
+    $this->backdropPost(NULL, array(), t('Save settings'));
 
     // Create some content and check selection modes
-    $this->drupalLogin($this->content_editor);
+    $this->backdropLogin($this->content_editor);
 
     // variable_set('language_content_type_story', 1);
-    $neutral = $this->drupalCreateNode(array('type' => 'page', 'promote' => 1));
+    $neutral = $this->backdropCreateNode(array('type' => 'page', 'promote' => 1));
     $source = $this->createNode('page', $this->randomName(), $this->randomString(20), language_default('language'), array('field_tags[und]' => $tag_name = $this->randomName()));
     $translations = $this->createNodeTranslationSet($source);
 
-    drupal_static_reset('translation_node_get_translations');
+    backdrop_static_reset('translation_node_get_translations');
     $this->assertEqual(count(translation_node_get_translations($source->tnid)), $language_count, "Created $language_count $source->type translations.");
 
     // Log in user with access content permission
-    $user = $this->drupalCreateUser(array('access comments', 'access content'));
-    $this->drupalLogin($user);
+    $user = $this->backdropCreateUser(array('access comments', 'access content'));
+    $this->backdropLogin($user);
     // Default selection mode, only language neutral and current
     variable_set('i18n_select_nodes', TRUE);
     foreach (i18n_language_list() as $langcode => $name) {
       $this->i18nGet($langcode);
-      $this->assertText("Drupal-$name", 'Checked translated site name: Drupal-' . $name);
+      $this->assertText("Backdrop-$name", 'Checked translated site name: Backdrop-' . $name);
       $display = array($translations[$langcode], $neutral);
       $hide = $translations;
       unset($hide[$langcode]);

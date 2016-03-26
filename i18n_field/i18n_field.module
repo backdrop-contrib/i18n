@@ -48,7 +48,7 @@ function i18n_field_menu() {
           $field_position = count(explode('/', $path)) + 1;
 
           // Extract access information, providing defaults.
-          $access = array_intersect_key($bundle_info['admin'], drupal_map_assoc(array('access callback', 'access arguments')));
+          $access = array_intersect_key($bundle_info['admin'], backdrop_map_assoc(array('access callback', 'access arguments')));
           $access += array(
             'access callback' => 'user_access',
             'access arguments' => array('administer site configuration'),
@@ -431,10 +431,10 @@ function i18n_field_translate_property($instance, $property, $langcode = NULL) {
  *   - Array of translation information for all field types.
  */
 function i18n_field_type_info($type = NULL, $property = NULL) {
-  $info = &drupal_static(__FUNCTION__);
+  $info = &backdrop_static(__FUNCTION__);
   if (!isset($info)) {
     $info = module_invoke_all('i18n_field_info');
-    drupal_alter('i18n_field_info', $info);
+    backdrop_alter('i18n_field_info', $info);
   }
   if ($property) {
     return isset($info[$type]) && isset($info[$type][$property]) ? $info[$type][$property] : NULL;

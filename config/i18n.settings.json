@@ -1,0 +1,25 @@
+{
+    "_config_name": "i18n.settings",
+    "i18n_language_list": 1,
+    "i18n_menu_override_parent_selector": FALSE
+    "i18n_node_options_page": [],
+    "i18n_node_options_post": []
+    "i18n_node_extended_page": 1,
+    "i18n_node_extended_post": 1
+    "i18n_hide_translation_links": 0,
+    "i18n_node_default_language_none": 0,
+    "i18n_select_page_block": TRUE,
+    "i18n_select_page": TRUE,
+    "i18n_select_post": TRUE,
+    "i18n_select_page_mode": 0,
+    "i18n_select_page_list": 'admin/*',
+    "i18n_select_skip_tags": 'views',
+    "i18n_string_debug": FALSE,
+    "i18n_string_translate_langcode_en": 1,
+    "i18n_string_allowed_formats": ['filtered_html'],
+    "i18n_string_source_language": "en",
+    "i18n_loaded_translations": [],
+    "i18nsync_nodeapi_page": [],
+    "i18nsync_nodeapi_post": [],
+    "i18ntaxonomy_vocabulary": "tags"
+}

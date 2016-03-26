@@ -130,7 +130,7 @@ function i18n_taxonomy_term_translation_page($type, $term) {
 
   $translation_overview = i18n_taxonomy_translation_term_overview($term);
 
-  $translation_term_form = drupal_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $translation_set, $term);
+  $translation_term_form = backdrop_get_form('i18n_taxonomy_translation_term_form', $vocabulary, $translation_set, $term);
 
   return $translation_overview + $translation_term_form;
 }

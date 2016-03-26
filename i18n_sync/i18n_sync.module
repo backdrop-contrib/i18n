@@ -7,7 +7,7 @@
  * Keeps vocabulary terms in sync for translations.
  * This is a per-vocabulary option.
  *
- * Ref: http://drupal.org/node/115463
+ * Ref: http://backdrop.org/node/115463
  *
  * Notes:
  * This module needs to run after taxonomy, i18n, translation. Check module weight.
@@ -43,7 +43,7 @@ function i18n_sync_help($path, $arg) {
       $output .= '<p><strong>' . t('Note that permissions are not checked for each node. So if someone can edit a node and it is set to synchronize, all the translations will be synchronized anyway.') . '</strong></p>';
       $output .= '<p>' . t('To enable synchronization check content type options to select which fields to synchronize for each node type.') . '</p>';
       $output .= '<p>' . t('The list of available fields for synchronization will include some standard node fields and all CCK fields. You can add more fields to the list in a configuration variable. See README.txt for how to do it.') . '</p>';
-      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://drupal.org/node/133977')) . '</p>';
+      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://backdrop.org/node/133977')) . '</p>';
       return $output;
   }
 }
@@ -141,7 +141,7 @@ function i18n_sync_node_get_translations($node, $reset = FALSE) {
   if (!empty($node->tnid)) {
     if ($reset) {
       // Clear the static cache of translation_node_get_translations
-      $translations_cache = &drupal_static('translation_node_get_translations', array());
+      $translations_cache = &backdrop_static('translation_node_get_translations', array());
       unset($translations_cache[$node->tnid]);
     }
     // Maybe translations are already here
@@ -233,13 +233,13 @@ function i18n_sync_node_options($type) {
  * @param
  */
 function i18n_sync_options($entity_type, $bundle_name) {
-  $cache = &drupal_static(__FUNCTION__);
+  $cache = &backdrop_static(__FUNCTION__);
 
   if (!isset($cache[$entity_type][$bundle_name])) {
     module_load_include('modules.inc', 'i18n_sync');
     $fields = module_invoke_all('i18n_sync_options', $entity_type, $bundle_name);
     // Give a chance to modules to change/remove/add their own fields
-    drupal_alter('i18n_sync_options', $fields, $entity_type, $bundle_name);
+    backdrop_alter('i18n_sync_options', $fields, $entity_type, $bundle_name);
     $cache[$entity_type][$bundle_name] = $fields;
   }
 
