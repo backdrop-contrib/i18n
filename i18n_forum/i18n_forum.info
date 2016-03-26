@@ -4,5 +4,6 @@ dependencies[] = forum
 dependencies[] = i18n_taxonomy
 dependencies[] = i18n_node
 package = Multilingual - Internationalization
-core = 7.x
+backdrop = 1.x
+type = module
 files[] = i18n_forum.test

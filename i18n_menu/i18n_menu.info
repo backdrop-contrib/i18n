@@ -5,7 +5,8 @@ dependencies[] = menu
 dependencies[] = i18n_string
 dependencies[] = i18n_translation
 package = Multilingual - Internationalization
-core = 7.x
+backdrop = 1.x
+type = module
 
 files[] = i18n_menu.inc
 files[] = i18n_menu.test

@@ -3,7 +3,8 @@ description = Synchronizes taxonomy and fields accross translations of the same 
 dependencies[] = i18n
 dependencies[] = translation
 package = Multilingual - Internationalization
-core = 7.x
+backdrop = 1.x
+type = module
 
 files[] = i18n_sync.module
 files[] = i18n_sync.install

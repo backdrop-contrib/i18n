@@ -3,4 +3,5 @@ description = Makes contact categories and replies available for translation.
 dependencies[] = contact
 dependencies[] = i18n_string
 package = Multilingual - Internationalization
-core = 7.x
+backdrop = 1.x
+type = module

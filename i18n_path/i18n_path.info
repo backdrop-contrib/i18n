@@ -2,7 +2,8 @@ name = Path translation
 description = Define translations for generic paths
 dependencies[] = i18n_translation
 package = Multilingual - Internationalization
-core = 7.x
+backdrop = 1.x
+type = module
 
 files[] = i18n_path.inc
 files[] = i18n_path.test

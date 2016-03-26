@@ -1,11 +1,11 @@
 {
     "_config_name": "i18n.settings",
     "i18n_language_list": 1,
-    "i18n_menu_override_parent_selector": FALSE
+    "i18n_menu_override_parent_selector": FALSE,
     "i18n_node_options_page": [],
-    "i18n_node_options_post": []
+    "i18n_node_options_post": [],
     "i18n_node_extended_page": 1,
-    "i18n_node_extended_post": 1
+    "i18n_node_extended_post": 1,
     "i18n_hide_translation_links": 0,
     "i18n_node_default_language_none": 0,
     "i18n_select_page_block": TRUE,
