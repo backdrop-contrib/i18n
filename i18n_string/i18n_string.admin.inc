@@ -6,7 +6,7 @@
  */
 
 // Load locale library
-include_once BACKDROP_ROOT . '/includes/locale.inc';
+include_once BACKDROP_ROOT . '/core/includes/locale.inc';
 
 /**
  * Form callback. Refresh textgroups.
@@ -310,4 +310,57 @@ function i18n_string_module_string_list($module) {
     }
   }
   return $strings;
+}
+
+/**
+ * Form callback.
+ */
+function i18n_string_settings_form($form, &$form_state) {
+  $intro_text = '<p>' . t('When translating user defined strings that have a text format associated, translators will be able to edit the text before it is filtered which may be a security risk for some filters. An obvious example is when using the PHP filter but other filters may also be dangerous.') . '</p>';
+  $intro_text .= '<p>' . t('As a general rule <strong>do not allow any filtered text to be translated unless the translators already have access to that text format</strong>. However if you are doing all your translations through this site\'s translation UI or the Localization client, and never importing translations for other textgroups than <i>default</i>, filter access will be checked for translators on every translation page.') . '</p>';
+  $intro_text .= '<p>' . t('<strong>Important:</strong> After disallowing some text format, use the <a href="@refresh-strings">refresh strings</a> page so forbidden strings are deleted and not allowed anymore for translators.', array('@refresh-strings' => url('admin/config/regional/translate/i18n_string'))) . '</p>';
+
+  // As the user has administer filters permissions we get a full list here
+  foreach (filter_formats() as $fid => $format) {
+    $list[$fid] = $format->name;
+  }
+
+  $settings = config('i18n.settings');
+
+  $form['i18n_string_intro'] = array(
+    '#markup' => $intro_text,
+  );
+  $form['i18n_string_allowed_formats'] = array(
+    '#title' => t('Translatable text formats'),
+    '#options' => $list,
+    '#type' => 'checkboxes',
+    '#default_value' => $settings->get('i18n_string_allowed_formats'),
+    '#description' => t('The translation system only translates strings with the selected text formats. All other strings will be ignored and removed from the list of translatable strings.'),
+  );
+  $form['i18n_string_source_language'] = array(
+    '#title' => t('Source language'),
+    '#options' => language_list('name', TRUE),
+    '#type' => 'radios',
+    '#default_value' => $settings->get('i18n_string_source_language'),
+    '#description' => t('Language that will be used as the source language for string translations. The default is the site default language.'),
+  );
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration')
+  );
+  return $form;
+}
+
+
+/**
+ * Submit callback for i18n_settings_form().
+ */
+function i18n_string_settings_form_submit($form, &$form_state) {
+  $config = config('i18n.settings');
+  $config->set('i18n_string_allowed_formats', $form_state['values']['i18n_string_allowed_formats']);
+  $config->set('i18n_string_source_language', $form_state['values']['i18n_string_source_language']);
+  $config->save();
+  
+  backdrop_set_message(t('The configuration options have been saved.'));
 }

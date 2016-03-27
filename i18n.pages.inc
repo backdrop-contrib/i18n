@@ -93,3 +93,36 @@ function i18n_page_translate_localize($type, $object, $language = NULL) {
   module_load_include('pages.inc', 'i18n_string');
   return i18n_string_object_translate_page($type, $object, $language);
 }
+
+/**
+ * Menu callback. Settings for i18n.
+ */
+function i18n_settings_form($form, &$form_state) {
+  $language_settings = config_get('i18n.settings', 'i18n_language_list');
+  $options = array(
+    I18N_LANGUAGE_ENABLED => t('Enabled languages only.'),
+    I18N_LANGUAGE_EXTENDED => t('All defined languages will be allowed.'),
+  );
+  $form['languages'] = array(
+    '#type' => 'radios',
+    '#title' => t('Languages for content'),
+    '#description' => t('Determines which languages will be allowed for content creation.'),
+    '#options' => $options,
+    '#default_value' => $language_settings,
+  );
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save configuration')
+  );
+  return $form;
+}
+
+/**
+ * Submit callback for i18n_settings_form().
+ */
+function i18n_settings_form_submit($form, &$form_state) {
+  config_set('i18n.settings', 'i18n_language_list', $form_state['values']['languages']);
+  
+  backdrop_set_message(t('The configuration options have been saved.'));
+}

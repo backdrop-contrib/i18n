@@ -124,7 +124,8 @@ function i18n_string_menu() {
     'weight' => 20,
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'backdrop_get_form',
-    'page arguments' => array('variable_edit_form', array('i18n_string_allowed_formats', 'i18n_string_source_language')),
+    'page arguments' => array('i18n_string_settings_form'),
+    'file' => 'i18n_string.admin.inc',
     'access arguments' => array('administer site configuration'),
   );
   // AJAX callback path for strings.
@@ -238,7 +239,7 @@ function i18n_string_form_locale_translate_export_po_form_alter(&$form, $form_st
  */
 function i18n_string_form_locale_translate_import_form_alter(&$form, $form_state) {
   if (i18n_string_source_language() != 'en') {
-    $names = locale_language_list('name', TRUE);
+    $names = language_list('name', TRUE);
     if (array_key_exists('en', $names)) {
       $form['import']['langcode']['#options'][t('Already added languages')]['en'] = $names['en'];
     }
