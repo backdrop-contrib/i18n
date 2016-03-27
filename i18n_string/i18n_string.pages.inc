@@ -8,7 +8,7 @@
  */
 
 // Load locale libraries
-include_once BACKDROP_ROOT . '/includes/locale.inc';
+include_once BACKDROP_ROOT . '/core/includes/locale.inc';
 include_once backdrop_get_path('module', 'locale') . '/locale.admin.inc';
 
 /**

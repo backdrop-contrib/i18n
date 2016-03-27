@@ -38,7 +38,7 @@ function i18n_node_add_page() {
  *   Node object.
  */
 function i18n_node_translation_overview($node) {
-  include_once BACKDROP_ROOT . '/includes/language.inc';
+  include_once BACKDROP_ROOT . '/core/includes/language.inc';
 
   if (!empty($node->tnid)) {
     // Already part of a set, grab that set.
