@@ -13,7 +13,7 @@ define('I18N_ENTITY_LANGUAGES_EXTENDED', 1);
 /**
  * Default entity controller for notifications objects
  */
-class I18nTranslationSetController extends BackdropDefaultEntityController {
+class I18nTranslationSetController extends DefaultEntityController {
   /**
    * Builds objects of specific classes upon loading.
    *

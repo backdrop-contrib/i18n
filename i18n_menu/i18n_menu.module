@@ -115,10 +115,9 @@ function i18n_menu_menu_update($menu) {
   if (!($menu['i18n_mode'] & I18N_MODE_LANGUAGE)) {
     $menu['language'] = LANGUAGE_NONE;
   }
-  db_update('menu_custom')
-    ->fields(array('language' => $menu['language'], 'i18n_mode' => $menu['i18n_mode']))
-    ->condition('menu_name', $menu['menu_name'])
-    ->execute();
+
+  i18n_menu_update_menu_data($menu);
+
   if (!$menu['i18n_mode']) {
     $update['language'] = LANGUAGE_NONE;
   }
@@ -278,6 +277,27 @@ function i18n_menu_menu_link_delete($link) {
   }
 
   i18n_string_object_remove('menu_link', $link);
+}
+
+/**
+ * Adds or removes extra data to/from top-level menus.
+ */
+function i18n_menu_update_menu_data($menu_data = NULL, $unset = FALSE) {
+  $menus = config_get_names_with_prefix('menu.menu.');
+  foreach ($menus as $menu) {
+    $config = config($menu);
+    $data = $config->get();
+    if (!$unset) {
+      $data['language'] = isset($menu_data) ? $menu_data['language'] : LANGUAGE_NONE;
+      $data['i18n_mode'] = isset($menu_data) ? $menu_data['i18n_mode'] : 0;
+    }
+    else {
+      unset($data['language']);
+      unset($data['i18n_mode']);
+    }
+    $config->setData($data);
+    $config->save();
+  }
 }
 
 /**
@@ -956,7 +976,7 @@ function i18n_menu_init() {
   $query->condition('ml.link_path', $path_candidates, 'IN');
 
   // Only look menu links with none or the current language.
-  $query->condition('ml.language', array(LANGUAGE_NONE, i18n_language_interface()->language), 'IN');
+  $query->condition('ml.language', array(LANGUAGE_NONE, i18n_language_interface()->langcode), 'IN');
 
   // Sort candidates by link path and menu name.
   $candidates = array();
