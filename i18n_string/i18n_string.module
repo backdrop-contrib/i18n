@@ -228,7 +228,7 @@ function i18n_string_form_l10n_client_form_alter(&$form, &$form_state) {
  * Implements hook_form_FORM_ID_alter()
  */
 function i18n_string_form_locale_translate_export_po_form_alter(&$form, $form_state) {
-  $names = locale_language_list('name', TRUE);
+  $names = language_list('name', TRUE);
   if (i18n_string_source_language() != 'en' && array_key_exists('en', $names)) {
     $form['langcode']['#options']['en'] = $names['en'];
   }

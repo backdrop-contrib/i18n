@@ -38,6 +38,6 @@ class I18nVariableLanguageRealm extends VariableRealmDefaultController {
    * Implementation of VariableRealmControllerInterface::getAllKeys().
    */
   public function getAllKeys() {
-    return locale_language_list('name', TRUE);
+    return language_list('name', TRUE);
   }
 }

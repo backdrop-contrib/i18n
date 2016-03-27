@@ -235,18 +235,18 @@ function i18n_language_field_extra() {
  */
 function i18n_language_list($field = 'name', $mode = NULL) {
   $mode = isset($mode) ? $mode : config_get('i18n.settings', 'i18n_language_list');
-  return locale_language_list($field, I18N_LANGUAGE_EXTENDED & $mode);
+  return language_list($field, I18N_LANGUAGE_EXTENDED & $mode);
 }
 
 /**
  * Get language name for any defined (enabled or not) language
  *
- * @see locale_language_list()
+ * @see language_list()
  */
 function i18n_language_name($lang) {
   $list = &backdrop_static(__FUNCTION__);
   if (!isset($list)) {
-    $list = locale_language_list('name', TRUE);
+    $list = language_list('name', TRUE);
   }
   if (!$lang || $lang === LANGUAGE_NONE) {
     return t('Undefined');

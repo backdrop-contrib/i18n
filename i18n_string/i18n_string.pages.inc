@@ -383,6 +383,7 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
  */
 function i18n_string_locale_translate_edit_form_validate($form, &$form_state) {
   if (empty($form_state['values']['i18n_string'])) {
+    module_load_include('inc', 'locale', 'locale.pages');
     // If not i18n string use regular locale validation.
     $copy_state = $form_state;
     locale_translate_edit_form_validate($form, $copy_state);
@@ -396,6 +397,7 @@ function i18n_string_locale_translate_edit_form_validate($form, &$form_state) {
  */
 function i18n_string_locale_translate_edit_form_submit($form, &$form_state) {
   // Invoke locale submission.
+  module_load_include('inc', 'locale', 'locale.pages');
   locale_translate_edit_form_submit($form, $form_state);
   $lid = $form_state['values']['lid'];
   if ($i18n_string_object = i18n_string_get_by_lid($lid)) {
