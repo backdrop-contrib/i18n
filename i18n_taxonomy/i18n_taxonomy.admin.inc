@@ -187,7 +187,7 @@ function i18n_taxonomy_translation_term_overview($term) {
     $i18n_tsid = $term->tid;
     $translations = array($term->language => $term);
   }
-  $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+  $type = config_get('translation.settings', 'language_type');
   $header = array(t('Language'), t('Title'), t('Operations'));
 
   foreach (i18n_language_list() as $langcode => $language_name) {

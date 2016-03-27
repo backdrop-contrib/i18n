@@ -95,7 +95,7 @@ class i18n_string_textgroup_cached_logged extends i18n_string_textgroup_cached {
   public static function load_translation($i18nstring, $langcode) {
     $strings = variable_get('i18n_loaded_translations', array());
     $strings[$i18nstring->get_name()] = true;
-    variable_set('i18n_loaded_translations', $strings);
+    config_set('i18n.settings', 'i18n_loaded_translations', $strings);
     parent::load_translation($i18nstring, $langcode);
   }
 }

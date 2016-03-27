@@ -25,7 +25,7 @@ class i18nSelectTestCase extends Backdropi18nTestCase {
     $language_list = language_list();
     $language_count = count($language_list);
     // Set site name for each language and check pages later
-    variable_set('i18n_variable_list', array('site_name'));
+    config_set('i18n.settings', 'i18n_variable_list', array('site_name'));
     foreach (i18n_language_list() as $langcode => $name) {
       i18n_variable_set('site_name', "Backdrop-$name", $langcode);
     }
@@ -54,7 +54,7 @@ class i18nSelectTestCase extends Backdropi18nTestCase {
     $user = $this->backdropCreateUser(array('access comments', 'access content'));
     $this->backdropLogin($user);
     // Default selection mode, only language neutral and current
-    variable_set('i18n_select_nodes', TRUE);
+    config_set('i18n.settings', 'i18n_select_nodes', TRUE);
     foreach (i18n_language_list() as $langcode => $name) {
       $this->i18nGet($langcode);
       $this->assertText("Backdrop-$name", 'Checked translated site name: Backdrop-' . $name);

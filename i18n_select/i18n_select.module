@@ -45,7 +45,7 @@ function i18n_select_block_list_alter(&$blocks) {
   // Still, skip for form submission. There are pages like the ones produced
   // by overlay that render the blocks before the page.
   // See overlay_init(), overlay_overlay_child_initialize()
-  if (empty($_POST) && !isset($_GET['token']) && variable_get('i18n_select_page_block', TRUE)) {
+  if (empty($_POST) && !isset($_GET['token']) && config_get('i18n.settings', 'i18n_select_page_block')) {
     i18n_select(TRUE);
   }
 }
@@ -73,7 +73,7 @@ function i18n_select_menu() {
  *   Selection type: 'nodes', 'taxonomy', etc..
  */
 function i18n_select_mode($type = NULL) {
-  if (i18n_select() && (!$type || variable_get('i18n_select_' . $type, TRUE))) {
+  if (i18n_select() && (!$type || config_get('i18n.settings', 'i18n_select_' . $type))) {
     return I18N_SELECT_NORMAL;
   }
   else {
@@ -94,8 +94,8 @@ function i18n_select_page() {
 
   if (!isset($mode)) {
     $mode = &backdrop_static(__FUNCTION__);
-    $visibility = variable_get('i18n_select_page_mode', I18N_SELECT_PAGE_NOTLISTED);
-    if ($pages = variable_get('i18n_select_page_list', 'admin/*')) {
+    $visibility = config_get('i18n.settings', 'i18n_select_page_mode');
+    if ($pages = config_get('i18n.settings', 'i18n_select_page_list')) {
       // Convert path to lowercase. This allows comparison of the same path
       // with different case. Ex: /Page, /page, /PAGE.
       $pages = backdrop_strtolower($pages);
@@ -255,7 +255,7 @@ function i18n_select_check_query($query, $index_field = NULL) {
   static $tags;
   // Skip queries with certain tags
   if (!isset($tags)) {
-    $tags = ($skip = variable_get('i18n_select_skip_tags', 'views')) ? array_map('trim', explode(',', $skip)) : array();
+    $tags = ($skip = config_get('i18n.settings', 'i18n_select_skip_tags')) ? array_map('trim', explode(',', $skip)) : array();
     $tags[] = 'i18n_select';
   }
   foreach ($tags as $tag) {

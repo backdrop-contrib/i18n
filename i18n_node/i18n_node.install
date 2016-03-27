@@ -6,16 +6,6 @@
  */
 
 /**
- * Implements hook_install().
- */
-function i18n_node_install() {
-  // If updating from D6, module changed name
-  if (variable_get('i18n_backdrop6_update')) {
-    i18n_node_update_7000();
-  }
-}
-
-/**
  * Implements hook_uninstall().
  */
 function i18n_node_uninstall() {

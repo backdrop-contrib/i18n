@@ -339,7 +339,7 @@ class i18n_string_textgroup_default {
    */
   public function __construct($textgroup) {
     $this->textgroup = $textgroup;
-    $this->debug = variable_get('i18n_string_debug', FALSE) || variable_get('i18n_string_debug_' . $textgroup, FALSE);
+    $this->debug = config_get('i18n.settings', 'i18n_string_debug') || config_get('i18n.settings', 'i18n_string_debug_' . $textgroup);
   }
   /**
    * Build string object

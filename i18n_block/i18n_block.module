@@ -118,7 +118,7 @@ function i18n_block_block_view_alter(&$data, $block) {
  * Implements hook_context_block_info_alter().
  */
 function i18n_block_context_block_info_alter(&$block_info) {
-  $theme_key = variable_get('theme_default', 'garland');
+  $theme_key = config_get('system.core', 'theme_default');
   $result = db_select('block')
     ->fields('block', array('module', 'delta', 'i18n_mode'))
     ->condition('theme', $theme_key)

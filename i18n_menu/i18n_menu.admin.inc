@@ -132,7 +132,7 @@ function i18n_menu_parent_options($menus, $item, $langcode) {
   // allow contrib modules to provide more scalable pattern choosers.
   // hook_form_alter is too late in itself because all the possible parents are
   // retrieved here, unless menu_override_parent_selector is set to TRUE.
-  if (variable_get('i18n_menu_override_parent_selector', FALSE)) {
+  if (config_get('i18n.settings', 'i18n_menu_override_parent_selector')) {
     return array();
   }
   // If no menu item, create a dummy one
@@ -222,7 +222,7 @@ function i18n_menu_translation_item_overview($item, $translation_set = NULL) {
     $translations = array($item['language'] => $item);
   }
 
-  $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+  $type = config_get('translation.settings', 'language_type');
   $header = array(t('Language'), t('Title'), t('Operations'));
   $rows = array();
 

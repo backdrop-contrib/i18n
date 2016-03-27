@@ -833,7 +833,8 @@ function i18n_menu_form_node_form_alter(&$form, &$form_state, $form_id) {
 function i18n_menu_node_supported_type($type) {
   $supported = &backdrop_static(__FUNCTION__);
   if (!isset($supported[$type])) {
-    $mode = variable_get('language_content_type_' . $type, 0);
+    $config = config('node.type.' . $type);
+    $mode = $config->get('settings.language');
     $supported[$type] = $mode == 1 || $mode == 2; // 2 == TRANSLATION_ENABLED
   }
   return $supported[$type];

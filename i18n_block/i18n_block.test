@@ -20,7 +20,7 @@ class i18nBlocksTestCase extends Backdropi18nTestCase {
     $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
 
     $format = filter_default_format();
-    variable_set('i18n_string_allowed_formats', array($format => $format));
+    config_set('i18n.settings', 'i18n_string_allowed_formats', array($format => $format));
     $this->backdropLogin($this->admin_user);
   }
 

@@ -282,7 +282,7 @@ function i18n_string_translate_langcode($langcode = NULL) {
   $translate = &backdrop_static(__FUNCTION__);
   $langcode = isset($langcode) ? $langcode : i18n_langcode();
   if (!isset($translate[$langcode])) {
-    $translate[$langcode] = variable_get('i18n_string_translate_langcode_' . $langcode, i18n_string_source_language() != $langcode);
+    $translate[$langcode] = config_get('i18n.settings', 'i18n_string_translate_langcode_' . $langcode);
   }
   return $translate[$langcode];
 }
@@ -355,7 +355,7 @@ function i18n_string_allowed_format($format_id = NULL) {
   }
   else {
     // Check the format still exists an it is in the allowed formats list.
-    return filter_format_load($format_id) && in_array($format_id, variable_get('i18n_string_allowed_formats', array(filter_fallback_format())), TRUE);
+    return filter_format_load($format_id) && in_array($format_id, config_get('i18n.settings', 'i18n_string_allowed_formats'), TRUE);
   }
 }
 

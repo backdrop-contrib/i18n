@@ -51,7 +51,7 @@ function i18n_node_translation_overview($node) {
     $translations = array($node->language => $node);
   }
 
-  $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+  $type = config_get('translation.settings', 'language_type');
   $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
 
   // Modes have different allowed languages
@@ -110,7 +110,7 @@ function i18n_node_translation_overview($node) {
  * Create link for node translation. This may be a 'edit' or a 'add translation' link.
  */
 function i18n_node_translation_link($text, $path, $langcode, $options = array()) {
-  $type = variable_get('translation_language_type', LANGUAGE_TYPE_INTERFACE);
+  $type = config_get('translation.settings', 'language_type');
   $links = language_negotiation_get_switch_links($type, $path);
   // When node not published, links don't have href so we use path instead
   // Note: this is a bug in Core translation module, see http://backdrop.org/node/1137074

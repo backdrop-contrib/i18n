@@ -204,7 +204,7 @@ function i18n_node_language_list($node, $translate = FALSE, $select = FALSE) {
  * Check options for node language
  */
 function i18n_node_language_options($node, $option) {
-  $options = variable_get('i18n_node_options_' . $node->type, array());
+  $options = config_get('i18n.settings', 'i18n_node_options_' . $node->type);
   return in_array($option, $options, TRUE);
 }
 
@@ -213,14 +213,14 @@ function i18n_node_language_options($node, $option) {
  */
 function i18n_node_language_mode($type) {
   $type = is_object($type) ? $type->type : $type;
-  return variable_get('i18n_node_extended_' . $type, I18N_LANGUAGE_ENABLED);
+  return config_get('i18n.settings', 'i18n_node_extended_' . $type);
 }
 
 /**
  * Implements hook_node_prepare().
  */
 function i18n_node_node_prepare($node) {
-  $options = variable_get('i18n_node_options_' . $node->type, array());
+  $options = config_get('i18n.settings', 'i18n_node_options_' . $node->type);
   if (i18n_node_type_enabled($node) && empty($node->nid) && !i18n_object_langcode($node) && in_array('current', $options)) {
     // Set current language for new nodes if option enabled
     $node->language = i18n_language_content()->language;
@@ -267,7 +267,7 @@ function i18n_node_node_view($node) {
 function i18n_node_node_view_alter(&$build) {
   $node = $build['#node'];
   // Hide node translation links.
-  if (variable_get('i18n_hide_translation_links', 0)) {
+  if (config_get('i18n.settings', 'i18n_hide_translation_links')) {
     if (isset($build['links']['translation'])) {
       unset($build['links']['translation']);
     }
@@ -349,7 +349,7 @@ function i18n_node_textfield_process($element) {
   static $sent = FALSE;
 
   // Ensure we send the Javascript only once.
-  if (!$sent && isset($element['#autocomplete_path']) && !empty($element['#autocomplete_path']) && variable_get('language_negotiation', LANGUAGE_NEGOTIATION_DEFAULT) != LANGUAGE_NEGOTIATION_DEFAULT) {
+  if (!$sent && isset($element['#autocomplete_path']) && !empty($element['#autocomplete_path']) && config_get('i18n.settings', 'language_negotiation') != LANGUAGE_NEGOTIATION_DEFAULT) {
     // Add a JS file for node forms.
     // Determine if we are either editing or translating an existing node.
     // We can't act on regular node creation because we don't have a specified
@@ -505,7 +505,7 @@ function _i18n_node_form_node_form_alter($form, &$form_state) {
       $form['language']['#options'] = i18n_node_language_list($node, TRUE, TRUE);
     }
   }
-  elseif (variable_get('i18n_node_default_language_none', 0) && !isset($form['#node']->nid)) {
+  elseif (config_get('i18n.settings', 'i18n_node_default_language_none') && !isset($form['#node']->nid)) {
     // Override locale module setting default language to nodes. It is already in form_state.
     $form['language']['#value'] = $form_state['values']['language'] = LANGUAGE_NONE;
   }
@@ -573,6 +573,7 @@ function i18n_node_type_name($type, $name = NULL) {
  */
 function i18n_node_type_enabled($type) {
   $type = is_object($type) ? $type->type : $type;
-  $mode = variable_get('language_content_type_' . $type, 0);
+  $config = config('node.type.' . $type);
+  $mode = $config->get('settings.language');
   return $mode == 1 || $mode == 2; // 2 == TRANSLATION_ENABLED
 }

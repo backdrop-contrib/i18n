@@ -163,7 +163,7 @@ class i18nStringTestCase extends Backdropi18nTestCase {
 
     // Reset the loaded translation variable.
     variable_del('i18n_loaded_translations');
-    $loaded_translations = variable_get('i18n_loaded_translations', array());
+    $loaded_translations = config_get('i18n.settings', 'i18n_loaded_translations');
     $this->verbose(var_export($loaded_translations, TRUE));
 
     // Rebuild the string.
@@ -171,7 +171,7 @@ class i18nStringTestCase extends Backdropi18nTestCase {
     $string_object->get_translation($langcode);
 
     // Check that the string hasn't been loaded.
-    $loaded_translations = variable_get('i18n_loaded_translations', array());
+    $loaded_translations = config_get('i18n.settings', 'i18n_loaded_translations');
     $this->verbose(var_export($loaded_translations, TRUE));
     $this->assertFalse(isset($loaded_translations['test_cached:item:3:title']), "The untranslated string was correctly cached.");
   }
