@@ -539,27 +539,7 @@ function _i18n_menu_link_process(&$link) {
   // We also translate links marked as hidden because core breadcrumbs ignore
   // that flag and excluding them would basically interfere with core behaviour.
   // We also check that they belong to a menu with language options.
-  if (empty($link['i18n_menu']) && !empty($link['language']) && !empty($link['access']) && i18n_menu_mode($link['menu_name'])) {
-    // Mark so it won't be processed twice.
-    $link['i18n_menu'] = TRUE;
-    // Skip if administering this menu or this menu item.
-    if (arg(0) == 'admin' && arg(1) == 'structure' && arg(2) == 'menu') {
-      if (arg(3) == 'manage' && $link['menu_name'] == arg(4)) {
-        return FALSE;
-      }
-      elseif (arg(3) == 'item' && arg(4) == $link['mlid']) {
-        return FALSE;
-      }
-    }
-    // Skip if administering this menu item through the node edit form.
-    elseif (arg(0) == 'node' && arg(2) == 'edit' && $link['link_path'] == arg(0) . '/' . arg(1)) {
-      return FALSE;
-    }
     return TRUE;
-  }
-  else {
-    return FALSE;
-  }
 }
 
 /**

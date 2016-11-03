@@ -66,7 +66,8 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
     'status' => t('Status'),
     'operations' => t('Operations')
   );
-  $source_language = variable_get_value('i18n_string_source_language');
+  $source_language = config_get('i18n.settings','i18n_string_source_language');
+  if (empty($source_language)) $source_language = 'en';
   $rows = array();
 
   foreach (language_list() as $langcode => $language) {
