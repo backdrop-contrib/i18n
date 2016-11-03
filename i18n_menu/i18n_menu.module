@@ -53,6 +53,24 @@ function i18n_menu_menu_alter(&$items) {
   $items['admin/structure/menu/item/%menu_link'] = $items['admin/structure/menu/item/%menu_link/edit'];
   $items['admin/structure/menu/item/%menu_link']['type'] = MENU_CALLBACK;
   $items['admin/structure/menu/item/%menu_link/edit']['type'] = MENU_DEFAULT_LOCAL_TASK;
+  $items['admin/structure/menu/manage/%menu']['title callback'] = 'i18n_menu_menu_overview_title';
+}
+
+/**
+ * Preprocess theme_menu_admin_overview to translate menu name and description
+ *
+ * @param $variables
+ */
+function i18n_menu_preprocess_menu_admin_overview(&$variables) {
+  $variables['title'] = i18n_string(array('menu', 'menu', $variables['name'], 'title'), $variables['title']);
+  $variables['description'] = i18n_string(array('menu', 'menu', $variables['name'], 'description'), $variables['description']);
+}
+
+/**
+ * Title callback for the menu overview page and links.
+ */
+function i18n_menu_menu_overview_title($menu) {
+  return i18n_string(array('menu', 'menu', $menu['menu_name'], 'title'), $menu['title']);
 }
 
 /**
@@ -539,7 +557,27 @@ function _i18n_menu_link_process(&$link) {
   // We also translate links marked as hidden because core breadcrumbs ignore
   // that flag and excluding them would basically interfere with core behaviour.
   // We also check that they belong to a menu with language options.
+  if (empty($link['i18n_menu']) && !empty($link['language']) && !empty($link['access']) && i18n_menu_mode($link['menu_name'])) {
+    // Mark so it won't be processed twice.
+    $link['i18n_menu'] = TRUE;
+    // Skip if administering this menu or this menu item.
+    if (arg(0) == 'admin' && arg(1) == 'structure' && arg(2) == 'menu') {
+      if (arg(3) == 'manage' && $link['menu_name'] == arg(4)) {
+        return FALSE;
+      }
+      elseif (arg(3) == 'item' && arg(4) == $link['mlid']) {
+        return FALSE;
+      }
+    }
+    // Skip if administering this menu item through the node edit form.
+    elseif (arg(0) == 'node' && arg(2) == 'edit' && $link['link_path'] == arg(0) . '/' . arg(1)) {
+      return FALSE;
+    }
     return TRUE;
+  }
+  else {
+    return FALSE;
+  }
 }
 
 /**
@@ -727,6 +765,7 @@ function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
 function i18n_menu_form_menu_overview_form_alter(&$form, &$form_state) {
   foreach (element_children($form) as $element) {
     if (substr($element, 0, 5) == 'mlid:') {
+      $item = $form[$element]["#item"];
       $mlid = $form[$element]['#item']['mlid'];
       if (i18n_get_object('menu', $mlid)->get_translate_access()) {
         $form[$element]['operations']['translate'] = array(
@@ -734,6 +773,7 @@ function i18n_menu_form_menu_overview_form_alter(&$form, &$form_state) {
           '#title' => t('translate'),
           '#href' => "admin/structure/menu/item/{$mlid}/translate",
         );
+        $form[$element]['title']['#markup'] = l(_i18n_menu_link_title($item), $item['href'], $item['localized_options']);
       }
     }
   }
