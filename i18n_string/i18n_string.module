@@ -67,6 +67,29 @@ define('I18N_STRING_FILTER_XSS', 'FILTER_XSS');
 define('I18N_STRING_FILTER_XSS_ADMIN', 'FILTER_XSS_ADMIN');
 
 /**
+ * Implements hook_config_info().
+ */
+function i18n_string_config_info() {
+  $prefixes['i18n_string.settings'] = array(
+    'label' => t('String Translation settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
+
+/**
+ * Implements hook_autoload_info()
+ */
+function i18n_string_autoload_info() {
+  return array(
+    'i18n_string_object' => 'i18n_string.inc',
+    'i18n_string_textgroup_default' => 'i18n_string.inc',
+    'i18n_string_object_wrapper' => 'i18n_string.inc',
+    'i18n_string_textgroup_cached' => 'i18n_string.inc',
+  );
+};
+
+/**
  * Implements hook_help().
  */
 function i18n_string_help($path, $arg) {
@@ -118,6 +141,7 @@ function i18n_string_menu() {
     'file' => 'i18n_string.admin.inc',
     'access arguments' => array('translate interface'),
   );
+  //TODO: remove this comment once working; It's here to note that the array below is slightly different in docwilmot and herbdool's versions. Not sure which is accurate yet.
   $items['admin/config/regional/i18n/strings'] = array(
     'title' => 'Strings',
     'description' => 'Options for user defined strings.',
@@ -282,7 +306,8 @@ function i18n_string_translate_langcode($langcode = NULL) {
   $translate = &backdrop_static(__FUNCTION__);
   $langcode = isset($langcode) ? $langcode : i18n_langcode();
   if (!isset($translate[$langcode])) {
-    $translate[$langcode] = config_get('i18n.settings', 'i18n_string_translate_langcode_' . $langcode);
+    $i18n_string_translate_langcode = config_get('i18n_string.settings', 'i18n_string_translate_langcode_' . $langcode);
+    $translate[$langcode] = i18n_string_source_language() != $langcode ? i18n_string_source_language() : $i18n_string_translate_langcode;
   }
   return $translate[$langcode];
 }
@@ -355,7 +380,8 @@ function i18n_string_allowed_format($format_id = NULL) {
   }
   else {
     // Check the format still exists an it is in the allowed formats list.
-    return filter_format_load($format_id) && in_array($format_id, config_get('i18n.settings', 'i18n_string_allowed_formats'), TRUE);
+    $allowed_formats = config_get('i18n_string.settings', 'allowed_formats');
+    return filter_format_load($format_id) && in_array($format_id, $allowed_formats ? $allowed_formats : array(filter_fallback_format()), TRUE);
   }
 }
 
@@ -455,7 +481,7 @@ function i18n_string_load_multiple($conditions) {
     $query->condition($alias . '.' . $field, $value);
   }
   // this patch  is a workaround for core file bug in file
-  // include/database/prefetch.inc (see: http://backdrop.org/node/1567216)
+  // include/database/prefetch.inc (see: http://drupal.org/node/1567216)
   // return $query->execute()->fetchAll(PDO::FETCH_CLASS, 'i18n_string_object');
   $stmt = $query->execute();
   $stmt->setFetchMode(PDO::FETCH_CLASS, 'i18n_string_object');
@@ -689,7 +715,7 @@ function i18n_string_plain($name, $default, $options = array()) {
  * Get source language code for translations
  */
 function i18n_string_source_language() {
-  return config_get('i18n.settings', 'i18n_string_source_language');
+  return config_get('i18n_string.settings', 'i18n_string_source_language');
 }
 
 /**

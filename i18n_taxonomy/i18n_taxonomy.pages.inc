@@ -26,7 +26,7 @@ function i18n_taxonomy_term_page($term) {
   // @todo This overrides any other possible breadcrumb and is a pure hard-coded
   //   presumption. Make this behavior configurable per vocabulary or term.
   $breadcrumb = array();
-  while ($parents = taxonomy_get_parents($current->tid)) {
+  while ($parents = taxonomy_term_load_parents($current->tid)) {
     $parents = i18n_taxonomy_localize_terms($parents);
     $current = array_shift($parents);
     $breadcrumb[] = l($current->name, 'taxonomy/term/' . $current->tid);
@@ -71,7 +71,7 @@ function i18n_taxonomy_autocomplete_field($field_name, $tags_typed = '') {
   $vids = array();
   $vocabularies = taxonomy_vocabulary_get_names();
   foreach ($field['settings']['allowed_values'] as $tree) {
-    $vids[] = $vocabularies[$tree['vocabulary']]->vid;
+    $vids[] = $vocabularies[$tree['vocabulary']]->machine_name;
   }
   // This has been redirected from taxonomy module so we add current language and no language
   // Because some of the vocabularies may not have language
@@ -83,7 +83,7 @@ function i18n_taxonomy_autocomplete_field($field_name, $tags_typed = '') {
  * Helper function for autocompletion. Select by language
  */
 function i18n_taxonomy_autocomplete_language($langcode, $vocabulary, $tags_typed = '') {
-  $vids = $vocabulary ? array($vocabulary->vid) : NULL;
+  $vids = $vocabulary ? array($vocabulary->machine_name) : NULL;
   return _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed);
 }
 
@@ -112,7 +112,7 @@ function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
     }
     // There may be vocabulary restrictions
     if ($vids) {
-      $query->condition('t.vid', $vids);
+      $query->condition('t.vocabulary', $vids);
     }
     // Select rows that match by term name.
     $tags_return = $query

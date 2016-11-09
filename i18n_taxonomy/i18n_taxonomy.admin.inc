@@ -41,7 +41,7 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
     '#tree' => TRUE
   );
   // List of terms for languages.
-  foreach (i18n_language_list() as $lang => $langname) {
+  foreach (language_list(TRUE, TRUE) as $lang => $langname) {
     if ($source && $source->language == $lang) {
       // This is the source term, we don't change it
       $form['source_term'] = array('#type' => 'value', '#value' => $source);
@@ -88,7 +88,7 @@ function i18n_taxonomy_autocomplete_validate($element, &$form_state) {
   if ($tags = $element['#value']) {
     // Collect candidate vocabularies.
     $vocabulary = $form_state['values']['vocabulary'];
-    $vocabularies[$vocabulary->vid] = $vocabulary;
+    $vocabularies[$vocabulary->machine_name] = $vocabulary;
 
     // Translate term names into actual terms.
     $typed_terms = backdrop_explode_tags($tags);
@@ -102,7 +102,7 @@ function i18n_taxonomy_autocomplete_validate($element, &$form_state) {
         $vocabulary = reset($vocabularies);
         $term = array(
           'tid' => 'autocreate',
-          'vid' => $vocabulary->vid,
+          'vid' => $vocabulary->machine_name,
           'name' => $typed_term,
           'vocabulary_machine_name' => $vocabulary->machine_name,
           'language' => $element['#langcode'],
@@ -190,7 +190,7 @@ function i18n_taxonomy_translation_term_overview($term) {
   $type = config_get('translation.settings', 'language_type');
   $header = array(t('Language'), t('Title'), t('Operations'));
 
-  foreach (i18n_language_list() as $langcode => $language_name) {
+  foreach (language_list(TRUE, TRUE) as $langcode => $language_name) {
     $options = array();
     if (isset($translations[$langcode])) {
       // Existing translation in the translation set: display status.

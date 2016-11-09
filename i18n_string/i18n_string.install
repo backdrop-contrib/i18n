@@ -123,6 +123,9 @@ function i18n_string_schema_alter(&$schema) {
     'not null' => TRUE,
     'default' => 0,
   );
+  
+  // Locale in core dropped textgroup column for locales_source
+  // It assumes that i18n has migrated it BEFORE dropping.
   $schema['locales_source']['fields']['textgroup'] = array(
     'type' => 'varchar',
     'length' => 255,
@@ -213,69 +216,29 @@ function i18n_string_install_update_context($oldname, $newname) {
   }
 }
 
+
 /**
- * Populate fields from old locale table (textgroup, location) and drop indexes from locales_source
+ * Implements hook_update_last_removed().
  */
-function i18n_string_update_7000() {
-  // @todo Update from d6
-  variable_del('i18nstrings_allowed_textgroups');
-  // If we've got old table from D6, move data to new one
-  if (db_table_exists('i18n_strings')) {
-    // First of all clean up strings that don't have a locale source, see http://backdrop.org/node/1186692
-    db_query("DELETE FROM {i18n_strings} WHERE lid NOT IN (SELECT lid FROM {locales_source})");
-    db_query("INSERT INTO {i18n_string}(lid, objectid, type, property, objectindex, format) SELECT lid, objectid, type, property, objectindex, format FROM {i18n_strings}");
-    // Update and populate textgroup field
-    db_query("UPDATE {i18n_string} s SET s.textgroup = (SELECT l.textgroup FROM {locales_source} l WHERE l.lid = s.lid)");
-    // Populate context field. We could use CONCAT_WS but I guess this is more standard.
-    db_query("UPDATE {i18n_string} SET context = CONCAT(type, ':', objectid, ':', property)");
-    db_query("UPDATE {locales_source} s INNER JOIN {i18n_string} i ON s.lid = i.lid SET s.context = i.context");
-  }
+function i18n_string_update_last_removed() {
+  return 7002;
 }
 
 /**
- * Drop obsoleted i18n_strings table if exists
+ * Move book settings from variables to config.
  */
-function i18n_string_update_7001() {
-  if (db_table_exists('i18n_strings')) {
-    db_drop_table('i18n_strings');
-  }
+function i18n_string_update_1000() {
+  // Migrate variables to config.
+  $config = config('i18n_string.settings');
+  $config->set('debug', update_variable_get('i18n_string_debug', FALSE));
+  $config->set('i18n_loaded_translations', update_variable_get('i18n_loaded_translations',array()));
+  $config->set('i18n_string_allowed_formats', update_variable_get('i18n_string_allowed_formats', array(filter_fallback_format())));
+  //i18n_string_debug_' . $textgroup -- update all without knowing how many?
+
+  $config->save();
+
+  // Delete variables.
+  update_variable_del('i18n_string_debug');
+  update_variable_del('i18n_loaded_translations');
+  update_variable_del('i18n_string_allowed_formats');
 }
-
-/**
- *  Create new index in {locales_source}, performance improvement in sites with i18n.
- */
-function i18n_string_update_7002() {
-  if (!db_index_exists('locales_source', 'textgroup_context')) {
-    db_add_index('locales_source', 'textgroup_context', array('textgroup', array('context', 50)));
-  }
-}
-
-
-/**
- * Notes for update script
- */
-// Added fields: context, textgroup
-//
-// Drop all indexes from locales_source
-// Update format field
-// Update string names: profile, cck => field
-// Update string names:
-
-/**
- * Old strings to update. All these will be handled by i18n_field module
- *
- * 'cck:field:'. $content_type .'-'. $field_name .':widget_label'
- *  --> 'field:$field_name:$bundle:label' (though not used atm)
- * 'cck:field:'. $content_type .'-'. $field_name .':widget_description'
- *  --> 'field:$field_name:$bundle:description'
- * 'cck:fieldgroup:'. $content_type .'-'. $group_name .':display_description'
- * 'cck:fieldgroup:'. $content_type .'-'. $group_name .':form_description', $group['settings']['form']['description']);
- *
- * Profile:
- * profile:field:$field_name:title|explanation|options
- * "profile:category", $field->category
- *
- * Node type
- *  nodetype:type:[type]:[property] -> node:type:[type]:[property]
- *  Property names: title -> title_label
- */

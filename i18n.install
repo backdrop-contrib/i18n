@@ -15,6 +15,12 @@ function i18n_install() {
 }
 
 /**
+ * Implements hook_uninstall().
+ */
+function i18n_uninstall() {
+}
+
+/**
  * Add fields to the schema if they don't exist.
  *
  * @param string $table
@@ -41,4 +47,24 @@ function i18n_install_create_fields($table, $fields, $force_rebuild_schema = FAL
       }
     }
   }
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function i18n_update_last_removed() {
+  return 7001;
+}
+
+/**
+ * Move book settings from variables to config.
+ */
+function i18n_update_1000() {
+  // Migrate variables to config.
+  //$config = config('i18n.settings');
+  //$config->set('book_allowed_types', update_variable_get('book_allowed_types', array('book')));
+  //$config->save();
+
+  // Delete variables.
+  //update_variable_del('book_allowed_types');
 }

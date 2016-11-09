@@ -40,6 +40,15 @@ define('I18N_MODE_MULTIPLE', I18N_MODE_LOCALIZE | I18N_MODE_TRANSLATE);
 define('I18N_LANGUAGE_TYPE_CONTEXT', 'i18n_language_context');
 
 /**
+ * Implements hook_autoload_info()
+ */
+function i18n_autoload_info() {
+  return array(
+    'i18n_object_wrapper' => 'i18n_object.inc'
+  );
+}
+
+/**
  * Implements hook_boot().
  */
 function i18n_boot() {
@@ -60,6 +69,7 @@ function i18n_config_info() {
 /**
  * Implements hook_autoload_info().
  */
+/*
 function i18n_autoload_info() {
   return array(
     'i18n_block_object' => 'i18n_block/i18n_block.inc',
@@ -82,6 +92,7 @@ function i18n_autoload_info() {
     'I18nVariableLanguageRealm' => 'i18n_variable/i18n_variable.module',
   );
 }
+*/
 
 /**
  * Implements hook_hook_info().
