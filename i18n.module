@@ -40,6 +40,15 @@ define('I18N_MODE_MULTIPLE', I18N_MODE_LOCALIZE | I18N_MODE_TRANSLATE);
 define('I18N_LANGUAGE_TYPE_CONTEXT', 'i18n_language_context');
 
 /**
+ * Implements hook_autoload_info()
+ */
+function i18n_autoload_info() {
+  return array(
+    'i18n_object_wrapper' => 'i18n_object.inc'
+  );
+}
+
+/**
  * Implements hook_boot().
  */
 function i18n_boot() {
@@ -60,28 +69,30 @@ function i18n_config_info() {
 /**
  * Implements hook_autoload_info().
  */
+/*
 function i18n_autoload_info() {
   return array(
     'i18n_block_object' => 'i18n_block/i18n_block.inc',
     'i18n_field_base' => 'i18n_field/i18n_field.inc',
     'i18n_field' => 'i18n_field/i18n_field.inc',
     'i18n_field_instance' => 'i18n_field/i18n_field.inc',
-    'i18n_menu_link_translation_set' => 'i18n_menu\i18n_menu.inc',
-    'i18n_menu_link' => 'i18n_menu\i18n_menu.inc',
+    'i18n_menu_link_translation_set' => 'i18n_menu/i18n_menu.inc',
+    'i18n_menu_link' => 'i18n_menu/i18n_menu.inc',
     'i18n_object_wrapper' => 'i18n_object.inc',
-    'i18n_path_translation_set' => 'i18n_path\i18n_path.inc',
-    'i18n_path_object' => 'i18n_path\i18n_path.inc',
-    'i18n_string_object' => 'i18n_string\i18n_string.inc',
-    'i18n_string_textgroup_default' => 'i18n_string\i18n_string.inc',
-    'i18n_string_object_wrapper' => 'i18n_string\i18n_string.inc',
-    'i18n_taxonomy_translation_set' => 'i18n_taxonomy\i18n_taxonomy.inc',
-    'i18n_taxonomy_term extends' => 'i18n_taxonomy\i18n_taxonomy.inc',
-    'i18n_string_textgroup_cached' => 'i18n_string\i18n_string.inc',
-    'i18n_translation_set' => 'i18n_translation\i18n_translation.inc',
-    'I18nTranslationSetController' => 'i18n_translation\i18n_translation.module',
-    'I18nVariableLanguageRealm' => 'i18n_variable\i18n_variable.module',
+    'i18n_path_translation_set' => 'i18n_path/i18n_path.inc',
+    'i18n_path_object' => 'i18n_path/i18n_path.inc',
+    'i18n_string_object' => 'i18n_string/i18n_string.inc',
+    'i18n_string_textgroup_default' => 'i18n_string/i18n_string.inc',
+    'i18n_string_object_wrapper' => 'i18n_string/i18n_string.inc',
+    'i18n_taxonomy_translation_set' => 'i18n_taxonomy/i18n_taxonomy.inc',
+    'i18n_taxonomy_term extends' => 'i18n_taxonomy/i18n_taxonomy.inc',
+    'i18n_string_textgroup_cached' => 'i18n_string/i18n_string.inc',
+    'i18n_translation_set' => 'i18n_translation/i18n_translation.inc',
+    'I18nTranslationSetController' => 'i18n_translation/i18n_translation.module',
+    'I18nVariableLanguageRealm' => 'i18n_variable/i18n_variable.module',
   );
 }
+*/
 
 /**
  * Implements hook_hook_info().

@@ -125,7 +125,7 @@ function i18n_taxonomy_i18n_string_objects($type) {
  */
 function i18n_taxonomy_term_translation_page($type, $term) {
   module_load_include('admin.inc', 'i18n_taxonomy');
-  $vocabulary = taxonomy_vocabulary_load($term->vid);
+  $vocabulary = taxonomy_vocabulary_load($term->vocabulary);
   $translation_set = !empty($term->i18n_tsid) ? i18n_translation_set_load($term->i18n_tsid) : NULL;
 
   $translation_overview = i18n_taxonomy_translation_term_overview($term);

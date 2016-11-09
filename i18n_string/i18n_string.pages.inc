@@ -24,14 +24,14 @@ include_once backdrop_get_path('module', 'locale') . '/locale.admin.inc';
 function i18n_string_translate_page_object($object_type, $object_value, $language = NULL) {
   // For backwards compatibility, ensure parameter is a language object
   $language = i18n_language_object($language);
-  $langcode = $language ? $language->language : NULL;
+  $langcode = $language ? $language->langcode : NULL;
   // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
   $object = i18n_object($object_type, $object_value);
   $strings = $object->get_strings(array('empty' => TRUE));
 
   // If no localizable strings, print message and fail gracefully.
   // Possibly this object comes from some other contrib module.
-  // See http://backdrop.org/node/1889878
+  // See http://drupal.org/node/1889878
   if (!$strings) {
     return t('This object has no strings available for translation.');
   }
@@ -66,7 +66,8 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
     'status' => t('Status'),
     'operations' => t('Operations')
   );
-  $source_language = variable_get_value('i18n_string_source_language');
+  $source_language = config_get('i18n.settings','i18n_string_source_language');
+  if (empty($source_language)) $source_language = 'en';
   $rows = array();
 
   foreach (language_list() as $langcode => $language) {

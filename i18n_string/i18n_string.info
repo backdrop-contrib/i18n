@@ -7,6 +7,6 @@ backdrop = 1.x
 type = module
 
 files[] = i18n_string.admin.inc
-files[] = i18n_string.inc
-files[] = i18n_string.test
+;files[] = i18n_string.inc
+;files[] = i18n_string.test
 configure = admin/config/regional/i18n/strings

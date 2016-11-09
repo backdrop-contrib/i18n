@@ -1,8 +1,7 @@
 name = Translation sets
 description = Simple translation sets API for generic objects
-dependencies[] = i18n
 package = Multilingual - Internationalization
 backdrop = 1.x
 type = module
 
-files[] = i18n_translation.inc
+dependencies[] = i18n
