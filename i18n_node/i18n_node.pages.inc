@@ -48,7 +48,7 @@ function i18n_node_translation_overview($node) {
   else {
     // We have no translation source nid, this could be a new set, emulate that.
     $tnid = $node->nid;
-    $translations = array($node->language => $node);
+    $translations = array($node->langcode => $node);
   }
 
   $type = config_get('translation.settings', 'language_type');
@@ -138,7 +138,7 @@ function i18n_node_select_translation($form, &$form_state, $node, $translations)
     '#description' => t("Alternatively, you can select existing nodes as translations of this one or remove nodes from this translation set. Only nodes that have the right language and don't belong to other translation set will be available here.")
   );
   foreach (i18n_node_language_list($node) as $langcode => $language_name) {
-    if ($langcode != $node->language && $langcode != LANGUAGE_NONE) {
+    if ($langcode != $node->langcode && $langcode != LANGUAGE_NONE) {
       $nid = isset($translations[$langcode]) ? $translations[$langcode]->nid : 0;
       $form['translations']['nid'][$langcode] = array(
         '#type' => 'value',
@@ -186,11 +186,11 @@ function i18n_node_select_translation_validate($form, &$form_state) {
 function i18n_node_select_translation_submit($form, &$form_state) {
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : NULL;
   $node = $form_state['values']['node'];
-  $translations = $node->tnid ? translation_node_get_translations($node->tnid) : array($node->language => $node);
+  $translations = $node->tnid ? translation_node_get_translations($node->tnid) : array($node->langcode => $node);
   foreach ($translations as $trans) {
-    $current[$trans->language] = $trans->nid;
+    $current[$trans->langcode] = $trans->nid;
   }
-  $update = array($node->language => $node->nid) + array_filter($form_state['values']['translations']['nid']);
+  $update = array($node->langcode => $node->nid) + array_filter($form_state['values']['translations']['nid']);
   // Compute the difference to see which are the new translations and which ones to remove
   $new = array_diff_assoc($update, $current);
   $remove = array_diff_assoc($current, $update);
@@ -234,7 +234,7 @@ function i18n_node_select_translation_submit($form, &$form_state) {
  * Node title autocomplete callback
  */
 function i18n_node_autocomplete($type, $language, $string = '') {
-  $params = array('type' => $type, 'language' => $language, 'tnid' => 0);
+  $params = array('type' => $type, 'langcode' => $language, 'tnid' => 0);
   $matches = array();
   foreach (_i18n_node_references($string, 'contains', $params) as $id => $row) {
     // Add a class wrapper for a few required CSS overrides.
