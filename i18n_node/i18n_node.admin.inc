@@ -26,31 +26,3 @@ function i18n_node_content_options_form($form, &$form_state) {
   );
   return $form;
 }
-
-/**
- * Form items for settings per content type.
- */
-function _i18n_node_content_type_settings() {
-  $form['i18n_node_options'] = array(
-    '#type' => 'checkboxes',
-    '#title' => t('Extended language options'),
-    '#options' => array(
-      'current' => t('Set current language as default for new content.'),
-      'required' => t('Require language (Do not allow Language Neutral).'),
-      'lock' => t('Lock language (Cannot be changed).'),
-    ),
-    '#default_value' => array(),// TODO config_get
-  );
-  $form['i18n_node_extended'] = array(
-    '#type' => 'radios',
-    '#title' => t('Extended language support'),
-    '#options' => array(
-      I18N_LANGUAGE_ENABLED => t('Normal - All enabled languages will be allowed.'),
-      I18N_LANGUAGE_EXTENDED => t('Extended - All defined languages will be allowed.'),
-      I18N_LANGUAGE_EXTENDED | I18N_LANGUAGE_HIDDEN => t('Extended, but not displayed - All defined languages will be allowed for input, but not displayed in links.'),
-    ),
-    '#default_value' => I18N_LANGUAGE_ENABLED,// TODO config_get
-    '#description' => t('If enabled, all defined languages will be allowed for this content type in addition to only enabled ones. This is useful to have more languages for content than for the interface.'),
-  );
-  return $form;
-}
