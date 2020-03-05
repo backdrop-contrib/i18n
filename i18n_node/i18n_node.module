@@ -10,20 +10,6 @@
 
 
 /**
- * Implements hook_field_extra_fields().
- */
-function i18n_node_field_extra_fields() {
-  $return = array();
-  $info = entity_get_info('node');
-  foreach (array_keys($info['bundles']) as $bundle) {
-    if (i18n_node_type_enabled($bundle)) {
-      $return['node'][$bundle] = i18n_language_field_extra();
-    }
-  }
-  return $return;
-}
-
-/**
  * Implements hook_menu().
  */
 function i18n_node_menu() {
