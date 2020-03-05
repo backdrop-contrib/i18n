@@ -426,7 +426,7 @@ function i18n_node_form_node_type_form_alter(&$form, &$form_state) {
       '#attributes' => array(
         'class' => array('i18n-node-type-settings-form'),
       ),
-      '#description' => $description = t('Extended multilingual options provided by Internationalization module.'),
+      '#description' => t('Extended multilingual options provided by Internationalization module.'),
       '#tree' => TRUE,
       '#states' => array(
         'invisible' => array(
@@ -471,7 +471,6 @@ function i18n_node_form_node_type_form_alter(&$form, &$form_state) {
  */
 function i18n_node_type_settings_submit($form, $form_state) {
   $node_type = $form_state['values']['type'];
-
   if ($form_state['values']['language'] == FALSE) {
     config_clear('i18n.settings', "i18n_node_type_{$node_type}");
   }
