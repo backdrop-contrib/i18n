@@ -31,7 +31,7 @@ function i18n_node_token_info() {
 function i18n_node_tokens($type, $tokens, array $data = array(), array $options = array()) {
   $replacements = array();
   $sanitize = !empty($options['sanitize']) ? TRUE : FALSE;
-  $langcode = isset($options['language']) ? $options['language']->language : i18n_langcode();
+  $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
 
   if ($type == 'content-type' && !empty($data['node_type'])) {
 
