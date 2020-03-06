@@ -244,9 +244,9 @@ function i18n_language_field_extra() {
  *
  * @todo See about creating a permission for seeing disabled languages
  */
-function i18n_language_list($field = 'name', $mode = NULL) {
+function i18n_language_list($mode = NULL) {
   $mode = isset($mode) ? $mode : config_get('i18n.settings', 'i18n_language_list');
-  return language_list($field, I18N_LANGUAGE_EXTENDED & $mode);
+  return language_list(($mode == I18N_LANGUAGE_ENABLED), TRUE);
 }
 
 /**

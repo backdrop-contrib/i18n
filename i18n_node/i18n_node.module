@@ -167,14 +167,8 @@ function i18n_node_language_list($node, $translate = FALSE, $select = FALSE) {
   $languages = node_invoke($node, 'language_list', $translate);
 
   if (!$languages) {
-    // FIXME: workaround until #9 is addressed.
-    // @see https://github.com/backdrop-contrib/i18n/issues/9
-    //$languages = i18n_language_list('name', i18n_node_language_mode($node));
     $mode = config_get('i18n.settings', "i18n_node_type_{$node->type}.extended");
-    if (!$mode) {
-      $mode = config_get('i18n.settings', 'i18n_language_list');
-    }
-    $languages = language_list(($mode < I18N_LANGUAGE_EXTENDED), TRUE);
+    $languages = i18n_language_list($mode);
 
     if ($translate && isset($node->tnid) && $node->tnid && ($translations = translation_node_get_translations($node->tnid))) {
       unset($translations[$node->langcode]);
