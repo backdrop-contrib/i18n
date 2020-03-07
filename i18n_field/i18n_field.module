@@ -10,6 +10,17 @@
  */
 
 /**
+ * Implements hook_autoload_info().
+ */
+function i18n_field_autoload_info() {
+  return array(
+    'i18n_field_base' => 'i18n_field.inc',
+    'i18n_field' => 'i18n_field.inc',
+    'i18n_field_instance' => 'i18n_field.inc',
+  );
+}
+
+/**
  * Implements hook_menu().
  */
 function i18n_field_menu() {
@@ -219,7 +230,7 @@ function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
   }
 
   // The field language may affect some variables (default) but not others (description will be in current page language)
-  $i18n_langcode = empty($alter_element['#language']) || $alter_element['#language'] == LANGUAGE_NONE ? $language->language : $alter_element['#language'];
+  $i18n_langcode = empty($alter_element['#language']) || $alter_element['#language'] == LANGUAGE_NONE ? $language->langcode : $alter_element['#language'];
 
   // Translate instance to current page language and set to form_state
   // so it will be used for validation messages later.
