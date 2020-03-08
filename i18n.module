@@ -45,8 +45,6 @@ define('I18N_LANGUAGE_TYPE_CONTEXT', 'i18n_language_context');
 function i18n_autoload_info() {
   return array(
     'i18n_object_wrapper' => 'i18n_object.inc',
-    // workaround: @see https://github.com/backdrop-contrib/i18n/issues/11
-    'i18n_field_instance' => 'i18n_field/i18n_field.inc',
   );
 }
 
