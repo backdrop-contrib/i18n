@@ -15,11 +15,11 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
   $translations = $translation_set->get_translations();
   // What to do with title? Let's make it a hidden field for now, some tests relay on it
   $form['title'] = array('#type' => 'hidden', '#default_value' => $translation_set->title);
-  if ($item && ($lang = i18n_object_langcode($item))) {
+  if ($item && ($lang = i18n_object_langcode($item, LANGUAGE_NONE, 'langcode'))) {
     $translations[$lang] = $item;
   }
   $item = $item ? $item : array('mlid' => 0, 'menu_name' => '', 'plid' => 0);
-  $item_lang = i18n_object_langcode($item);
+  $item_lang = i18n_object_langcode($item, LANGUAGE_NONE, 'langcode');
   $form['translations'] = array(
     '#type' => 'fieldset',
     '#title' => t('Translations'),
@@ -71,7 +71,7 @@ function i18n_menu_translation_form_validate($form, &$form_state)  {
     $mlids = array_filter($form_state['values']['translations']);
     foreach ($mlids as $lang => $item_name) {
       list($menu_name, $mlid) = explode(':', $item_name);
-      if ($mlid && ($item = menu_link_load($mlid)) && i18n_object_langcode($item)) {
+      if ($mlid && ($item = menu_link_load($mlid)) && i18n_object_langcode($item, LANGUAGE_NONE, 'langcode')) {
         $selected++;
       }
       else {
@@ -171,8 +171,30 @@ function _i18n_menu_get_options($menus, $available_menus, $item, $langcode) {
     if (isset($available_menus[$menu_name])) {
       if ($tree = i18n_menu_tree_all_data($menu_name, $langcode, NULL)) {
         $options[$menu_name . ':0'] = '<' . $title . '>';
-        _menu_parents_recurse($tree, $menu_name, '--', $options, $item['mlid'], $limit);
+        $options += _i18n_menu_build_options($tree, $menu_name, $limit);
       }
+    }
+  }
+  return $options;
+}
+
+/**
+ * Helper function to recurse through menu tree.
+ *
+ * For whatever reason core _menu_parents_recurse() doesn't work for us.
+ */
+function _i18n_menu_build_options($tree, $menu_name, $limit) {
+  // FIXME this needs deeper digging:
+  // Why is $item['hidden'] always true?
+  $options = array();
+  foreach ($tree as $key => $item) {
+    if ($item['link']['depth'] > $limit) {
+      break;
+    }
+    $title = '-- ' . truncate_utf8($item['link']['link_title'], 30, TRUE, FALSE);
+    $options[$menu_name . ':' . $item['link']['mlid']] = $title;
+    if ($item['below']) {
+      _i18n_menu_build_options($item['below'], $menu_name);
     }
   }
   return $options;
@@ -182,8 +204,9 @@ function _i18n_menu_get_options($menus, $available_menus, $item, $langcode) {
  * Filter out menu items that have a different language
  */
 function i18n_menu_tree_all_data($menu_name, $langcode, $link = NULL, $max_depth = NULL) {
-  $tree = menu_tree_all_data($menu_name, $link, $max_depth);
-  return _i18n_menu_tree_filter_items($tree, $langcode);
+  $data = menu_build_tree($menu_name, array('langcode' => $langcode));
+  $tree = _i18n_menu_tree_filter_items($data, $langcode);
+  return $tree;
 }
 
 /**
@@ -192,7 +215,7 @@ function i18n_menu_tree_all_data($menu_name, $langcode, $link = NULL, $max_depth
 function _i18n_menu_tree_filter_items($tree, $langcode) {
   $result = array();
   foreach ($tree as $key => $item) {
-    $lang = i18n_object_langcode($item['link']);
+    $lang = i18n_object_langcode($item['link'], LANGUAGE_NONE, 'langcode');
     if (!empty($item['below'])) {
       $item['below'] = _i18n_menu_tree_filter_items($item['below'], $langcode);
     }
@@ -219,7 +242,7 @@ function i18n_menu_translation_item_overview($item, $translation_set = NULL) {
   }
   else {
     // We have no translation source mlid, this could be a new set, emulate that.
-    $translations = array($item['language'] => $item);
+    $translations = array($item['langcode'] => $item);
   }
 
   $type = config_get('translation.settings', 'language_type');

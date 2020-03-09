@@ -19,7 +19,7 @@ class i18n_menu_link_translation_set extends i18n_translation_set {
     foreach ($query->execute()->fetchAll(PDO::FETCH_ASSOC) as $item) {
       $item['weight'] = $item['link_weight'];
       _menu_link_translate($item);
-      $translations[$item['language']] = $item;
+      $translations[$item['langcode']] = $item;
     }
     return $translations;
   }

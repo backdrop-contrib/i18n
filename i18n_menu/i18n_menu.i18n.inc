@@ -109,7 +109,7 @@ function i18n_menu_i18n_string_objects($type) {
     // All menu items that have no language and are customized.
     return db_select('menu_links', 'm')
       ->fields('m')
-      ->condition('language', LANGUAGE_NONE)
+      ->condition('langcode', LANGUAGE_NONE)
       ->condition('customized', 1)
       ->execute()
       ->fetchAllAssoc('mlid', PDO::FETCH_ASSOC);
