@@ -25,6 +25,7 @@ Bugs and Feature requests should be reported in the
 ##Current Maintainers
 
 - [docwilmot](https://github.com/docwilmot)
+- [Indigoxela](https://github.com/indigoxela)
 - Help wanted
 
 ##Credits
