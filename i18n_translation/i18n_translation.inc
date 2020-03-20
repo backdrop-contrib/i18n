@@ -107,7 +107,7 @@ class i18n_translation_set extends Entity {
    */
   public function insert($save_translations = TRUE) {
     $this->created = $this->changed = REQUEST_TIME;
-    $status = drupal_write_record('i18n_translation_set', $this);
+    $status = backdrop_write_record('i18n_translation_set', $this);
     if ($save_translations) {
       $this->save_translations();
       $this->update_related();
@@ -133,7 +133,7 @@ class i18n_translation_set extends Entity {
    */
   public function update($update_translations = TRUE) {
     $this->changed = REQUEST_TIME;
-    $status = drupal_write_record('i18n_translation_set', $this, 'tsid');
+    $status = backdrop_write_record('i18n_translation_set', $this, 'tsid');
     if ($update_translations) {
       $this->clean_translations();
       $this->save_translations();
@@ -281,7 +281,7 @@ class i18n_translation_set extends Entity {
    * Get operations as renderable links
    */
   public function get_operations() {
-    $destination = drupal_get_destination();
+    $destination = backdrop_get_destination();
     $operations = array();
     if ($path = $this->get_edit_path()) {
       $operations['edit'] = array(

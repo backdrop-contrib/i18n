@@ -9,6 +9,16 @@
  */
 
 /**
+ * Implements hook_autoload_info().
+ */
+function i18n_menu_autoload_info() {
+  return array(
+   'i18n_menu_link_translation_set' => 'i18n_menu.inc',
+   'i18n_menu_link' => 'i18n_menu.inc',
+  );
+}
+
+/**
  * Implements hook_menu()
  */
 function i18n_menu_menu() {
@@ -126,14 +136,12 @@ function i18n_menu_menu_insert($menu) {
 function i18n_menu_menu_update($menu) {
   // Stores the fields of menu links which need an update.
   $update = array();
-
   if (!isset($menu['i18n_mode'])) {
     $menu['i18n_mode'] = I18N_MODE_NONE;
   }
   if (!($menu['i18n_mode'] & I18N_MODE_LANGUAGE)) {
     $menu['language'] = LANGUAGE_NONE;
   }
-
   i18n_menu_update_menu_data($menu);
 
   if (!$menu['i18n_mode']) {
@@ -195,8 +203,8 @@ function i18n_menu_menu_delete($menu) {
  */
 function i18n_menu_menu_link_alter(&$item) {
   // We just make sure every link has a valid language property.
-  if (!i18n_object_langcode($item)) {
-    $item['language'] = LANGUAGE_NONE;
+  if (!i18n_object_langcode($item, FALSE, 'langcode')) {
+    $item['langcode'] = LANGUAGE_NONE;
   }
 }
 
@@ -214,11 +222,10 @@ function i18n_menu_menu_link_update($link) {
   // Stores the fields to update.
   $fields = array();
   $menu_mode = i18n_menu_mode($link['menu_name']);
-
-  if ($menu_mode & I18N_MODE_TRANSLATE && isset($link['language'])) {
+  if ($menu_mode & I18N_MODE_TRANSLATE && isset($link['langcode'])) {
     // Multilingual menu links, translatable, it may be part of a
     // translation set.
-    if (i18n_object_langcode($link)) {
+    if (i18n_object_langcode($link, FALSE, 'langcode')) {
       if (!empty($link['translation_set'])) {
         // Translation set comes as parameter, we may be creating a translation,
         // add link to the set.
@@ -228,9 +235,9 @@ function i18n_menu_menu_link_update($link) {
           ->save(TRUE);
       }
     }
-    elseif ($link['language'] === LANGUAGE_NONE && !empty($link['original_item']['i18n_tsid'])) {
+    elseif ($link['langcode'] === LANGUAGE_NONE && !empty($link['original_item']['i18n_tsid'])) {
       if ($translation_set = i18n_translation_set_load($link['original_item']['i18n_tsid'])) {
-        $translation_set->remove_language($link['original_item']['language']);
+        $translation_set->remove_language($link['original_item']['langcode']);
         // If there are no links left in this translation set, delete the set.
         // Otherwise update the set.
         $translation_set->update_delete();
@@ -242,8 +249,8 @@ function i18n_menu_menu_link_update($link) {
   // 'alter' so they can be processed later by
   // hook_translated_link_menu_alter().
   if ($menu_mode) {
-    if (!isset($link['language'])) {
-      $link['language'] = LANGUAGE_NONE;
+    if (!isset($link['langcode'])) {
+      $link['langcode'] = LANGUAGE_NONE;
     }
     if (_i18n_menu_link_check_alter($link) && empty($link['options']['alter'])) {
       $fields['options'] = $link['options'];
@@ -253,8 +260,8 @@ function i18n_menu_menu_link_update($link) {
     // modules use it for.
   }
   // Update language field if the link has a language value.
-  if (isset($link['language'])) {
-    $fields['language'] = $link['language'];
+  if (isset($link['langcode'])) {
+    $fields['langcode'] = $link['langcode'];
   }
 
   if (!empty($fields)) {
@@ -286,7 +293,7 @@ function i18n_menu_menu_link_delete($link) {
     if ($translation_set = i18n_translation_set_load($link['i18n_tsid'])) {
       $translation_set->get_translations();
 
-      $translation_set->remove_language($link['language']);
+      $translation_set->remove_language($link['langcode']);
 
       // If there are no links left in this translation set, delete the set.
       // Otherwise update the set.
@@ -375,17 +382,6 @@ function i18n_menu_help($path, $arg) {
 }
 
 /**
- * Implements hook_variable_info_alter()
- */
-function i18n_menu_variable_info_alter(&$variables, $options) {
-  // Make menu variables translatable
-  $variables['menu_main_links_source']['localize'] = TRUE;
-  $variables['menu_secondary_links_source']['localize'] = TRUE;
-  $variables['menu_parent_[node_type]']['localize'] = TRUE;
-  $variables['menu_options_[node_type]']['localize'] = TRUE;
-}
-
-/**
  * Get localized menu tree.
  *
  * @param string $menu_name
@@ -397,7 +393,7 @@ function i18n_menu_variable_info_alter(&$variables, $options) {
  */
 function i18n_menu_translated_tree($menu_name, $langcode = NULL, $reset = FALSE) {
   $menu_output = &backdrop_static(__FUNCTION__);
-  $langcode = $langcode ? $langcode : i18n_language_interface()->language;
+  $langcode = $langcode ? $langcode : i18n_language_interface()->langcode;
   if (!isset($menu_output[$langcode][$menu_name]) || $reset) {
     $tree = menu_tree_page_data($menu_name);
     $tree = i18n_menu_localize_tree($tree, $langcode);
@@ -410,7 +406,7 @@ function i18n_menu_translated_tree($menu_name, $langcode = NULL, $reset = FALSE)
  * Localize menu tree.
  */
 function i18n_menu_localize_tree($tree, $langcode = NULL) {
-  $langcode = $langcode ? $langcode : i18n_language_interface()->language;
+  $langcode = $langcode ? $langcode : i18n_language_interface()->langcode;
   foreach ($tree as $index => &$item) {
     $link = $item['link'];
     // We only process links that are visible and not processed before.
@@ -557,7 +553,7 @@ function _i18n_menu_link_process(&$link) {
   // We also translate links marked as hidden because core breadcrumbs ignore
   // that flag and excluding them would basically interfere with core behaviour.
   // We also check that they belong to a menu with language options.
-  if (empty($link['i18n_menu']) && !empty($link['language']) && !empty($link['access']) && i18n_menu_mode($link['menu_name'])) {
+  if (empty($link['i18n_menu']) && !empty($link['langcode']) && !empty($link['access']) && i18n_menu_mode($link['menu_name'])) {
     // Mark so it won't be processed twice.
     $link['i18n_menu'] = TRUE;
     // Skip if administering this menu or this menu item.
@@ -589,7 +585,7 @@ function _i18n_menu_link_process(&$link) {
  * @see i18n_menu_translated_menu_link_alter()
  */
 function _i18n_menu_link_check_alter($link) {
-  return i18n_menu_mode($link['menu_name']) && (i18n_object_langcode($link) || _i18n_menu_link_is_localizable($link, TRUE));
+  return i18n_menu_mode($link['menu_name']) && (i18n_object_langcode($link, FALSE, 'langcode') || _i18n_menu_link_is_localizable($link, TRUE));
 }
 
 /**
@@ -606,7 +602,7 @@ function _i18n_menu_link_check_alter($link) {
  *   Returns TRUE if link is localizable.
  */
 function _i18n_menu_link_is_localizable($link, $check_strings = FALSE) {
-  return !empty($link['customized']) && !i18n_object_langcode($link) && i18n_menu_mode($link['menu_name'], I18N_MODE_LOCALIZE) &&
+  return !empty($link['customized']) && !i18n_object_langcode($link, FALSE, 'langcode') && i18n_menu_mode($link['menu_name'], I18N_MODE_LOCALIZE) &&
   (!$check_strings || _i18n_menu_link_localizable_properties($link));
 }
 
@@ -614,8 +610,8 @@ function _i18n_menu_link_is_localizable($link, $check_strings = FALSE) {
  * Check whether this menu link is visible for current/given language.
  */
 function _i18n_menu_link_is_visible($link, $langcode = NULL) {
-  $langcode = $langcode ? $langcode : i18n_language_interface()->language;
-  return $link['language'] == LANGUAGE_NONE || $link['language'] == $langcode;
+  $langcode = $langcode ? $langcode : i18n_language_interface()->langcode;
+  return $link['langcode'] == LANGUAGE_NONE || $link['langcode'] == $langcode;
 }
 
 /**
@@ -674,6 +670,19 @@ function i18n_menu_form_menu_edit_menu_alter(&$form, &$form_state) {
   $langcode = $menu && isset($menu['language']) ? $menu['language'] : LANGUAGE_NONE;
 
   $form += i18n_translation_mode_element('menu', $i18n_mode, $langcode);
+  $form['#submit'][] = 'i18n_menu_form_menu_edit_menu_submit';
+}
+
+/**
+ * Custom form submit callback.
+ */
+function i18n_menu_form_menu_edit_menu_submit($form, &$form_state) {
+  $menu_name = $form_state['values']['menu_name'];
+  $config = config("menu.menu.{$menu_name}");
+  $config->set('i18n_mode', $form_state['values']['i18n_mode']);
+  $config->set('language', $form_state['values']['language']);
+  $config->save();
+  cache_flush('menu'); // FIXME why needed?
 }
 
 /**
@@ -684,14 +693,13 @@ function i18n_menu_form_menu_edit_menu_alter(&$form, &$form_state) {
  */
 function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
   $item = &$form['original_item']['#value'];
-  $item['language'] = i18n_menu_item_get_language($item);
+  $item['langcode'] = i18n_menu_item_get_language($item);
   // Check whether this item belongs to a node object and it is a supported type.
   $node_item = ($node = i18n_menu_item_get_node($item)) && i18n_menu_node_supported_type($node->type);
   if (!$node_item && i18n_menu_mode($item['menu_name'], I18N_MODE_TRANSLATE)) {
-    //$form['i18n'] = array('#type' => 'fieldset');
-    $form['i18n']['language'] = array(
-      '#description' => t('This item belongs to a multilingual menu. You can set a language for it.'),
-    ) + i18n_element_language_select($item);
+    // Let i18n override options of the core language select.
+    $i18n_language_select = i18n_element_language_select($item);
+    $form['langcode']['#options'] = $i18n_language_select['#options'];
 
     // If the term to be added will be a translation of a source term,
     // set the default value of the option list to the target language and
@@ -711,10 +719,10 @@ function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
       // $form['link_path']['#disabled'] = TRUE;
       // $form['parent']['#disabled'] = TRUE;
 
-      $form['i18n']['language']['#default_value'] = $_GET['target'];
-      $form['i18n']['language']['#disabled'] = TRUE;
+      $form['langcode']['#default_value'] = $_GET['target'];
+      $form['langcode']['#disabled'] = TRUE;
 
-      backdrop_set_title(t('%language translation of menu item %title', array('%language' => locale_language_name($_GET['target']), '%title' => $source_item['link_title'])), PASS_THROUGH);
+      backdrop_set_title(t('%language translation of menu item %title', array('%language' => i18n_language_name($_GET['target']), '%title' => $source_item['link_title'])), PASS_THROUGH);
     }
     elseif (!empty($item['i18n_tsid'])) {
       $translation_set = i18n_translation_set_load($item['i18n_tsid']);
@@ -731,26 +739,26 @@ function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
       // If the current term is part of a translation set,
       // remove all other languages of the option list.
       if ($translations = $translation_set->get_translations()) {
-        unset($form['i18n']['language']['#options'][LANGUAGE_NONE]);
+        unset($form['langcode']['#options'][LANGUAGE_NONE]);
         foreach ($translations as $langcode => $translation) {
           if ($translation['mlid'] !== $item['mlid']) {
-            unset($form['i18n']['language']['#options'][$langcode]);
+             unset($form['langcode']['#options'][$langcode]);
           }
         }
       }
     }
   }
   else {
-    $form['language'] = array(
+    $form['langcode'] = array(
       '#type' => 'value',
-      '#value' => $item['language'],
+      '#value' => $item['langcode'],
     );
   }
-  if ($node_item && i18n_langcode($item['language'])) {
+  if ($node_item && i18n_langcode($item['langcode'])) {
     $form['i18n']['message'] = array(
       '#type' => 'item',
       '#title' => t('Language'),
-      '#markup' => i18n_language_name($item['language']),
+      '#markup' => i18n_language_name($item['langcode']),
       '#description' => t('This menu item belongs to a node, so it will have the same language as the node and cannot be localized.'),
     );
   }
@@ -785,15 +793,15 @@ function i18n_menu_form_menu_overview_form_alter(&$form, &$form_state) {
  */
 function i18n_menu_menu_item_prepare_normal_path($form, &$form_state) {
   $item = &$form_state['values'];
-  $item['link_path'] = i18n_prepare_normal_path($item['link_path'], $item['language']);
+  $item['link_path'] = i18n_prepare_normal_path($item['link_path'], $item['langcode']);
 }
 
 /**
  * Get language for menu item
  */
 function i18n_menu_item_get_language($item) {
-  if (isset($item['language'])) {
-    return $item['language'];
+  if (isset($item['langcode'])) {
+    return $item['langcode'];
   }
   else {
     $menu = menu_load($item['menu_name']);
@@ -809,7 +817,7 @@ function i18n_menu_item_get_language($item) {
       default:
         if (!empty($item['mlid'])) {
           return db_select('menu_links', 'm')
-            ->fields('m', array('language'))
+            ->fields('m', array('langcode'))
             ->condition('mlid', $item['mlid'])
             ->execute()
             ->fetchField();
@@ -833,14 +841,14 @@ function i18n_menu_form_node_form_alter(&$form, &$form_state, $form_id) {
     $link = $node->menu;
     if (!empty($link['mlid'])) {
       // Preserve the menu item language whatever it is.
-      $form['menu']['link']['language'] = array('#type' => 'value', '#value' => $link['language']);
+      $form['menu']['link']['langcode'] = array('#type' => 'value', '#value' => $link['langcode']);
     }
     elseif (i18n_menu_node_supported_type($node->type)) {
       // Set menu language to node language but only if it is a supported node type.
-      $form['menu']['link']['language'] = array('#type' => 'value', '#value' => $node->language);
+      $form['menu']['link']['langcode'] = array('#type' => 'value', '#value' => $node->langcode);
     }
     else {
-      $form['menu']['link']['language'] = array('#type' => 'value', '#value' => LANGUAGE_NONE);
+      $form['menu']['link']['langcode'] = array('#type' => 'value', '#value' => LANGUAGE_NONE);
     }
     // Customized must be set to 1 to save language.
     $form['menu']['link']['customized'] = array('#type' => 'value', '#value' => 1);
@@ -873,8 +881,8 @@ function i18n_menu_item_get_node($item) {
  * Set menu link language to node language
  */
 function i18n_menu_node_presave($node) {
-  if (!empty($node->menu) && isset($node->language) && i18n_menu_node_supported_type($node->type)) {
-    $node->menu['language'] = i18n_object_langcode($node, LANGUAGE_NONE);
+  if (!empty($node->menu) && isset($node->langcode) && i18n_menu_node_supported_type($node->type)) {
+    $node->menu['langcode'] = i18n_object_langcode($node, LANGUAGE_NONE, 'langcode');
     // Store node type with menu item so we can quickly access it later.
     $node->menu['options']['node_type'] = $node->type;
   }
@@ -924,7 +932,7 @@ function i18n_menu_link_load($path, $langcode) {
   $query->addField('ml', 'weight', 'link_weight');
   $query->fields('m');
   $query->condition('ml.link_path', $path);
-  $query->condition('ml.language', $langcode);
+  $query->condition('ml.langcode', $langcode);
   if ($item = $query->execute()->fetchAssoc()) {
     $item['weight'] = $item['link_weight'];
     _menu_link_translate($item);
@@ -937,7 +945,7 @@ function i18n_menu_link_load($path, $langcode) {
  * Add needed fields to properly serialize localization information.
  */
 function i18n_menu_query_features_menu_link_alter($query) {
-  $query->fields('menu_links', array('language', 'customized'));
+  $query->fields('menu_links', array('langcode', 'customized'));
 }
 
 /**
@@ -997,7 +1005,7 @@ function i18n_menu_init() {
   $query->condition('ml.link_path', $path_candidates, 'IN');
 
   // Only look menu links with none or the current language.
-  $query->condition('ml.language', array(LANGUAGE_NONE, i18n_language_interface()->langcode), 'IN');
+  $query->condition('ml.langcode', array(LANGUAGE_NONE, i18n_language_interface()->langcode), 'IN');
 
   // Sort candidates by link path and menu name.
   $candidates = array();
