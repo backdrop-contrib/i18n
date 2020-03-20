@@ -26,7 +26,15 @@ function i18n_menu_install() {
 function i18n_menu_uninstall() {
   db_drop_field('menu_links', 'language');
   db_drop_field('menu_links', 'i18n_tsid');
-  i18n_menu_update_menu_data(NULL, TRUE);
+  $menus = config_get_names_with_prefix('menu.menu.');
+  foreach ($menus as $menu) {
+    $config = config($menu);
+    $data = $config->get();
+    unset($data['language']);
+    unset($data['i18n_mode']);
+    $config->setData($data);
+    $config->save();
+  }
 }
 
 /**
