@@ -18,7 +18,7 @@ function i18n_field_page_translate($instance, $language = NULL) {
   else {
     // Because of some weird menu mapping for comment fields language object loader is not working.
     $language = i18n_language_object($language);
-    backdrop_set_title(t('Translate to !language', array('!language' => i18n_language_name($language->language))));
+    backdrop_set_title(t('Translate to !language', array('!language' => i18n_language_name($language->langcode))));
     //return backdrop_get_form('i18n_field_page_translate_form', $instance, $language->language);
     // Create form with two tabs, one for instance, once for field.
     $groups = array(
@@ -31,6 +31,6 @@ function i18n_field_page_translate($instance, $language = NULL) {
     // Field settings
     $field_object = i18n_object('field', $instance);
     $strings['field'] = $field_object->get_strings(array('empty' => TRUE));
-    return backdrop_get_form('i18n_string_translate_page_form', $strings, $language->language, $groups);
+    return backdrop_get_form('i18n_string_translate_page_form', $strings, $language->langcode, $groups);
   }
 }

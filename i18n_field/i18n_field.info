@@ -5,5 +5,3 @@ dependencies[] = i18n_string
 package = Multilingual - Internationalization
 backdrop = 1.x
 type = module
-files[] = i18n_field.inc
-files[] = i18n_field.test
