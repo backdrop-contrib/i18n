@@ -193,18 +193,16 @@ function i18n_string_hook_info() {
 }
 
 /**
- * Implements hook_locale().
- *
- * Provide the information from i18n_string groups to locale module
+ * Provide options for i18n_string textgroups.
  */
-function i18n_string_locale($op = 'groups') {
-  if ($op == 'groups') {
-    $groups = array();
-    foreach (i18n_string_group_info() as $name => $info) {
-      $groups[$name] = $info['title'];
-    }
-    return $groups;
+function i18n_string_textgroup_options() {
+  $groups = array(
+    'default' => t('Built-in interface'),
+  );
+  foreach (i18n_string_group_info() as $name => $info) {
+    $groups[$name] = $info['title'];
   }
+  return $groups;
 }
 
 /**
@@ -256,6 +254,15 @@ function i18n_string_form_locale_translate_export_po_form_alter(&$form, $form_st
   if (i18n_string_source_language() != 'en' && array_key_exists('en', $names)) {
     $form['langcode']['#options']['en'] = $names['en'];
   }
+  // Textgroup options.
+  $form['group'] = array('#type' => 'radios',
+    '#title' => t('Text group'),
+    '#default_value' => 'default',
+    '#options' => i18n_string_textgroup_options(),
+  );
+  // TODO replacement for function _locale_export_get_strings().
+  // Add back group support.
+  // unset($form['#submit']['locale_translate_export_po_form_submit']);
 }
 
 /**
@@ -271,6 +278,14 @@ function i18n_string_form_locale_translate_import_form_alter(&$form, $form_state
       $form['import']['langcode']['#options'][t('Languages not yet added')]['en'] = t('English');
     }
   }
+  // Add textgroup options which got removed from core.
+  $form['import']['group'] = array('#type' => 'radios',
+    '#title' => t('Text group'),
+    '#default_value' => 'default',
+    '#options' => i18n_string_textgroup_options(),
+    '#description' => t('Imported translations will be added to this text group.'),
+  );
+  $form['import']['submit']['#weight'] = 1;
   $form['#submit'][] = 'i18n_string_locale_translate_import_form_submit';
 }
 
