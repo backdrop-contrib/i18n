@@ -329,14 +329,15 @@ function i18n_string_form_locale_translate_import_form_alter(&$form, $form_state
     }
   }
   // Add textgroup options which got removed from core.
+  // Import by textgroup not working yet, we set a default value.
+  // @see https://github.com/backdrop-contrib/i18n/issues/17
   $form['import']['group'] = array('#type' => 'radios',
     '#title' => t('Text group'),
     '#default_value' => 'default',
     '#options' => i18n_string_textgroup_options(),
-    '#description' => t('Imported translations will be added to this text group.'),
+    '#disabled' => TRUE,
   );
   $form['import']['submit']['#weight'] = 1;
-  // FIXME import not working yet.
   $form['#submit'][] = 'i18n_string_locale_translate_import_form_submit';
 }
 
