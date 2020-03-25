@@ -175,7 +175,7 @@ class i18n_translation_set extends Entity {
         ->fields(array($field => 0))
         ->condition($field, $this->tsid);
       if ($translations = $this->get_translations()) {
-        $query->condition('language', array_keys($translations), 'NOT IN');
+        $query->condition('langcode', array_keys($translations), 'NOT IN');
       }
       return $query->execute();
     }
@@ -482,7 +482,7 @@ class i18n_translation_set extends Entity {
         ->fields('t')
         ->condition('t.' . $field, $this->tsid)
         ->execute()
-        ->fetchAllAssoc('language');
+        ->fetchAllAssoc('langcode');
     }
     else {
       return array();

@@ -194,7 +194,7 @@ function _i18n_menu_build_options($tree, $menu_name, $limit) {
     $title = '-- ' . truncate_utf8($item['link']['link_title'], 30, TRUE, FALSE);
     $options[$menu_name . ':' . $item['link']['mlid']] = $title;
     if ($item['below']) {
-      _i18n_menu_build_options($item['below'], $menu_name);
+      _i18n_menu_build_options($item['below'], $menu_name, $limit);
     }
   }
   return $options;

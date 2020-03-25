@@ -90,15 +90,11 @@ function i18n_menu_block_view_alter(&$data, $block) {
   if (($block->module == 'menu' || $block->module == 'system') && (i18n_menu_mode($block->delta) & I18N_MODE_MULTIPLE)) {
     $menus = menu_get_menus();
     if (isset($menus[$block->delta])) {
-      if (empty($block->title)) {
-        $data['subject'] = i18n_string_plain(
+      if (!empty($data['title'])) {
+        $data['title'] = i18n_string_plain(
           array('menu', 'menu', $block->delta, 'title'),
           $menus[$block->delta]
         );
-      }
-      // Add contextual links for this block.
-      if (!empty($data['content'])) {
-        $data['content']['#contextual_links']['menu'] = array('admin/structure/menu/manage', array($block->delta));
       }
     }
   }
@@ -180,7 +176,7 @@ function i18n_menu_menu_update($menu) {
   }
 
   // Update strings, always add translation if no language
-  if (!i18n_object_langcode($menu)) {
+  if (!i18n_object_langcode($menu, LANGUAGE_NONE, 'language')) {
     i18n_string_object_update('menu', $menu);
   }
 
@@ -767,21 +763,22 @@ function i18n_menu_form_menu_edit_item_alter(&$form, &$form_state) {
 
 /**
  * Implements hook_form_FORM_ID_alter().
+ *
  * FORM_ID = menu-overview-form.
- * Add a "translate" link in operations column for each menu item.
+ * Add a "translate" link in operations dropdown for translatable menu items.
  */
 function i18n_menu_form_menu_overview_form_alter(&$form, &$form_state) {
   foreach (element_children($form) as $element) {
     if (substr($element, 0, 5) == 'mlid:') {
       $item = $form[$element]["#item"];
       $mlid = $form[$element]['#item']['mlid'];
-      if (i18n_get_object('menu', $mlid)->get_translate_access()) {
-        $form[$element]['operations']['translate'] = array(
-          '#type' => 'link',
-          '#title' => t('translate'),
-          '#href' => "admin/structure/menu/item/{$mlid}/translate",
-        );
-        $form[$element]['title']['#markup'] = l(_i18n_menu_link_title($item), $item['href'], $item['localized_options']);
+      if ($item['langcode'] != LANGUAGE_NONE && $item['langcode'] == i18n_string_source_language()) {
+        if (i18n_get_object('menu', $mlid)->get_translate_access()) {
+          $form[$element]['operations']['#links']['translate'] = array(
+            'title' => t('translate'),
+            'href' => "admin/structure/menu/item/{$mlid}/translate",
+          );
+        }
       }
     }
   }
