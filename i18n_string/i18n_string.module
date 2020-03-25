@@ -193,18 +193,16 @@ function i18n_string_hook_info() {
 }
 
 /**
- * Implements hook_locale().
- *
- * Provide the information from i18n_string groups to locale module
+ * Provide options for i18n_string textgroups.
  */
-function i18n_string_locale($op = 'groups') {
-  if ($op == 'groups') {
-    $groups = array();
-    foreach (i18n_string_group_info() as $name => $info) {
-      $groups[$name] = $info['title'];
-    }
-    return $groups;
+function i18n_string_textgroup_options() {
+  $groups = array(
+    'default' => t('Built-in interface'),
+  );
+  foreach (i18n_string_group_info() as $name => $info) {
+    $groups[$name] = $info['title'];
   }
+  return $groups;
 }
 
 /**
@@ -256,6 +254,65 @@ function i18n_string_form_locale_translate_export_po_form_alter(&$form, $form_st
   if (i18n_string_source_language() != 'en' && array_key_exists('en', $names)) {
     $form['langcode']['#options']['en'] = $names['en'];
   }
+  // Textgroup options.
+  $form['group'] = array('#type' => 'radios',
+    '#title' => t('Text group'),
+    '#default_value' => 'default',
+    '#options' => i18n_string_textgroup_options(),
+  );
+  // Add back textgroup support.
+  unset($form['#submit']['locale_translate_export_po_form_submit']);
+  $form['#submit'] = array('i18n_string_form_locale_translate_export_po_form_submit');
+}
+
+/**
+ * Custom submit callback.
+ *
+ * Replacement for core locale_translate_export_po_form_submit,
+ * which dropped textgroup handling.
+ */
+function i18n_string_form_locale_translate_export_po_form_submit($form, &$form_state) {
+  $language = NULL;
+  $group = 'default';
+  if (isset($form_state['values']['langcode'])) {
+    $languages = language_list();
+    $language = $languages[$form_state['values']['langcode']];
+  }
+  if (isset($form_state['values']['group'])) {
+    $group = $form_state['values']['group'];
+  }
+  if (isset($language)) {
+    $query = 'SELECT s.lid, s.source, s.context, s.location, t.translation, t.plid, t.plural FROM {locales_source} s';
+    $query .= ' LEFT JOIN {locales_target} t ON s.lid = t.lid AND t.language = :language';
+    $query .= ' WHERE s.textgroup = :textgroup ORDER BY t.plid, t.plural';
+    $result = db_query($query, array(':language' => $language->langcode, ':textgroup' => $group));
+  }
+  else {
+    $query = 'SELECT s.lid, s.source, s.context, s.location, t.plid, t.plural FROM {locales_source} s';
+    $query .= ' LEFT JOIN {locales_target} t ON s.lid = t.lid WHERE s.textgroup = :textgroup ORDER BY t.plid, t.plural';
+    $result = db_query($query, array(':textgroup' => $group));
+  }
+  $strings = array();
+  foreach ($result as $child) {
+    $string = array(
+      'comment'     => $child->location,
+      'source'      => $child->source,
+      'context'     => $child->context,
+      'translation' => isset($child->translation) ? $child->translation : '',
+    );
+    if ($child->plid) {
+      // Has a parent lid. Since we process in the order of plids,
+      // we already have the parent in the array, so we can add the
+      // lid to the next plural version to it. This builds a linked
+      // list of plurals.
+      $string['child'] = TRUE;
+      $strings[$child->plid]['plural'] = $child->lid;
+    }
+    $strings[$child->lid] = $string;
+  }
+  // Generate and output po file.
+  $output = _locale_export_po_generate($language, $strings);
+  _locale_export_po($language, $output);
 }
 
 /**
@@ -271,6 +328,16 @@ function i18n_string_form_locale_translate_import_form_alter(&$form, $form_state
       $form['import']['langcode']['#options'][t('Languages not yet added')]['en'] = t('English');
     }
   }
+  // Add textgroup options which got removed from core.
+  // Import by textgroup not working yet, we set a default value.
+  // @see https://github.com/backdrop-contrib/i18n/issues/17
+  $form['import']['group'] = array('#type' => 'radios',
+    '#title' => t('Text group'),
+    '#default_value' => 'default',
+    '#options' => i18n_string_textgroup_options(),
+    '#disabled' => TRUE,
+  );
+  $form['import']['submit']['#weight'] = 1;
   $form['#submit'][] = 'i18n_string_locale_translate_import_form_submit';
 }
 
