@@ -95,17 +95,16 @@ function i18n_taxonomy_autocomplete_validate($element, &$form_state) {
     foreach ($typed_terms as $typed_term) {
       // See if the term exists in the chosen vocabulary and return the tid;
       // otherwise, create a new 'autocreate' term for insert/update.
-      if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($typed_term), 'vid' => $vocabulary->vid, 'language' => $element['#langcode']))) {
+      if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($typed_term), 'vocabulary' => $vocabulary->machine_name, 'language' => $element['#langcode']))) {
         $term = array_pop($possibilities);
       }
       else {
         $vocabulary = reset($vocabularies);
         $term = array(
           'tid' => 'autocreate',
-          'vid' => $vocabulary->machine_name,
+          'vocabulary' => $vocabulary->machine_name,
           'name' => $typed_term,
-          'vocabulary_machine_name' => $vocabulary->machine_name,
-          'language' => $element['#langcode'],
+          'langcode' => $element['#langcode'],
         );
       }
       $value[] = (array)$term;
@@ -127,12 +126,13 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
       foreach ($term_translations as $lang => $lang_terms) {
         $item = reset($lang_terms);
         if ($item['tid'] == 'autocreate') {
-          $term = (object) $item;
-          unset($term->tid);
+          // FIXME this creates and creates more terms and can't be correct:
+          //$item['tid'] = NULL;
+          $term = new TaxonomyTerm($item);
           taxonomy_term_save($term);
         }
         else {
-          $term = (object) $item;
+          $term = new TaxonomyTerm($item);
         }
         $translations[$lang] = $term;
       }
@@ -218,7 +218,7 @@ function i18n_taxonomy_translation_term_overview($term) {
       $options['add'] = array(
         '#type' => 'link',
         '#title' => t('add translation'),
-        '#href' => 'admin/structure/taxonomy/' . $term->vocabulary_machine_name . '/add',
+        '#href' => 'admin/structure/taxonomy/' . $term->vocabulary . '/add',
         '#options' => array(
           'query' => array('translation' => $term->tid, 'target' => $langcode) + backdrop_get_destination()
         ),
