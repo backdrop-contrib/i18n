@@ -185,7 +185,7 @@ function i18n_taxonomy_translation_term_overview($term) {
   else {
     // We have no translation source nid, this could be a new set, emulate that.
     $i18n_tsid = $term->tid;
-    $translations = array($term->language => $term);
+    $translations = array($term->langcode => $term);
   }
   $type = config_get('translation.settings', 'language_type');
   $header = array(t('Language'), t('Title'), t('Operations'));
