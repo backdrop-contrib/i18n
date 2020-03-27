@@ -36,7 +36,7 @@ class i18n_taxonomy_term extends i18n_string_object_wrapper {
    */
   public function get_translate_mode() {
     $mode = i18n_taxonomy_vocabulary_mode($this->object->vocabulary);
-    if ($this->get_langcode()) {
+    if ($this->get_langcode() && $mode == I18N_MODE_TRANSLATE) {
       return $mode & I18N_MODE_TRANSLATE;
     }
     else {
