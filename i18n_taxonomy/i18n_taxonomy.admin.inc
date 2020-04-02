@@ -95,8 +95,9 @@ function i18n_taxonomy_autocomplete_validate($element, &$form_state) {
     foreach ($typed_terms as $typed_term) {
       // See if the term exists in the chosen vocabulary and return the tid;
       // otherwise, create a new 'autocreate' term for insert/update.
-      if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($typed_term), 'vocabulary' => $vocabulary->machine_name, 'language' => $element['#langcode']))) {
-        $term = array_pop($possibilities);
+      $possibilities = taxonomy_term_load_multiple_by_name(trim($typed_term), $vocabulary->machine_name);
+      if (!empty($possibilities)) {
+        $term = reset($possibilities);
       }
       else {
         $vocabulary = reset($vocabularies);
@@ -125,26 +126,23 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
       $term_translations = array_filter($form_state['values']['translations']);
       foreach ($term_translations as $lang => $lang_terms) {
         $item = reset($lang_terms);
+        $term = new TaxonomyTerm($item);
         if ($item['tid'] == 'autocreate') {
-          // FIXME this creates and creates more terms and can't be correct:
-          //$item['tid'] = NULL;
-          $term = new TaxonomyTerm($item);
+          $term->tid = NULL;
+          $term->parent = array(0);
           taxonomy_term_save($term);
-        }
-        else {
-          $term = new TaxonomyTerm($item);
         }
         $translations[$lang] = $term;
       }
       if (!empty($form_state['values']['source_term'])) {
         $term = $form_state['values']['source_term'];
-        $translations[$term->language] = $term;
+        $translations[$term->langcode] = $term;
       }
       if (!empty($translations)) {
-        $translation_set = $translation_set ? $translation_set : i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
-        $translation_set
-          ->reset_translations($translations)
-          ->save(TRUE);
+        if (!isset($translation_set)) {
+          $translation_set = i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
+        }
+        $translation_set->reset_translations($translations)->save(TRUE);
         backdrop_set_message(t('Term translations have been updated.'));
       }
       else {
