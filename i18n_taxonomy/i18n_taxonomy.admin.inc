@@ -42,7 +42,7 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
   );
   // List of terms for languages.
   foreach (language_list(TRUE, TRUE) as $lang => $langname) {
-    if ($source && $source->language == $lang) {
+    if ($source && $source->langcode == $lang) {
       // This is the source term, we don't change it
       $form['source_term'] = array('#type' => 'value', '#value' => $source);
       $form['translations'][$lang] = array(
@@ -126,10 +126,17 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
       $term_translations = array_filter($form_state['values']['translations']);
       foreach ($term_translations as $lang => $lang_terms) {
         $item = reset($lang_terms);
-        $term = new TaxonomyTerm($item);
-        if ($item['tid'] == 'autocreate') {
-          $term->tid = NULL;
+        $term = taxonomy_term_load($item['tid']);
+        // Property parent isn't really that optional.
+        // If it isn't set, the term won't show on admin/structure/taxonomy/[vocabname].
+        // TODO figure out what/why and file a core bug report.
+        if ($term && !isset($term->parent)) {
           $term->parent = array(0);
+        }
+        if (!$term) {
+          $term = new TaxonomyTerm($item);
+          $term->parent = array(0);
+          $term->tid = NULL;
           taxonomy_term_save($term);
         }
         $translations[$lang] = $term;
@@ -139,10 +146,11 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
         $translations[$term->langcode] = $term;
       }
       if (!empty($translations)) {
-        if (!isset($translation_set)) {
+        if (!is_object($translation_set)) {
           $translation_set = i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
         }
         $translation_set->reset_translations($translations)->save(TRUE);
+        cache_flush('entity_taxonomy_term');
         backdrop_set_message(t('Term translations have been updated.'));
       }
       else {
@@ -152,6 +160,9 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
 
     case t('Delete'):
       $translation_set->delete(TRUE);
+      // FIXME this still isn't enough, figure out which caches also
+      // need to get flushed.
+      cache_flush('entity_taxonomy_term');
       backdrop_set_message(t('The term translation has been deleted.'));
       $form_state['redirect'] = 'admin/structure/taxonomy/' . $form_state['values']['vocabulary']->machine_name . '/translation';
       break;
@@ -173,15 +184,18 @@ function i18n_taxonomy_translation_sets_overview($vocabulary) {
  * Callback for term translation tab.
  */
 function i18n_taxonomy_translation_term_overview($term) {
+  $translation_set = FALSE;
   if ($term->i18n_tsid) {
     // Already part of a set, grab that set.
     $i18n_tsid = $term->i18n_tsid;
     $translation_set = i18n_translation_set_load($term->i18n_tsid);
-    $translation_set->get_translations();
-    $translations = $translation_set->get_translations();
+    if ($translation_set) {
+      $translation_set->get_translations();
+      $translations = $translation_set->get_translations();
+    }
   }
-  else {
-    // We have no translation source nid, this could be a new set, emulate that.
+  if (!$translation_set) {
+    // We have no translation source id, this could be a new set, emulate that.
     $i18n_tsid = $term->tid;
     $translations = array($term->langcode => $term);
   }
