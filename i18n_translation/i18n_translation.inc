@@ -161,7 +161,9 @@ class i18n_translation_set extends Entity {
    */
   protected function update_related($op = 'update_delete') {
     foreach ($this->related_translations as $translation_set) {
-      $translation_set->$op();
+      if ($translation_set) {
+        $translation_set->$op();
+      }
     }
   }
   /**
@@ -426,7 +428,9 @@ class i18n_translation_set extends Entity {
     $old_tsid = $object->get_tsid();
     if ($old_tsid && $old_tsid != $this->tsid) {
       $this->related_translations[$old_tsid] = i18n_translation_set_load($old_tsid);
-      $this->related_translations[$old_tsid]->remove_object($object);
+      if ($this->related_translations[$old_tsid]) {
+        $this->related_translations[$old_tsid]->remove_object($object);
+      }
     }
     if ($langcode) {
       $this->get_translations();
