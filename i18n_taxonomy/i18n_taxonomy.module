@@ -240,7 +240,7 @@ function i18n_taxonomy_field_formatter_view($entity_type, $entity, $field, $inst
           $uri = entity_uri('taxonomy_term', $term);
           $element[$delta] = array(
             '#type' => 'link',
-            '#title' => i18n_taxonomy_term_name($term, $language->language),
+            '#title' => i18n_taxonomy_term_name($term, $language->langcode),
             '#href' => $uri['path'],
             '#options' => $uri['options'],
           );
@@ -250,7 +250,7 @@ function i18n_taxonomy_field_formatter_view($entity_type, $entity, $field, $inst
 
     case 'i18n_taxonomy_term_reference_plain':
       foreach ($items as $delta => $item) {
-        $name = ($item['tid'] != 'autocreate' ? i18n_taxonomy_term_name($item['taxonomy_term'], $language->language): $item['name']);
+        $name = ($item['tid'] != 'autocreate' ? i18n_taxonomy_term_name($item['taxonomy_term'], $language->langcode): $item['name']);
         $element[$delta] = array(
           '#markup' => check_plain($name),
         );
@@ -259,21 +259,6 @@ function i18n_taxonomy_field_formatter_view($entity_type, $entity, $field, $inst
   }
 
   return $element;
-}
-
-/**
- * Implements hook_field_extra_fields().
- */
-function i18n_taxonomy_field_extra_fields() {
-  $return = array();
-  $info = entity_get_info('taxonomy_term');
-  foreach (array_keys($info['bundles']) as $bundle) {
-    $vocabulary = taxonomy_vocabulary_load($bundle);
-    if ($vocabulary && i18n_taxonomy_vocabulary_mode($vocabulary, I18N_MODE_TRANSLATE)) {
-      $return['taxonomy_term'][$bundle] = i18n_language_field_extra();
-    }
-  }
-  return $return;
 }
 
 /**
