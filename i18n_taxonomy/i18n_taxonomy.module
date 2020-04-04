@@ -913,7 +913,7 @@ function i18n_taxonomy_form_alter(&$form, $form_state, $form_id) {
         foreach (element_children($form) as $key) {
           if (isset($form[$key]['#term']) && ($lang = i18n_object_langcode($form[$key]['#term']))) {
             $form[$key]['view']['#suffix'] = ' (' . i18n_language_name($lang) . ')';
-            if ($form[$key]['langcode'] != LANGUAGE_NONE) {
+            if ($lang != LANGUAGE_NONE) {
               $tid = $form[$key]['#term']['tid'];
               $vocab = $form['#vocabulary']->machine_name;
               $form[$key]['operations']['#links']['translate'] = array(
