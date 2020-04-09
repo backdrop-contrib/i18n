@@ -5,5 +5,5 @@ package = Multilingual - Internationalization
 backdrop = 1.x
 type = module
 
-files[] = i18n_path.inc
-files[] = i18n_path.test
+;files[] = i18n_path.inc
+;files[] = i18n_path.test

@@ -6,6 +6,16 @@
  */
 
 /**
+ * Implements hook_autoload_info()
+ */
+function i18n_path_autoload_info() {
+  return array(
+    'i18n_path_translation_set' => 'i18n_path.inc',
+    'i18n_path_object' => 'i18n_path.inc',
+  );
+}
+
+/**
  * Implements hook_menu()
  */
 function i18n_path_menu() {
