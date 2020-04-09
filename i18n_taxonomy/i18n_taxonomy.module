@@ -713,6 +713,9 @@ function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state)
     );
     // Prevent conflicts with core elements, pull out only the items we need.
     $form['multilingual']['extended']['i18n_mode'] = $i18n_extended['i18n_translation']['i18n_mode'];
+    if (!isset($form['multilingual']['extended']['i18n_mode']['#default_value'])) {
+      $form['multilingual']['extended']['i18n_mode']['#default_value'] = I18N_MODE_NONE;
+    }
     $form['multilingual']['extended']['langcode'] = $i18n_extended['i18n_translation']['language'];
     if (user_access('translate interface')) {
       $form['actions']['translate'] = array(
@@ -724,7 +727,9 @@ function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state)
           'invisible' => array(
             // Hide the button if language mode is selected value needs to be a
             // string so that the javascript-side matching works.
-            'input[name=i18n_mode]' => array('value' => (string)I18N_MODE_LANGUAGE),
+            array('input[name=i18n_mode]' => array('value' => (string)I18N_MODE_LANGUAGE)),
+            // Or no multilingual support at all.
+            array('input[name=language]' => array('checked' => FALSE)),
           )
         )
       );
