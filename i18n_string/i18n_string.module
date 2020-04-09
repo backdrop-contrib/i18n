@@ -156,7 +156,7 @@ function i18n_string_menu() {
   $items['i18n_string/save'] = array(
     'title' => 'Save string',
     'page callback' => 'i18n_string_l10n_client_save_string',
-    'access arguments' => array('use on-page translation'),
+    'access arguments' => array('translate interface'),
     'file' => 'i18n_string.pages.inc',
     'type' => MENU_CALLBACK,
   );

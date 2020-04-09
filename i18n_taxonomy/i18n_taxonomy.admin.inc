@@ -42,7 +42,7 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
   );
   // List of terms for languages.
   foreach (language_list(TRUE, TRUE) as $lang => $langname) {
-    if ($source && $source->language == $lang) {
+    if ($source && $source->langcode == $lang) {
       // This is the source term, we don't change it
       $form['source_term'] = array('#type' => 'value', '#value' => $source);
       $form['translations'][$lang] = array(
@@ -95,17 +95,17 @@ function i18n_taxonomy_autocomplete_validate($element, &$form_state) {
     foreach ($typed_terms as $typed_term) {
       // See if the term exists in the chosen vocabulary and return the tid;
       // otherwise, create a new 'autocreate' term for insert/update.
-      if ($possibilities = taxonomy_term_load_multiple(array(), array('name' => trim($typed_term), 'vid' => $vocabulary->vid, 'language' => $element['#langcode']))) {
-        $term = array_pop($possibilities);
+      $possibilities = taxonomy_term_load_multiple_by_name(trim($typed_term), $vocabulary->machine_name);
+      if (!empty($possibilities)) {
+        $term = reset($possibilities);
       }
       else {
         $vocabulary = reset($vocabularies);
         $term = array(
           'tid' => 'autocreate',
-          'vid' => $vocabulary->machine_name,
+          'vocabulary' => $vocabulary->machine_name,
           'name' => $typed_term,
-          'vocabulary_machine_name' => $vocabulary->machine_name,
-          'language' => $element['#langcode'],
+          'langcode' => $element['#langcode'],
         );
       }
       $value[] = (array)$term;
@@ -126,25 +126,28 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
       $term_translations = array_filter($form_state['values']['translations']);
       foreach ($term_translations as $lang => $lang_terms) {
         $item = reset($lang_terms);
-        if ($item['tid'] == 'autocreate') {
-          $term = (object) $item;
-          unset($term->tid);
+        $term = taxonomy_term_load($item['tid']);
+        if (!$term) {
+          $term = entity_create('taxonomy_term', array(
+            'name' => $item['name'],
+            'vocabulary' => $item['vocabulary'],
+            'langcode' => $item['langcode'],
+          ));
           taxonomy_term_save($term);
-        }
-        else {
-          $term = (object) $item;
         }
         $translations[$lang] = $term;
       }
       if (!empty($form_state['values']['source_term'])) {
         $term = $form_state['values']['source_term'];
-        $translations[$term->language] = $term;
+        $translations[$term->langcode] = $term;
       }
       if (!empty($translations)) {
-        $translation_set = $translation_set ? $translation_set : i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
-        $translation_set
-          ->reset_translations($translations)
-          ->save(TRUE);
+        if (!is_object($translation_set)) {
+          $translation_set = i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
+        }
+        $translation_set->reset_translations($translations)->save(TRUE);
+        taxonomy_terms_static_reset();
+        cache_flush('entity_taxonomy_term');
         backdrop_set_message(t('Term translations have been updated.'));
       }
       else {
@@ -154,6 +157,8 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
 
     case t('Delete'):
       $translation_set->delete(TRUE);
+      taxonomy_terms_static_reset();
+      cache_flush('entity_taxonomy_term');
       backdrop_set_message(t('The term translation has been deleted.'));
       $form_state['redirect'] = 'admin/structure/taxonomy/' . $form_state['values']['vocabulary']->machine_name . '/translation';
       break;
@@ -175,17 +180,20 @@ function i18n_taxonomy_translation_sets_overview($vocabulary) {
  * Callback for term translation tab.
  */
 function i18n_taxonomy_translation_term_overview($term) {
+  $translation_set = FALSE;
   if ($term->i18n_tsid) {
     // Already part of a set, grab that set.
     $i18n_tsid = $term->i18n_tsid;
     $translation_set = i18n_translation_set_load($term->i18n_tsid);
-    $translation_set->get_translations();
-    $translations = $translation_set->get_translations();
+    if ($translation_set) {
+      $translation_set->get_translations();
+      $translations = $translation_set->get_translations();
+    }
   }
-  else {
-    // We have no translation source nid, this could be a new set, emulate that.
+  if (!$translation_set) {
+    // We have no translation source id, this could be a new set, emulate that.
     $i18n_tsid = $term->tid;
-    $translations = array($term->language => $term);
+    $translations = array($term->langcode => $term);
   }
   $type = config_get('translation.settings', 'language_type');
   $header = array(t('Language'), t('Title'), t('Operations'));
@@ -218,7 +226,7 @@ function i18n_taxonomy_translation_term_overview($term) {
       $options['add'] = array(
         '#type' => 'link',
         '#title' => t('add translation'),
-        '#href' => 'admin/structure/taxonomy/' . $term->vocabulary_machine_name . '/add',
+        '#href' => 'admin/structure/taxonomy/' . $term->vocabulary . '/add',
         '#options' => array(
           'query' => array('translation' => $term->tid, 'target' => $langcode) + backdrop_get_destination()
         ),

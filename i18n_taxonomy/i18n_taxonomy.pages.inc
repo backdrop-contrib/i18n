@@ -104,7 +104,7 @@ function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
     // Disable i18n_select for this query
     $query->addTag('i18n_select');
     // Add language condition
-    $query->condition('t.language', $langcode);
+    $query->condition('t.langcode', $langcode);
 
     // Do not select already entered terms.
     if (!empty($tags_typed)) {
