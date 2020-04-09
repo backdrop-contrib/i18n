@@ -127,16 +127,12 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
       foreach ($term_translations as $lang => $lang_terms) {
         $item = reset($lang_terms);
         $term = taxonomy_term_load($item['tid']);
-        // Property parent isn't really that optional.
-        // If it isn't set, the term won't show on admin/structure/taxonomy/[vocabname].
-        // TODO figure out what/why and file a core bug report.
-        if ($term && !isset($term->parent)) {
-          $term->parent = array(0);
-        }
         if (!$term) {
-          $term = new TaxonomyTerm($item);
-          $term->parent = array(0);
-          $term->tid = NULL;
+          $term = entity_create('taxonomy_term', array(
+            'name' => $item['name'],
+            'vocabulary' => $item['vocabulary'],
+            'langcode' => $item['langcode'],
+          ));
           taxonomy_term_save($term);
         }
         $translations[$lang] = $term;
@@ -150,6 +146,7 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
           $translation_set = i18n_translation_set_create('taxonomy_term', $vocabulary->machine_name);
         }
         $translation_set->reset_translations($translations)->save(TRUE);
+        taxonomy_terms_static_reset();
         cache_flush('entity_taxonomy_term');
         backdrop_set_message(t('Term translations have been updated.'));
       }
@@ -160,8 +157,7 @@ function i18n_taxonomy_translation_term_form_submit($form, &$form_state) {
 
     case t('Delete'):
       $translation_set->delete(TRUE);
-      // FIXME this still isn't enough, figure out which caches also
-      // need to get flushed.
+      taxonomy_terms_static_reset();
       cache_flush('entity_taxonomy_term');
       backdrop_set_message(t('The term translation has been deleted.'));
       $form_state['redirect'] = 'admin/structure/taxonomy/' . $form_state['values']['vocabulary']->machine_name . '/translation';
