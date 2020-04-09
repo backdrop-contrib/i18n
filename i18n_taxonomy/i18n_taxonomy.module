@@ -743,21 +743,25 @@ function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state)
  */
 function i18n_taxonomy_form_vocabulary_submit($form, &$form_state) {
   if (!$form_state['values']['language']) {
-    unset($form_state['values']['i18n_mode']);
-    unset($form_state['values']['langcode']);
-    // TODO config update, validate...
-  }
-  if (isset($form_state['values']['i18n_mode'])) {
     $config = config('i18n_taxonomy.vocabulary.' . $form_state['values']['machine_name']);
-    $config->set('i18n_mode', $form_state['values']['i18n_mode']);
-
-    if (isset($form_state['values']['langcode'])) {
-      $config->set('langcode', $form_state['values']['langcode']);
+    if (!$config->isNew()) {
+      // Multilingual support has been disabled for this vocab.
+      $config->delete();
     }
-    $config->save();
   }
-  if ($form_state['triggering_element']['#name'] == 'save_translate') {
-    $form_state['redirect'] = 'admin/structure/taxonomy/' . $form_state['values']['machine_name'] . '/translate';
+  else {
+    if (isset($form_state['values']['i18n_mode'])) {
+      $config = config('i18n_taxonomy.vocabulary.' . $form_state['values']['machine_name']);
+      $config->set('i18n_mode', $form_state['values']['i18n_mode']);
+
+      if (isset($form_state['values']['langcode'])) {
+        $config->set('langcode', $form_state['values']['langcode']);
+      }
+      $config->save();
+    }
+    if ($form_state['triggering_element']['#name'] == 'save_translate') {
+      $form_state['redirect'] = 'admin/structure/taxonomy/' . $form_state['values']['machine_name'] . '/translate';
+    }
   }
 }
 
