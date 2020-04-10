@@ -33,24 +33,22 @@ function i18n_contact_i18n_object_info() {
       '%contact' => 'cid',
     ),
     // To produce edit links automatically.
-    'edit path' => 'admin/structure/contact/edit/%contact',
+    'edit path' => 'admin/structure/contact/configure/%contact',
     // Auto-generate translate tab.
-    'translate tab' => 'admin/structure/contact/edit/%contact/translate',
+    'translate tab' => 'admin/structure/contact/configure/%contact/translate',
     // Properties for string translation.
     'string translation' => array(
       // Text group that will handle this object's strings.
       'textgroup' => 'contact',
       // Object type property for string translation.
       'type' => 'category',
-      // Table where the object is stored, to automate string lists
-      'table' => 'contact',
       // Translatable properties of these objects.
       'properties' => array(
         'category' => t('Category'),
         'reply' => t('Auto-reply'),
       ),
       // Path to translate strings to every language.
-      'translate path' => 'admin/structure/contact/edit/%contact/translate/%i18n_language',
+      'translate path' => 'admin/structure/contact/configure/%contact/translate/%i18n_language',
     )
   );
   return $info;
