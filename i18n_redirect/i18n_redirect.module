@@ -31,8 +31,8 @@ function i18n_redirect_init() {
     return;
   }
   elseif ($translations = i18n_get_path_translations($path)) {
-    if (isset($translations[$language->language]) && $translations[$language->language]['href'] != $path) {
-      backdrop_goto($translations[$language->language]['href'], array('language' => $language), 301);
+    if (isset($translations[$language->langcode]) && $translations[$language->langcode]['href'] != $path) {
+      backdrop_goto($translations[$language->langcode]['href'], array('language' => $language), 301);
     }
   }
 }
