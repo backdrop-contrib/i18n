@@ -45,7 +45,7 @@ function i18n_sync_node_translation($node, $translations, $field_names, $op) {
     // Invoke callback for each field, the default is just copy over
     foreach ($field_names as $field) {
       if (!empty($i18n_options[$field]['field_name'])) {
-        i18n_sync_field_translation_sync('node', $node->type, $translation, $translation->language, $node, $node->language, $i18n_options[$field]['field_name']);
+        i18n_sync_field_translation_sync('node', $node->type, $translation, $translation->langcode, $node, $node->langcode, $i18n_options[$field]['field_name']);
       }
       elseif (isset($node->$field)) {
         // Standard node field, just copy over.
@@ -53,7 +53,7 @@ function i18n_sync_node_translation($node, $translations, $field_names, $op) {
       }
     }
     // Give a chance to other modules for additional sync
-    module_invoke_all('i18n_sync_translation', 'node', $translation, $translation->language, $node, $node->language, $field_names);
+    module_invoke_all('i18n_sync_translation', 'node', $translation, $translation->langcode, $node, $node->langcode, $field_names);
     node_save($translation);
     $count++;
     // Flush each entity from the load cache after processing, to
@@ -74,7 +74,7 @@ function i18n_sync_node_translation($node, $translations, $field_names, $op) {
  */
 function i18n_sync_node_translation_attached_node(&$node, &$translation, $field) {
   if ($attached = node_load($node->$field)) {
-    $translation->$field = i18n_sync_node_translation_reference_field($attached, $node->$field, $translation->language);
+    $translation->$field = i18n_sync_node_translation_reference_field($attached, $node->$field, $translation->langcode);
   }
 }
 
@@ -86,7 +86,7 @@ function i18n_sync_node_translation_nodereference_field(&$node, &$translation, $
   foreach ($node->$field as $reference) {
     if ($reference_node = node_load($reference['nid'])) {
       $translated_references[] = array(
-        'nid' => i18n_sync_node_translation_reference_field($reference_node, $reference['nid'], $translation->language)
+        'nid' => i18n_sync_node_translation_reference_field($reference_node, $reference['nid'], $translation->langcode)
       );
     }
   }
@@ -153,18 +153,18 @@ function i18n_sync_node_translation_default_field($node, $translation, $field, $
  * @param string $field field name
  */
 function i18n_sync_node_translation_file_field($node, $translation, $field) {
-  if (isset($node->{$field}[$node->language])) {
+  if (isset($node->{$field}[$node->langcode])) {
     // Build a copy of the existing files in the translation node
     // indexed by fid for easy retrieval in the copy loop below
     $existing_files = array();
-    if (isset($translation->{$field}[$translation->language])) {
-      foreach ($translation->{$field}[$translation->language] as $delta => $file) {
+    if (isset($translation->{$field}[$translation->langcode])) {
+      foreach ($translation->{$field}[$translation->langcode] as $delta => $file) {
         $existing_files[$file['fid']] = $file;
       }
     }
 
     // Start creating the translated copy
-    $translated_files = $node->{$field}[$node->language];
+    $translated_files = $node->{$field}[$node->langcode];
     foreach ($translated_files as $delta => &$file) {
       // keep alt, title, description if they already exist
       if (array_key_exists($file['fid'], $existing_files)) {
@@ -175,6 +175,6 @@ function i18n_sync_node_translation_file_field($node, $translation, $field) {
         }
       }
     }
-    $translation->{$field}[$translation->language] = $translated_files;
+    $translation->{$field}[$translation->langcode] = $translated_files;
   }
 }
