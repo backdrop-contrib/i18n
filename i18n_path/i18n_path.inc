@@ -42,6 +42,22 @@ class i18n_path_translation_set extends i18n_translation_set {
     }
   }
 
+  /**
+   * Load all path translations indexed by language
+   */
+  public function load_translations() {
+    if (($table = $this->get_table()) && ($field = $this->get_field())) {
+      return db_select($table, 't')
+        ->fields('t')
+        ->condition('t.' . $field, $this->tsid)
+        ->execute()
+        ->fetchAllAssoc('language');
+    }
+    else {
+      return array();
+    }
+  }
+
 }
 
 /**
