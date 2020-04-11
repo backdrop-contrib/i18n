@@ -1058,7 +1058,7 @@ function i18n_taxonomy_translate_terms($taxonomy, $langcode, $fullterms = TRUE) 
         // Couldn't identify term, pass through whatever it is
         $translation[$index] = $tdata;
       }
-      elseif ($term->language && $term->language != $langcode) {
+      elseif ($term->langcode && $term->langcode != $langcode) {
         $translation_set = i18n_translation_set_load($term->i18n_tsid);
         $translations = $translation_set->get_translations();
 
@@ -1319,7 +1319,7 @@ function i18n_taxonomy_entity_info_alter(&$entity_info) {
  * entity_label() get the correct localized taxonomy term.
  */
 function i18n_taxonomy_taxonomy_term_label($term, $entity_type) {
-  return i18n_taxonomy_term_name($term, i18n_language_interface()->language);
+  return i18n_taxonomy_term_name($term, i18n_language_interface()->langcode);
 }
 
 /**

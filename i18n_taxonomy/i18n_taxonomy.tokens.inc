@@ -56,7 +56,7 @@ function i18n_taxonomy_token_info() {
 function i18n_taxonomy_tokens($type, $tokens, array $data = array(), array $options = array()) {
   $replacements = array();
   $sanitize = !empty($options['sanitize']);
-  $langcode = isset($options['language']) ? $options['language']->language : i18n_langcode();
+  $langcode = isset($options['language']) ? $options['language']->langcode : i18n_langcode();
 
   if ($type == 'term' && !empty($data['term'])) {
     $term = $data['term'];
@@ -74,7 +74,7 @@ function i18n_taxonomy_tokens($type, $tokens, array $data = array(), array $opti
           break;
 
         case 'i18n-vocabulary':
-          $vocabulary = taxonomy_vocabulary_load($term->vid);
+          $vocabulary = taxonomy_vocabulary_load($term->vocabulary);
           $replacements[$original] = check_plain(i18n_taxonomy_vocabulary_name($vocabulary, $langcode));
           break;
 
