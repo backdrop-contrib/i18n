@@ -381,13 +381,13 @@ function i18n_taxonomy_field_prepare_translation($entity_type, $entity, $field, 
  *   The array of valid terms for this field, keyed by term id.
  */
 function i18n_taxonomy_allowed_values($field) {
-  global $language;
+  $language = i18n_language_context();
   $options = array();
   foreach ($field['settings']['allowed_values'] as $tree) {
     if ($vocabulary = taxonomy_vocabulary_load($tree['vocabulary'])) {
-      if (i18n_taxonomy_vocabulary_mode($vocabulary->machine_name) == I18N_MODE_TRANSLATE) {
+      $mode = i18n_taxonomy_vocabulary_mode($vocabulary->machine_name);
+      if ($mode == I18N_MODE_TRANSLATE) {
         $parent = i18n_taxonomy_translation_term_tid($tree['parent'], NULL, $tree['parent']);
-        $language = i18n_language_context();
         $terms = i18n_taxonomy_get_tree($vocabulary->machine_name, $language->langcode, $parent);
       }
       else {
@@ -395,7 +395,15 @@ function i18n_taxonomy_allowed_values($field) {
       }
       if ($terms) {
         foreach ($terms as $term) {
-          $options[$term->tid] = str_repeat('-', $term->depth) . i18n_taxonomy_term_name($term);
+          if ($mode == I18N_MODE_LOCALIZE) {
+            // Enforce context (node) language for localized term names,
+            // would be interface language otherwise.
+            $term_name = i18n_taxonomy_term_name($term, $language->langcode);
+          }
+          else {
+            $term_name = i18n_taxonomy_term_name($term);
+          }
+          $options[$term->tid] = str_repeat('-', $term->depth) . $term_name;
         }
       }
     }
