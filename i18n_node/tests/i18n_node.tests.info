@@ -1,0 +1,5 @@
+[I18nNodeTestCase]
+name = 'Content translation'
+description = 'Content translation functions'
+group = Internationalization
+file = i18n_node.test

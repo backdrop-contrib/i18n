@@ -5,6 +5,8 @@
  * Contains test cases for the i18n_node module.
  */
 
+require_once(__DIR__ . '/../../tests/i18n.test');
+
 class I18nNodeTestCase extends Backdropi18nTestCase {
   public static function getInfo() {
     return array(
