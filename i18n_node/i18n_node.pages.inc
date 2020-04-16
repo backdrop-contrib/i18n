@@ -275,7 +275,7 @@ function i18n_node_autocomplete2nid($name, $field = NULL, $type, $language) {
     }
     else {
       // No explicit nid.
-      $reference = _i18n_node_references($name, 'equals', array('type' => $type, 'language' => $language), 1);
+      $reference = _i18n_node_references($name, 'equals', array('type' => $type, 'langcode' => $language), 1);
       if (!empty($reference)) {
         $nid = key($reference);
       }

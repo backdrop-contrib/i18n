@@ -24,7 +24,7 @@ class I18nNodeTestCase extends Backdropi18nTestCase {
     $this->addLanguage('pt-br');
     // Add a disabled language.
     $this->addLanguage('it');
-    $edit = array('enabled[it]' => FALSE);
+    $edit = array('languages[it][enabled]' => FALSE);
     $this->backdropPost('admin/config/regional/language', $edit, t('Save configuration'));
   }
 
