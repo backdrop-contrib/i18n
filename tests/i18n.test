@@ -11,8 +11,16 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
 
   function setUpLanguages($admin_permissions = array()) {
     // Setup admin user.
-    $this->admin_user = $this->backdropCreateUser(array_merge(array('bypass node access', 'administer nodes', 'administer languages', 'administer content types', 'administer blocks', 'access administration pages', 'translate interface'), $admin_permissions));
-
+    $permissions = array(
+      'bypass node access',
+      'administer nodes',
+      'administer languages',
+      'administer content types',
+      'administer blocks',
+      'access administration pages',
+      'translate interface'
+    );
+    $this->admin_user = $this->backdropCreateUser(array_merge($permissions, $admin_permissions));
     $this->backdropLogin($this->admin_user);
 
     // Add languages.
@@ -291,7 +299,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
    */
   public function getOtherLanguages() {
     $languages = language_list();
-    unset($languages[language_default('language')]);
+    unset($languages[language_default()->langcode]);
     return $languages;
   }
   /**
@@ -317,7 +325,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     if (!$translations) {
       $length = strlen($name);
       foreach ($this->getOtherLanguages() as $language) {
-        $translations[$language->language] = $this->randomName($length);
+        $translations[$language->langcode] = $this->randomName($length);
       }
     }
     $this->backdropLogin($this->translator);
@@ -329,7 +337,6 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
       'string' => $name,
       'language' => 'all',
       'translation' => 'all',
-      'group' => $textgroup,
     );
     $this->backdropPost('admin/config/regional/translate/translate', $search, t('Filter'));
     // assertText() seems to remove the input field where $name always could be
@@ -338,7 +345,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     $this->assertText(check_plain($name), t('Search found the name.'));
     $this->assertRaw($language_indicator, t('Name is untranslated.'));
     // Assume this is the only result, given the random name.
-    $this->clickLink(t('edit'));
+    $this->clickLink(t('Edit'));
     // We save the lid from the path.
     $matches = array();
     preg_match('!admin/config/regional/translate/edit/(\d+)!', $this->getUrl(), $matches);

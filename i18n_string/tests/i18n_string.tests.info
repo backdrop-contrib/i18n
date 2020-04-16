@@ -1,0 +1,5 @@
+[i18nStringTestCase]
+name = 'String translation API'
+description = 'User defined strings translation functions'
+group = Internationalization
+file = i18n_string.test

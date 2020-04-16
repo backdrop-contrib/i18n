@@ -91,6 +91,7 @@ function i18n_test_menu() {
   return $items;
 }
 
+require_once(__DIR__ . '/../i18n_string/i18n_string.inc');
 class i18n_string_textgroup_cached_logged extends i18n_string_textgroup_cached {
   public static function load_translation($i18nstring, $langcode) {
     $strings = variable_get('i18n_loaded_translations', array());

@@ -5,13 +5,13 @@
  * Test case for multilingual string
  */
 
+require_once(__DIR__ . '/../../tests/i18n.test');
+
 /**
  * Class for testing i18n_string and modules using these features
  *
  * Tests basic API functions
  */
-
-
 class i18nStringTestCase extends Backdropi18nTestCase {
 
   public static function getInfo() {
@@ -49,8 +49,8 @@ class i18nStringTestCase extends Backdropi18nTestCase {
     foreach ($this->getOtherLanguages() as $language) {
       foreach ($strings as $key => $value) {
         $name = "$textgroup:item:$key:title";
-        $translation = i18n_string_translate($name, 'NOT FOUND', array('langcode' => $language->language));
-        $this->assertEqual($translation, $translations[$key][$language->language], "The right $language->name ($language->language) translation has been retrieved for $name, $translation");
+        $translation = i18n_string_translate($name, 'NOT FOUND', array('langcode' => $language->langcode));
+        $this->assertEqual($translation, $translations[$key][$language->langcode], "The right $language->name ($language->langcode) translation has been retrieved for $name, $translation");
       }
     }
 
@@ -59,16 +59,15 @@ class i18nStringTestCase extends Backdropi18nTestCase {
     $search = array(
       'language' => 'all',
       'translation' => 'all',
-      'group' => 'default',
       'string' => '',
     );
     $this->backdropPost('admin/config/regional/translate/translate', $search, t('Filter'));
-    $this->clickLink(t('edit'));
+    $this->clickLink(t('Edit'));
     // Just add a random translation.
-    $translation = $this->randomString();
+    $translation = check_plain($this->randomString());
     $edit = array();
     foreach ($this->getOtherLanguages() as $language) {
-      $langcode = $language->language;
+      $langcode = $language->langcode;
       $edit["translations[$langcode]"] = $translation;
     }
     $this->backdropPost(NULL, $edit, t('Save translations'));
