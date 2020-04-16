@@ -1,0 +1,5 @@
+[Backdropi18nConfigTestCase]
+name = General functionality
+description = Basic configuration for the i18n module
+group = Internationalization
+file = i18n.test
