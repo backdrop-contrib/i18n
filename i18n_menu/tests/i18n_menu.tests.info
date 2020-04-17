@@ -1,0 +1,5 @@
+[i18nMenuTestCase]
+name = 'Menu translation'
+description = 'Menu translation functions'
+group = Internationalization
+file = i18n_menu.test
