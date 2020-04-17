@@ -4,6 +4,7 @@
  * Test case for multilingual fields.
  */
 
+require_once(__DIR__ . '/../../tests/i18n.test');
 
 class i18nFieldTestCase extends Backdropi18nTestCase {
 
