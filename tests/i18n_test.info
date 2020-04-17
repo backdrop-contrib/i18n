@@ -4,5 +4,6 @@ dependencies[] = locale
 dependencies[] = translation
 dependencies[] = i18n
 package = Testing
-core = 6.x
+backdrop = 1.x
+type = module
 hidden = TRUE

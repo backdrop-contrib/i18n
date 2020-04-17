@@ -91,9 +91,9 @@ class i18nStringTestCase extends Backdropi18nTestCase {
       i18n_string_update($name, $string);
       $translations[$key] = $this->createStringTranslation($textgroup, $string);
     }
-
     // Now fetch the strings to fill the cache.
-    foreach ($textgroup_object->strings as $context => $string_object) {
+    $contexts = array_keys($textgroup_object->strings);
+    foreach ($contexts as $context) {
       $this->backdropGet('tests/i18n/i18n_string_build/' . $textgroup . ':' . $context);
     }
     foreach ($strings as $key => $string) {
@@ -128,7 +128,9 @@ class i18nStringTestCase extends Backdropi18nTestCase {
     }
 
     // Test cache injection.
-    foreach ($textgroup_object->strings as $context => $string_object) {
+    $contexts = array_keys($textgroup_object->strings);
+    foreach ($contexts as $context) {
+      $string_object = $textgroup_object->strings[$context];
       // Check if the string object cache is also available.
       $string_cache = cache_get($string_object->get_cid());
       if (isset($string_cache->data)) {
@@ -161,7 +163,7 @@ class i18nStringTestCase extends Backdropi18nTestCase {
     backdrop_static_reset('i18n_string_textgroup');
 
     // Reset the loaded translation variable.
-    variable_del('i18n_loaded_translations');
+    config_clear('i18n.settings', 'i18n_loaded_translations');
     $loaded_translations = config_get('i18n.settings', 'i18n_loaded_translations');
     $this->verbose(var_export($loaded_translations, TRUE));
 

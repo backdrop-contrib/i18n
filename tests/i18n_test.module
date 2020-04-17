@@ -5,25 +5,11 @@
  *   Helper module for testing i18n
  */
 
-// Add some multilingual variables, override existing ones from settings so
-// we have a known list and we don't need any addition to the settings file for testing i18n
-_i18n_test_variable_init();
-
 /**
  * Implements hook_init()
  */
 function i18n_test_init() {
   // We just implement this hook so this one is loaded always on bootstap
-}
-
-/**
- * Set default multilingual variables and add any others defined by testing scripts
- *
- * More variables can be added using 'i18n_variables_test';
- */
-function _i18n_test_variable_init() {
-  global $conf;
-  $conf['i18n_variables'] = array_merge(array('site_name', 'site_frontpage'), variable_get('i18n_variables_test', array()));
 }
 
 /**
@@ -59,7 +45,7 @@ function i18n_test_menu() {
   $items['tests/i18n/i18n_string_build/%'] = array(
     'title' => 'Load string',
     'access callback' => TRUE,
-    'page callback' => 'i18n_string_build',
+    'page callback' => 'i18n_string_build_page',
     'page arguments' => array(3),
     'type' => MENU_CALLBACK,
     'delivery callback' => 'backdrop_json_output',
@@ -67,7 +53,7 @@ function i18n_test_menu() {
   $items['tests/i18n/i18n_string_build/%/%'] = array(
     'title' => 'Load string',
     'access callback' => TRUE,
-    'page callback' => 'i18n_string_build',
+    'page callback' => 'i18n_string_build_page',
     'page arguments' => array(3, 4),
     'type' => MENU_CALLBACK,
     'delivery callback' => 'backdrop_json_output',
@@ -91,10 +77,19 @@ function i18n_test_menu() {
   return $items;
 }
 
+/**
+ * Custom page callback.
+ */
+function i18n_string_build_page($name, $string = NULL) {
+  // Cast object to array.
+  $content = (array)i18n_string_build($name, $string);
+  return $content;
+}
+
 require_once(__DIR__ . '/../i18n_string/i18n_string.inc');
 class i18n_string_textgroup_cached_logged extends i18n_string_textgroup_cached {
   public static function load_translation($i18nstring, $langcode) {
-    $strings = variable_get('i18n_loaded_translations', array());
+    $strings = config_get('i18n.settings', 'i18n_loaded_translations');
     $strings[$i18nstring->get_name()] = true;
     config_set('i18n.settings', 'i18n_loaded_translations', $strings);
     parent::load_translation($i18nstring, $langcode);
