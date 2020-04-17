@@ -28,10 +28,10 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $neutral_item = $this->createMenuLink(array('menu_name' => $menu['menu_name']));
     $default_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->default_language));
     $secondary_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->secondary_language));
-
     $block['title'] = $menu['title'];
     $block['module'] = 'menu';
     $block['delta'] = $menu['menu_name'];
+    // FIXME Layout system
     $this->moveBlockToRegion($block, 'bottom');
 
     $this->backdropGet('<front>');
@@ -254,13 +254,14 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
    * Helper function to create a menu.
    */
   function createMenu($edit = array()) {
-    $menu_name = $this->randomName(16);
     $edit += array(
-      'title' => $menu_name,
-      'menu_name' => system_transliterate_machine_name($menu_name),
+      'title' => $this->randomName(16),
+      'description' => '',
+      'menu_name' => substr(hash('sha256', $this->randomName(16)), 0, MENU_MAX_MENU_NAME_LENGTH_UI - 1),
       'language' => $this->secondary_language,
     );
     $this->backdropPost('admin/structure/menu/add', $edit, t('Save'));
+    backdrop_static_reset();
     return menu_load('menu-' . $edit['menu_name']);
   }
 
