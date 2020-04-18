@@ -120,15 +120,15 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $settings = array(
       'menu_options[' . $menu['menu_name'] . ']' => TRUE,
       'menu_parent' => $menu_parent,
-      'node_options[promote]' => FALSE,
+      'promote_enabled' => TRUE,
     );
-    $this->backdropPost('admin/structure/types/manage/page/edit', $settings, t('Save content type'));
+    $this->backdropPost('admin/structure/types/manage/page/configure', $settings, t('Save content type'));
 
     // Create nodes with language and menu item: es, en, und
     $edit = array(
       'menu[enabled]' => TRUE,
       'menu[parent]' => $menu_parent,
-      'promote' => FALSE,
+      'promote' => TRUE,
     );
     // English Page => English menu item
     $en_title = $this->randomName(10);
@@ -144,29 +144,34 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $nodes[] = $und_node = $this->createNode('page', $und_title, $und_body, LANGUAGE_NONE, $edit + array('menu[link_title]' => $und_title));
     // Check menu items have right language and we cannot edit them.
     foreach ($nodes as $node) {
-      menu_node_prepare($node);
-      $this->assertEqual($node->menu['language'], $node->language, 'Menu item has the same language that the node it belongs to.');
-      $this->backdropGet('admin/structure/menu/item/' . $node->menu['mlid'] . '/edit');
+      $mlid = db_query_range("SELECT mlid FROM {menu_links} WHERE link_path = :path AND menu_name = :menu_name AND module = 'menu' ORDER BY mlid ASC", 0, 1, array(
+        ':path' => 'node/' . $node->nid,
+        ':menu_name' => $menu['menu_name'],
+      ))->fetchField();
+
+      $this->backdropGet('admin/structure/menu/item/' . $mlid . '/edit');
       $this->assertText(t('This menu item belongs to a node, so it will have the same language as the node and cannot be localized.'));
-      $this->assertNoField('language', 'We cannot edit language for menu items that belong to nodes.');
+      $this->assertNoField('langcode', 'We cannot edit language for menu items that belong to nodes.');
       // Edit the node and submit it to see if the menu link stays enabled.
       $this->backdropPost('node/' . $node->nid . '/edit', array(), t('Save'));
     }
+
     // Check menu items show up for the right language.
-    $this->backdropGet('<front>');
+    // We use our custom view (language aware) for that.
+    $this->backdropGet('i18n-test-page');
     $this->assertText($en_title);
     $this->assertNoText($es_title);
     $this->assertText($und_title);
-    $this->i18nGet('es', '<front>');
+    $this->i18nGet('es', 'i18n-test-page');
     $this->assertText($es_title);
     $this->assertNoText($en_title);
     $this->assertText($und_title);
     // Create string translation for neutral menu item and check it shows up
     $translation = $this->randomName(10);
     $this->createStringTranslation('menu', $und_title, array('es' => $translation));
-    $this->backdropGet('<front>');
+    $this->backdropGet('i18n-test-page');
     $this->assertText($und_title);
-    $this->i18nGet('es', '<front>');
+    $this->i18nGet('es', 'i18n-test-page');
     $this->assertText($translation);
   }
 
@@ -177,8 +182,8 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $menu = $this->createMenu(array('i18n_mode' => I18N_MODE_MULTIPLE));
 
     $neutral_item = $this->createMenuLink(array('menu_name' => $menu['menu_name']));
-    $default_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->default_language));
-    $secondary_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->secondary_language));
+    $default_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'langcode' => $this->default_language));
+    $secondary_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'langcode' => $this->secondary_language));
 
     $translationset_edit = array(
       'translations[' . $this->default_language . ']' => $default_item['menu_name'] . ':' . $default_item['mlid'],
@@ -214,13 +219,13 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $menu = $this->createMenu(array('i18n_mode' => I18N_MODE_MULTIPLE));
 
     // Check current menu mode
-    $this->backdropGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit');
+    $this->backdropGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/configure');
     $this->assertFieldByName('i18n_mode', I18N_MODE_MULTIPLE, 'Menu i18n mode set to I18N_MODE_MULTIPLE');
 
     // Setup menu links for testing.
     $neutral_item = $this->createMenuLink(array('menu_name' => $menu['menu_name']));
-    $default_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->default_language));
-    $secondary_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'language' => $this->secondary_language));
+    $default_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'langcode' => $this->default_language));
+    $secondary_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'langcode' => $this->secondary_language));
 
     $translationset_edit = array(
       'translations[' . $this->default_language . ']' => $default_item['menu_name'] . ':' . $default_item['mlid'],
@@ -234,16 +239,16 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
       'i18n_mode' => I18N_MODE_LANGUAGE,
       'language' => $this->secondary_language,
     );
-    $this->backdropPost('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit', $edit, t('Save'));
-    $this->backdropGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit');
+    $this->backdropPost('admin/structure/menu/manage/' . $menu['menu_name'] . '/configure', $edit, t('Save'));
+    $this->backdropGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/configure');
     $this->assertFieldByName('i18n_mode', I18N_MODE_LANGUAGE, 'Menu i18n mode changed to I18N_MODE_LANGUAGE');
 
     $this->assertTrue(!empty(i18n_translation_set_load($tsid)->tsid), 'Translation set kept.');
 
     $menu_link_languages = db_select('menu_links')
-      ->fields('menu_links', array('language'))
+      ->fields('menu_links', array('langcode'))
       ->condition('menu_name', $menu['menu_name'])
-      ->groupBy('language')
+      ->groupBy('langcode')
       ->execute()
       ->fetchCol();
     $this->assertTrue((count($menu_link_languages) == 1 && reset($menu_link_languages) === $this->secondary_language), 'Menu link language changed to menu language.');
@@ -252,16 +257,16 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $edit = array(
       'i18n_mode' => I18N_MODE_NONE,
     );
-    $this->backdropPost('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit', $edit, t('Save'));
-    $this->backdropGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/edit');
+    $this->backdropPost('admin/structure/menu/manage/' . $menu['menu_name'] . '/configure', $edit, t('Save'));
+    $this->backdropGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/configure');
     $this->assertFieldByName('i18n_mode', I18N_MODE_NONE, 'Menu i18n mode changed to I18N_MODE_NONE');
     $translation_sets = entity_load('i18n_translation', FALSE, array('tsid' => $tsid), TRUE);
     $this->assertTrue(empty($translation_sets), 'Translation set deleted.');
 
     $menu_link_languages = db_select('menu_links')
-      ->fields('menu_links', array('language'))
+      ->fields('menu_links', array('langcode'))
       ->condition('menu_name', $menu['menu_name'])
-      ->groupBy('language')
+      ->groupBy('langcode')
       ->execute()
       ->fetchCol();
     $this->assertTrue(((count($menu_link_languages) == 1) && reset($menu_link_languages) === LANGUAGE_NONE), 'Menu link language switched to LANGUAGE_NONE.');
