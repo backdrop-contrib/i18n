@@ -253,30 +253,25 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     $settings['body'] += array($language->language => array(array()));
     return $this->backdropCreateNode($settings);
   }
+
   /**
    * Move block to region, from block.test
    */
-  function moveBlockToRegion($block, $region = 'sidebar_first') {
-    $this->backdropLogin($this->admin_user);
-    // Set the created block to a specific region.
-    $edit = array();
-    $edit['blocks[' . $block['module'] . '_' . $block['delta'] . '][region]'] = $region;
-    $this->backdropPost('admin/structure/block', $edit, t('Save blocks'));
-
-    // Confirm that the block was moved to the proper region.
-    $this->assertText(t('The block settings have been updated.'), t('Block successfully moved to %region_name region.', array( '%region_name' => $region)));
+  function moveBlockToRegion($block, $region = 'bottom') {
+    // Add block to default layout.
+    $layout = layout_load('default');
+    $layout->addBlock($block['module'], $block['delta'], $region);
+    $layout->save();
+    // Add block to front page layout.
+    $layout_home = layout_load('home');
+    $layout_home->addBlock($block['module'], $block['delta'], $region);
+    $layout_home->save();
 
     // Confirm that the block is being displayed.
-    $this->backdropGet('node');
+    $this->backdropGet('<front>');
     $this->assertText(check_plain($block['title']), t('Block successfully being displayed on the page.'));
-
-    // Confirm that the custom block was found at the proper region.
-    $xpath = $this->buildXPathQuery('//div[@class=:region-class]//div[@id=:block-id]/*', array(
-      ':region-class' => 'region region-' . str_replace('_', '-', $region),
-      ':block-id' => 'block-' . $block['module'] . '-' . $block['delta'],
-    ));
-    $this->assertFieldByXPath($xpath, NULL, t('Custom block found in %region_name region.', array('%region_name' => $region)));
   }
+
   /**
    * Get language object for langcode
    */
