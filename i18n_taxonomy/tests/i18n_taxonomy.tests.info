@@ -1,0 +1,5 @@
+[i18nTaxonomyTestCase]
+name = 'Taxonomy translation'
+description = 'Taxonomy translation functions'
+group = Internationalization
+file = i18n_taxonomy.test

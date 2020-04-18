@@ -4,6 +4,7 @@
  * Test case for multilingual taxonomy
  */
 
+require_once(__DIR__ . '/../../tests/i18n.test');
 
 class i18nTaxonomyTestCase extends Backdropi18nTestCase {
 
@@ -45,13 +46,13 @@ function testTaxonomyTermLocalize() {
 
     // Create a localizable vocabulary.
     $vocab = $this->createVocabulary(array('i18n_mode' => I18N_MODE_LOCALIZE));
-    $this->assertEqual(i18n_taxonomy_vocabulary_mode($vocab->vid), I18N_MODE_LOCALIZE, 'A vocabulary has been created and it is localizable.');
+    $this->assertEqual(i18n_taxonomy_vocabulary_mode($vocab->name), I18N_MODE_LOCALIZE, 'A vocabulary has been created and it is localizable.');
 
     $this->field_name = $this->createTermField($vocab->machine_name);
 
     // Create a term to be localized. We use a common prefix to facilitate the testing of autocomplete suggestions.
     $prefix = $this->randomName() . '_';
-    $term = $this->createTerm(array('vid' => $vocab->vid, 'name' => $prefix . $this->randomName()));
+    $term = $this->createTerm(array('vid' => $vocab->name, 'name' => $prefix . $this->randomName()));
 
     $this->backdropLogin($this->translator);
 
@@ -83,12 +84,12 @@ function testTaxonomyTermLocalize() {
     $this->assertText($term_translation['name'][$this->secondary_language], 'Field values are displayed correctly in non-default languages.');
 
     // Term name and term description should be localized
-    $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->default_language)));
+    $this->backdropGet('taxonomy/term/' . $term->tid, array('langcode' => i18n_language_object($this->default_language)));
     $this->assertText($term->name, 'Term title is displayed correctly in default language.');
     $this->assertText($term->description, 'Term description is displayed correctly in default language.');
 
     // Term name and term description should be localized
-    $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->secondary_language)));
+    $this->backdropGet('taxonomy/term/' . $term->tid, array('langcode' => i18n_language_object($this->secondary_language)));
     $this->assertText($term_translation['name'][$this->secondary_language], 'Term title is displayed correctly in non-default language.');
     $this->assertText($term_translation['description'][$this->secondary_language], 'Term description is displayed correctly in non-default language.');
 
@@ -108,14 +109,14 @@ function testTaxonomyTermLocalize() {
   function testTaxonomyTermTranslate() {
     // Create a translateable vocabulary.
     $vocab = $this->createVocabulary(array('i18n_mode' => I18N_MODE_TRANSLATE));
-    $this->assertEqual(i18n_taxonomy_vocabulary_mode($vocab->vid), I18N_MODE_TRANSLATE, 'A vocabulary has been created and it is translateable.');
+    $this->assertEqual(i18n_taxonomy_vocabulary_mode($vocab->name), I18N_MODE_TRANSLATE, 'A vocabulary has been created and it is translateable.');
 
     $this->field_select = $this->createTermField($vocab->machine_name);
     $this->field_autocomplete = $this->createTermField($vocab->machine_name, 'taxonomy_autocomplete');
 
     // Create a term to be translated.
-    $en_term = $this->createTerm(array('vid' => $vocab->vid, 'language' => $this->default_language));
-    $es_term = $this->createTerm(array('vid' => $vocab->vid, 'language' => $this->secondary_language));
+    $en_term = $this->createTerm(array('vid' => $vocab->name, 'langcode' => $this->default_language));
+    $es_term = $this->createTerm(array('vid' => $vocab->name, 'langcode' => $this->secondary_language));
 
     $this->backdropLogin($this->admin_user);
 
@@ -161,22 +162,6 @@ function testTaxonomyTermLocalize() {
     $this->assertNotEqual($field['settings']['options_list_callback'], $callback, "$callback ist option list callback.");
   }
 
-  // Create vocabulary with given fields
-  function backdropCreateVocabulary($vocab = array()) {
-    $vocab += array('name' => $this->randomName(10), 'description' => $this->randomName(20));
-    taxonomy_vocabulary_save($vocab);
-    return (object)$vocab;
-  }
-  // Create term with given fields
-  function backdropCreateTerms($number = 1, $data = array()) {
-    $list = array();
-    for ($i = 1; $i <= $number ; $i++ ) {
-      $term = $this->createTerm($data);
-      $list[$term->tid] = $term;
-    }
-    return $list;
-  }
-
   /**
    * Returns a new vocabulary with random properties.
    */
@@ -191,7 +176,7 @@ function testTaxonomyTermLocalize() {
       'nodes' => array('article' => 'article'),
       'weight' => mt_rand(0, 10),
     );
-    $vocabulary = (object)$data;
+    $vocabulary = new TaxonomyVocabulary($data);
     taxonomy_vocabulary_save($vocabulary);
     return $vocabulary;
   }
@@ -205,9 +190,9 @@ function testTaxonomyTermLocalize() {
       'description' => $this->randomName(),
       // Use the first available text format and vocabulary.
       'format' => filter_default_format(),
-      'vid' => 1,
+      'vocabulary' => 1,
     );
-    $term = (object)$data;
+    $term = entity_create('taxonomy_term', $data);
     taxonomy_term_save($term);
     return $term;
   }
