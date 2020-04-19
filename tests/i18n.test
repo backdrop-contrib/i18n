@@ -146,10 +146,10 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     if (empty($source->tnid)) {
       $source->tnid = $source->nid;
     }
-    $translations[$source->language] = $source;
-    foreach (language_list() as $language) {
-      if ($language->language != $source->language) {
-        $translations[$language->language] = $this->createNodeTranslation($source, $language);
+    $translations[$source->langcode] = $source;
+    foreach (language_list() as $langcode => $language) {
+      if ($langcode != $source->langcode) {
+        $translations[$langcode] = $this->createNodeTranslation($source, $langcode);
       }
     }
     return $translations;
@@ -199,7 +199,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   function createNodeTranslation($node, $language, $title = NULL, $body = NULL) {
     $body = $body ? $body : $this->randomName();
     $title = $title ? $title : $this->randomName();
-    $this->backdropGet('node/add/' . $node->type, array('query' => array('translation' => $node->nid, 'target' => $language->language)));
+    $this->backdropGet('node/add/' . $node->type, array('query' => array('translation' => $node->nid, 'target' => $language)));
 
 
     $this->assertFieldByXPath('//input[@id="edit-title"]', $node->title, "Original title value correctly populated.");

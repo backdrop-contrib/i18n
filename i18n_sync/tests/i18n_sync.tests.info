@@ -1,0 +1,5 @@
+[i18nSyncTestCase]
+name = 'Synchronize translations'
+description = 'Internationalization Content Synchronization'
+group = Internationalization
+file = i18n_sync.test
