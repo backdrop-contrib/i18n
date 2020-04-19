@@ -38,11 +38,11 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     $secondary_node = $this->createNode('page', $secondary_title, $secondary_body, $this->secondary_language);
 
     $this->backdropGet('node/' . $first_node->nid);
-    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->language);
+    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
     $this->checkTranslationLink($this->secondary_language . '/node/' . $first_node->nid, $this->secondary_language, 'assertNoRaw');
 
     $this->backdropGet('node/' . $secondary_node->nid);
-    $this->checkTranslationLink('node/' . $secondary_node->nid, $secondary_node->language);
+    $this->checkTranslationLink('node/' . $secondary_node->nid, $secondary_node->langcode);
     $this->checkTranslationLink($this->secondary_language . '/node/' . $secondary_node->nid, $this->secondary_language);
 
     $this->backdropGet('admin/config/regional/i18n_translation/path');
@@ -57,11 +57,11 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     $this->backdropPost('admin/config/regional/i18n_translation/path/add', $edit, t('Save'));
 
     $this->backdropGet('node/' . $first_node->nid);
-    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->language);
+    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
     $this->checkTranslationLink($this->secondary_language . '/node/' . $secondary_node->nid, $this->secondary_language);
 
     $this->backdropGet('node/' . $secondary_node->nid);
-    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->language);
+    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
     $this->checkTranslationLink('node/' . $secondary_node->nid, $this->secondary_language);
 
     // create new translation set with one node and one menu "token"
@@ -72,7 +72,7 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     $this->backdropPost('admin/config/regional/i18n_translation/path/edit/1', $edit, t('Save'));
 
     $this->backdropGet('node/' . $first_node->nid);
-    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->language);
+    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
     $this->checkTranslationLink('node/' . $secondary_node->nid, $this->secondary_language, 'assertNoLinkByHref');
     $this->checkTranslationLink($this->secondary_language, $this->secondary_language);
 
@@ -85,7 +85,7 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     $this->backdropPost('admin/config/regional/i18n_translation/path/edit/1', $edit, t('Save'));
 
     $this->backdropGet('node/' . $first_node->nid);
-    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->language);
+    $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
     $this->checkTranslationLink($url, $this->secondary_language);
   }
 }
