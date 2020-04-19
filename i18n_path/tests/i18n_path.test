@@ -4,6 +4,9 @@
  * @file
  * Test case for multilingual menus.
  */
+
+require_once(__DIR__ . '/../../tests/i18n.test');
+
 class i18nPathTestCase extends Backdropi18nTestCase {
   public static function getInfo() {
     return array(
