@@ -74,8 +74,9 @@ function i18n_sync_field_info_alter(&$fields) {
  */
 function i18n_sync_form_node_type_form_alter(&$form, &$form_state) {
   if (isset($form['type'])) {
+    $description = t('Select which fields to synchronize for all translations of this content type.');
+    $description .= '<br/>' . t('Multilingual support has to be enabled to select fields.');
     $type = $form['#node_type']->type;
-    $disabled = !translation_supported_type($type);
     $form['i18n_sync'] = array(
       '#type' => 'fieldset',
       '#title' => t('Synchronize translations'),
@@ -85,8 +86,7 @@ function i18n_sync_form_node_type_form_alter(&$form, &$form_state) {
       '#attributes' => array(
         'class' => array('i18n-node-type-settings-form'),
       ),
-      '#description' => t('Select which fields to synchronize for all translations of this content type.'),
-      '#disabled' => $disabled,
+      '#description' => $description,
     );
 
     $form['i18n_sync']['i18n_sync_node_type'] = array(
@@ -116,8 +116,12 @@ function i18n_sync_form_node_type_form_alter(&$form, &$form_state) {
           '#title' => $info['title'],
           '#type' => 'checkbox',
           '#default_value' => in_array($field, $current) ? $current[$field] : FALSE,
-          '#disabled' => $disabled,
           '#description' => isset($info['description']) ? $info['description'] : '',
+          '#states' => array(
+            'visible' => array(
+              'input[name="language"]' => array('value' => (string) TRANSLATION_ENABLED),
+            ),
+          ),
         );
       }
     }
@@ -129,8 +133,12 @@ function i18n_sync_form_node_type_form_alter(&$form, &$form_state) {
  * Custom submit callback to save config.
  */
 function i18n_sync_node_type_form_submit($form, &$form_state) {
-  $i18n_sync_settings = $form_state['values']['i18n_sync_node_type'];
   $type = $form_state['values']['type'];
+  if ($form_state['values']['language'] < TRANSLATION_ENABLED) {
+    config_clear('i18n.settings', 'i18n_sync_node_type_' . $type);
+    return;
+  }
+  $i18n_sync_settings = $form_state['values']['i18n_sync_node_type'];
   config_set('i18n.settings', 'i18n_sync_node_type_' . $type, $i18n_sync_settings);
 }
 
@@ -178,7 +186,7 @@ function i18n_sync_node_insert($node) {
 function i18n_sync_node_update($node) {
   // Let's go with field synchronization.
   if (i18n_sync_node_check($node) && !empty($node->tnid) && ($fields = i18n_sync_node_fields($node->type)) && ($translations = i18n_sync_node_get_translations($node, TRUE))) {
-    module_load_include('node.inc', 'i18n_sync');
+    module_load_include('inc', 'i18n_sync', 'i18n_sync.node');
     i18n_sync_node_translation($node, $translations, $fields, 'update');
   }
 }
@@ -219,7 +227,13 @@ function i18n_sync_node_prepare($node) {
 function i18n_sync_node_fields($type, $field = NULL) {
   $fields = config_get('i18n.settings', 'i18n_sync_node_type_' . $type);
   if (is_array($fields)) {
-    return $field ? in_array($field, $fields) : $fields;
+    $sync_fields = array_keys(array_filter($fields));
+    if (isset($field) && in_array($field, $sync_fields)) {
+      return array($field);
+    }
+    else {
+      return $sync_fields;
+    }
   }
   return array();
 }

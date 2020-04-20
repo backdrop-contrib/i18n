@@ -58,8 +58,7 @@ class i18nSyncTestCase extends Backdropi18nTestCase {
       'i18n_sync_node_type[promote]' => 1,
       'i18n_sync_node_type[field_tags]' => 1,
     );
-    $this->backdropPost('admin/structure/types/manage/page', $edit, t('Save content type'));
-    $this->backdropGet('admin/structure/types/manage/page');
+    $this->backdropPost('admin/structure/types/manage/page/configure', $edit, t('Save content type'));
     // Update source fields and check translations have been updated.
     $new_title = $this->randomName();
     $new_tag = $this->randomName();
