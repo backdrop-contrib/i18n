@@ -129,22 +129,27 @@ function testTaxonomyTermLocalize() {
     );
     $this->backdropPost('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets/add', $edit, t('Save'));
     $this->backdropGet('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets');
+    // Translation set appears on listing page and links are correct.
+    $this->assertText("{$en_term->name} / {$es_term->name}", 'Translation set title is correct.');
+    $en_link_raw = '<a href="/taxonomy/term/' . $en_term->tid . '">' . $en_term->name . '</a>';
+    $this->assertRaw($en_link_raw, 'Primary language term link is correct.');
+    $es_link_raw = '<a href="/' . $this->secondary_language . '/taxonomy/term/' . $es_term->tid . '">' . $es_term->name . '</a>';
+    $this->assertRaw($es_link_raw, 'Secondary language term link is correct.');
 
     // Freetagging creates terms with the correct language.
-    $new_term_name = $this->randomName();
-    $langcode = LANGUAGE_NONE;
+    $freetag_en = $this->randomName();
+    $freetag_es = $this->randomName();
     $edit = array(
-      "{$this->field_autocomplete}[$langcode]" => $new_term_name,
+      'translations[' . $this->default_language . ']' => $freetag_en,
+      'translations[' . $this->secondary_language . ']' => $freetag_es,
     );
-    $this->backdropPost($this->secondary_language . '/test-entity/add/test-bundle', $edit, t('Save'));
-    $new_term = current(taxonomy_term_load_multiple_by_name($new_term_name, $vocab->machine_name));
-    // FIXME this fails maybe because node langcode beats interface langcode.
-    // TODO evaluate.
-    $this->assertEqual($new_term->langcode, $this->secondary_language, 'Freetagging creates terms with the correct language.');
-
-    // Term translations are used for language switching.
-    $language_switcher = language_negotiation_get_switch_links(LANGUAGE_TYPE_INTERFACE, 'taxonomy/term/' . $en_term->tid);
-    $this->assertEqual($language_switcher->links[$this->secondary_language]['href'], 'taxonomy/term/' . $es_term->tid, 'Term translations are used for language switching.');
+    $this->backdropPost('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets/add', $edit, t('Save'));
+    $new_term_en = taxonomy_term_load_multiple_by_name($freetag_en, $vocab->machine_name);
+    $new_term_en = reset($new_term_en);
+    $this->assertEqual($new_term_en->langcode, $this->default_language, 'New term in default language has correct langcode');
+    $new_term_es = taxonomy_term_load_multiple_by_name($freetag_es, $vocab->machine_name);
+    $new_term_es = reset($new_term_es);
+    $this->assertEqual($new_term_es->langcode, $this->secondary_language, 'New term in secondary language has correct langcode');
   }
 
   /**
