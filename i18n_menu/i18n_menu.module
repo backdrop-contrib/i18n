@@ -120,16 +120,11 @@ function i18n_menu_i18n_translate_path($path) {
 }
 
 /**
- * Implements hook_menu_insert()
+ * Helper function to update related menu items if necessary.
+ *
+ * @see i18n_menu_form_menu_edit_menu_submit()
  */
-function i18n_menu_menu_insert($menu) {
-  i18n_menu_menu_update($menu);
-}
-
-/**
- * Implements hook_menu_update()
- */
-function i18n_menu_menu_update($menu) {
+function i18n_menu_menu_update_items($menu) {
   // Stores the fields of menu links which need an update.
   $update = array();
   if (!isset($menu['i18n_mode'])) {
@@ -141,10 +136,10 @@ function i18n_menu_menu_update($menu) {
   i18n_menu_update_menu_data($menu);
 
   if (!$menu['i18n_mode']) {
-    $update['language'] = LANGUAGE_NONE;
+    $update['langcode'] = LANGUAGE_NONE;
   }
   elseif ($menu['i18n_mode'] & I18N_MODE_LANGUAGE) {
-    $update['language'] = $menu['language'];
+    $update['langcode'] = $menu['language'];
   }
 
   // Non translatable menu.
@@ -683,7 +678,8 @@ function i18n_menu_form_menu_edit_menu_submit($form, &$form_state) {
   $config->set('i18n_mode', $form_state['values']['i18n_mode']);
   $config->set('language', $form_state['values']['language']);
   $config->save();
-  cache_flush('menu'); // FIXME why needed?
+  $menu = $config->get();
+  i18n_menu_menu_update_items($menu);
 }
 
 /**
