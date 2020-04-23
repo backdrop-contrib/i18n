@@ -11,7 +11,7 @@ define('I18N_ENTITY_LANGUAGES_ENABLED', 0);
 define('I18N_ENTITY_LANGUAGES_EXTENDED', 1);
 
 /**
- * Implements hook_autoload_info()
+ * Implements hook_autoload_info().
  */
 function i18n_translation_autoload_info() {
   return array(
@@ -53,7 +53,7 @@ function i18n_translation_entity_info() {
 }
 
 /**
- * Implements hook_menu()
+ * Implements hook_menu().
  */
 function i18n_translation_menu() {
   $items['admin/config/regional/i18n_translation'] = array(
@@ -251,7 +251,12 @@ function i18n_translation_set_build($type, $data = array()) {
  * Create a new translation set.
  */
 function i18n_translation_set_create($type, $bundle = '', $translations = NULL, $master_id = 0) {
-  $set = i18n_translation_set_build($type, array('type' => $type, 'bundle' => $bundle, 'master_id' => $master_id, 'translations' => $translations));
+  $set = i18n_translation_set_build($type, array(
+    'type' => $type,
+    'bundle' => $bundle,
+    'master_id' => $master_id,
+    'translations' => $translations,
+  ));
   $set->insert();
   return $set;
 }

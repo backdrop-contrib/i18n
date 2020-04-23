@@ -391,7 +391,7 @@ class i18n_translation_set extends Entity {
   }
 
   /**
-   * Get field on translations table that stores the translation set id (tsid)
+   * Get field on translations table that stores the translation set id (tsid).
    */
   protected function get_field() {
     return $this->get_info('field');
@@ -490,7 +490,8 @@ class i18n_translation_set extends Entity {
    * Remove item / language from translation set.
    *
    * @param $item
-   *   Item to remove from this translation set, it must have a language property.
+   *   Item to remove from this translation set,
+   *   it must have a language property.
    */
   public function remove_item($item) {
     $this->remove_object(i18n_object($this->type, $item));
@@ -501,7 +502,8 @@ class i18n_translation_set extends Entity {
    * Remove i18n object from translation set.
    */
   public function remove_object($object) {
-    // As object's language may have changed, we use our object_languages index better.
+    // As object's language may have changed,
+    // we use our object_languages index better.
     $index = $object->get_index();
     $this->get_translations();
     if (isset($this->object_languages[$index])) {

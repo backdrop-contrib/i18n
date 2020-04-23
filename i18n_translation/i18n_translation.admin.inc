@@ -21,7 +21,11 @@ function i18n_translation_admin_overview($type = NULL, $query = NULL) {
   }
   $header['items'] = t('Items');
   $header['created'] = array('data' => t('Created'), 'field' => 't.created');
-  $header['changed'] = array('data' => t('Updated'), 'field' => 't.changed', 'sort' => 'desc');
+  $header['changed'] = array(
+    'data' => t('Updated'),
+    'field' => 't.changed',
+    'sort' => 'desc',
+  );
   $header['operations'] = array('data' => t('Operations'));
 
   // Get the translation sets for this form.
