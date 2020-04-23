@@ -25,7 +25,8 @@ function i18n_string_translate_page_object($object_type, $object_value, $languag
   // For backwards compatibility, ensure parameter is a language object.
   $language = i18n_language_object($language);
   $langcode = $language ? $language->langcode : NULL;
-  // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
+  // Get base keys for all these strings.
+  // Object key may be multiple like for blocks (module, delta).
   $object = i18n_object($object_type, $object_value);
   $strings = $object->get_strings(array('empty' => TRUE));
 
@@ -117,12 +118,14 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
 /**
  * Form builder callback for in-place string translation.
  *
- * @param $strings
- *   Array of strings indexed by string name (may be indexed by group key too if $groups is present)
+ * @param array $strings
+ *   Array of strings indexed by string name
+ *   (may be indexed by group key too if $groups is present).
  * @param $langcode
  *   Language code to translate to.
- * @param $groups
- *   Optional groups to provide some string grouping. Array with group key and title pairs.
+ * @param array $groups
+ *   Optional groups to provide some string grouping.
+ *   Array with group key and title pairs.
  */
 function i18n_string_translate_page_form($form, &$form_state, $strings, $langcode, $groups = NULL) {
   $form = i18n_string_translate_page_form_base($form, $langcode);
@@ -166,7 +169,8 @@ function i18n_string_translate_page_form_base($form, $langcode, $redirect = NULL
       $redirect,
     );
   }
-  // Add explicit validate and submit hooks so this can be used from inside any form.
+  // Add explicit validate and submit hooks
+  // so this can be used from inside any form.
   $form['#submit'] = array('i18n_string_translate_page_form_submit');
   return $form;
 }
@@ -177,13 +181,15 @@ function i18n_string_translate_page_form_base($form, $langcode, $redirect = NULL
 function i18n_string_translate_page_form_strings($strings, $langcode) {
   $formats = filter_formats();
   foreach ($strings as $item) {
-    // We may have a source or not. Load it, our string may get the format from it.
+    // We may have a source or not.
+    // Load it, our string may get the format from it.
     $source = $item->get_source();
     $format_id = $source ? $source->format : $item->format;
     $description = '';
     // Check permissions to translate this string, depends on format, etc..
     if ($message = $item->check_translate_access()) {
-      // We'll display a disabled element with the reason it cannot be translated.
+      // We'll display a disabled element
+      // with the reason it cannot be translated.
       $disabled = TRUE;
       $description = $message;
     }
@@ -192,7 +198,8 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
       $description = '';
       // If we don't have a source and it can be translated, we create it.
       if (!$source) {
-        // Enable messages just as a reminder these strings are not being updated properly.
+        // Enable messages just as a reminder
+        // these strings are not being updated properly.
         $status = $item->update(array('messages' => TRUE));
         if ($status === FALSE || $status === SAVED_DELETED) {
           // We don't have a source string so nothing to translate here.
@@ -204,7 +211,11 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
       }
     }
 
-    $default_value = $item->format_translation($langcode, array('langcode' => $langcode, 'sanitize' => FALSE, 'debug' => FALSE));
+    $default_value = $item->format_translation($langcode, array(
+      'langcode' => $langcode,
+      'sanitize' => FALSE,
+      'debug' => FALSE,
+    ));
     $form[$item->get_name()] = array(
       '#title' => $item->get_title(),
       '#type' => 'textarea',
@@ -214,7 +225,8 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
       // '#i18n_string_format' => $source ? $source->format : 0,
       // If disabled, provide smaller textarea (that can be expanded anyway).
       '#rows' => $disabled ? 1 : min(ceil(str_word_count($default_value) / 12), 10),
-      // Change the parent for disabled strings so we don't get empty values later.
+      // Change the parent for disabled strings
+      // so we don't get empty values later.
       '#parents' => array($disabled ? 'disabled_strings' : 'strings', $item->get_name()),
     );
   }
@@ -258,9 +270,13 @@ function i18n_string_l10n_client_save_string() {
     elseif (isset($_POST['source']) && isset($_POST['target']) && !empty($_POST['context']) && !empty($_POST['form_token']) && backdrop_valid_token($_POST['form_token'], 'l10n_client_form')) {
       $name = $textgroup . ':' . $_POST['context'];
       if ($i18nstring = i18n_string_get_source($name)) {
-        // Since this is not a real form, we double check access permissions here too.
+        // Since this is not a real form,
+        // we double check access permissions here too.
         if ($error = $i18nstring->check_translate_access()) {
-          $message = theme('l10n_client_message', array('message' => t('Not saved due to: !reason', array('!reason' => $error)), 'level' => WATCHDOG_WARNING));
+          $message = theme('l10n_client_message', array(
+            'message' => t('Not saved due to: !reason', array('!reason' => $error)),
+            'level' => WATCHDOG_WARNING,
+          ));
         }
         else {
           $result = i18n_string_translation_update($name, $_POST['target'], $language->language, $_POST['source']);
@@ -352,7 +368,8 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save translations'));
 
-  // Restrict filter permissions and handle validation and submission for i18n strings.
+  // Restrict filter permissions
+  // and handle validation and submission for i18n strings.
   if (i18n_string_group_info($source->textgroup)) {
     if ($i18nstring = i18n_string_get_by_lid($form['lid']['#value'])) {
       $form['i18n_string'] = array('#type' => 'value', '#value' => $i18nstring);
@@ -381,7 +398,8 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
 /**
  * Process string editing form validations.
  *
- * If it is an allowed format, skip default validation, the text will be filtered later.
+ * If it is an allowed format, skip default validation,
+ * the text will be filtered later.
  */
 function i18n_string_locale_translate_edit_form_validate($form, &$form_state) {
   if (empty($form_state['values']['i18n_string'])) {

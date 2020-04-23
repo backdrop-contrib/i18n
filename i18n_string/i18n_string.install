@@ -9,7 +9,7 @@
  * Implements hook_enable().
  */
 function i18n_string_enable() {
-  // Refresh locales for enabled modules
+  // Refresh locales for enabled modules.
   $modules = module_implements('i18n_string_refresh');
   i18n_string_modules_enabled($modules);
 }
@@ -27,7 +27,8 @@ function i18n_string_install() {
   // Set module weight for it to run after core modules.
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'i18n_string' AND type = 'module'");
 
-  // Create new index in {locales_source}, performance improvement in sites with i18n.
+  // Create new index in {locales_source},
+  // performance improvement in sites with i18n.
   db_add_index('locales_source', 'textgroup_context', array('textgroup', 'context'));
 }
 
@@ -38,7 +39,7 @@ function i18n_string_uninstall() {
   // Drop custom field.
   db_drop_field('locales_target', 'i18n_status');
   db_drop_field('locales_source', 'textgroup');
-  // Drop custom index in locales_source table
+  // Drop custom index in locales_source table.
   db_drop_index('locales_source', 'textgroup_context');
 }
 
@@ -123,7 +124,7 @@ function i18n_string_schema_alter(&$schema) {
     'not null' => TRUE,
     'default' => 0,
   );
-  
+
   // Locale in core dropped textgroup column for locales_source
   // It assumes that i18n has migrated it BEFORE dropping.
   $schema['locales_source']['fields']['textgroup'] = array(
@@ -136,12 +137,12 @@ function i18n_string_schema_alter(&$schema) {
 }
 
 /**
- * Helper function to upate strings
+ * Helper function to upate strings.
  */
 function i18n_string_install_update_string($string) {
   $string->context = $string->type . ':' . $string->objectid . ':' . $string->property;
   $string->location = $string->textgroup . ':' . $string->context;
-  $string->objectindex = (int)$string->objectid;
+  $string->objectindex = (int) $string->objectid;
   backdrop_write_record('i18n_string', $string, 'lid');
   backdrop_write_record('locales_source', $string, 'lid');
 }
@@ -149,8 +150,9 @@ function i18n_string_install_update_string($string) {
 /**
  * Update context for strings.
  *
- * As some string locations depend on configurable values, the field needs sometimes to be updated
- * without losing existing translations. I.e:
+ * As some string locations depend on configurable values,
+ * the field needs sometimes to be updated without losing existing
+ * translations. I.e:
  * - profile fields indexed by field name.
  * - content types indexted by low level content type name.
  *
@@ -172,7 +174,8 @@ function i18n_string_install_update_context($oldname, $newname) {
     }
   }
 
-  // Query and replace if there are any fields. It is possible that under some circumstances fields are the same
+  // Query and replace if there are any fields.
+  // It is possible that under some circumstances fields are the same.
   if (!empty($replace)) {
     $textgroup = array_shift($oldcontext);
     $context = str_replace('*', '%', implode(':', $oldcontext));
@@ -186,10 +189,10 @@ function i18n_string_install_update_context($oldname, $newname) {
       foreach ($replace as $field => $value) {
         $source->$field = $value;
       }
-      // Recalculate location, context, objectindex
+      // Recalculate location, context, objectindex.
       $source->context = $source->type . ':' . $source->objectid . ':' . $source->property;
       $source->location = $source->textgroup . ':' . $source->context;
-      $source->objectindex = (int)$source->objectid;
+      $source->objectindex = (int) $source->objectid;
       // Update source string.
       $update = array(
         'textgroup' => $source->textgroup,
@@ -212,7 +215,11 @@ function i18n_string_install_update_context($oldname, $newname) {
       ->execute();
       $count++;
     }
-    backdrop_set_message(t('Updated @count string names from %oldname to %newname.', array('@count' => $count, '%oldname' => $oldname, '%newname' => $newname)));
+    backdrop_set_message(t('Updated @count string names from %oldname to %newname.', array(
+      '@count' => $count,
+      '%oldname' => $oldname,
+      '%newname' => $newname,
+    )));
   }
 }
 
@@ -231,9 +238,9 @@ function i18n_string_update_1000() {
   // Migrate variables to config.
   $config = config('i18n.settings');
   $config->set('debug', update_variable_get('i18n_string_debug', FALSE));
-  $config->set('i18n_loaded_translations', update_variable_get('i18n_loaded_translations',array()));
+  $config->set('i18n_loaded_translations', update_variable_get('i18n_loaded_translations', array()));
   $config->set('i18n_string_allowed_formats', update_variable_get('i18n_string_allowed_formats', array(filter_fallback_format())));
-  //i18n_string_debug_' . $textgroup -- update all without knowing how many?
+  // i18n_string_debug_' . $textgroup -- update all without knowing how many?
 
   $config->save();
 

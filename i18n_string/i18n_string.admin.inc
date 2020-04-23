@@ -54,7 +54,7 @@ function i18n_string_admin_refresh_form_submit($form, &$form_state) {
  *
  * @param $group
  *   Text group to refresh
- * @param $delete
+ * @param bool $delete
  *   Optional, delete existing (but not refresed, strings and translations)
  *
  * @return bool
@@ -71,7 +71,8 @@ function i18n_string_refresh_group($group, $delete = FALSE) {
   // Invoke refresh hook.
   $result = $result || module_invoke_all('i18n_string_refresh', $group);
 
-  // Now delete all source strings that were not refreshed (they don't have a row in i18n_string)
+  // Now delete all source strings that were not refreshed
+  // (they don't have a row in i18n_string).
   if ($result && $delete) {
     i18n_string_refresh_cleanup($group);
   }
@@ -140,9 +141,9 @@ function i18n_string_refresh_string_list($strings) {
 /**
  * Create batch for refreshing strings.
  *
- * @param $groups
+ * @param array $groups
  *   Array of text groups to refresh
- * @param $delete
+ * @param bool $delete
  *   Optional, delete existing (but not refresed, strings and translations)
  */
 function i18n_string_refresh_batch($groups, $delete = FALSE) {
@@ -252,7 +253,10 @@ function _i18n_string_batch_refresh_cleanup($group, &$context) {
  */
 function _i18n_string_batch_refresh_summary($group, &$context) {
   if ($context['results'][$group]['result']) {
-    backdrop_set_message(t("Successfully refreshed @count strings for %group", array('@count' => $context['results'][$group]['refresh'], '%group' => i18n_string_group_info($group, 'title'))));
+    backdrop_set_message(t("Successfully refreshed @count strings for %group", array(
+      '@count' => $context['results'][$group]['refresh'],
+      '%group' => i18n_string_group_info($group, 'title'),
+    )));
     if (!empty($context['results'][$group]['deleted'])) {
       backdrop_set_message(t('Deleted @count left over strings.', array('@count' => $context['results'][$group]['deleted'])));
     }
@@ -267,7 +271,8 @@ function _i18n_string_batch_refresh_summary($group, &$context) {
  */
 function i18n_string_group_string_list($group) {
   // Add strings provided by all modules on hook_string_list().
-  // Note that i18n_string module itself will also collect all strings for this group's objects.
+  // Note that i18n_string module itself will also collect all strings
+  // for this group's objects.
   $strings = module_invoke_all('i18n_string_list', $group);
   // Invoke hook_i18n_string_list_TEXTGROUP_alter()
   backdrop_alter('i18n_string_list_' . $group, $strings);
