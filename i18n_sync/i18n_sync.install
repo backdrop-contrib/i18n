@@ -15,8 +15,8 @@ function i18n_sync_install() {
   db_query("UPDATE {system} SET weight = 100 WHERE name = 'i18n_sync' AND type = 'module'");
 }
 
-/*
- * Update variable names from Backdrop 6
+/**
+ * Update variable names from Backdrop 6.
  */
 function i18n_sync_update_7000() {
   foreach (node_type_get_types() as $type => $info) {

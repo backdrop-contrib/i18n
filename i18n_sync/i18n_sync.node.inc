@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Internationalization (i18n) package. Synchronization of translations
+ * Internationalization (i18n) package. Synchronization of translations.
  *
  * Node synchronization.
  */
@@ -15,25 +15,27 @@
  * - iid (CCK node attachments, translations for them will be handled too).
  *
  * All the rest of the fields will be just copied over.
- * The 'revision' field will have the special effect of creating a revision too for the translation.
+ * The 'revision' field will have the special effect
+ * of creating a revision too for the translation.
  *
- * @param $node
+ * @param object $node
  *   Source node being edited.
- * @param $translations
+ * @param array $translations
  *   Node translations to synchronize, just needs nid property.
- * @param $fields
- *   List of fields to synchronize.
- * @param $op
+ * @param array $field_names
+ *   List of field names to synchronize.
+ * @param string $op
  *   Node operation (insert|update).
  */
 function i18n_sync_node_translation($node, $translations, $field_names, $op) {
   $total = count($translations);
   $count = 0;
-  // Disable language selection and synchronization temporarily, enable it again later
+  // Disable language selection and synchronization temporarily,
+  // enable it again later.
   $i18n_select = i18n_select(FALSE);
   i18n_sync(FALSE);
   foreach ($translations as $translation) {
-    // If translation is the same node, we cannot synchronize with itself
+    // If translation is the same node, we cannot synchronize with itself.
     if ($node->nid == $translation->nid) {
       $total--;
       continue;
@@ -42,7 +44,7 @@ function i18n_sync_node_translation($node, $translations, $field_names, $op) {
     entity_get_controller('node')->resetCache(array($translation->nid));
     $translation = node_load($translation->nid);
     $i18n_options = i18n_sync_node_options($node->type);
-    // Invoke callback for each field, the default is just copy over
+    // Invoke callback for each field, the default is just copy over.
     foreach ($field_names as $field) {
       if (!empty($i18n_options[$field]['field_name'])) {
         i18n_sync_field_translation_sync('node', $node->type, $translation, $translation->langcode, $node, $node->langcode, $i18n_options[$field]['field_name']);
@@ -52,7 +54,7 @@ function i18n_sync_node_translation($node, $translations, $field_names, $op) {
         $translation->$field = $node->$field;
       }
     }
-    // Give a chance to other modules for additional sync
+    // Give a chance to other modules for additional sync.
     module_invoke_all('i18n_sync_translation', 'node', $translation, $translation->langcode, $node, $node->langcode, $field_names);
     node_save($translation);
     $count++;
@@ -86,7 +88,7 @@ function i18n_sync_node_translation_nodereference_field(&$node, &$translation, $
   foreach ($node->$field as $reference) {
     if ($reference_node = node_load($reference['nid'])) {
       $translated_references[] = array(
-        'nid' => i18n_sync_node_translation_reference_field($reference_node, $reference['nid'], $translation->langcode)
+        'nid' => i18n_sync_node_translation_reference_field($reference_node, $reference['nid'], $translation->langcode),
       );
     }
   }
@@ -94,11 +96,14 @@ function i18n_sync_node_translation_nodereference_field(&$node, &$translation, $
 }
 
 /**
- * Helper function to which translates reference field. We try to use translations for reference, otherwise fallback.
+ * Helper function to which translates reference field.
+ *
+ * We try to use translations for reference, otherwise fallback.
  * Example:
  *   English A references English B and English C.
  *   English A and B are translated to German A and B, but English C is not.
- *   The syncronization from English A to German A would it German B and English C.
+ *   The syncronization from English A to German A
+ *   would it German B and English C.
  */
 function i18n_sync_node_translation_reference_field(&$reference_node, $default_value, $langcode) {
   if (isset($reference_node->tnid) && translation_supported_type($reference_node->type)) {
@@ -118,7 +123,7 @@ function i18n_sync_node_translation_reference_field(&$reference_node, $default_v
 }
 
 /**
- * Synchronize configurable field
+ * Synchronize configurable field.
  *
  * @param $field_info
  *   Field API field information.
@@ -129,8 +134,10 @@ function i18n_sync_node_translation_default_field($node, $translation, $field, $
     case 'image':
       i18n_sync_node_translation_file_field($node, $translation, $field);
       break;
+
     default:
-      // For fields that don't need special handling, just copy it over if defined.
+      // For fields that don't need special handling,
+      // just copy it over if defined.
       // Field languages are completely unconsistent, for not to say broken
       // both in Backdrop core and entity translation. Let's hope this works.
       $source_lang = field_language('node', $node, $field);
@@ -143,19 +150,23 @@ function i18n_sync_node_translation_default_field($node, $translation, $field, $
 }
 
 /**
- * Sync a file or image field:
+ * Sync a file or image field.
+ *
  * - file-id's (fid) are synced
  * - order of fid's is synced
- * - description, alt, title is kept if already existing, copied otherwise
+ * - description, alt, title is kept if already existing, copied otherwise.
  *
- * @param object $node the node whose changes are to be synced
- * @param object $translation a node to which the changes need to be synced
- * @param string $field field name
+ * @param object $node
+ *   the node whose changes are to be synced.
+ * @param object $translation
+ *   a node to which the changes need to be synced.
+ * @param string $field
+ *   field name.
  */
 function i18n_sync_node_translation_file_field($node, $translation, $field) {
   if (isset($node->{$field}[$node->langcode])) {
     // Build a copy of the existing files in the translation node
-    // indexed by fid for easy retrieval in the copy loop below
+    // indexed by fid for easy retrieval in the copy loop below.
     $existing_files = array();
     if (isset($translation->{$field}[$translation->langcode])) {
       foreach ($translation->{$field}[$translation->langcode] as $delta => $file) {
@@ -163,10 +174,10 @@ function i18n_sync_node_translation_file_field($node, $translation, $field) {
       }
     }
 
-    // Start creating the translated copy
+    // Start creating the translated copy.
     $translated_files = $node->{$field}[$node->langcode];
     foreach ($translated_files as $delta => &$file) {
-      // keep alt, title, description if they already exist
+      // Keep alt, title, description if they already exist.
       if (array_key_exists($file['fid'], $existing_files)) {
         foreach (array('title', 'description', 'alt') as $property) {
           if (!empty($existing_files[$file['fid']][$property])) {

@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Internationalization (i18n) package. Synchronization of translations
+ * Internationalization (i18n) package. Synchronization of translations.
  *
  * Implements hook_i18n_sync_node_fields() for several core modules.
  */
@@ -15,7 +15,7 @@ function book_i18n_sync_options($entity_type, $bundle_name) {
     return array(
       'parent' => array(
         'title' => t('Book outline'),
-        'description' => t('Set the translated parent for each translation if possible.')
+        'description' => t('Set the translated parent for each translation if possible.'),
       ),
     );
   }
@@ -26,7 +26,7 @@ function book_i18n_sync_options($entity_type, $bundle_name) {
  */
 function comment_i18n_sync_options($entity_type, $bundle_name) {
   if ($entity_type == 'node') {
-    $fields['comment'] = array('title' =>  t('Comment settings'));
+    $fields['comment'] = array('title' => t('Comment settings'));
     return $fields;
   }
 }
@@ -61,7 +61,7 @@ function node_i18n_sync_options($entity_type, $bundle_name) {
       'status' => array('title' => t('Status')),
       'promote' => array('title' => t('Promote')),
       'sticky' => array('title' => t('Sticky')),
-      'revision' =>  array('title' => t('Revision'), 'description' => t('Create also new revision for translations')),
+      'revision' => array('title' => t('Revision'), 'description' => t('Create also new revision for translations')),
     );
   }
 }
