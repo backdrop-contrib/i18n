@@ -1,9 +1,9 @@
 <?php
+
 /**
  * @file
- * Internationalization (i18n) hooks
+ * Internationalization (i18n) hooks.
  */
-
 
 /**
  * Implements hook_i18n_object_info().
@@ -18,9 +18,9 @@ function i18n_node_i18n_object_info() {
     ),
     'edit path' => 'admin/structure/types/manage/%node_type',
     'translate tab' => 'admin/structure/types/manage/%node_type/translate',
-    // We can easily list all these objects
+    // We can easily list all these objects.
     'list callback' => 'node_type_get_types',
-    // Metadata for string translation
+    // Metadata for string translation.
     'string translation' => array(
       'textgroup' => 'node',
       'type' => 'type',
@@ -31,7 +31,7 @@ function i18n_node_i18n_object_info() {
         'help' => t('Help text'),
       ),
       'translate path' => 'admin/structure/types/manage/%node_type/translate/%i18n_language',
-    )
+    ),
   );
   return $info;
 }
@@ -43,8 +43,9 @@ function i18n_node_i18n_string_info() {
   $groups['node'] = array(
     'title' => t('Node types'),
     'description' => t('Content type names, descriptions, help texts.'),
-    //'format' => TRUE, // This group has strings with format (block body)
-    'list' => TRUE, // This group can list all strings
+    // 'format' => TRUE, // This group has strings with format (block body)
+  // This group can list all strings.
+    'list' => TRUE,
   );
   return $groups;
 }

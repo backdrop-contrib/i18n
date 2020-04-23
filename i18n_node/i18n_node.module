@@ -2,12 +2,11 @@
 
 /**
  * @file
- * Internationalization (i18n) module - Node type handling
+ * Internationalization (i18n) module - Node type handling.
  *
  * The i18n strings created by this module are:
  * - node:type:[type]:[name,title,body,help]
  */
-
 
 /**
  * Implements hook_menu().
@@ -74,6 +73,7 @@ function i18n_node_help($path, $arg) {
       $output .= '</ul>';
       $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
       return $output;
+
     case 'admin/config/regional/i18n':
     case 'admin/config/regional/i18n/node':
       $output = '<p>' . t('You can find some more per content type options on the <a href="@configure_content">Content types administration page</a>.', array('@configure_content' => url('admin/structure/types'))) . '</p>';
@@ -86,7 +86,7 @@ function i18n_node_help($path, $arg) {
  */
 function i18n_node_i18n_context_language() {
   // Node language when loading specific nodes or creating translations.
-  if (arg(0) == 'node' ) {
+  if (arg(0) == 'node') {
     if (($node = menu_get_object('node')) && !empty($node->langcode) && i18n_node_type_enabled($node)) {
       return i18n_language_object($node->langcode);
     }
@@ -128,8 +128,8 @@ function i18n_node_menu_alter(&$items) {
     $items['node/%node/translate']['file'] = 'i18n_node.pages.inc';
     $items['node/%node/translate']['module'] = 'i18n_node';
   }
-  // Take over node/add pages for string translation
-  $items['node/add']['page callback'] =  'i18n_node_add_page';
+  // Take over node/add pages for string translation.
+  $items['node/add']['page callback'] = 'i18n_node_add_page';
   $items['node/add']['file'] = 'i18n_node.pages.inc';
   $items['node/add']['file path'] = backdrop_get_path('module', 'i18n_node');
   // @TODO avoid iterating over every router path.
@@ -147,7 +147,7 @@ function i18n_node_menu_alter(&$items) {
  */
 function i18n_node_get_lang($nid, $default = '') {
   $lang = db_query('SELECT langcode FROM {node} WHERE nid = :nid', array(':nid' => $nid))->fetchField();
-  return $lang ? $lang : $default ;
+  return $lang ? $lang : $default;
 }
 
 /**
@@ -176,7 +176,7 @@ function i18n_node_language_list($node, $translate = FALSE, $select = FALSE) {
         unset($languages[$langcode]);
       }
     }
-    // Language may be locked for this node type, restrict options to current one
+    // Language may be locked for this node type, restrict options to current one.
     if ($select && i18n_node_language_options($node, 'lock') && !empty($node->langcode) && !empty($languages[$node->langcode])) {
       $languages = array($node->langcode => $languages[$node->langcode]);
     }
@@ -190,7 +190,7 @@ function i18n_node_language_list($node, $translate = FALSE, $select = FALSE) {
 }
 
 /**
- * Check options for node language
+ * Check options for node language.
  */
 function i18n_node_language_options($node, $option) {
   $options = config_get('i18n.settings', "i18n_node_type_{$node->type}.options");
@@ -201,7 +201,7 @@ function i18n_node_language_options($node, $option) {
 }
 
 /**
- * Get language mode for node or node type
+ * Get language mode for node or node type.
  */
 function i18n_node_language_mode($type) {
   $type = is_object($type) ? $type->type : $type;
@@ -267,7 +267,7 @@ function i18n_node_node_view_alter(&$build) {
       $index = 'translation_' . $langcode;
       if ($langcode != $node->language && isset($translations[$langcode]) && $translations[$langcode]->status && !isset($links[$index])) {
         // This a published translation to a disabled language. As the node is language extended, display the linkso
-        // These links shouldn't switch the interface, though they have a language so the right language icon will be added
+        // These links shouldn't switch the interface, though they have a language so the right language icon will be added.
         $language = i18n_language_object($langcode);
         $links[$index] = array(
           'href' => 'node/' . $translations[$langcode]->nid,
@@ -316,11 +316,11 @@ function i18n_node_node_type_delete($info) {
  */
 /*
 function i18n_node_elements() {
-  $type = array();
-  $type['textfield'] = array('#process' => array('i18n_node_textfield_process'));
-  return $type;
+$type = array();
+$type['textfield'] = array('#process' => array('i18n_node_textfield_process'));
+return $type;
 }
-*/
+ */
 
 /**
  * Process callback for textfield elements.
@@ -369,10 +369,10 @@ function i18n_node_textfield_process($element) {
  * Implements hook_form_FORM_ID_alter().
  */
 function i18n_node_form_search_form_alter(&$form, &$form_state) {
-  // Advanced search form. Add language and localize content type names
+  // Advanced search form. Add language and localize content type names.
   if ($form['module']['#value'] == 'node' && !empty($form['advanced'])) {
     // @todo Handle language search conditions
-    //$form['advanced']['language'] = _i18n_language_select();
+    // $form['advanced']['language'] = _i18n_language_select();
     if (!empty($form['advanced']['type'])) {
       foreach ($form['advanced']['type']['#options'] as $type => $name) {
         $form['advanced']['type']['#options'][$type] = i18n_node_translate_type($type, 'name', $name);
@@ -469,10 +469,9 @@ function i18n_node_form_node_form_alter(&$form, &$form_state, $form_id) {
     $form['actions']['submit']['#submit'][$key] = 'i18n_node_form_submit';
   }
 
-  // call a 'private' implemenation of i18n_node_form_node_form_alter()
+  // Call a 'private' implemenation of i18n_node_form_node_form_alter()
   $form['#after_build'][] = '_i18n_node_form_node_form_alter';
 }
-
 
 /**
  * Replacement for core's node_form_submit(), taking care of
@@ -513,7 +512,7 @@ function i18n_node_form_submit($form, &$form_state) {
 
 /**
  * Implements hook_form_BASE_FORM_ID_alter().
- * Called by i18n_node_form_node_form_alter
+ * Called by i18n_node_form_node_form_alter.
  */
 function _i18n_node_form_node_form_alter($form, &$form_state) {
   $node = $form['#node'];
@@ -556,7 +555,7 @@ function i18n_node_theme() {
 }
 
 /**
- * Shorthand for translating node type strings
+ * Shorthand for translating node type strings.
  *
  * @param $type
  *   Node type name or full object
@@ -583,7 +582,7 @@ function i18n_node_type_name($type, $name = NULL) {
 }
 
 /**
- * Check whether this is a language enabled node type
+ * Check whether this is a language enabled node type.
  *
  * @param $type
  *   Node, node type object, or node type name
@@ -592,5 +591,6 @@ function i18n_node_type_enabled($type) {
   $type = is_object($type) ? $type->type : $type;
   $config = config('node.type.' . $type);
   $mode = $config->get('settings.language');
-  return $mode == 1 || $mode == 2; // 2 == TRANSLATION_ENABLED
+  // 2 == TRANSLATION_ENABLED
+  return $mode == 1 || $mode == 2;
 }

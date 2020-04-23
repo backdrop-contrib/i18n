@@ -5,9 +5,15 @@
  * Contains test cases for the i18n_node module.
  */
 
-require_once(__DIR__ . '/../../tests/i18n.test');
-
+require_once __DIR__ . '/../../tests/i18n.test';
+/**
+ *
+ */
 class I18nNodeTestCase extends Backdropi18nTestCase {
+
+  /**
+   *
+   */
   public static function getInfo() {
     return array(
       'name' => 'Content translation',
@@ -16,7 +22,10 @@ class I18nNodeTestCase extends Backdropi18nTestCase {
     );
   }
 
-  function setUp() {
+  /**
+   *
+   */
+  public function setUp() {
     parent::setUp('translation', 'i18n_node');
     parent::setUpLanguages(array('administer content translations', 'translate content'));
     parent::setUpContentTranslation();
@@ -31,7 +40,7 @@ class I18nNodeTestCase extends Backdropi18nTestCase {
   /**
    * Tests for adding content to an existing translation set.
    */
-  function testAddContentToTranslationSet() {
+  public function testAddContentToTranslationSet() {
     module_load_include('inc', 'i18n_node', 'i18n_node.pages');
 
     // Create 3 nodes in different languages.
@@ -98,4 +107,5 @@ class I18nNodeTestCase extends Backdropi18nTestCase {
     $this->assertFieldByName('translations[node][es]', i18n_node_nid2autocomplete($es_node->nid));
     $this->assertFieldByName('translations[node][pt-br]', '');
   }
+
 }

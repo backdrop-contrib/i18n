@@ -5,7 +5,6 @@
  * User page callbacks for the translation module.
  */
 
-
 /**
  * Replacement for node_add_page.
  */
@@ -18,13 +17,13 @@ function i18n_node_add_page() {
     backdrop_goto($item['href']);
   }
   foreach ($content as &$item) {
-    // Type machine name will be the first page argument
+    // Type machine name will be the first page argument.
     $page_arguments = unserialize($item['page_arguments']);
-    // Check whether this has a node type, other items may be here too, see #1264662
+    // Check whether this has a node type, other items may be here too, see #1264662.
     $type = isset($page_arguments[0]) ? $page_arguments[0] : NULL;
     if ($type) {
       // We just need to translate the description, the title is translated by the menu system
-      // The string will be filtered (xss_admin) on the theme layer
+      // The string will be filtered (xss_admin) on the theme layer.
       $item['description'] = i18n_node_translate_type($type, 'description', $item['description'], array('sanitize' => FALSE));
     }
   }
@@ -54,7 +53,7 @@ function i18n_node_translation_overview($node) {
   $type = config_get('translation.settings', 'language_type');
   $header = array(t('Language'), t('Title'), t('Status'), t('Operations'));
 
-  // Modes have different allowed languages
+  // Modes have different allowed languages.
   foreach (i18n_node_language_list($node) as $langcode => $language_name) {
     if ($langcode == LANGUAGE_NONE) {
       // Never show language neutral on the overview.
@@ -124,9 +123,9 @@ function i18n_node_translation_link($text, $path, $langcode, $options = array())
 }
 
 /**
- * Form to select existing nodes as translation
+ * Form to select existing nodes as translation.
  *
- * This one uses autocomplete fields for all languages
+ * This one uses autocomplete fields for all languages.
  */
 function i18n_node_select_translation($form, &$form_state, $node, $translations) {
   $form['node'] = array('#type' => 'value', '#value' => $node);
@@ -135,7 +134,7 @@ function i18n_node_select_translation($form, &$form_state, $node, $translations)
     '#title' => t('Select translations for %title', array('%title' => $node->title)),
     '#tree' => TRUE,
     '#theme' => 'i18n_node_select_translation',
-    '#description' => t("Alternatively, you can select existing nodes as translations of this one or remove nodes from this translation set. Only nodes that have the right language and don't belong to other translation set will be available here.")
+    '#description' => t("Alternatively, you can select existing nodes as translations of this one or remove nodes from this translation set. Only nodes that have the right language and don't belong to other translation set will be available here."),
   );
   foreach (i18n_node_language_list($node) as $langcode => $language_name) {
     if ($langcode != $node->langcode && $langcode != LANGUAGE_NONE) {
@@ -161,12 +160,12 @@ function i18n_node_select_translation($form, &$form_state, $node, $translations)
     '#type' => 'submit',
     '#value' => t('Update translations'),
   );
-  //$form['buttons']['clean'] = array('#type' => 'submit', '#value' => t('Delete translation set'));
+  // $form['buttons']['clean'] = array('#type' => 'submit', '#value' => t('Delete translation set'));
   return $form;
 }
 
 /**
- * Form validation
+ * Form validation.
  */
 function i18n_node_select_translation_validate($form, &$form_state) {
   foreach ($form_state['values']['translations']['node'] as $lang => $title) {
@@ -181,7 +180,7 @@ function i18n_node_select_translation_validate($form, &$form_state) {
 }
 
 /**
- * Form submission: update / delete the translation set
+ * Form submission: update / delete the translation set.
  */
 function i18n_node_select_translation_submit($form, &$form_state) {
   $op = isset($form_state['values']['op']) ? $form_state['values']['op'] : NULL;
@@ -191,21 +190,21 @@ function i18n_node_select_translation_submit($form, &$form_state) {
     $current[$trans->langcode] = $trans->nid;
   }
   $update = array($node->langcode => $node->nid) + array_filter($form_state['values']['translations']['nid']);
-  // Compute the difference to see which are the new translations and which ones to remove
+  // Compute the difference to see which are the new translations and which ones to remove.
   $new = array_diff_assoc($update, $current);
   $remove = array_diff_assoc($current, $update);
 
-  // The tricky part: If the existing source is not in the new set, we need to create a new tnid
+  // The tricky part: If the existing source is not in the new set, we need to create a new tnid.
   if ($node->tnid && in_array($node->tnid, $update)) {
     $tnid = $node->tnid;
     $add = $new;
   }
   else {
-    // Create new tnid, which is the source node
+    // Create new tnid, which is the source node.
     $tnid = $node->nid;
     $add = $update;
   }
-  // Now update values for all nodes
+  // Now update values for all nodes.
   if ($add) {
     db_update('node')
       ->fields(array(
@@ -231,7 +230,7 @@ function i18n_node_select_translation_submit($form, &$form_state) {
 }
 
 /**
- * Node title autocomplete callback
+ * Node title autocomplete callback.
  */
 function i18n_node_autocomplete($type, $language, $string = '') {
   $params = array('type' => $type, 'langcode' => $language, 'tnid' => 0);
@@ -244,7 +243,7 @@ function i18n_node_autocomplete($type, $language, $string = '') {
 }
 
 /**
- * Generates 'title [nid:$nid]' for the autocomplete field
+ * Generates 'title [nid:$nid]' for the autocomplete field.
  */
 function i18n_node_nid2autocomplete($nid) {
   if ($node = node_load($nid)) {
@@ -256,9 +255,9 @@ function i18n_node_nid2autocomplete($nid) {
 }
 
 /**
- * Reverse mapping from node title to nid
+ * Reverse mapping from node title to nid.
  *
- * We also handle autocomplete values (title [nid:x]) and validate the form
+ * We also handle autocomplete values (title [nid:x]) and validate the form.
  */
 function i18n_node_autocomplete2nid($name, $field = NULL, $type, $language) {
   if (!empty($name)) {
@@ -299,7 +298,7 @@ function i18n_node_autocomplete2nid($name, $field = NULL, $type, $language) {
  */
 function _i18n_node_references($string, $match = 'contains', $params = array(), $limit = 10) {
   $query = db_select('node', 'n')
-    ->fields('n', array('nid', 'title' , 'type'))
+    ->fields('n', array('nid', 'title', 'type'))
     ->orderBy('n.title')
     ->orderBy('n.type')
     ->range(0, $limit);
@@ -323,8 +322,8 @@ function _i18n_node_references($string, $match = 'contains', $params = array(), 
       break;
   }
 
-  // Disable and reenable i18n selection mode so no language conditions are inserted
-  i18n_select(false);
+  // Disable and reenable i18n selection mode so no language conditions are inserted.
+  i18n_select(FALSE);
   $references = array();
   foreach ($query->execute() as $node) {
     $references[$node->nid] = array(
@@ -332,12 +331,13 @@ function _i18n_node_references($string, $match = 'contains', $params = array(), 
       'rendered' => check_plain($node->title),
     );
   }
-  i18n_select(true);
+  i18n_select(TRUE);
   return $references;
 }
 
 /**
- * Theme select translation form
+ * Theme select translation form.
+ *
  * @ingroup themeable
  */
 function theme_i18n_node_select_translation($variables) {
