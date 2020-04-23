@@ -1,11 +1,17 @@
 <?php
+
 /**
  * @file
- * Internationalization (i18n) module - Translation set
+ * Internationalization (i18n) module - Translation set.
+ */
+
+/**
+ *
  */
 class i18n_menu_link_translation_set extends i18n_translation_set {
+
   /**
-   * Load all path translations
+   * Load all path translations.
    */
   public function load_translations() {
     $translations = array();
@@ -23,17 +29,19 @@ class i18n_menu_link_translation_set extends i18n_translation_set {
     }
     return $translations;
   }
+
 }
 
 /**
- * Menu link object
+ * Menu link object.
  */
 class i18n_menu_link extends i18n_string_object_wrapper {
+
   /**
-   * Class constructor
+   * Class constructor.
    */
   public function __construct($type, $key, $object) {
-    // Unserialize options if not done
+    // Unserialize options if not done.
     if (isset($object['options']) && !is_array($object['options'])) {
       $object['options'] = unserialize($object['options']);
     }
@@ -41,21 +49,21 @@ class i18n_menu_link extends i18n_string_object_wrapper {
   }
 
   /**
-   * Get path for item
+   * Get path for item.
    */
   public function get_path() {
     return $this->object['link_path'];
   }
 
   /**
-   * Get title from item
+   * Get title from item.
    */
   public function get_title() {
     return $this->object['title'];
   }
 
   /**
-   * Translation mode for object
+   * Translation mode for object.
    */
   public function get_translate_mode() {
     $mode = i18n_menu_mode($this->object['menu_name']);
@@ -71,7 +79,7 @@ class i18n_menu_link extends i18n_string_object_wrapper {
   }
 
   /**
-   * Access to object translation. This should check object properties and permissions
+   * Access to object translation. This should check object properties and permissions.
    */
   protected function translate_access() {
     return user_access('administer menu') && user_access('translate interface');
@@ -96,4 +104,5 @@ class i18n_menu_link extends i18n_string_object_wrapper {
     }
     return $properties;
   }
+
 }

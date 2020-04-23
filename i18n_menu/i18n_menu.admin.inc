@@ -5,7 +5,6 @@
  * Helper functions for menu administration.
  */
 
-
 /**
  * Produces a menu translation form.
  */
@@ -13,7 +12,7 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
   $translation_set = $translation_set ? $translation_set : i18n_translation_set_build('menu_link');
   $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
   $translations = $translation_set->get_translations();
-  // What to do with title? Let's make it a hidden field for now, some tests relay on it
+  // What to do with title? Let's make it a hidden field for now, some tests relay on it.
   $form['title'] = array('#type' => 'hidden', '#default_value' => $translation_set->title);
   if ($item && ($lang = i18n_object_langcode($item, LANGUAGE_NONE, 'langcode'))) {
     $translations[$lang] = $item;
@@ -28,7 +27,7 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
   );
   foreach (i18n_language_list() as $langcode => $language_name) {
     if ($langcode == $item_lang) {
-      // We've got a predefined item for this language
+      // We've got a predefined item for this language.
       $form['translations'][$langcode] = array('#type' => 'value', '#value' => $item['menu_name'] . ':' . $item['mlid']);
       $form['translations']['display'] = array(
         '#type' => 'item',
@@ -62,12 +61,12 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
 }
 
 /**
- * Process form validation
+ * Process form validation.
  */
-function i18n_menu_translation_form_validate($form, &$form_state)  {
+function i18n_menu_translation_form_validate($form, &$form_state) {
   if ($form_state['values']['op'] == t('Save')) {
     $selected = 0;
-    // example array('en' => 'navigation:0')
+    // Example array('en' => 'navigation:0')
     $mlids = array_filter($form_state['values']['translations']);
     foreach ($mlids as $lang => $item_name) {
       list($menu_name, $mlid) = explode(':', $item_name);
@@ -85,7 +84,7 @@ function i18n_menu_translation_form_validate($form, &$form_state)  {
 }
 
 /**
- * Menu item translation form submission
+ * Menu item translation form submission.
  */
 function i18n_menu_translation_form_submit($form, &$form_state) {
   $translation_set = $form_state['values']['translation_set'];
@@ -103,6 +102,7 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
       $translation_set->save(TRUE);
       backdrop_set_message(t('The item translation has been saved.'));
       break;
+
     case t('Delete'):
       $translation_set->delete(TRUE);
       backdrop_set_message(t('The item translation has been deleted.'));
@@ -120,6 +120,7 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
  * @param $item
  *   The menu item or the node type for which to generate a list of parents.
  *   If $item['mlid'] == 0 then the complete tree is returned.
+ *
  * @return
  *   An array of menu link titles keyed on the a string containing the menu name
  *   and mlid. The list excludes the given item and its children.
@@ -135,9 +136,9 @@ function i18n_menu_parent_options($menus, $item, $langcode) {
   if (config_get('i18n.settings', 'i18n_menu_override_parent_selector')) {
     return array();
   }
-  // If no menu item, create a dummy one
+  // If no menu item, create a dummy one.
   $item = $item ? $item : array('mlid' => 0);
-  // Get menus that have a language or have language for terms
+  // Get menus that have a language or have language for terms.
   $available_menus = array();
   foreach (menu_load_all() as $name => $menu) {
     if ($menu['i18n_mode'] & I18N_MODE_TRANSLATE) {
@@ -201,7 +202,7 @@ function _i18n_menu_build_options($tree, $menu_name, $limit) {
 }
 
 /**
- * Filter out menu items that have a different language
+ * Filter out menu items that have a different language.
  */
 function i18n_menu_tree_all_data($menu_name, $langcode, $link = NULL, $max_depth = NULL) {
   $data = menu_build_tree($menu_name, array('langcode' => $langcode));
@@ -210,7 +211,7 @@ function i18n_menu_tree_all_data($menu_name, $langcode, $link = NULL, $max_depth
 }
 
 /**
- * Filter out menu items that have a different language
+ * Filter out menu items that have a different language.
  */
 function _i18n_menu_tree_filter_items($tree, $langcode) {
   $result = array();
@@ -270,7 +271,7 @@ function i18n_menu_translation_item_overview($item, $translation_set = NULL) {
     $rows[$langcode] = array(
       'language' => $language_name,
       'title' => $title,
-      'operations' => implode(" | ", $options)
+      'operations' => implode(" | ", $options),
     );
   }
 

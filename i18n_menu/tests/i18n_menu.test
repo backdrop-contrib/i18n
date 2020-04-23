@@ -5,9 +5,15 @@
  * Test case for multilingual menus.
  */
 
-require_once(__DIR__ . '/../../tests/i18n.test');
-
+require_once __DIR__ . '/../../tests/i18n.test';
+/**
+ *
+ */
 class i18nMenuTestCase extends Backdropi18nTestCase {
+
+  /**
+   *
+   */
   public static function getInfo() {
     return array(
       'name' => 'Menu translation',
@@ -16,13 +22,19 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     );
   }
 
-  function setUp() {
+  /**
+   *
+   */
+  public function setUp() {
     parent::setUp(array('i18n_menu', 'translation'));
     parent::setUpLanguages(array('administer menu'));
     $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
   }
 
-  function testMenuTranslateLocalize() {
+  /**
+   *
+   */
+  public function testMenuTranslateLocalize() {
     // Test filtering for menu blocks.
     $menu = $this->createMenu(array(
       'i18n_mode' => I18N_MODE_MULTIPLE,
@@ -101,7 +113,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
   /**
    * Test menu items for nodes.
    */
-  function testNodeMenuItems() {
+  public function testNodeMenuItems() {
     // Create menu and display it in a block.
     $menu = $this->createMenu(array(
       'i18n_mode' => I18N_MODE_MULTIPLE,
@@ -115,7 +127,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $block['delta'] = $menu['menu_name'];
     $this->moveBlockToRegion($block, 'bottom');
     $menu_parent = $menu['menu_name'] . ':0';
-    // Create content type 'page', translation enabled, login as translator
+    // Create content type 'page', translation enabled, login as translator.
     parent::setUpContentTranslation();
     $settings = array(
       'menu_options[' . $menu['menu_name'] . ']' => TRUE,
@@ -124,21 +136,21 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     );
     $this->backdropPost('admin/structure/types/manage/page/configure', $settings, t('Save content type'));
 
-    // Create nodes with language and menu item: es, en, und
+    // Create nodes with language and menu item: es, en, und.
     $edit = array(
       'menu[enabled]' => TRUE,
       'menu[parent]' => $menu_parent,
       'promote' => TRUE,
     );
-    // English Page => English menu item
+    // English Page => English menu item.
     $en_title = $this->randomName(10);
     $en_body = $this->randomString(50);
     $nodes[] = $en_node = $this->createNode('page', $en_title, $en_body, 'en', $edit + array('menu[link_title]' => $en_title));
-    // Spanish page => Spanish menu item
+    // Spanish page => Spanish menu item.
     $es_title = $this->randomName(10);
     $es_body = $this->randomString(50);
     $nodes[] = $es_node = $this->createNode('page', $es_title, $es_body, 'es', $edit + array('menu[link_title]' => $es_title));
-    // Language neutral page, localicable menu item
+    // Language neutral page, localicable menu item.
     $und_title = $this->randomName(10);
     $und_body = $this->randomString(50);
     $nodes[] = $und_node = $this->createNode('page', $und_title, $und_body, LANGUAGE_NONE, $edit + array('menu[link_title]' => $und_title));
@@ -166,7 +178,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $this->assertText($es_title);
     $this->assertNoText($en_title);
     $this->assertText($und_title);
-    // Create string translation for neutral menu item and check it shows up
+    // Create string translation for neutral menu item and check it shows up.
     $translation = $this->randomName(10);
     $this->createStringTranslation('menu', $und_title, array('es' => $translation));
     $this->backdropGet('i18n-test-page');
@@ -178,7 +190,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
   /**
    * Tests if the translation set management works.
    */
-  function testMenuTranslationSets() {
+  public function testMenuTranslationSets() {
     $menu = $this->createMenu(array('i18n_mode' => I18N_MODE_MULTIPLE));
 
     $neutral_item = $this->createMenuLink(array('menu_name' => $menu['menu_name']));
@@ -191,12 +203,12 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     );
     $translation_set = $this->createMenuLinkTranslationSet($translationset_edit);
 
-    // Check if the overview works
+    // Check if the overview works.
     $this->backdropGet('admin/structure/menu/manage/translation');
     $link = $this->xpath('//*/a[contains(@href,"admin/structure/menu/manage/translation/edit/' . $translation_set->tsid . '")]');
     $this->assertTrue(!empty($link), 'Created translation-set found.');
 
-    // Check if the edit mode works
+    // Check if the edit mode works.
     $this->backdropGet('admin/structure/menu/manage/translation/edit/' . $translation_set->tsid);
     $this->assertFieldByXPath(
       "//*[@id='edit-translations-" . $this->default_language . "']/option[@selected]/@value",
@@ -214,11 +226,11 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
    * Tests if on a switch from translatable to non translatable the translation
    * sets and links are cleaned up.
    */
-  function testMenuTranslateLocalizeSwitchToNonTranslatable() {
+  public function testMenuTranslateLocalizeSwitchToNonTranslatable() {
     // Test filtering for menu blocks.
     $menu = $this->createMenu(array('i18n_mode' => I18N_MODE_MULTIPLE));
 
-    // Check current menu mode
+    // Check current menu mode.
     $this->backdropGet('admin/structure/menu/manage/' . $menu['menu_name'] . '/configure');
     $this->assertFieldByName('i18n_mode', I18N_MODE_MULTIPLE, 'Menu i18n mode set to I18N_MODE_MULTIPLE');
 
@@ -234,7 +246,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $translation_set = $this->createMenuLinkTranslationSet($translationset_edit);
     $tsid = $translation_set->tsid;
 
-    // Test language mode switch
+    // Test language mode switch.
     $edit = array(
       'i18n_mode' => I18N_MODE_LANGUAGE,
       'language' => $this->secondary_language,
@@ -275,7 +287,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
   /**
    * Helper function to create a menu.
    */
-  function createMenu($edit = array()) {
+  public function createMenu($edit = array()) {
     $edit += array(
       'title' => $this->randomName(16),
       'description' => '',
@@ -290,7 +302,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
   /**
    * Helper function to create a menu link.
    */
-  function createMenuLink($item = array()) {
+  public function createMenuLink($item = array()) {
     $item += array(
       'link_title' => $this->randomName(),
       'link_path' => '<front>',
@@ -303,7 +315,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
   /**
    * Helper function to create a translation set.
    */
-  function createMenuLinkTranslationSet($edit = array()) {
+  public function createMenuLinkTranslationSet($edit = array()) {
     $edit += array(
       'title' => $this->randomName(16),
     );
@@ -317,4 +329,5 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     }
     return reset($entity);
   }
+
 }

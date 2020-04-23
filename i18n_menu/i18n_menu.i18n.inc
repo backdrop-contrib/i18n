@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Internationalization (i18n) hooks
+ * Internationalization (i18n) hooks.
  */
 
 /**
@@ -19,9 +20,9 @@ function i18n_menu_i18n_object_info() {
     'edit path' => 'admin/structure/menu/manage/%menu/edit',
     // Auto-generate translate tab.
     'translate tab' => 'admin/structure/menu/manage/%menu/translate',
-    // We can easily list all these objects
+    // We can easily list all these objects.
     'list callback' => 'menu_load_all',
-    // Metadata for string translation
+    // Metadata for string translation.
     'string translation' => array(
       'textgroup' => 'menu',
       'type' => 'menu',
@@ -44,7 +45,7 @@ function i18n_menu_i18n_object_info() {
     'load callback' => 'menu_link_load',
     'base path' => 'admin/structure/menu/item',
     'edit path' => 'admin/structure/menu/item/%menu_link/edit',
-    // Auto-generate translate tab
+    // Auto-generate translate tab.
     'translate tab' => 'admin/structure/menu/item/%menu_link/translate',
     'placeholders' => array(
       '%menu_link' => 'mlid',
@@ -95,8 +96,10 @@ function i18n_menu_i18n_string_info() {
   $groups['menu'] = array(
     'title' => t('Menu'),
     'description' => t('Translatable menu items: title and description.'),
-    'format' => FALSE, // This group doesn't have strings with format
-    'list' => TRUE, // This group can list all strings
+  // This group doesn't have strings with format.
+    'format' => FALSE,
+  // This group can list all strings.
+    'list' => TRUE,
   );
   return $groups;
 }
@@ -127,4 +130,3 @@ function i18n_menu_item_translation_page($type, $item) {
   $translation_form = backdrop_get_form('i18n_menu_translation_form', $translation_set, $item);
   return $overview + $translation_form;
 }
-

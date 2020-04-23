@@ -14,7 +14,7 @@ function i18n_menu_install() {
   module_load_install('i18n');
   i18n_install_create_fields('menu_links', array('language', 'i18n_tsid'));
   i18n_menu_update_menu_data();
-  // If updating from D6, module changed name
+  // If updating from D6, module changed name.
   if (config_get('i18n.settings', 'i18n_backdrop6_update')) {
     i18n_menu_update_7000();
   }
@@ -46,7 +46,7 @@ function i18n_menu_schema_alter(&$schema) {
 }
 
 /**
- * Update menu items language field from Backdrop 6
+ * Update menu items language field from Backdrop 6.
  */
 function i18n_menu_update_7000() {
   // @todo
