@@ -37,14 +37,14 @@ function i18n_node_i18n_object_info() {
 }
 
 /**
- * Implements hook_i18n_string_info()
+ * Implements hook_i18n_string_info().
  */
 function i18n_node_i18n_string_info() {
   $groups['node'] = array(
     'title' => t('Node types'),
     'description' => t('Content type names, descriptions, help texts.'),
     // 'format' => TRUE, // This group has strings with format (block body)
-  // This group can list all strings.
+    // This group can list all strings.
     'list' => TRUE,
   );
   return $groups;

@@ -19,10 +19,12 @@ function i18n_node_add_page() {
   foreach ($content as &$item) {
     // Type machine name will be the first page argument.
     $page_arguments = unserialize($item['page_arguments']);
-    // Check whether this has a node type, other items may be here too, see #1264662.
+    // Check whether this has a node type, other items may be here too
+    // @see #1264662
     $type = isset($page_arguments[0]) ? $page_arguments[0] : NULL;
     if ($type) {
-      // We just need to translate the description, the title is translated by the menu system
+      // We just need to translate the description,
+      // the title is translated by the menu system.
       // The string will be filtered (xss_admin) on the theme layer.
       $item['description'] = i18n_node_translate_type($type, 'description', $item['description'], array('sanitize' => FALSE));
     }
@@ -106,13 +108,16 @@ function i18n_node_translation_overview($node) {
 }
 
 /**
- * Create link for node translation. This may be a 'edit' or a 'add translation' link.
+ * Create link for node translation.
+ *
+ * This may be a 'edit' or a 'add translation' link.
  */
 function i18n_node_translation_link($text, $path, $langcode, $options = array()) {
   $type = config_get('translation.settings', 'language_type');
   $links = language_negotiation_get_switch_links($type, $path);
   // When node not published, links don't have href so we use path instead
-  // Note: this is a bug in Core translation module, see http://backdrop.org/node/1137074
+  // Note: this is a bug in Core translation module,
+  // @see http://drupal.org/node/1137074
   if (!empty($links->links[$langcode]) && !empty($links->links[$langcode]['href'])) {
     $options += array('attributes' => array(), 'html' => FALSE);
     $options['attributes'] += $links->links[$langcode]['attributes'];
@@ -190,11 +195,13 @@ function i18n_node_select_translation_submit($form, &$form_state) {
     $current[$trans->langcode] = $trans->nid;
   }
   $update = array($node->langcode => $node->nid) + array_filter($form_state['values']['translations']['nid']);
-  // Compute the difference to see which are the new translations and which ones to remove.
+  // Compute the difference to see which are the new translations
+  // and which ones to remove.
   $new = array_diff_assoc($update, $current);
   $remove = array_diff_assoc($current, $update);
 
-  // The tricky part: If the existing source is not in the new set, we need to create a new tnid.
+  // The tricky part: If the existing source is not in the new set,
+  // we need to create a new tnid.
   if ($node->tnid && in_array($node->tnid, $update)) {
     $tnid = $node->tnid;
     $add = $new;
@@ -322,7 +329,8 @@ function _i18n_node_references($string, $match = 'contains', $params = array(), 
       break;
   }
 
-  // Disable and reenable i18n selection mode so no language conditions are inserted.
+  // Disable and reenable i18n selection mode,
+  // so no language conditions are inserted.
   i18n_select(FALSE);
   $references = array();
   foreach ($query->execute() as $node) {

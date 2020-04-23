@@ -7,23 +7,12 @@
 
 require_once __DIR__ . '/../../tests/i18n.test';
 /**
- *
+ * Test case for i18n_node.
  */
 class I18nNodeTestCase extends Backdropi18nTestCase {
 
   /**
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Content translation',
-      'group' => 'Internationalization',
-      'description' => 'Content translation functions',
-    );
-  }
-
-  /**
-   *
+   * Set up.
    */
   public function setUp() {
     parent::setUp('translation', 'i18n_node');
