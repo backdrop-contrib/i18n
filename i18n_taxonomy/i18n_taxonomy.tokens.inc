@@ -30,7 +30,7 @@ function i18n_taxonomy_token_info() {
     'description' => t("The optional description of the taxonomy vocabulary."),
   );
 
-  // Chained tokens for taxonomies
+  // Chained tokens for taxonomies.
   $term['i18n-vocabulary'] = array(
     'name' => t("Vocabulary (localized)"),
     'description' => t("The vocabulary the taxonomy term belongs to."),

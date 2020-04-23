@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Internationalization (i18n) hooks
+ * Internationalization (i18n) hooks.
  */
 
 /**
@@ -16,9 +17,9 @@ function i18n_taxonomy_i18n_object_info() {
     'placeholders' => array(
       '%taxonomy_term' => 'tid',
     ),
-    // Auto generate edit path
+    // Auto generate edit path.
     'edit path' => 'taxonomy/term/%taxonomy_term/edit',
-    // Auto-generate translate tab
+    // Auto-generate translate tab.
     'translate tab' => 'taxonomy/term/%taxonomy_term/translate',
     'translation set' => TRUE,
     'string translation' => array(
@@ -31,7 +32,7 @@ function i18n_taxonomy_i18n_object_info() {
           'format' => 'format',
         ),
       ),
-    )
+    ),
   );
   $info['taxonomy_vocabulary'] = array(
     'title' => t('Vocabulary'),
@@ -40,13 +41,13 @@ function i18n_taxonomy_i18n_object_info() {
     'placeholders' => array(
       '%taxonomy_vocabulary_machine_name' => 'machine_name',
     ),
-    // Auto generate edit path
+    // Auto generate edit path.
     'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/edit',
-    // Auto-generate translate tab
+    // Auto-generate translate tab.
     'translate tab' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/translate',
-    // We can easily list all these objects
+    // We can easily list all these objects.
     'list callback' => 'taxonomy_get_vocabularies',
-    // Metadata for string translation
+    // Metadata for string translation.
     'string translation' => array(
       'textgroup' => 'taxonomy',
       'type' => 'vocabulary',
@@ -91,8 +92,10 @@ function i18n_taxonomy_i18n_string_info() {
   $groups['taxonomy'] = array(
     'title' => t('Taxonomy'),
     'description' => t('Vocabulary titles and term names for localizable vocabularies.'),
-    'format' => FALSE, // This group doesn't have strings with format
-    'list' => FALSE, // This group cannot list all strings
+  // This group doesn't have strings with format.
+    'format' => FALSE,
+  // This group cannot list all strings.
+    'list' => FALSE,
     'refresh callback' => 'i18n_taxonomy_i18n_string_refresh',
   );
   return $groups;
@@ -104,7 +107,7 @@ function i18n_taxonomy_i18n_string_info() {
 function i18n_taxonomy_i18n_string_objects($type) {
   if ($type == 'taxonomy_term') {
     $terms = array();
-    foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) { 
+    foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
       if (isset($vocabulary->i18n_mode) && $vocabulary->i18n_mode & I18N_MODE_LOCALIZE) {
         foreach (taxonomy_get_tree($vid, 0) as $term) {
           $terms[] = $term;
@@ -117,7 +120,7 @@ function i18n_taxonomy_i18n_string_objects($type) {
 
 /**
  * Callback for term translation tab.
- * 
+ *
  * @param $type
  *   Should be always 'taxonomy_term'
  * @pram $term

@@ -10,6 +10,7 @@
  *
  * @param $term
  *   The taxonomy term.
+ *
  * @return
  *   The page content.
  */
@@ -63,7 +64,7 @@ function i18n_taxonomy_term_page($term) {
 }
 
 /**
- * Helper function for autocompletion. Replacement for taxonomy_autocomplete
+ * Helper function for autocompletion. Replacement for taxonomy_autocomplete.
  */
 function i18n_taxonomy_autocomplete_field($field_name, $tags_typed = '') {
   // Part of the criteria for the query come from the field's own settings.
@@ -74,13 +75,13 @@ function i18n_taxonomy_autocomplete_field($field_name, $tags_typed = '') {
     $vids[] = $vocabularies[$tree['vocabulary']]->machine_name;
   }
   // This has been redirected from taxonomy module so we add current language and no language
-  // Because some of the vocabularies may not have language
+  // Because some of the vocabularies may not have language.
   $langcode = array(i18n_langcode(), LANGUAGE_NONE);
   return _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed);
 }
 
 /**
- * Helper function for autocompletion. Select by language
+ * Helper function for autocompletion. Select by language.
  */
 function i18n_taxonomy_autocomplete_language($langcode, $vocabulary, $tags_typed = '') {
   $vids = $vocabulary ? array($vocabulary->machine_name) : NULL;
@@ -88,7 +89,7 @@ function i18n_taxonomy_autocomplete_language($langcode, $vocabulary, $tags_typed
 }
 
 /**
- * Helper function for autocompletion
+ * Helper function for autocompletion.
  */
 function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
   // The user enters a comma-separated list of tags. We only autocomplete the last tag.
@@ -101,16 +102,16 @@ function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
       ->fields('t', array('tid', 'name'));
     $query->addTag('translatable');
     $query->addTag('term_access');
-    // Disable i18n_select for this query
+    // Disable i18n_select for this query.
     $query->addTag('i18n_select');
-    // Add language condition
+    // Add language condition.
     $query->condition('t.langcode', $langcode);
 
     // Do not select already entered terms.
     if (!empty($tags_typed)) {
       $query->condition('t.name', $tags_typed, 'NOT IN');
     }
-    // There may be vocabulary restrictions
+    // There may be vocabulary restrictions.
     if ($vids) {
       $query->condition('t.vocabulary', $vids);
     }

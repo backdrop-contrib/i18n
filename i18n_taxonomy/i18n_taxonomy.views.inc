@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Views integration for i18n_taxonomy fields.

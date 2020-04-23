@@ -1,22 +1,31 @@
 <?php
+
 /**
  * @file
- * Test case for multilingual taxonomy
+ * Test case for multilingual taxonomy.
  */
 
-require_once(__DIR__ . '/../../tests/i18n.test');
-
+require_once __DIR__ . '/../../tests/i18n.test';
+/**
+ *
+ */
 class i18nTaxonomyTestCase extends Backdropi18nTestCase {
 
+  /**
+   *
+   */
   public static function getInfo() {
     return array(
       'name' => 'Taxonomy translation',
       'group' => 'Internationalization',
-      'description' => 'Taxonomy translation functions'
+      'description' => 'Taxonomy translation functions',
     );
   }
 
-  function setUp() {
+  /**
+   *
+   */
+  public function setUp() {
     parent::setUp(array('i18n_taxonomy', 'field_test'));
     parent::setUpLanguages();
 
@@ -35,9 +44,12 @@ class i18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
   }
 
-function testTaxonomyTermLocalize() {
+  /**
+   *
+   */
+  public function testTaxonomyTermLocalize() {
     $this->backdropLogin($this->admin_user);
-    // Make Input Format "Filter Text" translatable
+    // Make Input Format "Filter Text" translatable.
     $edit = array(
       'i18n_string_allowed_formats[filtered_html]' => 'filtered_html',
       'i18n_string_allowed_formats[plain_text]' => 'plain_text',
@@ -85,12 +97,12 @@ function testTaxonomyTermLocalize() {
     $this->backdropPost(NULL, $edit, t('Save'));
     $this->assertText($term_translation['name'][$this->secondary_language], 'Field values are displayed correctly in non-default languages.');
 
-    // Term name and term description should be localized
+    // Term name and term description should be localized.
     $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->default_language)));
     $this->assertText($term->name, 'Term title is displayed correctly in default language.');
     $this->assertText($term->description, 'Term description is displayed correctly in default language.');
 
-    // Term name and term description should be localized
+    // Term name and term description should be localized.
     $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->secondary_language)));
     $this->assertText($term_translation['name'][$this->secondary_language], 'Term title is displayed correctly in non-default language.');
     $this->assertText($term_translation['description[value]'][$this->secondary_language], 'Term description is displayed correctly in non-default language.');
@@ -101,14 +113,17 @@ function testTaxonomyTermLocalize() {
     $this->assertTrue(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in default language.');
     $this->assertFalse(isset($autocomplete_values[$term_translation['name'][$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages');
 
- // Autocomplete should respect localization, but doesn't.
- //   $autocomplete_path = $this->secondary_language . '/taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
- //   $autocomplete_values = $this->backdropGetAJAX($autocomplete_path);
- //   $this->assertFalse(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in non-default languages.');
- //   $this->assertTrue(isset($autocomplete_values[$term_translation[$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages.');
+    // Autocomplete should respect localization, but doesn't.
+    //   $autocomplete_path = $this->secondary_language . '/taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
+    //   $autocomplete_values = $this->backdropGetAJAX($autocomplete_path);
+    //   $this->assertFalse(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in non-default languages.');
+    //   $this->assertTrue(isset($autocomplete_values[$term_translation[$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages.');.
   }
 
-  function testTaxonomyTermTranslate() {
+  /**
+   *
+   */
+  public function testTaxonomyTermTranslate() {
     // Create a translateable vocabulary.
     $vocab = $this->createVocabulary(array('i18n_mode' => I18N_MODE_TRANSLATE));
     $this->assertEqual(i18n_taxonomy_vocabulary_mode($vocab->machine_name), I18N_MODE_TRANSLATE, 'A vocabulary has been created and it is translateable.');
@@ -156,7 +171,7 @@ function testTaxonomyTermLocalize() {
    * Tests the implementation of 'options_list_callback' for term reference fields.
    * Enable and disable the callback properly. Avoid WSOD!
    */
-  function testTaxonomyFieldCallback() {
+  public function testTaxonomyFieldCallback() {
     $field_name = 'taxonomy_term_test_field';
     $field = field_create_field(array(
       'field_name' => $field_name,
@@ -174,7 +189,7 @@ function testTaxonomyTermLocalize() {
   /**
    * Returns a new vocabulary with random properties.
    */
-  function createVocabulary($edit = array()) {
+  public function createVocabulary($edit = array()) {
     // Create a vocabulary via UI.
     $this->backdropLogin($this->admin_user);
     $this->backdropGet('admin/structure/taxonomy');
@@ -195,7 +210,7 @@ function testTaxonomyTermLocalize() {
   /**
    * Returns a new term with random properties in vocabulary $vid.
    */
-  function createTerm($edit = array()) {
+  public function createTerm($edit = array()) {
     $edit += array(
       'name' => $this->randomName(),
       'description[value]' => $this->randomName(),
@@ -212,7 +227,7 @@ function testTaxonomyTermLocalize() {
   /**
    * Setup a field and instance.
    */
-  function createTermField($machine_name, $widget = 'options_select') {
+  public function createTermField($machine_name, $widget = 'options_select') {
     $field_name = backdrop_strtolower($this->randomName());
 
     $this->field = array(
@@ -225,7 +240,7 @@ function testTaxonomyTermLocalize() {
             'parent' => '0',
           ),
         ),
-      )
+      ),
     );
     field_create_field($this->field);
     $this->instance = array(
@@ -245,4 +260,5 @@ function testTaxonomyTermLocalize() {
 
     return $field_name;
   }
+
 }

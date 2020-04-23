@@ -12,7 +12,7 @@
  *  admin/content/taxonomy/%taxonomy_vocabulary/translation
  *  admin/content/taxonomy/i18n/term/xx
  *  admin/content/taxonomy/i18n/term/new/xx
- *  admin/content/taxonomy/vid/translation/op/trid
+ *  admin/content/taxonomy/vid/translation/op/trid.
  */
 function i18n_taxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
   switch ($op) {
@@ -38,12 +38,12 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
     '#type' => 'fieldset',
     '#title' => t('Select translations'),
     '#description' => t('Select existing terms or type new ones that will be created for each language.'),
-    '#tree' => TRUE
+    '#tree' => TRUE,
   );
   // List of terms for languages.
   foreach (language_list(TRUE, TRUE) as $lang => $langname) {
     if ($source && $source->langcode == $lang) {
-      // This is the source term, we don't change it
+      // This is the source term, we don't change it.
       $form['source_term'] = array('#type' => 'value', '#value' => $source);
       $form['translations'][$lang] = array(
         '#title' => $langname,
@@ -67,12 +67,12 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
   }
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save')
+    '#value' => t('Save'),
   );
   if ($translation_set) {
     $form['delete'] = array(
       '#type' => 'submit',
-      '#value' => t('Delete')
+      '#value' => t('Delete'),
     );
   }
   return $form;
@@ -108,7 +108,7 @@ function i18n_taxonomy_autocomplete_validate($element, &$form_state) {
           'langcode' => $element['#langcode'],
         );
       }
-      $value[] = (array)$term;
+      $value[] = (array) $term;
     }
   }
 
@@ -228,7 +228,7 @@ function i18n_taxonomy_translation_term_overview($term) {
         '#title' => t('add translation'),
         '#href' => 'admin/structure/taxonomy/' . $term->vocabulary . '/add',
         '#options' => array(
-          'query' => array('translation' => $term->tid, 'target' => $langcode) + backdrop_get_destination()
+          'query' => array('translation' => $term->tid, 'target' => $langcode) + backdrop_get_destination(),
         ),
       );
     }
