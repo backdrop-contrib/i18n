@@ -7,7 +7,7 @@
  * @author Jose A. Reyero, 2007
  */
 
-// Load locale libraries
+// Load locale libraries.
 include_once BACKDROP_ROOT . '/core/includes/locale.inc';
 include_once backdrop_get_path('module', 'locale') . '/locale.admin.inc';
 
@@ -22,7 +22,7 @@ include_once backdrop_get_path('module', 'locale') . '/locale.admin.inc';
  *   Optional language object.
  */
 function i18n_string_translate_page_object($object_type, $object_value, $language = NULL) {
-  // For backwards compatibility, ensure parameter is a language object
+  // For backwards compatibility, ensure parameter is a language object.
   $language = i18n_language_object($language);
   $langcode = $language ? $language->langcode : NULL;
   // Get base keys for all these strings. Object key may be multiple like for blocks (module, delta)
@@ -64,10 +64,12 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
     'language' => t('Language'),
     'title' => t('Title'),
     'status' => t('Status'),
-    'operations' => t('Operations')
+    'operations' => t('Operations'),
   );
-  $source_language = config_get('i18n.settings','i18n_string_source_language');
-  if (empty($source_language)) $source_language = 'en';
+  $source_language = config_get('i18n.settings', 'i18n_string_source_language');
+  if (empty($source_language)) {
+    $source_language = 'en';
+  }
   $rows = array();
 
   foreach (language_list() as $langcode => $language) {
@@ -98,7 +100,7 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
     }
     foreach ($items as $key => $markup) {
       $rows[$langcode][$key] = $markup;
-      //$form['#rows'][$langcode][$key]['#markup'] = $markup;
+      // $form['#rows'][$langcode][$key]['#markup'] = $markup;
     }
   }
   // Build a form so it can be altered later, with all this information.
@@ -147,7 +149,7 @@ function i18n_string_translate_page_form($form, &$form_state, $strings, $langcod
 }
 
 /**
- * Create base form for string translation
+ * Create base form for string translation.
  */
 function i18n_string_translate_page_form_base($form, $langcode, $redirect = NULL) {
   $form['langcode'] = array(
@@ -170,7 +172,7 @@ function i18n_string_translate_page_form_base($form, $langcode, $redirect = NULL
 }
 
 /**
- * Create field elements for strings
+ * Create field elements for strings.
  */
 function i18n_string_translate_page_form_strings($strings, $langcode) {
   $formats = filter_formats();
@@ -193,7 +195,7 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
         // Enable messages just as a reminder these strings are not being updated properly.
         $status = $item->update(array('messages' => TRUE));
         if ($status === FALSE || $status === SAVED_DELETED) {
-          // We don't have a source string so nothing to translate here
+          // We don't have a source string so nothing to translate here.
           $disabled = TRUE;
         }
         else {
@@ -209,11 +211,11 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
       '#default_value' => $default_value,
       '#disabled' => $disabled,
       '#description' => $description . _i18n_string_translate_format_help($format_id),
-      //'#i18n_string_format' => $source ? $source->format : 0,
+      // '#i18n_string_format' => $source ? $source->format : 0,
       // If disabled, provide smaller textarea (that can be expanded anyway).
       '#rows' => $disabled ? 1 : min(ceil(str_word_count($default_value) / 12), 10),
-      // Change the parent for disabled strings so we don't get empty values later
-      '#parents' => array($disabled ? 'disabled_strings': 'strings', $item->get_name()),
+      // Change the parent for disabled strings so we don't get empty values later.
+      '#parents' => array($disabled ? 'disabled_strings' : 'strings', $item->get_name()),
     );
   }
   return $form;
@@ -249,7 +251,7 @@ function i18n_string_l10n_client_save_string() {
 
   if (user_access('use on-page translation')) {
     $textgroup = !empty($_POST['textgroup']) ? $_POST['textgroup'] : 'default';
-    // Other textgroups will be handled by l10n_client module
+    // Other textgroups will be handled by l10n_client module.
     if (!i18n_string_group_info($textgroup)) {
       return l10n_client_save_string();
     }
@@ -285,7 +287,6 @@ function i18n_string_l10n_client_save_string() {
   }
 }
 
-
 /**
  * User interface for string editing.
  */
@@ -312,7 +313,7 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
   }
   $form['lid'] = array(
     '#type'  => 'value',
-    '#value' => $lid
+    '#value' => $lid,
   );
   $form['textgroup'] = array(
     '#type'  => 'value',
@@ -320,7 +321,7 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
   );
   $form['location'] = array(
     '#type'  => 'value',
-    '#value' => $source->location
+    '#value' => $source->location,
   );
 
   // Include default form controls with empty values for all languages.
@@ -367,7 +368,7 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
       $disabled = TRUE;
     }
     if (!empty($disabled)) {
-      // Disable all form elements
+      // Disable all form elements.
       $form['submit']['#disabled'] = TRUE;
       foreach (element_children($form['translations']) as $langcode) {
         $form['translations'][$langcode]['#disabled'] = TRUE;
@@ -380,7 +381,7 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
 /**
  * Process string editing form validations.
  *
- * If it is an allowed format, skip default validation, the text will be filtered later
+ * If it is an allowed format, skip default validation, the text will be filtered later.
  */
 function i18n_string_locale_translate_edit_form_validate($form, &$form_state) {
   if (empty($form_state['values']['i18n_string'])) {
@@ -423,7 +424,7 @@ function _i18n_string_translate_format_help($format_id) {
   $output = '';
   if ($format = filter_format_load($format_id)) {
     $title = t('Text format: @name', array('@name' => $format->name));
-    $tips =  theme('filter_tips', array('tips' => _filter_tips($format_id, FALSE)));
+    $tips = theme('filter_tips', array('tips' => _filter_tips($format_id, FALSE)));
   }
   elseif ($format_id == I18N_STRING_FILTER_XSS) {
     $title = t('Standard XSS filter.');

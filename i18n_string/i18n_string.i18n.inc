@@ -1,13 +1,14 @@
 <?php
+
 /**
  * @file
- * Implementation of i18n hooks
+ * Implementation of i18n hooks.
  */
 
 /**
  * Implements hook_i18n_string_objects().
- * 
- * Automate object list for object types that have a 'table' property
+ *
+ * Automate object list for object types that have a 'table' property.
  */
 function i18n_string_i18n_string_objects($type) {
   if ($function = i18n_object_info($type, 'list callback')) {
@@ -21,15 +22,15 @@ function i18n_string_i18n_string_objects($type) {
 
 /**
  * Implements hook_i18n_string_list().
- * 
+ *
  * Collect all strings from objects of this group.
  */
 function i18n_string_i18n_string_list($group) {
   $strings = array();
-  // It may be for one group or all groups
+  // It may be for one group or all groups.
   $groups = $group == 'all' ? array_keys(i18n_string_group_info()) : array($group);
-  foreach ($groups as $group) {  
-    // Compile strings for object types for this group
+  foreach ($groups as $group) {
+    // Compile strings for object types for this group.
     foreach (i18n_string_group_object_types($group) as $type) {
       $type_strings = i18n_string_object_type_string_list($type);
       if ($type_strings && !empty($type_strings[$group])) {
@@ -41,7 +42,7 @@ function i18n_string_i18n_string_list($group) {
 }
 
 /**
- * Get object types for text group
+ * Get object types for text group.
  */
 function i18n_string_group_object_types($group) {
   $types = array();
@@ -55,7 +56,7 @@ function i18n_string_group_object_types($group) {
 
 /**
  * Get object string list that are in this text group.
- * 
+ *
  * @param $type
  *   Object type
  */
@@ -81,6 +82,7 @@ function i18n_string_object_type_string_list($type) {
  *
  * @param ...
  *   Arrays to merge.
+ *
  * @return
  *   The merged array.
  */
