@@ -1,22 +1,20 @@
 <?php
+
 /**
  * @file
  * Test case for multilingual fields.
  */
 
-require_once(__DIR__ . '/../../tests/i18n.test');
-
+require_once __DIR__ . '/../../tests/i18n.test';
+/**
+ * Testing class for i18n_field.
+ */
 class i18nFieldTestCase extends Backdropi18nTestCase {
 
-  public static function getInfo() {
-    return array(
-      'name' => 'Field translation',
-      'group' => 'Internationalization',
-      'description' => 'Field translation functions'
-    );
-  }
-
-  function setUp() {
+  /**
+   * Set up.
+   */
+  public function setUp() {
     parent::setUp('i18n_field', 'field_test');
     parent::setUpLanguages(array('access field_test content', 'administer field_test content'));
     $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
@@ -25,7 +23,7 @@ class i18nFieldTestCase extends Backdropi18nTestCase {
   /**
    * Test the translation of list fields, including allowed values.
    */
-  function testListFieldTranslation() {
+  public function testListFieldTranslation() {
     $field_name = backdrop_strtolower($this->randomName());
     $label = $this->randomName();
     $description = $this->randomName();
@@ -79,7 +77,7 @@ class i18nFieldTestCase extends Backdropi18nTestCase {
   /**
    * Test the translation of text fields, including default values.
    */
-  function testTextFieldTranslation() {
+  public function testTextFieldTranslation() {
     $field_name = backdrop_strtolower($this->randomName());
     $label = $this->randomName();
     $description = $this->randomName();
@@ -127,4 +125,5 @@ class i18nFieldTestCase extends Backdropi18nTestCase {
     $this->assertText($description_translation[$this->secondary_language], 'Field description is translated');
     $this->assertRaw($default_value_translation[$this->secondary_language], 'Default value translated');
   }
+
 }

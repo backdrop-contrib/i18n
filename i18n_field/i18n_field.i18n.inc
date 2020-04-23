@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Internationalization (i18n) hooks
+ * Internationalization (i18n) hooks.
  */
 
 /**
@@ -18,7 +19,7 @@ function i18n_field_i18n_object_info() {
       '%field_type' => 'type',
     ),
     'edit path' => 'admin/structure/types/manage/%bundle/fields/%field_ui_menu/field-settings',
-    // We can easily list all these objects
+    // We can easily list all these objects.
     'list callback' => 'field_read_fields',
     'string translation' => array(
       'textgroup' => 'field',
@@ -27,8 +28,8 @@ function i18n_field_i18n_object_info() {
           'title' => t('Label'),
         ),
       ),
-      //'translate path' => 'admin/structure/block/manage/%module/%delta/translate/%i18n_language',
-    )
+      // 'translate path' => 'admin/structure/block/manage/%module/%delta/translate/%i18n_language',
+    ),
   );
   $info['field_instance'] = array(
     'title' => t('Field instance'),
@@ -57,8 +58,8 @@ function i18n_field_i18n_object_info() {
           'format' => 'format',
         ),
       ),
-      //'translate path' => 'admin/structure/types/manage/%bundle/fields/%field_ui_menu/translate/%i18n_language',
-    )
+      // 'translate path' => 'admin/structure/types/manage/%bundle/fields/%field_ui_menu/translate/%i18n_language',
+    ),
   );
   return $info;
 }
@@ -70,8 +71,10 @@ function i18n_field_i18n_string_info() {
   $groups['field'] = array(
     'title' => t('Fields'),
     'description' => t('Configurable fields descriptions, defaults, options, etc.'),
-    'format' => FALSE, // This group doesn't have formatted strings
-    'list' => TRUE, // This group can list all strings
+  // This group doesn't have formatted strings.
+    'format' => FALSE,
+  // This group can list all strings.
+    'list' => TRUE,
     'class' => 'i18n_string_textgroup_cached',
   );
   return $groups;

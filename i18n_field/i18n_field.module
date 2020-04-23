@@ -2,11 +2,13 @@
 
 /**
  * @file
- * Internationalization (i18n) module - Field handling
+ * Internationalization (i18n) module - Field handling.
  *
  * For string keys we use:
- * - field:[field_name]:[bundle]:property, when it is an instance property (linked to bundle)
- * - field:[field_name]:#property..., when it is a field property (that may have multiple values)
+ * - field:[field_name]:[bundle]:property
+ *   when it is an instance property (linked to bundle)
+ * - field:[field_name]:#property...
+ *   when it is a field property (that may have multiple values)
  */
 
 /**
@@ -65,7 +67,12 @@ function i18n_field_menu() {
             'access arguments' => array('administer site configuration'),
           );
           $items["$path/fields/%field_ui_menu/translate"] = array(
-            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
+            'load arguments' => array(
+              $entity_type,
+              $bundle_arg,
+              $bundle_pos,
+              '%map',
+            ),
             'title' => 'Translate',
             'page callback' => 'i18n_field_page_translate',
             'page arguments' => array($field_position),
@@ -74,7 +81,12 @@ function i18n_field_menu() {
           ) + $access;
 
           $items["$path/fields/%field_ui_menu/translate/%i18n_language"] = array(
-            'load arguments' => array($entity_type, $bundle_arg, $bundle_pos, '%map'),
+            'load arguments' => array(
+              $entity_type,
+              $bundle_arg,
+              $bundle_pos,
+              '%map',
+            ),
             'title' => 'Instance',
             'page callback' => 'i18n_field_page_translate',
             'page arguments' => array($field_position, $field_position + 2),
@@ -101,7 +113,8 @@ function i18n_field_hook_info() {
 /**
  * Implements hook_field_attach_form().
  *
- * After the form fields are built. Translate title and description for fields with multiple values.
+ * After the form fields are built.
+ * Translate title and description for fields with multiple values.
  */
 function i18n_field_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
   // Determine the list of instances to iterate on.
@@ -111,7 +124,7 @@ function i18n_field_field_attach_form($entity_type, $entity, &$form, &$form_stat
     if (isset($form[$field_name])) {
       $langcode = $form[$field_name]['#language'];
       $field = &$form[$field_name];
-      // Note: cardinality for unlimited fields is -1
+      // Note: cardinality for unlimited fields is -1.
       if (isset($field[$langcode]['#cardinality']) && $field[$langcode]['#cardinality'] != 1) {
         $translated = i18n_string_object_translate('field_instance', $instance);
         if (!empty($field[$langcode]['#title'])) {
@@ -155,7 +168,7 @@ function i18n_field_field_formatter_view($entity_type, $entity, $field, $instanc
         $allowed_values = $translate($field);
       }
       else {
-        // Defaults to list_default behavior
+        // Defaults to list_default behavior.
         $allowed_values = list_allowed_values($field);
       }
       foreach ($items as $delta => $item) {
@@ -181,7 +194,7 @@ function i18n_field_field_formatter_view($entity_type, $entity, $field, $instanc
  * - Title (label)
  * - Description (help)
  * - Default value
- * - List options
+ * - List options.
  */
 function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
   global $language;
@@ -191,7 +204,7 @@ function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
     return;
   }
 
-  // Skip if we are missing any of the parameters
+  // Skip if we are missing any of the parameters.
   if (empty($context['field']) || empty($context['instance']) || empty($context['langcode'])) {
     return;
   }
@@ -229,7 +242,8 @@ function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
     }
   }
 
-  // The field language may affect some variables (default) but not others (description will be in current page language)
+  // The field language may affect some variables (default)
+  // but not others (description will be in current page language).
   $i18n_langcode = empty($alter_element['#language']) || $alter_element['#language'] == LANGUAGE_NONE ? $language->langcode : $alter_element['#language'];
 
   // Translate instance to current page language and set to form_state
@@ -326,12 +340,12 @@ function i18n_field_field_attach_view_alter(&$output, $context) {
     if (!empty($element['#entity_type']) && !empty($element['#field_name']) && !empty($element['#bundle'])) {
       $instance = field_info_instance($element['#entity_type'], $element['#field_name'], $element['#bundle']);
 
-      // Translate field title if set
+      // Translate field title if set.
       if (!empty($instance['label'])) {
         $element['#title'] = i18n_field_translate_property($instance, 'label');
       }
 
-      // Translate field description if set
+      // Translate field description if set.
       if (!empty($instance['description'])) {
         $element['#description'] = i18n_field_translate_property($instance, 'description');
       }
@@ -375,14 +389,14 @@ function i18n_field_field_update_field($field) {
 }
 
 /**
- * Update field strings
+ * Update field strings.
  */
 function i18n_field_field_update_strings($field) {
   i18n_string_object_update('field', $field);
 }
 
 /**
- * Update field instance strings
+ * Update field instance strings.
  */
 function i18n_field_instance_update_strings($instance) {
   i18n_string_object_update('field_instance', $instance);
@@ -394,16 +408,24 @@ function i18n_field_instance_update_strings($instance) {
  * The strings are not safe for output. Keys and values of the array should be
  * sanitized through field_filter_xss() before being displayed.
  *
- * @param $field
+ * @param array $field
  *   The field definition.
  *
- * @return
+ * @return array
  *   The array of allowed values. Keys of the array are the raw stored values
  *   (number or text), values of the array are the display labels.
  */
 function i18n_field_translate_allowed_values($field, $langcode = NULL) {
   if (!empty($field['settings']['allowed_values'])) {
-    return i18n_string_translate(array('field', $field['field_name'], '#allowed_values'), $field['settings']['allowed_values'], array('langcode' => $langcode, 'sanitize' => FALSE));
+    $context = array(
+      'field',
+      $field['field_name'],
+      '#allowed_values',
+    );
+    return i18n_string_translate($context, $field['settings']['allowed_values'], array(
+      'langcode' => $langcode,
+      'sanitize' => FALSE,
+    ));
   }
   else {
     return array();
@@ -416,14 +438,21 @@ function i18n_field_translate_allowed_values($field, $langcode = NULL) {
 function i18n_field_translate_default($instance, $value, $langcode = NULL) {
   // The default value does not need sanitizing in a text_textfield widget.
   $sanitize = !($instance['widget']['type'] == 'text_textfield' && $instance['widget']['module'] == 'text');
-  return i18n_string_translate(array('field', $instance['field_name'], $instance['bundle'], 'default_value'), $value, array('langcode' => $langcode, 'sanitize' => $sanitize));
+  $context = array(
+    'field',
+    $instance['field_name'],
+    $instance['bundle'],
+    'default_value',
+  );
+  return i18n_string_translate($context, $value, array('langcode' => $langcode, 'sanitize' => $sanitize));
 }
 
 /**
- * Translate field property
+ * Translate field property.
  */
 function i18n_field_translate_property($instance, $property, $langcode = NULL) {
-  // For performance reasons, we translate the whole instance once, which is cached.
+  // For performance reasons, we translate the whole instance once,
+  // which is cached.
   $instance = i18n_string_object_translate('field_instance', $instance, array('langcode' => $langcode));
   return $instance[$property];
 }
@@ -431,9 +460,9 @@ function i18n_field_translate_property($instance, $property, $langcode = NULL) {
 /**
  * Get i18n information for translating fields.
  *
- * @param $type
+ * @param string $type
  *   Optional field type.
- * @param $property
+ * @param string $property
  *   Optional property to get from field type.
  *
  * @return
