@@ -60,14 +60,19 @@ function i18n_taxonomy_i18n_object_info() {
       'name' => t('vocabulary'),
       'item type' => 'taxonomy_term',
       'item name' => t('terms'),
-      'options' => array(I18N_MODE_NONE, I18N_MODE_LOCALIZE, I18N_MODE_TRANSLATE, I18N_MODE_LANGUAGE),
+      'options' => array(
+        I18N_MODE_NONE,
+        I18N_MODE_LOCALIZE,
+        I18N_MODE_TRANSLATE,
+        I18N_MODE_LANGUAGE,
+      ),
     ),
   );
   return $info;
 }
 
 /**
- * Implements hook_i18n_translation_set_info()
+ * Implements hook_i18n_translation_set_info().
  */
 function i18n_taxonomy_i18n_translation_set_info() {
   $info['taxonomy_term'] = array(
@@ -86,15 +91,15 @@ function i18n_taxonomy_i18n_translation_set_info() {
 }
 
 /**
- * Implements hook_i18n_string_info()
+ * Implements hook_i18n_string_info().
  */
 function i18n_taxonomy_i18n_string_info() {
   $groups['taxonomy'] = array(
     'title' => t('Taxonomy'),
     'description' => t('Vocabulary titles and term names for localizable vocabularies.'),
-  // This group doesn't have strings with format.
+    // This group doesn't have strings with format.
     'format' => FALSE,
-  // This group cannot list all strings.
+    // This group cannot list all strings.
     'list' => FALSE,
     'refresh callback' => 'i18n_taxonomy_i18n_string_refresh',
   );
@@ -102,7 +107,7 @@ function i18n_taxonomy_i18n_string_info() {
 }
 
 /**
- * Implements hook_i18n_string_objects()
+ * Implements hook_i18n_string_objects().
  */
 function i18n_taxonomy_i18n_string_objects($type) {
   if ($type == 'taxonomy_term') {
@@ -121,9 +126,9 @@ function i18n_taxonomy_i18n_string_objects($type) {
 /**
  * Callback for term translation tab.
  *
- * @param $type
+ * @param string $type
  *   Should be always 'taxonomy_term'
- * @pram $term
+ * @param object $term
  *   Taxonomy term object
  */
 function i18n_taxonomy_term_translation_page($type, $term) {

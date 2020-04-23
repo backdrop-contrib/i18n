@@ -11,8 +11,8 @@
  * @param $term
  *   The taxonomy term.
  *
- * @return
- *   The page content.
+ * @return array
+ *   Renderable array of the page content.
  */
 function i18n_taxonomy_term_page($term) {
   $term = i18n_taxonomy_localize_terms($term);
@@ -74,7 +74,8 @@ function i18n_taxonomy_autocomplete_field($field_name, $tags_typed = '') {
   foreach ($field['settings']['allowed_values'] as $tree) {
     $vids[] = $vocabularies[$tree['vocabulary']]->machine_name;
   }
-  // This has been redirected from taxonomy module so we add current language and no language
+  // This has been redirected from taxonomy module
+  // so we add current language and no language
   // Because some of the vocabularies may not have language.
   $langcode = array(i18n_langcode(), LANGUAGE_NONE);
   return _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed);
@@ -92,7 +93,8 @@ function i18n_taxonomy_autocomplete_language($langcode, $vocabulary, $tags_typed
  * Helper function for autocompletion.
  */
 function _i18n_taxonomy_autocomplete($langcode, $vids, $tags_typed = '') {
-  // The user enters a comma-separated list of tags. We only autocomplete the last tag.
+  // The user enters a comma-separated list of tags.
+  // We only autocomplete the last tag.
   $tags_typed = backdrop_explode_tags($tags_typed);
   $tag_last = backdrop_strtolower(array_pop($tags_typed));
 

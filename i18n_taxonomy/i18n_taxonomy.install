@@ -7,12 +7,12 @@
 
 /**
  * Set language field in its own table.
+ *
  * Do not drop node.language now, just in case.
  * TO-DO: Drop old tables, fields.
  */
 function i18n_taxonomy_install() {
   module_load_install('i18n');
-  // i18n_install_create_fields('taxonomy_vocabulary', array('language', 'i18n_mode'), TRUE);.
   i18n_install_create_fields('taxonomy_term_data', array('language', 'i18n_tsid'));
   // Set module weight for it to run after core modules, but before views.
   db_query("UPDATE {system} SET weight = 5 WHERE name = 'i18n_taxonomy' AND type = 'module'");
@@ -33,14 +33,22 @@ function i18n_taxonomy_uninstall() {
  * Implements hook_schema_alter().
  */
 function i18n_taxonomy_schema_alter(&$schema) {
-  // $schema['taxonomy_vocabulary']['fields']['language'] = array('type' => 'varchar', 'length' => 12, 'not null' => TRUE, 'default' => LANGUAGE_NONE);
-  // $schema['taxonomy_vocabulary']['fields']['i18n_mode'] = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0);
-  $schema['taxonomy_term_data']['fields']['language'] = array('type' => 'varchar', 'length' => 12, 'not null' => TRUE, 'default' => LANGUAGE_NONE);
-  $schema['taxonomy_term_data']['fields']['i18n_tsid'] = array('type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0);
+  $schema['taxonomy_term_data']['fields']['language'] = array(
+    'type' => 'varchar',
+    'length' => 12,
+    'not null' => TRUE,
+    'default' => LANGUAGE_NONE,
+  );
+  $schema['taxonomy_term_data']['fields']['i18n_tsid'] = array(
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+  );
 }
 
 /**
- * Implements hook_disable()
+ * Implements hook_disable().
  */
 function i18n_taxonomy_disable() {
   foreach (field_info_fields() as $fieldname => $field) {

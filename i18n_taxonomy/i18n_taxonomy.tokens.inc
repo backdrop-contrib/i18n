@@ -70,7 +70,14 @@ function i18n_taxonomy_tokens($type, $tokens, array $data = array(), array $opti
           break;
 
         case 'i18n-description':
-          $replacements[$original] = i18n_string_text(array('taxonomy', 'term', $term->tid, 'description'), $term->description, array('langcode' => $langcode, 'format' => $term->format, 'sanitize' => $sanitize, 'cache' => TRUE));
+          $context = "taxonomy:term:{$term->tid}:description";
+          $params = array(
+            'langcode' => $langcode,
+            'format' => $term->format,
+            'sanitize' => $sanitize,
+            'cache' => TRUE,
+          );
+          $replacements[$original] = i18n_string_text($context, $term->description, $params);
           break;
 
         case 'i18n-vocabulary':
@@ -100,7 +107,13 @@ function i18n_taxonomy_tokens($type, $tokens, array $data = array(), array $opti
           break;
 
         case 'i18n-description':
-          $description = i18n_object_langcode($vocabulary) ? $vocabulary->description : i18n_string(array('taxonomy', 'vocabulary', $vocabulary->vid, 'description'), $vocabulary->description, array('langcode' => $langcode));
+          if (i18n_object_langcode($vocabulary)) {
+            $description = $vocabulary->description;
+          }
+          else {
+            $context = "taxonomy:vocabulary:{$vocabulary->machine_name}:description";
+            $description = i18n_string($context, $vocabulary->description, array('langcode' => $langcode));
+          }
           $replacements[$original] = $sanitize ? filter_xss($description) : $description;
           break;
       }

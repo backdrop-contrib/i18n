@@ -6,11 +6,7 @@
  */
 
 /**
- * @file
- * Internationalization (i18n) module - Translation set.
- */
-/**
- *
+ * Internationalization (i18n) module - Translation set for taxonomy.
  */
 class i18n_taxonomy_translation_set extends i18n_translation_set {
 
@@ -53,7 +49,9 @@ class i18n_taxonomy_term extends i18n_string_object_wrapper {
   }
 
   /**
-   * Access to object translation. This should check object properties and permissions.
+   * Access to object translation.
+   *
+   * This should check object properties and permissions.
    */
   protected function translate_access() {
     return taxonomy_term_access('update', $this->object) && $this->get_langcode() && user_access('translate interface');

@@ -7,23 +7,12 @@
 
 require_once __DIR__ . '/../../tests/i18n.test';
 /**
- *
+ * Simpletest class for i18n_taxonomy.
  */
 class i18nTaxonomyTestCase extends Backdropi18nTestCase {
 
   /**
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Taxonomy translation',
-      'group' => 'Internationalization',
-      'description' => 'Taxonomy translation functions',
-    );
-  }
-
-  /**
-   *
+   * Set up test case.
    */
   public function setUp() {
     parent::setUp(array('i18n_taxonomy', 'field_test'));
@@ -45,7 +34,7 @@ class i18nTaxonomyTestCase extends Backdropi18nTestCase {
   }
 
   /**
-   *
+   * Test localization of taxonomy vocabs and terms.
    */
   public function testTaxonomyTermLocalize() {
     $this->backdropLogin($this->admin_user);
@@ -62,7 +51,9 @@ class i18nTaxonomyTestCase extends Backdropi18nTestCase {
 
     $this->field_name = $this->createTermField($vocab->machine_name);
 
-    // Create a term to be localized. We use a common prefix to facilitate the testing of autocomplete suggestions.
+    // Create a term to be localized.
+    // We use a common prefix to facilitate the testing
+    // of autocomplete suggestions.
     $prefix = $this->randomName() . '_';
     $term = $this->createTerm(array(
       'vocabulary' => $vocab->machine_name,
@@ -113,15 +104,17 @@ class i18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->assertTrue(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in default language.');
     $this->assertFalse(isset($autocomplete_values[$term_translation['name'][$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages');
 
+    /*
     // Autocomplete should respect localization, but doesn't.
-    //   $autocomplete_path = $this->secondary_language . '/taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
-    //   $autocomplete_values = $this->backdropGetAJAX($autocomplete_path);
-    //   $this->assertFalse(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in non-default languages.');
-    //   $this->assertTrue(isset($autocomplete_values[$term_translation[$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages.');.
+    $autocomplete_path = $this->secondary_language . '/taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
+    $autocomplete_values = $this->backdropGetAJAX($autocomplete_path);
+    $this->assertFalse(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in non-default languages.');
+    $this->assertTrue(isset($autocomplete_values[$term_translation[$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages.');.
+    */
   }
 
   /**
-   *
+   * Test taxonomy term translation sets.
    */
   public function testTaxonomyTermTranslate() {
     // Create a translateable vocabulary.
@@ -168,6 +161,8 @@ class i18nTaxonomyTestCase extends Backdropi18nTestCase {
   }
 
   /**
+   * Tests options_list_callback.
+   *
    * Tests the implementation of 'options_list_callback' for term reference fields.
    * Enable and disable the callback properly. Avoid WSOD!
    */
