@@ -2,12 +2,12 @@
 
 /**
  * @file
- * Internationalization (i18n) module - Entity translations
+ * Internationalization (i18n) module - Entity translations.
  */
 
-// Language list with only enabled languages
+// Language list with only enabled languages.
 define('I18N_ENTITY_LANGUAGES_ENABLED', 0);
-// Language list with all languages
+// Language list with all languages.
 define('I18N_ENTITY_LANGUAGES_EXTENDED', 1);
 
 /**
@@ -35,7 +35,7 @@ function i18n_translation_entity_info() {
       'label' => t('Translation set'),
       'controller class' => 'I18nTranslationSetController',
       'base table' => 'i18n_translation_set',
-      //'uri callback' => 'taxonomy_term_uri',
+      // 'uri callback' => 'taxonomy_term_uri',
       'fieldable' => FALSE,
       'entity keys' => array(
         'id' => 'tsid',
@@ -60,7 +60,7 @@ function i18n_translation_menu() {
     'title' => 'Translation sets',
     'description' => 'Translation sets overview.',
     'page callback' => 'i18n_translation_admin_overview',
-    //'page arguments' => array('i18n_translation_set_overview'),
+    // 'page arguments' => array('i18n_translation_set_overview'),
     'access arguments' => array('administer site configuration'),
     'file' => 'i18n_translation.admin.inc',
     'weight' => 10,
@@ -84,7 +84,7 @@ function i18n_translation_hook_info() {
 }
 
 /**
- * Check whether this object can be part of a translation set
+ * Check whether this object can be part of a translation set.
  */
 function i18n_translation_check_object($type, $object) {
   if ($info = i18n_translation_set_info($type)) {
@@ -93,7 +93,7 @@ function i18n_translation_check_object($type, $object) {
 }
 
 /**
- * Get form element for translation mode and language
+ * Get form element for translation mode and language.
  *
  * @param $object_type
  *   Object type for the container element
@@ -124,7 +124,7 @@ function i18n_translation_mode_element($object_type, $i18n_mode = I18N_MODE_NONE
     '#description' => t('Predefined language. If set, it will apply to all items.'),
     '#required' => TRUE,
     '#states' => array(
-      'visible' => array('input[name="i18n_mode"]' => array('value' => (string)I18N_MODE_LANGUAGE)),
+      'visible' => array('input[name="i18n_mode"]' => array('value' => (string) I18N_MODE_LANGUAGE)),
     ),
   ) + i18n_element_language_select();
 
@@ -134,7 +134,7 @@ function i18n_translation_mode_element($object_type, $i18n_mode = I18N_MODE_NONE
 }
 
 /**
- * Get list of translation modes
+ * Get list of translation modes.
  *
  * @param $container_type
  *   Object type for the container
@@ -142,7 +142,7 @@ function i18n_translation_mode_element($object_type, $i18n_mode = I18N_MODE_NONE
  *   Options to include. If none, defaults for container type will be returned.
  */
 function i18n_translation_options($container_type, $options = NULL) {
-  // Get names and translation options for container object and items
+  // Get names and translation options for container object and items.
   $container_info = i18n_object_info($container_type, 'translation container');
   $replacements = array(
     '@container_name' => $container_info['name'],
@@ -154,7 +154,7 @@ function i18n_translation_options($container_type, $options = NULL) {
 }
 
 /**
- * Get list of translation modes
+ * Get list of translation modes.
  */
 function i18n_translation_options_list($replacements = array(), $options = array()) {
   $list = array(
@@ -175,7 +175,7 @@ function i18n_translation_options_list($replacements = array(), $options = array
 }
 
 /**
- * Build translation fieldset for object
+ * Build translation fieldset for object.
  */
 function i18n_translation_set_element($type, $object) {
   $element = array(
@@ -192,7 +192,7 @@ function i18n_translation_set_element($type, $object) {
 }
 
 /**
- * Format translation set info as table
+ * Format translation set info as table.
  */
 function i18n_translation_format_items($translations) {
   foreach ($translations as $langcode => $item) {
@@ -202,7 +202,7 @@ function i18n_translation_format_items($translations) {
 }
 
 /**
- * Get translation set for object
+ * Get translation set for object.
  */
 function i18n_translation_object($type, $object, $create = FALSE) {
   if (($field = i18n_translation_set_info($type, 'field', 'i18n_tsid')) && ($tsid = i18n_object_field($object, $field))) {
@@ -218,7 +218,7 @@ function i18n_translation_object($type, $object, $create = FALSE) {
 }
 
 /**
- * Get information about translation sets
+ * Get information about translation sets.
  */
 function i18n_translation_set_info($type = NULL, $property = NULL, $default = NULL) {
   $info = &backdrop_static(__FUNCTION__);
@@ -238,17 +238,17 @@ function i18n_translation_set_info($type = NULL, $property = NULL, $default = NU
 }
 
 /**
- * Build a translation set from type, data
+ * Build a translation set from type, data.
  */
 function i18n_translation_set_build($type, $data = array()) {
   $class = i18n_translation_set_info($type, 'class', 'i18n_translation_set');
-  $set = new $class((array)$data);
+  $set = new $class((array) $data);
   $set->type = $type;
   return $set;
 }
 
 /**
- * Create a new translation set
+ * Create a new translation set.
  */
 function i18n_translation_set_create($type, $bundle = '', $translations = NULL, $master_id = 0) {
   $set = i18n_translation_set_build($type, array('type' => $type, 'bundle' => $bundle, 'master_id' => $master_id, 'translations' => $translations));
@@ -275,7 +275,7 @@ function i18n_translation_set_load($tsid, $type = NULL) {
 }
 
 /**
- * Index objects in translation set by language
+ * Index objects in translation set by language.
  */
 function i18n_translation_set_index($translations) {
   $list = array();
@@ -288,7 +288,7 @@ function i18n_translation_set_index($translations) {
 }
 
 /**
- * Translation set generic form
+ * Translation set generic form.
  */
 function i18n_translation_set_overview($form, &$form_state, $type = NULL, $tsids = NULL) {
   module_load_include('admin.inc', 'i18n_translation');
@@ -304,7 +304,7 @@ function i18n_translation_set_list_manage($type) {
 }
 
 /**
- * Ask for confirmation of translation set deletion
+ * Ask for confirmation of translation set deletion.
  */
 function i18n_translation_set_delete_confirm($form, &$form_state, $translation_set) {
   $form['#translation_set'] = $translation_set;
@@ -329,7 +329,7 @@ function i18n_translation_set_delete_confirm($form, &$form_state, $translation_s
 }
 
 /**
- * Execute translation set deletion
+ * Execute translation set deletion.
  */
 function i18n_translation_set_delete_confirm_submit($form, &$form_state) {
   if ($form_state['values']['confirm']) {

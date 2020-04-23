@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * API documentation for Internationalization module
+ * API documentation for Internationalization module.
  *
  * Most i18n hooks can be placed on each module.i18n.inc file but in this case
  * such file must be listed in the module.info file.
@@ -19,7 +20,7 @@
 function hook_i18n_translation_set_info() {
   $info['taxonomy_term'] = array(
     'title' => t('Taxonomy term'),
-    // The class that handles this translation sets
+    // The class that handles this translation sets.
     'class' => 'i18n_taxonomy_translation_set',
     // Table and field into that table that keeps the translation set id for each item.
     'table' => 'taxonomy_term_data',
@@ -37,7 +38,7 @@ function hook_i18n_translation_set_info() {
 }
 
 /**
- * Alter i18n object information provided by modules with the previous hook
+ * Alter i18n object information provided by modules with the previous hook.
  *
  * @see i18n_translation_set_info()
  */

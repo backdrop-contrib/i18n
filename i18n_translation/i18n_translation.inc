@@ -1,12 +1,15 @@
 <?php
+
 /**
  * @file
- * Internationalization (i18n) module - Translation set
+ * Internationalization (i18n) module - Translation set.
  */
+
 /**
- * Default entity controller for notifications objects
+ * Default entity controller for notifications objects.
  */
 class I18nTranslationSetController extends DefaultEntityController {
+
   /**
    * Builds objects of specific classes upon loading.
    *
@@ -22,9 +25,10 @@ class I18nTranslationSetController extends DefaultEntityController {
     }
     return parent::attachLoad($queried_entities, $revision_id);
   }
+
 }
 /**
- * Translation Set class
+ * Translation Set class.
  */
 class i18n_translation_set extends Entity {
   public $tsid = NULL;
@@ -32,17 +36,26 @@ class i18n_translation_set extends Entity {
   public $bundle = '';
   public $status = 0;
   public $master_id = 0;
-  // It may optionally have a title
-  public $title = '';
-  // Translations indexed by language
-  protected $translations = NULL;
-  // Translation languages indexed by oid
-  protected $object_languages = array();
-  // Related translation sets indexed by tsid
-  // Keep track of old translation sets objects belong to.
-  protected $related_translations = array();
   /**
-   * Constructor from object/array
+   * It may optionally have a title.
+   */
+  public $title = '';
+  /**
+   * Translations indexed by language.
+   */
+  protected $translations = NULL;
+  /**
+   * Translation languages indexed by oid.
+   */
+  protected $object_languages = array();
+  // Related translation sets indexed by tsid.
+  /**
+   * Keep track of old translation sets objects belong to.
+   */
+  protected $related_translations = array();
+
+  /**
+   * Constructor from object/array.
    */
   public function __construct(array $translation = array()) {
     if ($translation) {
@@ -51,24 +64,28 @@ class i18n_translation_set extends Entity {
       }
     }
   }
+
   /**
    * Implements EntityInterface::id().
    */
   public function id() {
     return isset($this->tsid) ? $this->tsid : NULL;
   }
+
   /**
    * Implements EntityInterface::entityType().
    */
   public function entityType() {
     return $this->type;
   }
+
   /**
    * Implements EntityInterface::label().
    */
   public function label() {
     return $this->title;
   }
+
   /**
    * Implements EntityInterface::uri().
    */
@@ -76,8 +93,9 @@ class i18n_translation_set extends Entity {
     $uri = FALSE;
     return $uri;
   }
+
   /**
-   * Delete a translation set
+   * Delete a translation set.
    *
    * @param $delete_translations
    *   Whether to unlink translations from the set. Detaults to TRUE.
@@ -92,15 +110,17 @@ class i18n_translation_set extends Entity {
     $this->invoke_all('delete');
     $this->tsid = NULL;
   }
+
   /**
-   * Invoke all modules
+   * Invoke all modules.
    */
   public function invoke_all($op) {
     module_invoke_all('i18n_translation_set_' . $op, $this);
     module_invoke_all('entity_' . $op, $this, 'i18n_translation');
   }
+
   /**
-   * Create a new translation set
+   * Create a new translation set.
    *
    * @param $save_translations
    *   Whether to update linked objects so they belong to this set.
@@ -115,8 +135,9 @@ class i18n_translation_set extends Entity {
     $this->invoke_all('insert');
     return $status;
   }
+
   /**
-   * Save translation set
+   * Save translation set.
    *
    * @param $save_translations
    *   Whether to update linked objects so they belong to this set.
@@ -125,8 +146,9 @@ class i18n_translation_set extends Entity {
     $this->invoke_all('presave');
     return empty($this->tsid) ? $this->insert($save_translations) : $this->update($save_translations);
   }
+
   /**
-   * Update a translation set
+   * Update a translation set.
    *
    * @param $update_translations
    *   Whether to update objects linked to this set.
@@ -142,6 +164,7 @@ class i18n_translation_set extends Entity {
     $this->invoke_all('update');
     return $status;
   }
+
   /**
    * Update a translation set or delete if empty.
    */
@@ -156,8 +179,9 @@ class i18n_translation_set extends Entity {
       return $this->delete(TRUE);
     }
   }
+
   /**
-   * Update related translation sets
+   * Update related translation sets.
    */
   protected function update_related($op = 'update_delete') {
     foreach ($this->related_translations as $translation_set) {
@@ -166,8 +190,9 @@ class i18n_translation_set extends Entity {
       }
     }
   }
+
   /**
-   * Clean all items in this translation set
+   * Clean all items in this translation set.
    *
    * Unlink other items (not current translations from this translation set)
    */
@@ -182,8 +207,9 @@ class i18n_translation_set extends Entity {
       return $query->execute();
     }
   }
+
   /**
-   * Save translations in this translation set
+   * Save translations in this translation set.
    */
   public function save_translations() {
     if (($table = $this->get_table()) && ($field = $this->get_field())) {
@@ -198,10 +224,11 @@ class i18n_translation_set extends Entity {
       }
     }
   }
+
   /**
-   * Delete translations in this translation set
+   * Delete translations in this translation set.
    *
-   * It won't delete objects, just unlink them from translation set
+   * It won't delete objects, just unlink them from translation set.
    */
   public function delete_translations() {
     if (($table = $this->get_table()) && ($field = $this->get_field())) {
@@ -211,8 +238,9 @@ class i18n_translation_set extends Entity {
         ->execute();
     }
   }
+
   /**
-   * Get translations, indexed by language
+   * Get translations, indexed by language.
    */
   public function get_translations() {
     $translations = array();
@@ -221,32 +249,35 @@ class i18n_translation_set extends Entity {
     }
     return $translations;
   }
+
   /**
    * Reset translations, set empty array or new array of translations.
    *
-   * @param $translations array
-   *   Array of langcode => item
+   * @param array $translations
+   *   Array of langcode => item.
    */
   public function reset_translations($translations = array()) {
     $this->translations = array();
     $this->add_translations($translations);
     return $this;
   }
+
   /**
-   * Get translations as i18n objects, indexed by language
+   * Get translations as i18n objects, indexed by language.
    */
   public function get_objects() {
     if (!isset($this->translations)) {
       $this->translations = array();
-      // Disable selection query altering, just in case
+      // Disable selection query altering, just in case.
       $previous = i18n_select(FALSE);
       $this->add_translations($this->load_translations());
       i18n_select($previous);
     }
     return $this->translations;
   }
+
   /**
-   * Get item for language
+   * Get item for language.
    */
   public function get_item($langcode) {
     if (($translations = $this->get_translations()) && isset($translations[$langcode])) {
@@ -256,8 +287,9 @@ class i18n_translation_set extends Entity {
       return NULL;
     }
   }
+
   /**
-   * Get translations keys, indexed by language
+   * Get translations keys, indexed by language.
    */
   public function get_translations_keys() {
     $keys = array();
@@ -268,8 +300,9 @@ class i18n_translation_set extends Entity {
     }
     return array_filter($keys);
   }
+
   /**
-   * Get edit path for this translation set
+   * Get edit path for this translation set.
    */
   public function get_edit_path() {
     if ($path = $this->get_info('edit path')) {
@@ -279,8 +312,9 @@ class i18n_translation_set extends Entity {
       return '';
     }
   }
+
   /**
-   * Get operations as renderable links
+   * Get operations as renderable links.
    */
   public function get_operations() {
     $destination = backdrop_get_destination();
@@ -301,8 +335,9 @@ class i18n_translation_set extends Entity {
     }
     return $operations;
   }
+
   /**
-   * Get items as renderable links
+   * Get items as renderable links.
    */
   public function get_links() {
     $language_list = language_list();
@@ -322,14 +357,16 @@ class i18n_translation_set extends Entity {
     }
     return $items;
   }
+
   /**
-   * Get overview (list) path for this translation set
+   * Get overview (list) path for this translation set.
    */
   public function get_list_path() {
     return $this->get_info('list path');
   }
+
   /**
-   * Get delete path for this translation set
+   * Get delete path for this translation set.
    */
   public function get_delete_path() {
     if ($path = $this->get_info('delete path')) {
@@ -339,10 +376,11 @@ class i18n_translation_set extends Entity {
       return '';
     }
   }
+
   /**
-   * Get placeholder values for path replacement
+   * Get placeholder values for path replacement.
    */
-  function get_path_placeholders($op = 'list') {
+  public function get_path_placeholders($op = 'list') {
     $values['%operation'] = $op;
     $values['%type'] = $this->type;
     $values['%i18n_translation_set'] = $this->tsid;
@@ -351,27 +389,31 @@ class i18n_translation_set extends Entity {
     }
     return $values;
   }
+
   /**
    * Get field on translations table that stores the translation set id (tsid)
    */
   protected function get_field() {
     return $this->get_info('field');
   }
+
   /**
-   * Get property from translation set info
+   * Get property from translation set info.
    */
   public function get_info($property, $default = NULL) {
     $info = i18n_translation_set_info($this->type);
     return $info && isset($info[$property]) ? $info[$property] : $default;
   }
+
   /**
    * Get table name, where translation items are stored.
    */
   protected function get_table() {
     return $this->get_info('table');
   }
+
   /**
-   * Get title for this set
+   * Get title for this set.
    */
   public function get_title() {
     if (!empty($this->title)) {
@@ -387,8 +429,9 @@ class i18n_translation_set extends Entity {
       return t('Undefined');
     }
   }
+
   /**
-   * Get item list
+   * Get item list.
    */
   public function item_list() {
     $language_list = language_list();
@@ -406,11 +449,12 @@ class i18n_translation_set extends Entity {
     }
     return $items;
   }
+
   /**
-   * Add array of translation items
+   * Add array of translation items.
    *
-   * @param $translations array
-   *   Translation items indexed by language code
+   * @param array $translations
+   *   Translation items indexed by language code.
    */
   public function add_translations($translations) {
     foreach ($translations as $langcode => $item) {
@@ -418,13 +462,14 @@ class i18n_translation_set extends Entity {
     }
     return $this;
   }
+
   /**
-   * Add translation item
+   * Add translation item.
    */
   public function add_item($item, $langcode = NULL) {
     $object = i18n_object($this->type, $item);
     $langcode = $langcode ? $langcode : $object->get_langcode();
-    // Check whether this item belongs to another translation set
+    // Check whether this item belongs to another translation set.
     $old_tsid = $object->get_tsid();
     if ($old_tsid && $old_tsid != $this->tsid) {
       $this->related_translations[$old_tsid] = i18n_translation_set_load($old_tsid);
@@ -440,8 +485,9 @@ class i18n_translation_set extends Entity {
     }
     return $this;
   }
+
   /**
-   * Remove item / language from translation set
+   * Remove item / language from translation set.
    *
    * @param $item
    *   Item to remove from this translation set, it must have a language property.
@@ -450,6 +496,7 @@ class i18n_translation_set extends Entity {
     $this->remove_object(i18n_object($this->type, $item));
     return $this;
   }
+
   /**
    * Remove i18n object from translation set.
    */
@@ -464,6 +511,7 @@ class i18n_translation_set extends Entity {
     }
     return $this;
   }
+
   /**
    * Remove language from translation set.
    *
@@ -477,8 +525,9 @@ class i18n_translation_set extends Entity {
     }
     return $this;
   }
+
   /**
-   * Load all translations as objects indexed by language
+   * Load all translations as objects indexed by language.
    */
   public function load_translations() {
     if (($table = $this->get_table()) && ($field = $this->get_field())) {
@@ -492,11 +541,13 @@ class i18n_translation_set extends Entity {
       return array();
     }
   }
+
   /**
-   * Get key field for this translation items
+   * Get key field for this translation items.
    */
   protected function key_field() {
     $info = i18n_object_info($this->type);
     return $info['key'];
   }
+
 }

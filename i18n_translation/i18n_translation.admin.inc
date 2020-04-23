@@ -2,12 +2,12 @@
 
 /**
  * @file
- * Internationalization (i18n) module. Translation sets admin
+ * Internationalization (i18n) module. Translation sets admin.
  */
 
 /**
- * Overview page for translation sets
- * 
+ * Overview page for translation sets.
+ *
  * @param $type
  *   Translation set type to get a listing for this type only
  * @param $query
@@ -24,7 +24,7 @@ function i18n_translation_admin_overview($type = NULL, $query = NULL) {
   $header['changed'] = array('data' => t('Updated'), 'field' => 't.changed', 'sort' => 'desc');
   $header['operations'] = array('data' => t('Operations'));
 
-  // Get the translation sets for this form
+  // Get the translation sets for this form.
   $query = $query ? $query : db_select('i18n_translation_set', 't');
   $query = $query->extend('PagerDefault')->extend('TableSort');
   if ($type) {
@@ -37,15 +37,15 @@ function i18n_translation_admin_overview($type = NULL, $query = NULL) {
     ->execute()
     ->fetchCol();
   $translations = $tsids ? entity_load('i18n_translation', $tsids) : array();
-  
+
   $form = backdrop_get_form('i18n_translation_admin_form', $translations, $header);
 
-  $form['pager'] = array('#markup' => theme('pager'));  
-  return $form;  
+  $form['pager'] = array('#markup' => theme('pager'));
+  return $form;
 }
 
 /**
- * Admin form
+ * Admin form.
  */
 function i18n_translation_admin_form($form, &$form_state, $translations, $header) {
   $destination = backdrop_get_destination();

@@ -37,14 +37,14 @@ function i18n_translation_schema() {
         'type' => 'varchar',
         'length' => 32,
         'not null' => TRUE,
-        'default' => ''
+        'default' => '',
       ),
       'bundle' => array(
         'description' => 'Optional bundle for entity translation sets.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE,
-        'default' => ''
+        'default' => '',
       ),
       'master_id' => array(
         'description' => 'The master object/entity id (the others will be synchronized with this one).',
@@ -80,4 +80,3 @@ function i18n_translation_schema() {
 
   return $schema;
 }
-
