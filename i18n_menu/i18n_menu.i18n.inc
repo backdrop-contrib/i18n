@@ -71,7 +71,7 @@ function i18n_menu_i18n_object_info() {
 }
 
 /**
- * Implements hook_i18n_translation_set_info()
+ * Implements hook_i18n_translation_set_info().
  */
 function i18n_menu_i18n_translation_set_info() {
   $info['menu_link'] = array(
@@ -90,7 +90,7 @@ function i18n_menu_i18n_translation_set_info() {
 }
 
 /**
- * Implements hook_i18n_string_info()
+ * Implements hook_i18n_string_info().
  */
 function i18n_menu_i18n_string_info() {
   $groups['menu'] = array(
@@ -105,7 +105,7 @@ function i18n_menu_i18n_string_info() {
 }
 
 /**
- * Implements hook_i18n_string_objects()
+ * Implements hook_i18n_string_objects().
  */
 function i18n_menu_i18n_string_objects($type) {
   if ($type == 'menu_link') {

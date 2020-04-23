@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Translation sets for menu items.
  */
 class i18n_menu_link_translation_set extends i18n_translation_set {
 
@@ -79,7 +79,9 @@ class i18n_menu_link extends i18n_string_object_wrapper {
   }
 
   /**
-   * Access to object translation. This should check object properties and permissions.
+   * Access to object translation.
+   *
+   * This should check object properties and permissions.
    */
   protected function translate_access() {
     return user_access('administer menu') && user_access('translate interface');

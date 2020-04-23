@@ -12,7 +12,8 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
   $translation_set = $translation_set ? $translation_set : i18n_translation_set_build('menu_link');
   $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
   $translations = $translation_set->get_translations();
-  // What to do with title? Let's make it a hidden field for now, some tests relay on it.
+  // What to do with title? Let's make it a hidden field for now,
+  // some tests rely on it.
   $form['title'] = array('#type' => 'hidden', '#default_value' => $translation_set->title);
   if ($item && ($lang = i18n_object_langcode($item, LANGUAGE_NONE, 'langcode'))) {
     $translations[$lang] = $item;
@@ -36,7 +37,8 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
       );
     }
     else {
-      // Generate a list of possible parents (not including this link or descendants).
+      // Generate a list of possible parents
+      // (not including this link or descendants).
       $options = i18n_menu_parent_options(menu_get_menus(), $item, $langcode);
       $default = isset($translations[$langcode]) ? $translations[$langcode]['menu_name'] . ':' . $translations[$langcode]['mlid'] : 'navigation:0';
       if (!isset($options[$default])) {
@@ -113,7 +115,10 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
 }
 
 /**
- * Return a list of menu items that are valid possible parents for the given menu item.
+ * Return a list of menu items.
+ *
+ * Return a list of menu items that are valid possible parents
+ * for the given menu item.
  *
  * @param $menus
  *   An array of menu names and titles, such as from menu_get_menus().
@@ -121,7 +126,7 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
  *   The menu item or the node type for which to generate a list of parents.
  *   If $item['mlid'] == 0 then the complete tree is returned.
  *
- * @return
+ * @return array
  *   An array of menu link titles keyed on the a string containing the menu name
  *   and mlid. The list excludes the given item and its children.
  *
@@ -159,7 +164,8 @@ function i18n_menu_parent_options($menus, $item, $langcode) {
  * Helper function to get the items of the given menu.
  */
 function _i18n_menu_get_options($menus, $available_menus, $item, $langcode) {
-  // If the item has children, there is an added limit to the depth of valid parents.
+  // If the item has children, there is an added limit
+  // to the depth of valid parents.
   if (isset($item['parent_depth_limit'])) {
     $limit = $item['parent_depth_limit'];
   }
@@ -242,7 +248,8 @@ function i18n_menu_translation_item_overview($item, $translation_set = NULL) {
     $translations = $translation_set->get_translations();
   }
   else {
-    // We have no translation source mlid, this could be a new set, emulate that.
+    // We have no translation source mlid, this could be a new set,
+    // emulate that.
     $translations = array($item['langcode'] => $item);
   }
 

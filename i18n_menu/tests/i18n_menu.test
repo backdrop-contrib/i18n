@@ -7,23 +7,12 @@
 
 require_once __DIR__ . '/../../tests/i18n.test';
 /**
- *
+ * Simpletest class for i18n_menu.
  */
 class i18nMenuTestCase extends Backdropi18nTestCase {
 
   /**
-   *
-   */
-  public static function getInfo() {
-    return array(
-      'name' => 'Menu translation',
-      'group' => 'Internationalization',
-      'description' => 'Menu translation functions',
-    );
-  }
-
-  /**
-   *
+   * Setup up.
    */
   public function setUp() {
     parent::setUp(array('i18n_menu', 'translation'));
@@ -32,7 +21,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
   }
 
   /**
-   *
+   * Test localization of menu name and item.
    */
   public function testMenuTranslateLocalize() {
     // Test filtering for menu blocks.
@@ -223,6 +212,8 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
   }
 
   /**
+   * Test switching between modes.
+   *
    * Tests if on a switch from translatable to non translatable the translation
    * sets and links are cleaned up.
    */
