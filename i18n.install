@@ -5,19 +5,12 @@
  * Installation file for Internationalization (i18n) module.
  */
 
-
 /**
  * Implements hook_install().
  */
 function i18n_install() {
-  // Set module weight for it to run after core modules
+  // Set module weight for it to run after core modules.
   db_query("UPDATE {system} SET weight = 10 WHERE name = 'i18n' AND type = 'module'");
-}
-
-/**
- * Implements hook_uninstall().
- */
-function i18n_uninstall() {
 }
 
 /**
@@ -27,7 +20,7 @@ function i18n_uninstall() {
  *   The name of the database table.
  * @param array $fields
  *   The list of database fields to create.
- * @param boolean $force_rebuild_schema
+ * @param bool $force_rebuild_schema
  *   Whether to force backdrop_get_schema() to rebuild the schema. This may be
  *   necessary when additional implementations of hook_schema_alter() have
  *   become available since the schema was originally built.
@@ -61,10 +54,9 @@ function i18n_update_last_removed() {
  */
 function i18n_update_1000() {
   // Migrate variables to config.
-  //$config = config('i18n.settings');
-  //$config->set('book_allowed_types', update_variable_get('book_allowed_types', array('book')));
-  //$config->save();
-
+  // $config = config('i18n.settings');
+  // $config->set('book_allowed_types', update_variable_get('book_allowed_types', array('book')));
+  // $config->save();
   // Delete variables.
-  //update_variable_del('book_allowed_types');
+  // update_variable_del('book_allowed_types');.
 }

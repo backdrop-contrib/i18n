@@ -2,36 +2,39 @@
 
 /**
  * @file
- *   Helper module for testing i18n
+ * Helper module for testing i18n.
  */
 
 /**
- * Implements hook_init()
+ * Implements hook_init().
  */
 function i18n_test_init() {
-  // We just implement this hook so this one is loaded always on bootstap
+  // We just implement this hook so this one is loaded always on bootstap.
 }
 
 /**
- * Implements hook_i18n_string_info()
+ * Implements hook_i18n_string_info().
  */
 function i18n_test_i18n_string_info() {
   $groups['test'] = array(
     'title' => t('Test'),
     'description' => t('Translatable menu items: title and description.'),
-    'format' => FALSE, // This group doesn't have strings with format
+  // This group doesn't have strings with format.
+    'format' => FALSE,
     'refresh callback' => 'i18n_test_i18n_string_refresh',
   );
   $groups['test_cached'] = array(
     'title' => t('Test Cached Strings'),
     'description' => t('Translatable items of a textgroup with caching enabled.'),
-    'format' => FALSE, // This group doesn't have strings with format
+  // This group doesn't have strings with format.
+    'format' => FALSE,
     'class' => 'i18n_string_textgroup_cached_logged',
   );
   return $groups;
 }
+
 /**
- * Locale refresh
+ * Locale refresh.
  */
 function i18n_test_i18n_string_refresh() {
   return TRUE;
@@ -82,16 +85,24 @@ function i18n_test_menu() {
  */
 function i18n_string_build_page($name, $string = NULL) {
   // Cast object to array.
-  $content = (array)i18n_string_build($name, $string);
+  $content = (array) i18n_string_build($name, $string);
   return $content;
 }
 
-require_once(__DIR__ . '/../i18n_string/i18n_string.inc');
+require_once __DIR__ . '/../i18n_string/i18n_string.inc';
+/**
+ * Helper class for easier test evaluation.
+ */
 class i18n_string_textgroup_cached_logged extends i18n_string_textgroup_cached {
+
+  /**
+   * Load translation.
+   */
   public static function load_translation($i18nstring, $langcode) {
     $strings = config_get('i18n.settings', 'i18n_loaded_translations');
-    $strings[$i18nstring->get_name()] = true;
+    $strings[$i18nstring->get_name()] = TRUE;
     config_set('i18n.settings', 'i18n_loaded_translations', $strings);
     parent::load_translation($i18nstring, $langcode);
   }
+
 }

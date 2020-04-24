@@ -2,14 +2,21 @@
 
 /**
  * @file
- * Base class for Internationalization tests
+ * Base class for Internationalization tests.
+ */
+
+/**
+ * Test basic functionality.
  */
 class Backdropi18nTestCase extends BackdropWebTestCase {
   protected $current_user;
   protected $default_language;
   protected $secondary_language;
 
-  function setUpLanguages($admin_permissions = array()) {
+  /**
+   * Set up.
+   */
+  public function setUpLanguages($admin_permissions = array()) {
     // FIXME if path module is enabled, the tests throw errors.
     // Figure out what happens later, disable for now.
     module_disable(array('path'));
@@ -44,7 +51,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Set up content-type (with translation).
    */
-  function setUpContentType($settings = array()) {
+  public function setUpContentType($settings = array()) {
     $settings += array(
       'type' => 'page',
       'mode' => TRANSLATION_ENABLED,
@@ -66,7 +73,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     $this->backdropGet('admin/structure/types/manage/' . $type->type);
     $edit = array();
     $edit['language'] = $settings['mode'];
-    // Mark status and promoted
+    // Mark status and promoted.
     $edit['status_default'] = $settings['status'];
     $edit['promote_enabled'] = $settings['promote'];
     $this->backdropPost('admin/structure/types/manage/' . $type->type, $edit, t('Save content type'));
@@ -78,7 +85,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Enable the language switcher block.
    */
-  function enableLanguageBlock() {
+  public function enableLanguageBlock() {
     // Enable the language switcher block.
     $language_type = LANGUAGE_TYPE_INTERFACE;
     $layout = layout_load('default');
@@ -89,7 +96,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Set up translation for content type (default: page).
    */
-  function setUpContentTranslation($settings = array()) {
+  public function setUpContentTranslation($settings = array()) {
     $settings += array(
       'mode' => TRANSLATION_ENABLED,
     );
@@ -97,13 +104,15 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   }
 
   /**
-   * Install a the specified language if it has not been already. Otherwise make sure that
-   * the language is enabled.
+   * Add language.
    *
-   * @param $language_code
+   * Install a the specified language if it has not been already.
+   * Otherwise make sure that the language is enabled.
+   *
+   * @param string $language_code
    *   The language code the check.
    */
-  function addLanguage($language_code) {
+  public function addLanguage($language_code) {
     // Check to make sure that language has not already been installed.
     $this->backdropGet('admin/config/regional/language');
 
@@ -124,25 +133,25 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     }
     elseif ($this->xpath('//input[@type="checkbox" and @name=:name and @checked="checked"]', array(':name' => 'languages[' . $language_code . '][enabled]'))) {
       // It's installed and enabled. No need to do anything.
-      $this->assertTrue(true, 'Language [' . $language_code . '] already installed and enabled.');
+      $this->assertTrue(TRUE, 'Language [' . $language_code . '] already installed and enabled.');
     }
     else {
       // It's installed but not enabled. Enable it.
-      $this->assertTrue(true, 'Language [' . $language_code . '] already installed.');
+      $this->assertTrue(TRUE, 'Language [' . $language_code . '] already installed.');
       $this->backdropPost(NULL, array('languages[' . $language_code . '][enabled]' => TRUE), t('Save configuration'));
       $this->assertRaw(t('Configuration saved.'), t('Language successfully enabled.'));
     }
   }
 
   /**
-   * Create translation set from a node
+   * Create translation set from a node.
    *
    * @param $source
    *   Source node
    * @param $languages
    *   Optional list of language codes
    */
-  function createNodeTranslationSet(&$source, $languages = NULL) {
+  public function createNodeTranslationSet(&$source, $languages = NULL) {
     if (empty($source->tnid)) {
       $source->tnid = $source->nid;
     }
@@ -157,7 +166,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
 
   /**
    * Create a node of the specified type in the specified language.
-   
+   *
    * @param $type
    *   The node type.
    * @param $title
@@ -167,7 +176,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
    * @param $langcode
    *   Language code.
    */
-  function createNode($type, $title, $body, $langcode, $edit = array()) {
+  public function createNode($type, $title, $body, $langcode, $edit = array()) {
     $lang = LANGUAGE_NONE;
     $edit["title"] = $title;
     $edit["body[$lang][0][value]"] = $body;
@@ -189,18 +198,17 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
    *
    * @param $node
    *   The basic page to create translation for.
+   * @param $language
+   *   Language code.
    * @param $title
    *   Title of node in specified language.
    * @param $body
    *   Body of node in specified language.
-   * @param $language
-   *   Language code.
    */
-  function createNodeTranslation($node, $language, $title = NULL, $body = NULL) {
+  public function createNodeTranslation($node, $language, $title = NULL, $body = NULL) {
     $body = $body ? $body : $this->randomName();
     $title = $title ? $title : $this->randomName();
     $this->backdropGet('node/add/' . $node->type, array('query' => array('translation' => $node->nid, 'target' => $language)));
-
 
     $this->assertFieldByXPath('//input[@id="edit-title"]', $node->title, "Original title value correctly populated.");
     $field_lang = field_language('node', $node, 'body');
@@ -223,7 +231,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   }
 
   /**
-   * Retrieves a Backdrop path or an absolute path with language
+   * Retrieves a Backdrop path or an absolute path with language.
    *
    * @param $language
    *   Language code or language object
@@ -232,10 +240,11 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     $options['language'] = $this->getLanguage($language);
     return $this->backdropGet($path, $options, $headers);
   }
+
   /**
-   * Check strings for different languages
+   * Check strings for different languages.
    */
-  function i18nAssertTranslations($translations, $path = '', $message = 'Translation found for language.') {
+  public function i18nAssertTranslations($translations, $path = '', $message = 'Translation found for language.') {
     foreach ($translations as $langcode => $text) {
       $language = $this->getLanguage($langcode);
       if ($language->enabled) {
@@ -244,20 +253,21 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
       }
     }
   }
+
   /**
-   * Create node with language
+   * Create node with language.
    */
   protected function i18nCreateNode($language, $settings = array()) {
     $language = $this->getLanguage($language);
-    $settings += array('language'  => $language->language, 'body' => array());
+    $settings += array('language' => $language->language, 'body' => array());
     $settings['body'] += array($language->language => array(array()));
     return $this->backdropCreateNode($settings);
   }
 
   /**
-   * Move block to region, from block.test
+   * Move block to region, from block.test.
    */
-  function moveBlockToRegion($block, $region = 'bottom') {
+  public function moveBlockToRegion($block, $region = 'bottom') {
     // Add block to default layout.
     $layout = layout_load('default');
     $layout->addBlock($block['module'], $block['delta'], $region);
@@ -273,7 +283,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   }
 
   /**
-   * Get language object for langcode
+   * Get language object for langcode.
    */
   public function getLanguage($langcode) {
     if (is_object($langcode)) {
@@ -284,8 +294,9 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
       return $language_list[$langcode];
     }
   }
+
   /**
-   * Switch global language
+   * Switch global language.
    */
   public function switchLanguage($newlang = NULL) {
     $newlang = $newlang ? $newlang : $this->install_locale;
@@ -293,15 +304,16 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   }
 
   /**
-   * Get all languages that are not default
+   * Get all languages that are not default.
    */
   public function getOtherLanguages() {
     $languages = language_list();
     unset($languages[language_default()->langcode]);
     return $languages;
   }
+
   /**
-   * Get enabled languages
+   * Get enabled languages.
    */
   public function getEnabledLanguages() {
     $list = array();
@@ -312,14 +324,17 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     }
     return $list;
   }
+
   /**
-   * Create translation for string in textgroup
+   * Create translation for string in textgroup.
    *
    * @param $translations
-   *   Optional array of langcode => translation. If not present, it will be generated.
+   *   Optional array of langcode => translation.
+   *   If not present, it will be generated.
    */
-  function createStringTranslation($textgroup, $name, $translations = NULL) {
-    // Generate translations if not found, they will be the same length as source string
+  public function createStringTranslation($textgroup, $name, $translations = NULL) {
+    // Generate translations if not found,
+    // they will be the same length as source string.
     if (!$translations) {
       $length = strlen($name);
       foreach ($this->getOtherLanguages() as $language) {
@@ -365,45 +380,46 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Reset static caches to make the test code match the client site behavior.
    */
-  function resetCaches() {
+  public function resetCaches() {
     backdrop_static_reset('locale_url_outbound_alter');
     backdrop_static_reset('language_list');
     backdrop_language_initialize();
   }
 
   /**
-   * Print out a variable for debugging
+   * Print out a variable for debugging.
    */
-  function printDebug($data, $title = 'Debug') {
+  public function printDebug($data, $title = 'Debug') {
     $output = '<h2>' . $title . '<h2 />';
     $output .= '<pre>';
     $output .= is_array($data) || is_object($data) ? print_r($data, TRUE) : $data;
     $output .= '<pre>';
-    //$this->assertTrue(TRUE, $output);
+    // $this->assertTrue(TRUE, $output);
     $this->verbose($output);
   }
+
   /**
-   * Debug dump object with some formatting
+   * Debug dump object with some formatting.
    */
-  function printObject($object, $title = 'Object') {
+  public function printObject($object, $title = 'Object') {
     $output = $this->formatTable($object);
     $this->printDebug($output, $title);
   }
 
   /**
-   * Print out current HTML page
+   * Print out current HTML page.
    */
-  function printPage() {
+  public function printPage() {
     $this->printDebug($this->backdropGetContent());
   }
 
   /**
-   * Dump table contents
+   * Dump table contents.
    *
    * @params $table1, $table2..
    *   One or more table names
    */
-  function dumpTable() {
+  public function dumpTable() {
     $output = '';
     foreach (func_get_args() as $table) {
       $header = $rows = array();
@@ -427,9 +443,9 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   }
 
   /**
-   * Format object as table, recursive
+   * Format object as table, recursive.
    */
-  function formatTable($object) {
+  public function formatTable($object) {
     foreach ($object as $key => $value) {
       $rows[] = array(
         $key,
@@ -443,24 +459,26 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
       return 'No properties';
     }
   }
+
 }
-
+/**
+ * Test configuration.
+ */
 class Backdropi18nConfigTestCase extends Backdropi18nTestCase {
-  public static function getInfo() {
-    return array(
-      'name' => 'Multilingual configuration',
-      'group' => 'Internationalization',
-      'description' => 'Basic configuration for the i18n module',
-    );
-  }
 
-  function setUp() {
+  /**
+   * Set up.
+   */
+  public function setUp() {
     parent::setUp('translation', 'i18n_node');
     parent::setUpLanguages();
   }
 
-  function testEnableLanguages() {
-    // A language with two letter code may help too
+  /**
+   * Enable languages.
+   */
+  public function testEnableLanguages() {
+    // A language with two letter code may help too.
     $this->addLanguage('pt-br');
 
     // Disable Italian to test the translation behavior with disabled languages.
@@ -468,4 +486,5 @@ class Backdropi18nConfigTestCase extends Backdropi18nTestCase {
     $edit = array('languages[it][enabled]' => FALSE);
     $this->backdropPost('admin/config/regional/language', $edit, t('Save configuration'));
   }
+
 }

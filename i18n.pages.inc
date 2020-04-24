@@ -1,21 +1,23 @@
 <?php
+
 /**
  * @file
- * Generic translation pages
- * 
- * It handles generic 'translation' tabs, redirecting to the right module depending on
- * object type and properties.
+ * Generic translation pages.
+ *
+ * It handles generic 'translation' tabs, redirecting to the right module
+ * depending on object type and properties.
  */
 
 /**
- * Create menu items for translatable objecs
+ * Create menu items for translatable objecs.
  */
 function i18n_page_menu_items() {
   $items = array();
-  // Menus are rebuilt right after other modules are disabled, if no reset we get tabs for disabled modules.
+  // Menus are rebuilt right after other modules are disabled,
+  // if no reset we get tabs for disabled modules.
   backdrop_static_reset('i18n_object_info');
   foreach (i18n_object_info() as $type => $info) {
-    // These objects should have a 'translate tab' property
+    // These objects should have a 'translate tab' property.
     if (!empty($info['translate tab'])) {
       $path = $info['translate tab'];
       $localize = module_exists('i18n_string') && !empty($info['string translation']);
@@ -33,7 +35,7 @@ function i18n_page_menu_items() {
       $placeholder = key($info['placeholders']);
       $parts = explode('/', $path);
       $position = array_search($placeholder, $parts);
-      // Now create items with the right callbacks
+      // Now create items with the right callbacks.
       if ($translate || $localize) {
         $items[$path] = array(
           'title' => 'Translate',
@@ -58,28 +60,30 @@ function i18n_page_menu_items() {
         );
       }
     }
-    
+
   }
   return $items;
 }
 
 /**
- * Translate or localize page for object
+ * Translate or localize page for object.
  */
 function i18n_page_translate_tab($type, $object, $language = NULL) {
-   // Check whether object should be part of a translation set
-   switch (i18n_object($type, $object)->get_translate_mode()) {
-     case I18N_MODE_TRANSLATE:
-       return i18n_page_translate_translation($type, $object);
-     case I18N_MODE_LOCALIZE:
-       return i18n_page_translate_localize($type, $object, $language);
-     default:
-       backdrop_access_denied();
-   }
+  // Check whether object should be part of a translation set.
+  switch (i18n_object($type, $object)->get_translate_mode()) {
+    case I18N_MODE_TRANSLATE:
+      return i18n_page_translate_translation($type, $object);
+
+    case I18N_MODE_LOCALIZE:
+      return i18n_page_translate_localize($type, $object, $language);
+
+    default:
+      backdrop_access_denied();
+  }
 }
 
 /**
- * Translate object, create translation set
+ * Translate object, create translation set.
  */
 function i18n_page_translate_translation($type, $object) {
   module_load_include('pages.inc', 'i18n_translation');
@@ -87,7 +91,7 @@ function i18n_page_translate_translation($type, $object) {
 }
 
 /**
- * Translate object, string translation
+ * Translate object, string translation.
  */
 function i18n_page_translate_localize($type, $object, $language = NULL) {
   module_load_include('pages.inc', 'i18n_string');
@@ -113,7 +117,7 @@ function i18n_settings_form($form, &$form_state) {
   $form['actions']['#type'] = 'actions';
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => t('Save configuration')
+    '#value' => t('Save configuration'),
   );
   return $form;
 }
@@ -123,6 +127,6 @@ function i18n_settings_form($form, &$form_state) {
  */
 function i18n_settings_form_submit($form, &$form_state) {
   config_set('i18n.settings', 'i18n_language_list', $form_state['values']['languages']);
-  
+
   backdrop_set_message(t('The configuration options have been saved.'));
 }

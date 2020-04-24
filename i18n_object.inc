@@ -1,21 +1,24 @@
 <?php
+
 /**
  * @file
- * i18n Object Class
+ * I18n Object Class.
  */
 
 /**
- * Object wrapper
+ * Object wrapper.
  */
 class i18n_object_wrapper {
   protected $type;
   protected $key;
   protected $object;
-  // Object translations, static cache.
+  /**
+   * Object translations, static cache.
+   */
   protected $translations;
 
   /**
-   * Class constructor
+   * Class constructor.
    */
   public function __construct($type, $key, $object) {
     $this->type = $type;
@@ -24,23 +27,23 @@ class i18n_object_wrapper {
   }
 
   /**
-   * Get edit path for object
+   * Get edit path for object.
    */
-  function get_edit_path() {
+  public function get_edit_path() {
     return $this->path_replace($this->get_info('edit path'));
   }
 
   /**
-   * Get field value from object/array
+   * Get field value from object/array.
    */
-  function get_field($field, $default = NULL) {
+  public function get_field($field, $default = NULL) {
     return i18n_object_field($this->object, $field, $default);
   }
 
   /**
-   * Set field value to object/array
+   * Set field value to object/array.
    */
-  function set_field($field, $value) {
+  public function set_field($field, $value) {
     if (is_object($this->object)) {
       $this->object->$field = $value;
     }
@@ -53,15 +56,15 @@ class i18n_object_wrapper {
   /**
    * Get string numeric key for indexing.
    */
-  function get_index() {
+  public function get_index() {
     $key = $this->get_key();
     return is_array($key) ? implode(':', $key) : $key;
   }
 
   /**
-   * Get key value from object/array
+   * Get key value from object/array.
    */
-  function get_key($default = NULL) {
+  public function get_key($default = NULL) {
     if ($field = $this->get_info('key')) {
       return $this->get_field($field, $default);
     }
@@ -71,7 +74,7 @@ class i18n_object_wrapper {
   }
 
   /**
-   * Get language code
+   * Get language code.
    */
   public function get_langcode() {
     return i18n_object_langcode($this->object);
@@ -89,7 +92,7 @@ class i18n_object_wrapper {
    *
    * @param $object
    */
-  function load_object($object) {
+  public function load_object($object) {
     if ($callback = $this->get_info('load callback', NULL)) {
       $this->object = call_user_func($callback, $object);
     }
@@ -102,7 +105,7 @@ class i18n_object_wrapper {
   }
 
   /**
-   * Get menu placehoders for object
+   * Get menu placehoders for object.
    */
   protected function get_placeholders() {
     $placeholders = $this->get_info('placeholders', array());
@@ -113,7 +116,7 @@ class i18n_object_wrapper {
   }
 
   /**
-   * Get link for item
+   * Get link for item.
    */
   public function get_path() {
     if ($uri = entity_uri($this->type, $this->object)) {
@@ -122,57 +125,60 @@ class i18n_object_wrapper {
   }
 
   /**
-   * Get title from item
+   * Get title from item.
    */
   public function get_title() {
     return entity_label($this->type, $this->object);
   }
+
   /**
-   * Get object type
+   * Get object type.
    */
   public function get_type() {
     return $this->type;
   }
 
   /**
-   * Menu access callback for mixed translation tab
+   * Menu access callback for mixed translation tab.
    */
-  function get_translate_access() {
+  public function get_translate_access() {
     switch ($this->get_translate_mode()) {
       case I18N_MODE_TRANSLATE:
         return $this->translate_access();
+
       case I18N_MODE_LOCALIZE:
         return $this->localize_access();
+
       default:
         return FALSE;
     }
   }
 
   /**
-   * Get translate or localize mode for object
+   * Get translate or localize mode for object.
    */
-  function get_translate_mode() {
+  public function get_translate_mode() {
     return I18N_MODE_NONE;
   }
 
   /**
-   * Get translation set id if any
+   * Get translation set id if any.
    */
-  function get_tsid() {
+  public function get_tsid() {
     return $this->get_field($this->get_translation_info('field', 'i18n_tsid'));
   }
 
   /**
-   * Set translation set id
+   * Set translation set id.
    */
-  function set_tsid($tsid) {
+  public function set_tsid($tsid) {
     return $this->set_field($this->get_translation_info('field', 'i18n_tsid'), $tsid);
   }
 
   /**
    * Localize object if localizable.
    */
-  function localize($langcode, $options = array()) {
+  public function localize($langcode, $options = array()) {
     if ($this->get_translate_mode() == I18N_MODE_LOCALIZE) {
       return $this->translate($langcode, $options);
     }
@@ -184,7 +190,7 @@ class i18n_object_wrapper {
   /**
    * Translate object if translatable.
    */
-  function translate($langcode, $options = array()) {
+  public function translate($langcode, $options = array()) {
     if (isset($this->translations[$langcode])) {
       return $this->translations[$langcode];
     }
@@ -194,21 +200,21 @@ class i18n_object_wrapper {
   }
 
   /**
-   * Translate access (translation sets)
+   * Translate access (translation sets).
    */
   protected function translate_access() {
     return FALSE;
   }
 
   /**
-   * Translate access (localize strings)
+   * Translate access (localize strings).
    */
   protected function localize_access() {
     return FALSE;
   }
 
   /**
-   * Replace path with placeholders
+   * Replace path with placeholders.
    *
    * @param $path
    *   Path to replace
@@ -218,7 +224,7 @@ class i18n_object_wrapper {
   protected function path_replace($path, $replacements = array()) {
     if ($path) {
       $path = strtr($path, $replacements + $this->get_placeholders());
-      // Clean up duplicated and final '/' (empty placeholders)
+      // Clean up duplicated and final '/' (empty placeholders).
       $path = strtr($path, array('//' => '/'));
       return trim($path, '/');
     }
@@ -226,23 +232,27 @@ class i18n_object_wrapper {
       return '';
     }
   }
+
   /**
-   * Get object info
+   * Get object info.
    */
   public function get_info($property, $default = NULL) {
     return i18n_object_info($this->type, $property, $default);
   }
+
   /**
-   * Get object translation set info
+   * Get object translation set info.
    */
   public function get_translation_info($property, $default = NULL) {
     return function_exists('i18n_translation_set_info') ? i18n_translation_set_info($this->type, $property, $default) : $default;
   }
+
   /**
-   * Get object string translation info
+   * Get object string translation info.
    */
   public function get_string_info($property, $default = NULL) {
     $info = $this->get_info('string translation');
     return $info && isset($info[$property]) ? $info[$property] : $default;
   }
+
 }
