@@ -8,7 +8,11 @@ module makes possible:
 - Enhances node translation
 - Menu (item) translation
 - Field label translation
-- Language selection (when you switch the site language you'll see only the content for that language)
+- Internationalization for (core) contact forms
+- Path "translation", for instance declare different views as translations
+  of each other
+- Synchronize field values across translated content
+- Redirect visitors to the proper translation of current page, if available
 
 
 ## Installation
