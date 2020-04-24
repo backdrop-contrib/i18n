@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- * Internationalization (i18n) hooks
+ * Internationalization (i18n) hooks.
  */
 
 /**
@@ -49,7 +50,7 @@ function i18n_contact_i18n_object_info() {
       ),
       // Path to translate strings to every language.
       'translate path' => 'admin/structure/contact/configure/%contact/translate/%i18n_language',
-    )
+    ),
   );
   return $info;
 }
