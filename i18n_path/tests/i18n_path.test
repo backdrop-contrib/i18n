@@ -5,27 +5,31 @@
  * Test case for multilingual menus.
  */
 
-require_once(__DIR__ . '/../../tests/i18n.test');
-
+require_once __DIR__ . '/../../tests/i18n.test';
+/**
+ * Test class for i18n_path.
+ */
 class i18nPathTestCase extends Backdropi18nTestCase {
-  public static function getInfo() {
-    return array(
-      'name' => 'Path translation',
-      'group' => 'Internationalization',
-      'description' => 'Path translation functions',
-    );
-  }
 
-  function setUp() {
+  /**
+   * Set up.
+   */
+  public function setUp() {
     parent::setUp('translation', 'i18n_path');
     parent::setUpLanguages(array('administer site configuration'));
   }
 
-  function checkTranslationLink($path, $language, $method = 'assertRaw') {
+  /**
+   * Check translation link.
+   */
+  public function checkTranslationLink($path, $language, $method = 'assertRaw') {
     $this->{$method}($path, t('Found translation link. :language - :path', array(':language' => $language, ':path' => $path)));
   }
 
-  function testPathTranslation() {
+  /**
+   * Check path translation.
+   */
+  public function testPathTranslation() {
     $this->setUpContentType(array('type' => 'page', 'mode' => TRANSLATION_ENABLED));
 
     // Create 2 nodes in different languages.
@@ -48,7 +52,7 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     $this->backdropGet('admin/config/regional/i18n_translation/path');
     $this->clickLink(t('Add path translation'));
 
-    // create new translation set with two node links
+    // Create new translation set with two node links.
     $edit = array(
       'title' => $this->randomName(10),
       'translations[' . $this->default_language . ']' => 'node/' . $first_node->nid,
@@ -64,7 +68,7 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
     $this->checkTranslationLink('node/' . $secondary_node->nid, $this->secondary_language);
 
-    // create new translation set with one node and one menu "token"
+    // Create new translation set with one node and one menu "token".
     $edit = array(
       'translations[' . $this->default_language . ']' => 'node/' . $first_node->nid,
       'translations[' . $this->secondary_language . ']' => '<front>',
@@ -76,7 +80,7 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     $this->checkTranslationLink('node/' . $secondary_node->nid, $this->secondary_language, 'assertNoLinkByHref');
     $this->checkTranslationLink($this->secondary_language, $this->secondary_language);
 
-    // create new translation set with one node and an external menu link.
+    // Create new translation set with one node and an external menu link.
     $url = 'http://' . $this->randomName(10) . '.' . $this->randomName(2);
     $edit = array(
       'translations[' . $this->default_language . ']' => 'node/' . $first_node->nid,
@@ -88,4 +92,5 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
     $this->checkTranslationLink($url, $this->secondary_language);
   }
+
 }

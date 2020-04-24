@@ -1,11 +1,12 @@
 <?php
+
 /**
  * @file
  * Administration pages for path translation.
  */
 
 /**
- * Path overview page
+ * Path overview page.
  */
 function i18n_path_admin_overview($type = NULL) {
   module_load_include('admin.inc', 'i18n_translation');
@@ -13,7 +14,7 @@ function i18n_path_admin_overview($type = NULL) {
 }
 
 /**
- * Path add/edit form
+ * Path add/edit form.
  */
 function i18n_path_admin_form($form, $form_state, $translation_set = NULL) {
   $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
@@ -33,7 +34,11 @@ function i18n_path_admin_form($form, $form_state, $translation_set = NULL) {
     '#type' => 'fieldset',
     '#title' => t('Translations'),
     '#tree' => TRUE,
-    '#description' => t('The path for this menu link. This can be an internal Backdrop path such as %add-node or an external URL such as %backdrop. Enter %front to link to the front page.', array('%front' => '<front>', '%add-node' => 'node/add', '%backdrop' => 'http://backdrop.org')),
+    '#description' => t('The path for this menu link. This can be an internal Backdrop path such as %add-node or an external URL such as %backdrop. Enter %front to link to the front page.', array(
+      '%front' => '<front>',
+      '%add-node' => 'node/add',
+      '%backdrop' => 'http://backdrop.org',
+    )),
   );
   foreach (i18n_language_list() as $langcode => $name) {
     $form['translations'][$langcode] = array(
@@ -60,9 +65,9 @@ function i18n_path_admin_form($form, $form_state, $translation_set = NULL) {
 }
 
 /**
- * Process form validation
+ * Process form validation.
  */
-function i18n_path_admin_form_validate($form, &$form_state)  {
+function i18n_path_admin_form_validate($form, &$form_state) {
   if ($form_state['triggering_element']['#name'] == 'save') {
     $paths = &$form_state['values']['translations'];
     if ($paths = array_filter($paths)) {
@@ -84,7 +89,7 @@ function i18n_path_admin_form_validate($form, &$form_state)  {
 }
 
 /**
- * Process form submission
+ * Process form submission.
  */
 function i18n_path_admin_form_submit($form, &$form_state) {
   $translation_set = $form_state['values']['translation_set'];
@@ -115,6 +120,7 @@ function i18n_path_admin_form_submit($form, &$form_state) {
       $translation_set->save(TRUE);
       backdrop_set_message(t('The path translation has been saved.'));
       break;
+
     case 'delete':
       $destination = array();
       if (isset($_GET['destination'])) {
@@ -137,12 +143,15 @@ function i18n_path_save_translations($paths, $tpid = NULL) {
       db_delete('i18n_path')->condition('tpid', $tpid)->execute();
     }
     else {
-      $tpid = 1 + (int)db_query('SELECT MAX(tpid) FROM {i18n_path}')->fetchField();
+      $tpid = 1 + (int) db_query('SELECT MAX(tpid) FROM {i18n_path}')->fetchField();
     }
     foreach ($paths as $langcode => $path) {
       db_insert('i18n_path')
-        ->fields(array('tpid' => $tpid, 'language' => $langcode, 'path' => $path))
-        ->execute();
+        ->fields(array(
+          'tpid' => $tpid,
+          'language' => $langcode,
+          'path' => $path,
+        ))->execute();
     }
     lock_release('i18n_path');
     return $tpid;
