@@ -7,6 +7,7 @@ package = Multilingual - Internationalization
 backdrop = 1.x
 type = module
 configure = admin/config/regional/i18n/variable
+hidden = TRUE
 
 files[] = i18n_variable.class.inc
 files[] = i18n_variable.test

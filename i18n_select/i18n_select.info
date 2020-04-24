@@ -4,5 +4,7 @@ dependencies[] = i18n
 package = Multilingual - Internationalization
 backdrop = 1.x
 type = module
+hidden = TRUE
+
 configure = admin/config/regional/i18n/select
 files[] = i18n_select.test

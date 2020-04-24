@@ -5,6 +5,8 @@ dependencies[] = i18n_string
 package = Multilingual - Internationalization
 backdrop = 1.x
 type = module
+hidden = TRUE
+
 files[] = i18n_block.inc
 files[] = i18n_block.test
 
