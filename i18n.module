@@ -258,6 +258,35 @@ function i18n_langcode($langcode = NULL) {
 }
 
 /**
+ * Implements hook_help().
+ */
+function i18n_help($arg, $path = 'admin/help#i18n') {
+  switch ($path) {
+    case 'admin/help#i18n':
+      $output = '<p>' . t('This module improves support for multilingual content in Backdrop sites:') . '</p>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('Shows content depending on page language.') . '</li>';
+      $output .= '<li>' . t('Handles multilingual variables.') . '</li>';
+      $output .= '<li>' . t('Extended language option for chosen content types. For these content types transations will be allowed for all defined languages, not only for enabled ones.') . '</li>';
+      $output .= '<li>' . t('Provides a block for language selection and two theme functions: <em>i18n_flags</em> and <em>i18n_links</em>.') . '</li>';
+      $output .= '</ul>';
+      $output .= '<p>' . t('This is the base module for several others adding different features:') . '</p>';
+      $output .= '<ul>';
+      $output .= '<li>' . t('Multilingual menu items.') . '</li>';
+      $output .= '<li>' . t('Multilingual taxonomy adds a language field for taxonomy vocabularies and terms.') . '</li>';
+      $output .= '</ul>';
+      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://backdrop.org/node/133977')) . '</p>';
+      return $output;
+
+    case 'admin/config/language/i18n':
+      $output = '<ul>';
+      $output .= '<li>' . t('To enable multilingual support for specific content types go to <a href="@configure_content_types">configure content types</a>.', array('@configure_content_types' => url('admin/structure/types'))) . '</li>';
+      $output .= '</ul>';
+      return $output;
+  }
+}
+
+/**
  * Implements hook_menu().
  */
 function i18n_menu() {
@@ -425,7 +454,7 @@ function i18n_get_object($type, $key, $object = NULL) {
 /**
  * Get object language code.
  *
- * @param object|array $object
+ * @param object $object
  *   Object or array having language field or plain language field
  * @param bool $default
  *   What value to return if the object doesn't have a valid language
