@@ -101,7 +101,7 @@ function i18n_language($language = NULL) {
  * @param mixed $language
  *   Language code or language object to convert to valid language object.
  *
- * @return
+ * @return string|object|null
  *   Language object if this is an object or a valid language code.
  */
 function i18n_language_object($language) {
@@ -145,10 +145,10 @@ function i18n_language_content() {
  * This should be the language of the specific page content.
  * I.e. node language for node pages or term language for taxonomy term page.
  *
- * @param $language
+ * @param object $language
  *   Optional language object to set for context.
  *
- * @return
+ * @return object
  *   Context language object, which defaults to content language.
  *
  * @see hook_i18n_context_language()
@@ -260,7 +260,7 @@ function i18n_langcode($langcode = NULL) {
 /**
  * Implements hook_help().
  */
-function i18n_help($path = 'admin/help#i18n', $arg) {
+function i18n_help($arg, $path = 'admin/help#i18n') {
   switch ($path) {
     case 'admin/help#i18n':
       $output = '<p>' . t('This module improves support for multilingual content in Backdrop sites:') . '</p>';
@@ -328,7 +328,7 @@ function i18n_menu() {
  *   // Return to previous mode
  *   i18n_select($previous);
  *
- * @param $value
+ * @param bool $value
  *   Optional, enable/disable selection: TRUE/FALSE
  *
  * @return bool
@@ -350,9 +350,9 @@ function i18n_select($value = NULL) {
 /**
  * Get language properties.
  *
- * @param $code
+ * @param string $code
  *   Language code.
- * @param $property
+ * @param string $property
  *   It may be 'name', 'native', 'ltr'...
  */
 function i18n_language_property($code, $property) {
@@ -411,7 +411,7 @@ function i18n_string($name, $string, $options = array()) {
  *
  * @see i18n_object_info()
  *
- * @param $type
+ * @param string $type
  *   The object type.
  */
 function i18n_object($type, $object) {
@@ -422,15 +422,15 @@ function i18n_object($type, $object) {
 /**
  * Get object wrapper by object key.
  *
- * @param $type
+ * @param string $type
  *   The object type to load e.g. node_type, menu, taxonomy_term.
- * @param $key
+ * @param string $key
  *   The object key, can be an scalar or an array.
- * @param $object
+ * @param object|array $object
  *   Optional Backdrop object or array. It will be autoloaded
  *   using the key if not present.
  *
- * @return
+ * @return object
  *   A fully-populated object wrapper.
  */
 function i18n_get_object($type, $key, $object = NULL) {
@@ -454,9 +454,9 @@ function i18n_get_object($type, $key, $object = NULL) {
 /**
  * Get object language code.
  *
- * @param $object
+ * @param object $object
  *   Object or array having language field or plain language field
- * @param $default
+ * @param bool $default
  *   What value to return if the object doesn't have a valid language
  */
 function i18n_object_langcode($object, $default = FALSE, $field = 'langcode') {
@@ -541,9 +541,9 @@ function i18n_object_translate_access($type, $object) {
 /**
  * Get translations for path.
  *
- * @param $path
+ * @param string $path
  *   Path to get translations for or '<front>' for front page.
- * @param $check_access
+ * @param bool $check_access
  *   Whether to check access to paths, defaults to TRUE
  */
 function i18n_get_path_translations($path, $check_access = TRUE) {
