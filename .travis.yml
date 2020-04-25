@@ -17,9 +17,9 @@ script:
   # Check code standards
   - >
     vendor/bin/phpcs -n
-      --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
-      --ignore="vendor/*,README.md,i18n_block/*,i18n_forum/*,i18n_select/*,i18n_user/*,i18n_variable/*"
-      --extensions=install,module,php,inc,theme .
+    --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
+    --ignore="vendor/*,README.md,i18n_block/*,i18n_forum/*,i18n_select/*,i18n_user/*,i18n_variable/*"
+    --extensions=install,module,php,inc,theme .
 
   # Unit tests
 
