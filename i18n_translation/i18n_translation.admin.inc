@@ -8,9 +8,9 @@
 /**
  * Overview page for translation sets.
  *
- * @param $type
+ * @param string $type
  *   Translation set type to get a listing for this type only
- * @param $query
+ * @param Object $query
  *   Base query to build upon
  */
 function i18n_translation_admin_overview($type = NULL, $query = NULL) {
