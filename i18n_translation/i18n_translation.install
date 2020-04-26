@@ -6,13 +6,6 @@
  */
 
 /**
- * Implements hook_install().
- */
-function i18n_translation_install() {
-
-}
-
-/**
  * Implements hook_schema().
  */
 function i18n_translation_schema() {
