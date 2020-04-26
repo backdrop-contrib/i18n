@@ -52,7 +52,7 @@ function i18n_string_admin_refresh_form_submit($form, &$form_state) {
 /**
  * Refresh all user defined strings for a given text group.
  *
- * @param $group
+ * @param string $group
  *   Text group to refresh
  * @param bool $delete
  *   Optional, delete existing (but not refresed, strings and translations)

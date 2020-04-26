@@ -121,7 +121,7 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
  * @param array $strings
  *   Array of strings indexed by string name
  *   (may be indexed by group key too if $groups is present).
- * @param $langcode
+ * @param string $langcode
  *   Language code to translate to.
  * @param array $groups
  *   Optional groups to provide some string grouping.

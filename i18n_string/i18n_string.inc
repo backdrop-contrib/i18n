@@ -158,7 +158,7 @@ class i18n_string_object {
   /**
    * Set source string.
    *
-   * @param $string
+   * @param string|array $string
    *   Plain string or array with 'string', 'format', etc...
    */
   public function set_string($string) {
@@ -300,11 +300,11 @@ class i18n_string_object {
   /**
    * Set properties from object or array.
    *
-   * @param $properties
+   * @param object|array $properties
    *   Obejct or array of properties
-   * @param $set_null
+   * @param bool $set_null
    *   Whether to set null properties too
-   * @param $override
+   * @param bool $override
    *   Whether to set properties that are already set in this object
    */
   public function set_properties($properties, $set_null = TRUE, $override = TRUE) {
@@ -343,10 +343,10 @@ class i18n_string_object {
   /**
    * Check if there is any problem for the  user to translate a this string.
    *
-   * @param $account
+   * @param object $account
    *   Optional user account, defaults to current user.
    *
-   * @return
+   * @return string
    *   None if the user has access to translate the string.
    *   Error message if the user cannot translate that string.
    */
@@ -392,7 +392,7 @@ class i18n_string_textgroup_default {
   /**
    * Build string object.
    *
-   * @param $context
+   * @param array|string $context
    *   Context array or string.
    * @param string $string
    *   Current value for string source.
@@ -426,10 +426,10 @@ class i18n_string_textgroup_default {
    * for this textgroup and updates it accordingly.
    * It is intended for backwards compatibility, using already created strings.
    *
-   * @param $i18nstring
+   * @param object $i18nstring
    *   String object.
-   * @param $format
-   *   Text format, for strings that will go through some filter.
+   * @param array $options
+   *   Additional options.
    *
    * @return
    *   Update status.
@@ -588,9 +588,9 @@ class i18n_string_textgroup_default {
   /**
    * Translate string object.
    *
-   * @param $i18nstring
+   * @param object $i18nstring
    *   String object.
-   * @param $options
+   * @param array $options
    *   Array with aditional options.
    */
   protected function string_translate($i18nstring, $options = array()) {
@@ -604,19 +604,10 @@ class i18n_string_textgroup_default {
   /**
    * Update / create / remove string.
    *
-   * @param $name
-   *   String context.
-   * @param $string
-   *   New value of string for update/create. May be empty for removing.
-   * @param $format
-   *   Text format, that must have been checked
-   *   against allowed formats for translation.
-   * @param $options
-   *   Processing options, the ones used here are:
-   *   - 'watchdog', whether to produce watchdog messages.
-   *   - 'messages', whether to produce user messages.
-   *   - 'check', whether to check string format and then update/delete
-   *       if not allowed.
+   * @param object $i18nstring
+   *   i18n_string_object.
+   * @param array $options
+   *   Additional options.
    *
    * @return status
    *   SAVED_UPDATED | SAVED_NEW | SAVED_DELETED | FALSE (If the string is
@@ -769,7 +760,7 @@ class i18n_string_textgroup_default {
    *
    * There seems to be a race condition sometimes so skip errors, #277711.
    *
-   * @param $string
+   * @param object $string
    *   Full string object to be saved.
    */
   protected function save_string($string, $update = FALSE) {
@@ -801,7 +792,7 @@ class i18n_string_textgroup_default {
   /**
    * Save translation to the db.
    *
-   * @param $string
+   * @param object $string
    *   Full string object with translation data (language, translation).
    */
   protected function save_translation($string, $langcode) {
@@ -832,7 +823,7 @@ class i18n_string_textgroup_default {
    * (like profile categories) for which we need to use the source string
    * itself as a search key.
    *
-   * @param $context
+   * @param string $context
    *   Textgroup and location glued with ':'.
    * @param $string
    *   Optional source string (string in default language).
@@ -856,12 +847,12 @@ class i18n_string_textgroup_default {
   /**
    * Update / create translation source for user defined strings.
    *
-   * @param $name
+   * @param string $name
    *   Textgroup and location glued with ':'.
    * @param $string
    *   Source string in default language.
    *   Default language may or may not be English.
-   * @param $options
+   * @param array $options
    *   Array with additional options:
    *   - 'format', String format if the string has text format.
    *   - 'messages', Whether to print out status messages.
@@ -911,9 +902,9 @@ class i18n_string_textgroup_default {
   /**
    * Get multiple translations with search conditions.
    *
-   * @param $translations
+   * @param array $translations
    *   Array of translation objects as loaded from the db.
-   * @param $langcode
+   * @param string|array $langcode
    *   Language code, array of language codes or * to search all translations.
    *
    * @return array
@@ -949,12 +940,10 @@ class i18n_string_textgroup_default {
    *
    * @todo Optimize when we've already got the source object
    *
-   * @param $conditions
+   * @param array $conditions
    *   Array of field values to use as query conditions.
-   * @param $langcode
+   * @param string $langcode
    *   Language code to search.
-   * @param $index
-   *   Field to use as index for the result.
    *
    * @return array
    *   Array of string objects with translation set.
@@ -1058,9 +1047,9 @@ class i18n_string_textgroup_default {
   /**
    * Set multiple cache.
    *
-   * @param $context
+   * @param array $context
    *   String context with language property at the end.
-   * @param $strings
+   * @param array $strings
    *   Array of strings (may be empty) to cache.
    */
   protected function multiple_cache_set($context, $strings) {
@@ -1107,9 +1096,9 @@ class i18n_string_textgroup_default {
   /**
    * Translate array of source strings.
    *
-   * @param $context
+   * @param array $context
    *   Context array with placeholders (*)
-   * @param $strings
+   * @param array $strings
    *   Optional array of source strings indexed by the placeholder property.
    *
    * @return array
@@ -1162,9 +1151,9 @@ class i18n_string_textgroup_default {
   /**
    * Update string translation, only if source exists.
    *
-   * @param $context
+   * @param array $context
    *   String context as array.
-   * @param $langcode
+   * @param string $langcode
    *   Language code to create the translation for.
    * @param $translation
    *   String translation for this language.
@@ -1215,7 +1204,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    * This will return a simple array of string objects,
    * indexed by full string name.
    *
-   * @param $options
+   * @param array $options
    *   Array with processing options.
    *   - 'empty', whether to return empty strings, defaults to FALSE.
    */
@@ -1298,7 +1287,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
   /**
    * Get translate path for object.
    *
-   * @param $langcode
+   * @param string $langcode
    *   Language code if we want it for a specific language.
    */
   public function get_translate_path($langcode = NULL) {

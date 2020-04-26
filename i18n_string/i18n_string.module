@@ -464,7 +464,7 @@ function i18n_string_allowed_format($format_id = NULL) {
 /**
  * Convert string name into textgroup and string context.
  *
- * @param $name
+ * @param array|string $name
  *   Array or string concatenated with ':' that contains
  *   textgroup and string context
  * @param $replace
@@ -512,7 +512,8 @@ function i18n_string_element_mark(&$element) {
  *
  * This returns the i18nstring object only when it has a source.
  *
- * @return i18n_string_object
+ * @return object
+ *   i18n_string_object
  */
 function i18n_string_get_source($name) {
   return i18n_string_build($name)->get_source();
@@ -523,7 +524,8 @@ function i18n_string_get_source($name) {
  *
  * Builds string and loads the source if available.
  *
- * @return i18n_string_object
+ * @return object
+ *   i18n_string_object
  */
 function i18n_string_get_string($name, $default = NULL) {
   $i18nstring = i18n_string_build($name, $default);
@@ -570,7 +572,7 @@ function i18n_string_load_multiple($conditions) {
 /**
  * Get textgroup info, from hook_locale('info').
  *
- * @param $group
+ * @param string $group
  *   Text group name.
  * @param $default
  *   Default value to return for a property if not set.
@@ -598,7 +600,7 @@ function i18n_string_group_info($group = NULL, $property = NULL, $default = NULL
 /**
  * Translate / update multiple strings.
  *
- * @param $strings
+ * @param array $strings
  *   Array of name => string pairs
  */
 function i18n_string_multiple($operation, $name, $strings, $options = array()) {
@@ -626,12 +628,12 @@ function i18n_string_multiple($operation, $name, $strings, $options = array()) {
  * This function is intended to return translations for plain strings
  * that have NO text format
  *
- * @param $name
+ * @param array|string $name
  *   Array or string concatenated with ':' that contains
  *   textgroup and string context
- * @param $string
+ * @param string|array $string
  *   String in default language or array of strings to be translated
- * @param $options
+ * @param array $options
  *   An associative array of additional options, with the following keys:
  *   - 'langcode' (defaults to the current language) The language code to
  *     translate to a language other than what is used to display the page.
@@ -672,7 +674,7 @@ function i18n_string_translate($name, $string, $options = array()) {
  * If the string has a format the user is not allowed to edit,
  * it will return FALSE
  *
- * @param $string_format
+ * @param object|string $string_format
  *   String object or $format_id
  */
 function i18n_string_translate_access($string_format, $account = NULL) {
@@ -689,12 +691,12 @@ function i18n_string_translate_access($string_format, $account = NULL) {
  * Here we assume the user has 'translate interface' access that should have
  * been checked for the page.
  *
- * @param $i18nstring
+ * @param object $i18nstring
  *   String object.
- * @param $account
+ * @param object $account
  *   Optional user account, defaults to current user.
  *
- * @return
+ * @return string
  *   None or empty string if the user has access to translate the string.
  *   Message if the user cannot translate that string.
  */
@@ -727,9 +729,9 @@ function i18n_string_translate_check_string($i18nstring, $account = NULL) {
 /**
  * Format the resulting translation or the default string applying callbacks.
  *
- * @param $string
+ * @param string $string
  *   Text string.
- * @param $options
+ * @param array $options
  *   Array of options for string formatting:
  *   - 'format', text format to apply to the string, defaults to none.
  *   - 'sanitize', whether to apply the text format, defaults to TRUE.
@@ -781,12 +783,12 @@ function i18n_string_format($string, $options = array()) {
  * This function is intended to return translations for strings
  * that have a text format.
  *
- * @param $name
+ * @param array|string $name
  *   Array or string concatenated with ':' that contains
  *   textgroup and string context
  * @param $default
  *   Default string to return if not found, already filtered
- * @param $options
+ * @param array $options
  *   Array with additional options.
  */
 function i18n_string_text($name, $default, $options = array()) {
@@ -799,12 +801,12 @@ function i18n_string_text($name, $default, $options = array()) {
  *
  * In case it finds a translation it applies check_plain() to it.
  *
- * @param $name
+ * @param array|string $name
  *   Array or string concatenated with ':' that contains
  *   textgroup and string context
  * @param $default
  *   Default string to return if not found
- * @param $options
+ * @param array $options
  *   Array with additional options
  */
 function i18n_string_plain($name, $default, $options = array()) {
@@ -822,7 +824,7 @@ function i18n_string_source_language() {
 /**
  * Translation for list of options.
  *
- * @param $options
+ * @param array $options
  *   Array with additional options, some changes
  *   - 'index' => field that will be mapped
  *     to the array key (defaults to 'property')
@@ -857,7 +859,7 @@ function i18n_string_translate_list($name, $strings, $options = array()) {
  * that string, there are some exceptions (like profile categories) for which
  * we need to use the source string itself as a search key.
  *
- * @param $name
+ * @param string $name
  *   String name
  * @param $string
  *   Optional source string (string in default language).
@@ -882,7 +884,7 @@ function i18n_string_remove($name, $string = NULL, $options = array()) {
 /**
  * Add string to l10n strings if enabled and allowed for this string.
  *
- * @param $string
+ * @param object $string
  *   String object
  */
 function i18n_string_l10n_client_add($string, $langcode) {
@@ -942,9 +944,9 @@ function i18n_string_i18n_object_info_alter(&$object_info) {
  * We clone the object previously so we don't risk
  * translated properties being saved.
  *
- * @param $type
+ * @param string $type
  *   Object type
- * @param $object
+ * @param object|array $object
  *   Object or array
  */
 function i18n_string_object_translate($type, $object, $options = array()) {
@@ -963,9 +965,9 @@ function i18n_string_object_translate($type, $object, $options = array()) {
 /**
  * Remove object strings, because object is deleted.
  *
- * @param $type
+ * @param string $type
  *   Object type
- * @param $object
+ * @param object|array $object
  *   Object or array
  */
 function i18n_string_object_remove($type, $object, $options = array()) {
@@ -975,9 +977,9 @@ function i18n_string_object_remove($type, $object, $options = array()) {
 /**
  * Update object properties.
  *
- * @param $type
+ * @param string $type
  *   Object type
- * @param $object
+ * @param object|array $object
  *   Object or array
  */
 function i18n_string_object_update($type, $object, $options = array()) {
@@ -1007,10 +1009,10 @@ function i18n_string_object_translate_page($object_type, $object_value, $languag
  * @param $name
  *   Specially crafted string name, it may take '*'
  *   and array parameters for each element.
- * @param $langcode
+ * @param string $langcode
  *   Language code to search translations. Defaults to current language.
  *
- * @return array()
+ * @return array
  *   String objects indexed by context.
  */
 function i18n_string_translation_search($name, $langcode = NULL) {
@@ -1022,15 +1024,15 @@ function i18n_string_translation_search($name, $langcode = NULL) {
 /**
  * Update / create translation for a certain source.
  *
- * @param $name
+ * @param array|string $name
  *   Array or string concatenated with ':' that contains
  *   textgroup and string context
- * @param $translation
+ * @param string $translation
  *   Translation string for this language code
- * @param $langcode
+ * @param string $langcode
  *   The language code to translate to a language other than
  *   what is used to display the page.
- * @param $source_string
+ * @param string $source_string
  *   Optional source string, just in case it needs to be created.
  *
  * @return mixed
