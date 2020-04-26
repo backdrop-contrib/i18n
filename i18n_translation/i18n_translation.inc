@@ -3,6 +3,9 @@
 /**
  * @file
  * Internationalization (i18n) module - Translation set.
+ *
+ * @TODO: Remove in 2.x
+ * @codingStandardsIgnoreFile
  */
 
 /**
@@ -13,9 +16,9 @@ class I18nTranslationSetController extends DefaultEntityController {
   /**
    * Builds objects of specific classes upon loading.
    *
-   * @param $queried_entities
+   * @param array $queried_entities
    *   Associative array of query results, keyed on the entity ID.
-   * @param $revision_id
+   * @param int|bool $revision_id
    *   ID of the revision that was loaded, or FALSE if teh most current revision
    *   was loaded.
    */
