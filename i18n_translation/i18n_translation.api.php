@@ -11,10 +11,10 @@
 /**
  * Provide information about translation sets and involved objects.
  *
+ * This feature relies on object information provided by i18n_object_info().
+ *
  * @see i18n_translation_set_info()
  * @see hook_i18n_object_info()
- *
- * This feature relies on object information provided by i18n_object_info().
  */
 function hook_i18n_translation_set_info() {
   $info['taxonomy_term'] = array(
