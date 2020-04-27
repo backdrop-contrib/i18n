@@ -35,7 +35,7 @@ function i18n_node_add_page() {
 /**
  * Overview page for a node's translations.
  *
- * @param $node
+ * @param object $node
  *   Node object.
  */
 function i18n_node_translation_overview($node) {
@@ -296,11 +296,11 @@ function i18n_node_autocomplete2nid($name, $field = NULL, $type, $language) {
 /**
  * Find node title matches.
  *
- * @param $string
+ * @param string $string
  *   String to match against node title
- * @param $match
+ * @param string $match
  *   Match mode: 'contains', 'equals', 'starts_with'
- * @param $params
+ * @param array $params
  *   Other query arguments: type, language or numeric ones
  */
 function _i18n_node_references($string, $match = 'contains', $params = array(), $limit = 10) {

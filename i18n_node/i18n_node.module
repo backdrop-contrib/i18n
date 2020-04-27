@@ -156,11 +156,11 @@ function i18n_node_get_lang($nid, $default = '') {
  * This allows node types to define its own language list
  * implementing hook 'language_list'.
  *
- * @param $node
+ * @param object $node
  *   Node to retrieve language list for.
- * @param $translate
+ * @param bool $translate
  *   Only languages available for translation.
- * @param $select
+ * @param bool $select
  *   Only languages that can be selected for this node
  */
 function i18n_node_language_list($node, $translate = FALSE, $select = FALSE) {
@@ -564,7 +564,7 @@ function i18n_node_theme() {
 /**
  * Shorthand for translating node type strings.
  *
- * @param $type
+ * @param string|object $type
  *   Node type name or full object
  */
 function i18n_node_translate_type($type, $property = 'name', $source = NULL, $options = array()) {
@@ -591,7 +591,7 @@ function i18n_node_type_name($type, $name = NULL) {
 /**
  * Check whether this is a language enabled node type.
  *
- * @param $type
+ * @param object|string $type
  *   Node, node type object, or node type name
  */
 function i18n_node_type_enabled($type) {
