@@ -268,7 +268,7 @@ class i18n_string_object {
   /**
    * Get source string provided a string object.
    *
-   * @return
+   * @return object
    *   String object if source exists.
    */
   public function get_source() {
@@ -431,7 +431,7 @@ class i18n_string_textgroup_default {
    * @param array $options
    *   Additional options.
    *
-   * @return
+   * @return int|FALSE
    *   Update status.
    */
   protected function string_add($i18nstring, $options = array()) {
@@ -559,8 +559,9 @@ class i18n_string_textgroup_default {
   /**
    * Remove string object.
    *
-   * @return
-   *   SAVED_DELETED | FALSE (If the operation failed because no source).
+   * @return int|FALSE
+   *   SAVED_DELETED (core constant),
+   *   FALSE (if the operation failed because no source).
    */
   public function string_remove($i18nstring, $options = array()) {
     $options += array('watchdog' => TRUE, 'messages' => $this->debug);
@@ -595,8 +596,8 @@ class i18n_string_textgroup_default {
    */
   protected function string_translate($i18nstring, $options = array()) {
     $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
-    // Search for existing translation.
-    // (result will be cached in this function call)
+    // Search for existing translation
+    // (result will be cached in this function call).
     $i18nstring->get_translation($langcode);
     return $i18nstring;
   }
@@ -825,7 +826,7 @@ class i18n_string_textgroup_default {
    *
    * @param string $context
    *   Textgroup and location glued with ':'.
-   * @param $string
+   * @param string $string
    *   Optional source string (string in default language).
    */
   public function context_remove($context, $string = NULL, $options = array()) {
@@ -849,7 +850,7 @@ class i18n_string_textgroup_default {
    *
    * @param string $name
    *   Textgroup and location glued with ':'.
-   * @param $string
+   * @param string $string
    *   Source string in default language.
    *   Default language may or may not be English.
    * @param array $options
@@ -1000,7 +1001,7 @@ class i18n_string_textgroup_default {
    * @param array $context
    *   Array with String context conditions.
    *
-   * @return
+   * @return array
    *   Array of translation objects indexed by context.
    */
   public function multiple_translation_search($context, $langcode) {
@@ -1021,6 +1022,7 @@ class i18n_string_textgroup_default {
         // http://backdrop.org/node/1244598
         // we use our simplified version here, instead of
         // $search = array_merge_recursive($search, $combination)
+        // @todo is this still a bug?
         foreach ($combination as $key => $value) {
           if (!isset($search[$key]) || !in_array($value, $search[$key], TRUE)) {
             $search[$key][] = $value;
@@ -1155,7 +1157,7 @@ class i18n_string_textgroup_default {
    *   String context as array.
    * @param string $langcode
    *   Language code to create the translation for.
-   * @param $translation
+   * @param object $translation
    *   String translation for this language.
    */
   public function update_translation($context, $langcode, $translation) {
@@ -1359,9 +1361,6 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    *
    * On top of object strings we search
    * for all textgroup:type:objectid:* properties.
-   *
-   * @param $langcode
-   *   A clone of the object or array.
    */
   protected function translate_object($langcode, $options) {
     // Clone object or array so we don't affect the original one.

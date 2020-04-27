@@ -467,7 +467,7 @@ function i18n_string_allowed_format($format_id = NULL) {
  * @param array|string $name
  *   Array or string concatenated with ':' that contains
  *   textgroup and string context
- * @param $replace
+ * @param string $replace
  *   Parameter to replace the placeholder ('*')
  *   if we are dealing with multiple strings
  *   Or parameter to append to context if there's no placeholder
@@ -547,8 +547,8 @@ function i18n_string_get_by_lid($lid) {
  * @param array $conditions
  *   Array of conditions for i18n_string table.
  *
- * @return $strings
- *   List of i18n string objects
+ * @return array
+ *   List of i18n string objects.
  */
 function i18n_string_load_multiple($conditions) {
   // The primary table here will be i18n_string, though we add source too.
@@ -574,7 +574,9 @@ function i18n_string_load_multiple($conditions) {
  *
  * @param string $group
  *   Text group name.
- * @param $default
+ * @param string $property
+ *   Property from group.
+ * @param string $default
  *   Default value to return for a property if not set.
  */
 function i18n_string_group_info($group = NULL, $property = NULL, $default = NULL) {
@@ -786,7 +788,7 @@ function i18n_string_format($string, $options = array()) {
  * @param array|string $name
  *   Array or string concatenated with ':' that contains
  *   textgroup and string context
- * @param $default
+ * @param string $default
  *   Default string to return if not found, already filtered
  * @param array $options
  *   Array with additional options.
@@ -804,7 +806,7 @@ function i18n_string_text($name, $default, $options = array()) {
  * @param array|string $name
  *   Array or string concatenated with ':' that contains
  *   textgroup and string context
- * @param $default
+ * @param string $default
  *   Default string to return if not found
  * @param array $options
  *   Array with additional options
@@ -861,7 +863,7 @@ function i18n_string_translate_list($name, $strings, $options = array()) {
  *
  * @param string $name
  *   String name
- * @param $string
+ * @param array|string $string
  *   Optional source string (string in default language).
  *   Array of string properties to remove
  */
@@ -1006,7 +1008,7 @@ function i18n_string_object_translate_page($object_type, $object_value, $languag
  *  - array('taxonomy', 'term', array(1,2), '*')
  *    This will find all properties for taxonomy terms 1 and 2
  *
- * @param $name
+ * @param string|array $name
  *   Specially crafted string name, it may take '*'
  *   and array parameters for each element.
  * @param string $langcode

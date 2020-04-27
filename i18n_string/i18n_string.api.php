@@ -65,10 +65,10 @@ function hook_i18n_string_list($group) {
  *    an array of strings
  * 2. Get the object types for that textgroup, collecting it
  *    from i18n object information.
- *    @see i18n_string_group_object_types()
+ *    see: i18n_string_group_object_types()
  * 3. For each object type, collect the full list of objects
  *    invoking hook_i18n_string_objects($type)
- *    @see i18n_string_object_type_string_list()
+ *    see: i18n_string_object_type_string_list()
  *    If an object defines a 'list callback' function that one will be called
  *    to get the list of strings.
  * 4. For each object, collect the properties for that specific object.

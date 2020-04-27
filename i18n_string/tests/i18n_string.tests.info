@@ -1,4 +1,4 @@
-[i18nStringTestCase]
+[I18nStringTestCase]
 name = 'String translation API'
 description = 'User defined strings translation functions'
 group = Internationalization
