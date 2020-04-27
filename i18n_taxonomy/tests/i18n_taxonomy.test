@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../tests/i18n.test';
 /**
  * Simpletest class for i18n_taxonomy.
  */
-class i18nTaxonomyTestCase extends Backdropi18nTestCase {
+class I18nTaxonomyTestCase extends Backdropi18nTestCase {
 
   /**
    * Set up test case.

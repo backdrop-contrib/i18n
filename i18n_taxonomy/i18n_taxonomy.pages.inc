@@ -8,7 +8,7 @@
 /**
  * Menu callback; displays all nodes associated with a term.
  *
- * @param $term
+ * @param object $term
  *   The taxonomy term.
  *
  * @return array

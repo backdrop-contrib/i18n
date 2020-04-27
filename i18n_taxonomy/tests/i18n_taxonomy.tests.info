@@ -1,4 +1,4 @@
-[i18nTaxonomyTestCase]
+[I18nTaxonomyTestCase]
 name = 'Taxonomy translation'
 description = 'Taxonomy translation functions'
 group = Internationalization
