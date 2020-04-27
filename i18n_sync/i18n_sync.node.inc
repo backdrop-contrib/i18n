@@ -125,7 +125,7 @@ function i18n_sync_node_translation_reference_field(&$reference_node, $default_v
 /**
  * Synchronize configurable field.
  *
- * @param $field_info
+ * @param array $field_info
  *   Field API field information.
  */
 function i18n_sync_node_translation_default_field($node, $translation, $field, $field_info) {

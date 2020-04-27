@@ -8,8 +8,6 @@
 /**
  * Provide information about which fields to synchronize for each entity type.
  *
- * @see i18n_sync_options()
- *
  * Field definitions defined on hook_field_info() may contain a synchronization
  * callback used for that field to be synchronized. This callback can be set by:
  * $field['i18n_sync_callback'] = 'sychcronize_function_callback
@@ -18,9 +16,6 @@
  * - $entity_type, $entity, $field, $instance, $langcode,
  *   $items, $source_entity, $source_langcode);
  *
- * @see i18n_sync_field_info_alter()
- * @see i18n_sync_field_file_sync()
- *
  * @return array
  *   Array of fields indexed by field name that will be presented as options
  *   to be synchronized. Each element is an array with the following keys:
@@ -28,6 +23,10 @@
  *   - 'description', Field description to be displayed.
  *   - 'field_name', Field name for configurable Fields.
  *   - 'group', Group for the UI only to display this field.
+ *
+ * @see i18n_sync_options()
+ * @see i18n_sync_field_info_alter()
+ * @see i18n_sync_field_file_sync()
  */
 function hook_i18n_sync_options($entity_type, $bundle_name) {
   if ($entity_type == 'node') {
@@ -52,16 +51,17 @@ function hook_i18n_sync_options_alter(&$fields, $entity_type, $bundle_name) {
 /**
  * Perform aditional synchronization on entities.
  *
- * @param $entity_type
- * @param $translation
+ * @param string $entity_type
+ *   Name of entity type, e.g. 'node'.
+ * @param object $translation
  *   Translated entity.
- * @param $translation_language
+ * @param string $translation_language
  *   Translated entity language code.
- * @param $source
+ * @param object $source
  *   Source entity.
- * @param $source_language
+ * @param string $source_language
  *   Source entity language code.
- * @param $field_names
+ * @param array $field_names
  *   Array of field names to synchronize.
  */
 function hook_i18n_sync_translation($entity_type, $translation, $translation_language, $source, $source_language, $field_names) {

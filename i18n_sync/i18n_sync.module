@@ -158,7 +158,7 @@ function i18n_sync_node_check($node) {
 /**
  * Get node translations if any, excluding the node itself.
  *
- * @param $reset
+ * @param bool $reset
  *   Whether to reset the translation_node_get_translations cache.
  */
 function i18n_sync_node_get_translations($node, $reset = FALSE) {
@@ -227,9 +227,9 @@ function i18n_sync_node_prepare($node) {
 /**
  * Returns list of fields to synchronize for a given content type.
  *
- * @param $type
+ * @param string $type
  *   Node type.
- * @param $field
+ * @param string $field
  *   Optional field name to check whether it is in the list
  */
 function i18n_sync_node_fields($type, $field = NULL) {
@@ -251,7 +251,7 @@ function i18n_sync_node_fields($type, $field = NULL) {
  *
  * Fields can also be changed using hook_i18n_sync_fields_alter($fields, $type)
  *
- * @param $type
+ * @param string $type
  *   Node type.
  */
 function i18n_sync_node_options($type) {

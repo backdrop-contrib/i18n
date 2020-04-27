@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../tests/i18n.test';
 /**
  * Test class for i18n_sync.
  */
-class i18nSyncTestCase extends Backdropi18nTestCase {
+class I18nSyncTestCase extends Backdropi18nTestCase {
 
   /**
    * Set up.

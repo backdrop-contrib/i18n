@@ -1,4 +1,4 @@
-[i18nSyncTestCase]
+[I18nSyncTestCase]
 name = 'Synchronize translations'
 description = 'Internationalization Content Synchronization'
 group = Internationalization
