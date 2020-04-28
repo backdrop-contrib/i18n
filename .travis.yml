@@ -18,7 +18,7 @@ script:
   - >
     vendor/bin/phpcs -n
     --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
-    --ignore="vendor/*,README.md,i18n_block/*,i18n_forum/*,i18n_select/*,i18n_user/*,i18n_variable/*"
+    --ignore="vendor/*,i18n_block/*,i18n_forum/*,i18n_select/*,i18n_user/*,i18n_variable/*,i18n_field/i18n_field.inc,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
     --extensions=install,module,php,inc,theme .
 
   # Unit tests
