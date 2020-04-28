@@ -28,9 +28,6 @@
  *
  * @see i18n_field_type_info()
  * @see i18n_field_i18n_field_info()
- *
- * For examples of both callback types:
- *
  * @see i18n_field_translate_allowed_values()
  * @see i18n_field_translate_default()
  */

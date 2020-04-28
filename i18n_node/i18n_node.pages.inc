@@ -165,7 +165,6 @@ function i18n_node_select_translation($form, &$form_state, $node, $translations)
     '#type' => 'submit',
     '#value' => t('Update translations'),
   );
-  // $form['buttons']['clean'] = array('#type' => 'submit', '#value' => t('Delete translation set'));
   return $form;
 }
 
@@ -178,7 +177,7 @@ function i18n_node_select_translation_validate($form, &$form_state) {
       $nid = 0;
     }
     else {
-      $nid = i18n_node_autocomplete2nid($title, "translations][node][$lang", array($form_state['values']['node']->type), array($lang));
+      $nid = i18n_node_autocomplete2nid($title, array($form_state['values']['node']->type), array($lang), "translations][node][$lang");
     }
     $form_state['values']['translations']['nid'][$lang] = $nid;
   }
@@ -265,8 +264,17 @@ function i18n_node_nid2autocomplete($nid) {
  * Reverse mapping from node title to nid.
  *
  * We also handle autocomplete values (title [nid:x]) and validate the form.
+ *
+ * @param string $name
+ *   Node title.
+ * @param string $type
+ *   Node type.
+ * @param array $language
+ *   Array containing node language code.
+ * @param string $field
+ *   Form field name attribute.
  */
-function i18n_node_autocomplete2nid($name, $field = NULL, $type, $language) {
+function i18n_node_autocomplete2nid($name, $type, $language, $field = NULL) {
   if (!empty($name)) {
     preg_match('/^(?:\s*|(.*) )?\[\s*nid\s*:\s*(\d+)\s*\]$/', $name, $matches);
     if (!empty($matches)) {

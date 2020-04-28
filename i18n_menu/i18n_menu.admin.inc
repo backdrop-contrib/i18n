@@ -120,9 +120,9 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
  * Return a list of menu items that are valid possible parents
  * for the given menu item.
  *
- * @param $menus
+ * @param array $menus
  *   An array of menu names and titles, such as from menu_get_menus().
- * @param $item
+ * @param array $item
  *   The menu item or the node type for which to generate a list of parents.
  *   If $item['mlid'] == 0 then the complete tree is returned.
  *

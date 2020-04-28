@@ -92,7 +92,10 @@ function i18n_string_build_page($name, $string = NULL) {
 require_once __DIR__ . '/../i18n_string/i18n_string.inc';
 /**
  * Helper class for easier test evaluation.
+ *
+ * @todo Change this class to camelcase as soon as the base class is camelcase.
  */
+// @codingStandardsIgnoreStart
 class i18n_string_textgroup_cached_logged extends i18n_string_textgroup_cached {
 
   /**
@@ -106,3 +109,4 @@ class i18n_string_textgroup_cached_logged extends i18n_string_textgroup_cached {
   }
 
 }
+// @codingStandardsIgnoreEnd

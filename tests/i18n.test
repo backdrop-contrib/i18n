@@ -9,9 +9,8 @@
  * Test basic functionality.
  */
 class Backdropi18nTestCase extends BackdropWebTestCase {
-  protected $current_user;
-  protected $default_language;
-  protected $secondary_language;
+  protected $defaultLanguage;
+  protected $secondaryLanguage;
 
   /**
    * Set up.
@@ -34,10 +33,10 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     $this->backdropLogin($this->admin_user);
 
     // Add languages.
-    $this->default_language = 'en';
-    $this->secondary_language = 'es';
-    $this->addLanguage($this->default_language);
-    $this->addLanguage($this->secondary_language);
+    $this->defaultLanguage = 'en';
+    $this->secondaryLanguage = 'es';
+    $this->addLanguage($this->defaultLanguage);
+    $this->addLanguage($this->secondaryLanguage);
 
     // Enable URL language detection and selection to make the language switcher
     // block appear.
@@ -146,10 +145,8 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Create translation set from a node.
    *
-   * @param $source
+   * @param object $source
    *   Source node
-   * @param $languages
-   *   Optional list of language codes
    */
   public function createNodeTranslationSet(&$source, $languages = NULL) {
     if (empty($source->tnid)) {
@@ -167,13 +164,13 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Create a node of the specified type in the specified language.
    *
-   * @param $type
+   * @param string $type
    *   The node type.
-   * @param $title
+   * @param string $title
    *   Title of node in specified language.
-   * @param $body
+   * @param string $body
    *   Body of node in specified language.
-   * @param $langcode
+   * @param string $langcode
    *   Language code.
    */
   public function createNode($type, $title, $body, $langcode, $edit = array()) {
@@ -196,13 +193,13 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Create a translation for the specified node in the specified language.
    *
-   * @param $node
+   * @param object $node
    *   The basic page to create translation for.
-   * @param $language
+   * @param string $language
    *   Language code.
-   * @param $title
+   * @param string $title
    *   Title of node in specified language.
-   * @param $body
+   * @param string $body
    *   Body of node in specified language.
    */
   public function createNodeTranslation($node, $language, $title = NULL, $body = NULL) {
@@ -233,7 +230,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Retrieves a Backdrop path or an absolute path with language.
    *
-   * @param $language
+   * @param string|object $language
    *   Language code or language object
    */
   protected function i18nGet($language, $path = '', array $options = array(), array $headers = array()) {
@@ -328,7 +325,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Create translation for string in textgroup.
    *
-   * @param $translations
+   * @param array $translations
    *   Optional array of langcode => translation.
    *   If not present, it will be generated.
    */

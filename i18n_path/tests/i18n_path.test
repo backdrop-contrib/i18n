@@ -35,19 +35,19 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     // Create 2 nodes in different languages.
     $first_title = $this->randomName(10);
     $first_body = $this->randomString(50);
-    $first_node = $this->createNode('page', $first_title, $first_body, $this->default_language);
+    $first_node = $this->createNode('page', $first_title, $first_body, $this->defaultLanguage);
 
     $secondary_title = $this->randomName(10);
     $secondary_body = $this->randomString(50);
-    $secondary_node = $this->createNode('page', $secondary_title, $secondary_body, $this->secondary_language);
+    $secondary_node = $this->createNode('page', $secondary_title, $secondary_body, $this->secondaryLanguage);
 
     $this->backdropGet('node/' . $first_node->nid);
     $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
-    $this->checkTranslationLink($this->secondary_language . '/node/' . $first_node->nid, $this->secondary_language, 'assertNoRaw');
+    $this->checkTranslationLink($this->secondaryLanguage . '/node/' . $first_node->nid, $this->secondaryLanguage, 'assertNoRaw');
 
     $this->backdropGet('node/' . $secondary_node->nid);
     $this->checkTranslationLink('node/' . $secondary_node->nid, $secondary_node->langcode);
-    $this->checkTranslationLink($this->secondary_language . '/node/' . $secondary_node->nid, $this->secondary_language);
+    $this->checkTranslationLink($this->secondaryLanguage . '/node/' . $secondary_node->nid, $this->secondaryLanguage);
 
     $this->backdropGet('admin/config/regional/i18n_translation/path');
     $this->clickLink(t('Add path translation'));
@@ -55,42 +55,42 @@ class i18nPathTestCase extends Backdropi18nTestCase {
     // Create new translation set with two node links.
     $edit = array(
       'title' => $this->randomName(10),
-      'translations[' . $this->default_language . ']' => 'node/' . $first_node->nid,
-      'translations[' . $this->secondary_language . ']' => 'node/' . $secondary_node->nid,
+      'translations[' . $this->defaultLanguage . ']' => 'node/' . $first_node->nid,
+      'translations[' . $this->secondaryLanguage . ']' => 'node/' . $secondary_node->nid,
     );
     $this->backdropPost('admin/config/regional/i18n_translation/path/add', $edit, t('Save'));
 
     $this->backdropGet('node/' . $first_node->nid);
     $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
-    $this->checkTranslationLink($this->secondary_language . '/node/' . $secondary_node->nid, $this->secondary_language);
+    $this->checkTranslationLink($this->secondaryLanguage . '/node/' . $secondary_node->nid, $this->secondaryLanguage);
 
     $this->backdropGet('node/' . $secondary_node->nid);
     $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
-    $this->checkTranslationLink('node/' . $secondary_node->nid, $this->secondary_language);
+    $this->checkTranslationLink('node/' . $secondary_node->nid, $this->secondaryLanguage);
 
     // Create new translation set with one node and one menu "token".
     $edit = array(
-      'translations[' . $this->default_language . ']' => 'node/' . $first_node->nid,
-      'translations[' . $this->secondary_language . ']' => '<front>',
+      'translations[' . $this->defaultLanguage . ']' => 'node/' . $first_node->nid,
+      'translations[' . $this->secondaryLanguage . ']' => '<front>',
     );
     $this->backdropPost('admin/config/regional/i18n_translation/path/edit/1', $edit, t('Save'));
 
     $this->backdropGet('node/' . $first_node->nid);
     $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
-    $this->checkTranslationLink('node/' . $secondary_node->nid, $this->secondary_language, 'assertNoLinkByHref');
-    $this->checkTranslationLink($this->secondary_language, $this->secondary_language);
+    $this->checkTranslationLink('node/' . $secondary_node->nid, $this->secondaryLanguage, 'assertNoLinkByHref');
+    $this->checkTranslationLink($this->secondaryLanguage, $this->secondaryLanguage);
 
     // Create new translation set with one node and an external menu link.
     $url = 'http://' . $this->randomName(10) . '.' . $this->randomName(2);
     $edit = array(
-      'translations[' . $this->default_language . ']' => 'node/' . $first_node->nid,
-      'translations[' . $this->secondary_language . ']' => $url,
+      'translations[' . $this->defaultLanguage . ']' => 'node/' . $first_node->nid,
+      'translations[' . $this->secondaryLanguage . ']' => $url,
     );
     $this->backdropPost('admin/config/regional/i18n_translation/path/edit/1', $edit, t('Save'));
 
     $this->backdropGet('node/' . $first_node->nid);
     $this->checkTranslationLink('node/' . $first_node->nid, $first_node->langcode);
-    $this->checkTranslationLink($url, $this->secondary_language);
+    $this->checkTranslationLink($url, $this->secondaryLanguage);
   }
 
 }

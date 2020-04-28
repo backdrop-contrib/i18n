@@ -63,8 +63,8 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->backdropLogin($this->translator);
     // Create and Save Spanish translation, again using the same prefix.
     $term_translation = array(
-      'name' => $this->createStringTranslation('taxonomy', $term->name, array($this->secondary_language => $prefix . $this->randomName())),
-      'description[value]' => $this->createStringTranslation('taxonomy', $term->description, array($this->secondary_language => $prefix . $this->randomName())),
+      'name' => $this->createStringTranslation('taxonomy', $term->name, array($this->secondaryLanguage => $prefix . $this->randomName())),
+      'description[value]' => $this->createStringTranslation('taxonomy', $term->description, array($this->secondaryLanguage => $prefix . $this->randomName())),
     );
 
     $this->backdropLogin($this->admin_user);
@@ -82,34 +82,34 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->assertText($term->name, 'Field values are displayed correctly in default language.');
 
     // Terms should be localized in the field widget.
-    $this->backdropGet($this->secondary_language . '/test-entity/add/test-bundle');
-    $this->assertText($term_translation['name'][$this->secondary_language], 'Widget values are displayed correctly in non-default languages.');
+    $this->backdropGet($this->secondaryLanguage . '/test-entity/add/test-bundle');
+    $this->assertText($term_translation['name'][$this->secondaryLanguage], 'Widget values are displayed correctly in non-default languages.');
 
     $this->backdropPost(NULL, $edit, t('Save'));
-    $this->assertText($term_translation['name'][$this->secondary_language], 'Field values are displayed correctly in non-default languages.');
+    $this->assertText($term_translation['name'][$this->secondaryLanguage], 'Field values are displayed correctly in non-default languages.');
 
     // Term name and term description should be localized.
-    $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->default_language)));
+    $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->defaultLanguage)));
     $this->assertText($term->name, 'Term title is displayed correctly in default language.');
     $this->assertText($term->description, 'Term description is displayed correctly in default language.');
 
     // Term name and term description should be localized.
-    $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->secondary_language)));
-    $this->assertText($term_translation['name'][$this->secondary_language], 'Term title is displayed correctly in non-default language.');
-    $this->assertText($term_translation['description[value]'][$this->secondary_language], 'Term description is displayed correctly in non-default language.');
+    $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->secondaryLanguage)));
+    $this->assertText($term_translation['name'][$this->secondaryLanguage], 'Term title is displayed correctly in non-default language.');
+    $this->assertText($term_translation['description[value]'][$this->secondaryLanguage], 'Term description is displayed correctly in non-default language.');
 
     // Autocomplete should respect localization.
     $autocomplete_path = 'taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
     $autocomplete_values = $this->backdropGetAJAX($autocomplete_path);
     $this->assertTrue(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in default language.');
-    $this->assertFalse(isset($autocomplete_values[$term_translation['name'][$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages');
+    $this->assertFalse(isset($autocomplete_values[$term_translation['name'][$this->secondaryLanguage]]), 'No incorrect autocomplete suggestions in non-default languages');
 
     /*
     // Autocomplete should respect localization, but doesn't.
-    $autocomplete_path = $this->secondary_language . '/taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
+    $autocomplete_path = $this->secondaryLanguage . '/taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
     $autocomplete_values = $this->backdropGetAJAX($autocomplete_path);
     $this->assertFalse(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in non-default languages.');
-    $this->assertTrue(isset($autocomplete_values[$term_translation[$this->secondary_language]]), 'No incorrect autocomplete suggestions in non-default languages.');.
+    $this->assertTrue(isset($autocomplete_values[$term_translation[$this->secondaryLanguage]]), 'No incorrect autocomplete suggestions in non-default languages.');.
     */
   }
 
@@ -125,15 +125,15 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->field_autocomplete = $this->createTermField($vocab->machine_name, 'taxonomy_autocomplete');
 
     // Create a term to be translated.
-    $en_term = $this->createTerm(array('vocabulary' => $vocab->machine_name, 'langcode' => $this->default_language));
-    $es_term = $this->createTerm(array('vocabulary' => $vocab->machine_name, 'langcode' => $this->secondary_language));
+    $en_term = $this->createTerm(array('vocabulary' => $vocab->machine_name, 'langcode' => $this->defaultLanguage));
+    $es_term = $this->createTerm(array('vocabulary' => $vocab->machine_name, 'langcode' => $this->secondaryLanguage));
 
     $this->backdropLogin($this->admin_user);
 
     // Set terms as translations of each other.
     $edit = array(
-      'translations[' . $this->default_language . ']' => $en_term->name,
-      'translations[' . $this->secondary_language . ']' => $es_term->name,
+      'translations[' . $this->defaultLanguage . ']' => $en_term->name,
+      'translations[' . $this->secondaryLanguage . ']' => $es_term->name,
     );
     $this->backdropPost('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets/add', $edit, t('Save'));
     $this->backdropGet('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets');
@@ -141,23 +141,23 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->assertText("{$en_term->name} / {$es_term->name}", 'Translation set title is correct.');
     $en_link_raw = '<a href="/taxonomy/term/' . $en_term->tid . '">' . $en_term->name . '</a>';
     $this->assertRaw($en_link_raw, 'Primary language term link is correct.');
-    $es_link_raw = '<a href="/' . $this->secondary_language . '/taxonomy/term/' . $es_term->tid . '">' . $es_term->name . '</a>';
+    $es_link_raw = '<a href="/' . $this->secondaryLanguage . '/taxonomy/term/' . $es_term->tid . '">' . $es_term->name . '</a>';
     $this->assertRaw($es_link_raw, 'Secondary language term link is correct.');
 
     // Freetagging creates terms with the correct language.
     $freetag_en = $this->randomName();
     $freetag_es = $this->randomName();
     $edit = array(
-      'translations[' . $this->default_language . ']' => $freetag_en,
-      'translations[' . $this->secondary_language . ']' => $freetag_es,
+      'translations[' . $this->defaultLanguage . ']' => $freetag_en,
+      'translations[' . $this->secondaryLanguage . ']' => $freetag_es,
     );
     $this->backdropPost('admin/structure/taxonomy/' . $vocab->machine_name . '/list/sets/add', $edit, t('Save'));
     $new_term_en = taxonomy_term_load_multiple_by_name($freetag_en, $vocab->machine_name);
     $new_term_en = reset($new_term_en);
-    $this->assertEqual($new_term_en->langcode, $this->default_language, 'New term in default language has correct langcode');
+    $this->assertEqual($new_term_en->langcode, $this->defaultLanguage, 'New term in default language has correct langcode');
     $new_term_es = taxonomy_term_load_multiple_by_name($freetag_es, $vocab->machine_name);
     $new_term_es = reset($new_term_es);
-    $this->assertEqual($new_term_es->langcode, $this->secondary_language, 'New term in secondary language has correct langcode');
+    $this->assertEqual($new_term_es->langcode, $this->secondaryLanguage, 'New term in secondary language has correct langcode');
   }
 
   /**

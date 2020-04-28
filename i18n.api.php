@@ -11,11 +11,11 @@
 /**
  * Provide information about object types handled by i18n system.
  *
- * @see i18n_object_info()
- *
  * Other features like translation sets (i18n_translation) or
  * string translation (i18n_string) rely on the information provided
  * by this hook for automating string translation.
+ *
+ * @see i18n_object_info()
  */
 function hook_i18n_object_info() {
   // Information for node type object,

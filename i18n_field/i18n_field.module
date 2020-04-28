@@ -465,7 +465,7 @@ function i18n_field_translate_property($instance, $property, $langcode = NULL) {
  * @param string $property
  *   Optional property to get from field type.
  *
- * @return
+ * @return string|array
  *   - The property for the field if $type and $property set.
  *   - Array of properties for the field type if only $type is set.
  *   - Array of translation information for all field types.
