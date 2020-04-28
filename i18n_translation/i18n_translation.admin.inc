@@ -8,10 +8,10 @@
 /**
  * Overview page for translation sets.
  *
- * @param $type
+ * @param string $type
  *   Translation set type to get a listing for this type only
- * @param $query
- *   Base query to build upon
+ * @param object $query
+ *   Base database query to build upon
  */
 function i18n_translation_admin_overview($type = NULL, $query = NULL) {
   // Build the sortable table header.

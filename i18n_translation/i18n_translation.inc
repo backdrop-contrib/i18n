@@ -13,9 +13,9 @@ class I18nTranslationSetController extends DefaultEntityController {
   /**
    * Builds objects of specific classes upon loading.
    *
-   * @param $queried_entities
+   * @param array $queried_entities
    *   Associative array of query results, keyed on the entity ID.
-   * @param $revision_id
+   * @param string|FALSE $revision_id
    *   ID of the revision that was loaded, or FALSE if teh most current revision
    *   was loaded.
    */
@@ -97,7 +97,7 @@ class i18n_translation_set extends Entity {
   /**
    * Delete a translation set.
    *
-   * @param $delete_translations
+   * @param bool $delete_translations
    *   Whether to unlink translations from the set. Detaults to TRUE.
    */
   public function delete($delete_translations = TRUE) {
@@ -122,7 +122,7 @@ class i18n_translation_set extends Entity {
   /**
    * Create a new translation set.
    *
-   * @param $save_translations
+   * @param bool $save_translations
    *   Whether to update linked objects so they belong to this set.
    */
   public function insert($save_translations = TRUE) {
@@ -139,7 +139,7 @@ class i18n_translation_set extends Entity {
   /**
    * Save translation set.
    *
-   * @param $save_translations
+   * @param bool $save_translations
    *   Whether to update linked objects so they belong to this set.
    */
   public function save($save_translations = TRUE) {
@@ -150,7 +150,7 @@ class i18n_translation_set extends Entity {
   /**
    * Update a translation set.
    *
-   * @param $update_translations
+   * @param bool $update_translations
    *   Whether to update objects linked to this set.
    */
   public function update($update_translations = TRUE) {

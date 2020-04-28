@@ -5,10 +5,13 @@
  * Internationalization (i18n) module - Entity translations.
  */
 
+// @todo these constants aren't used anywhere. Obsolete?
+// @codingStandardsIgnoreStart
 // Language list with only enabled languages.
 define('I18N_ENTITY_LANGUAGES_ENABLED', 0);
 // Language list with all languages.
 define('I18N_ENTITY_LANGUAGES_EXTENDED', 1);
+// @codingStandardsIgnoreEnd
 
 /**
  * Implements hook_autoload_info().
@@ -95,13 +98,13 @@ function i18n_translation_check_object($type, $object) {
 /**
  * Get form element for translation mode and language.
  *
- * @param $object_type
+ * @param string $object_type
  *   Object type for the container element
- * @param $i18n_mode
+ * @param int $i18n_mode
  *   Current or default translation mode
- * @param $langcode
+ * @param string $langcode
  *   Current or default language code
- * @param $options
+ * @param array $options
  *   Restricted list of translation modes if we don't want all of them
  */
 function i18n_translation_mode_element($object_type, $i18n_mode = I18N_MODE_NONE, $langcode = LANGUAGE_NONE, $options = NULL) {
@@ -136,9 +139,9 @@ function i18n_translation_mode_element($object_type, $i18n_mode = I18N_MODE_NONE
 /**
  * Get list of translation modes.
  *
- * @param $container_type
+ * @param string $container_type
  *   Object type for the container
- * @param $options
+ * @param array $options
  *   Options to include. If none, defaults for container type will be returned.
  */
 function i18n_translation_options($container_type, $options = NULL) {
