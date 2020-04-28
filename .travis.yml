@@ -8,8 +8,6 @@ cache:
     - $HOME/.composer/cache/repo
 services:
   - mysql
-addons:
-  - mariadb: '10.0'
 before_install:
   - composer install
 
