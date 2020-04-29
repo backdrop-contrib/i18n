@@ -121,3 +121,16 @@ function hook_i18n_translate_path($path) {
  */
 function hook_i18n_translate_path_alter(&$translations, $path) {
 }
+
+/**
+ * Provide a little help text on page admin/config/regional/i18n.
+ *
+ * @return string
+ *   Some translatable string run though t().
+ *
+ * @see i18n_settings_form()
+ */
+function hook_i18n_settings_page_help() {
+  $text = t('Find more information about module foo on this page...');
+  return $text;
+}

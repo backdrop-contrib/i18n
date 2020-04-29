@@ -102,6 +102,21 @@ function i18n_page_translate_localize($type, $object, $language = NULL) {
  * Menu callback. Settings for i18n.
  */
 function i18n_settings_form($form, &$form_state) {
+  // Let modules place some help text or hints on this page.
+  $help_texts = '';
+  foreach (module_implements('i18n_settings_page_help') as $module) {
+    $function = $module . '_i18n_settings_page_help';
+    $help_texts .= '<p>' . $function() . '</p>';
+  }
+  if (!empty($help_texts)) {
+    $form['help_texts'] = array(
+      '#prefix' => '<div class="i18n-page-help">',
+      '#type' => 'markup',
+      '#markup' => $help_texts,
+      '#suffix' => '</div>',
+    );
+  }
+
   $language_settings = config_get('i18n.settings', 'i18n_language_list');
   $options = array(
     I18N_LANGUAGE_ENABLED => t('Enabled languages only.'),
