@@ -39,51 +39,13 @@ function i18n_taxonomy_autoload_info() {
 };
 
 /**
- * Implements hook_help().
+ * Implements hook_i18n_settings_page_help().
  */
-function i18n_taxonomy_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#i18n_taxonomy':
-      $output = '<p>' . t('This module adds support for multilingual taxonomy. You can set up multilingual options for each vocabulary:') . '</p>';
-      $output .= '<ul>';
-      $output .= '<li>' . t('A language can be assigned globaly for a vocabulary.') . '</li>';
-      $output .= '<li>' . t('Different terms for each language with translation relationships.') . '</li>';
-      $output .= '<li>' . t('Terms can be common to all languages, but may be localized.') . '</li>';
-      $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
-      $output .= '<p>' . t('For more information, see the online handbook entry for <a href="@i18n">Internationalization module</a>.', array('@i18n' => 'http://backdrop.org/node/133977')) . '</p>';
-      return $output;
-
-    case 'admin/config/regional/i18n':
-      $output = '<p>' . t('To set up multilingual options for vocabularies go to <a href="@configure_taxonomy">Taxonomy configuration page</a>.', array('@configure_taxonomy' => url('admin/structure/taxonomy'))) . '</p>';
-      return $output;
-
-    case 'admin/structure/taxonomy/%':
-      $vocabulary = taxonomy_vocabulary_load($arg[3]);
-      switch (i18n_taxonomy_vocabulary_mode($vocabulary)) {
-        case I18N_MODE_LOCALIZE:
-          $helptext = t('%capital_name is a localizable vocabulary. You will be able to translate term names and descriptions using the <a href="@translate-interface">translate interface</a> pages.', array(
-            '%capital_name' => backdrop_ucfirst($vocabulary->name),
-            '%name' => $vocabulary->name,
-            '@translate-interface' => url('admin/config/regional/translate'),
-          ));
-          return '<p>' . $helptext . '</p>';
-
-        case I18N_MODE_LANGUAGE:
-          $langcode = config_get('i18n_taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
-          $helptext = t('%capital_name is a vocabulary with a fixed language. All the terms in this vocabulary will have %language language.', array(
-            '%capital_name' => backdrop_ucfirst($vocabulary->name),
-            '%name' => $vocabulary->name,
-            '%language' => i18n_language_property($langcode, 'name'),
-          ));
-          return '<p>' . $helptext . '</p>';
-
-        case I18N_MODE_TRANSLATE:
-          return '<p>' . t('%capital_name is a full multilingual vocabulary. You will be able to set a language for each term and create translation relationships.', array('%capital_name' => backdrop_ucfirst($vocabulary->name))) . '</p>';
-      }
-      break;
-
-  }
+function i18n_taxonomy_i18n_settings_page_help() {
+  $text = t('To set up multilingual options for vocabularies go to <a href="@configure_taxonomy">Taxonomy configuration page</a>.', array(
+    '@configure_taxonomy' => url('admin/structure/taxonomy'),
+  ));
+  return $text;
 }
 
 /**
@@ -989,9 +951,41 @@ function i18n_taxonomy_form_alter(&$form, $form_state, $form_id) {
       break;
 
     case 'taxonomy_overview_terms':
+      $vocabulary = taxonomy_vocabulary_load(arg(3));
+      $i18n_mode = i18n_taxonomy_vocabulary_mode($vocabulary);
+      $helptext = '';
+      if ($i18n_mode == I18N_MODE_LOCALIZE) {
+        $helptext = t('%capital_name is a localizable vocabulary. You will be able to translate term names and descriptions using the <a href="@translate-interface">translate interface</a> pages.', array(
+          '%capital_name' => backdrop_ucfirst($vocabulary->name),
+          '%name' => $vocabulary->machine_name,
+          '@translate-interface' => url('admin/config/regional/translate'),
+        ));
+      }
+      elseif ($i18n_mode == I18N_MODE_LANGUAGE) {
+        $langcode = config_get('i18n_taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
+        $helptext = t('%capital_name is a vocabulary with a fixed language. All the terms in this vocabulary will have %language language.', array(
+          '%capital_name' => backdrop_ucfirst($vocabulary->name),
+          '%name' => $vocabulary->machine_name,
+          '%language' => i18n_language_property($langcode, 'name'),
+        ));
+      }
+      elseif ($i18n_mode == I18N_MODE_TRANSLATE) {
+        $helptext = '<p>' . t('%capital_name is a full multilingual vocabulary. You will be able to set a language for each term and create translation relationships.', array(
+          '%capital_name' => backdrop_ucfirst($vocabulary->name),
+        )) . '</p>';
+      }
+      // FIXME the #weight is ignored?
+      $form['help'] = array(
+        '#prefix' => '<div>',
+        '#type' => 'markup',
+        '#markup' => $helptext,
+        '#weight' => -50,
+        '#suffix' => '</div>',
+      );
+
       // We check for vocabulary object first, because when confirming
       // alphabetical ordering it uses the same form.
-      if (!empty($form['#vocabulary']) && i18n_taxonomy_vocabulary_mode($form['#vocabulary']->machine_name) & I18N_MODE_TRANSLATE) {
+      if (!empty($form['#vocabulary']) && $i18n_mode == I18N_MODE_TRANSLATE) {
         foreach (element_children($form) as $key) {
           if (isset($form[$key]['#term']) && ($lang = i18n_object_langcode($form[$key]['#term']))) {
             $form[$key]['view']['#suffix'] = ' (' . i18n_language_name($lang) . ')';
