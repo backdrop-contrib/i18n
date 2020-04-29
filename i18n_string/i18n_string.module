@@ -88,46 +88,6 @@ function i18n_string_autoload_info() {
 };
 
 /**
- * Implements hook_help().
- */
-function i18n_string_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#i18n_string':
-      $output = '<p>' . t('This module adds support for other modules to translate user defined strings. Depending on which modules you have enabled that use this feature you may see different text groups to translate.') . '<p>';
-      $output .= '<p>' . t('This works differently to Backdrop standard localization system: The strings will be translated from the <a href="@configure-strings">source language</a>, which defaults to the site default language (it may not be English), so changing the default language may cause all these translations to be broken.', array('@configure-strings' => url('admin/config/regional/i18n/strings'))) . '</p>';
-      $output .= '<ul>';
-      $output .= '<li>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</li>';
-      $output .= '<li>' . t('If you are missing strings to translate, use the <a href="@refresh-strings">refresh strings</a> page.', array('@refresh-strings' => url('admin/build/translate/refresh'))) . '</li>';
-      $output .= '</ul>';
-      $output .= '<p>' . t('Read more on the <em>Internationalization handbook</em>: <a href="http://backdrop.org/node/313293">Translating user defined strings</a>.') . '</p>';
-      return $output;
-
-    case 'admin/config/regional/translate/i18n_string':
-      $output = '<p>' . t('On this page you can refresh and update values for user defined strings.') . '</p>';
-      $output .= '<ul>';
-      $output .= '<li>' . t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.') . '</li>';
-      $output .= '<li>' . t('Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings.') . '</li>';
-      $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
-      $output .= '<p>' . t('<strong>Important:</strong> To configure which text formats are safe for translation, visit the <a href="@configure-strings">configure strings</a> page before refreshing your strings.', array('@configure-strings' => url('admin/config/regional/i18n/strings'))) . '</p>';
-      return $output;
-
-    case 'admin/config/regional/language':
-      $output = '<p>' . t('<strong>Warning</strong>: Changing the default language may have unwanted effects on string translations. Check also the <a href="@configure-strings">source language</a> for translations and read more about <a href="@i18n_string-help">String translation</a>', array('@configure-strings' => url('admin/config/regional/i18n/strings'), '@i18n_string-help' => url('admin/help/i18n_string'))) . '</p>';
-      return $output;
-
-    case 'admin/config/regional/i18n/strings':
-      $output = '<p>' . t('When translating user defined strings that have a text format associated, translators will be able to edit the text before it is filtered which may be a security risk for some filters. An obvious example is when using the PHP filter but other filters may also be dangerous.') . '</p>';
-      $output .= '<p>' . t('As a general rule <strong>do not allow any filtered text to be translated unless the translators already have access to that text format</strong>. However if you are doing all your translations through this site\'s translation UI or the Localization client, and never importing translations for other textgroups than <i>default</i>, filter access will be checked for translators on every translation page.') . '</p>';
-      $output .= '<p>' . t('<strong>Important:</strong> After disallowing some text format, use the <a href="@refresh-strings">refresh strings</a> page so forbidden strings are deleted and not allowed anymore for translators.', array('@refresh-strings' => url('admin/config/regional/translate/i18n_string'))) . '</p>';
-      return $output;
-
-    case 'admin/config/filters':
-      return '<p>' . t('After updating your text formats do not forget to review the list of formats allowed for string translations on the <a href="@configure-strings">configure translatable strings</a> page.', array('@configure-strings' => url('admin/config/regional/i18n/strings'))) . '</p>';
-  }
-}
-
-/**
  * Implements hook_menu().
  */
 function i18n_string_menu() {
@@ -239,6 +199,29 @@ function i18n_string_modules_enabled($modules) {
 function i18n_string_modules_uninstalled($modules) {
   module_load_include('admin.inc', 'i18n_string');
   i18n_string_refresh_uninstalled_modules($modules);
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function i18n_string_form_alter(&$form, &$form_state, $form_id) {
+  if ($form_id == 'language_admin_overview_form') {
+    $markup = '<p>' . t('<strong>Warning</strong>: Changing the default language may have unwanted effects on string translations. Check also the <a href="@configure-strings">source language</a> for translations.', array('@configure-strings' => url('admin/config/regional/i18n/strings'))) . '</p>';
+    $form['warn'] = array(
+      '#type' => 'markup',
+      '#markup' => $markup,
+    );
+  }
+  elseif ($form_id == 'filter_admin_format_form') {
+    $translatable_formats = config_get('i18n.settings' , 'i18n_string_allowed_formats');
+    if (in_array($form['format']['#default_value'], $translatable_formats)) {
+      $markup = '<p>' . t('After updating your text formats do not forget to review the list of formats allowed for string translations on the <a href="@configure-strings">configure translatable strings</a> page.', array('@configure-strings' => url('admin/config/regional/i18n/strings'))) . '</p>';
+      $form['hint'] = array(
+        '#type' => 'markup',
+        '#markup' => $markup,
+      );
+    }
+  }
 }
 
 /**

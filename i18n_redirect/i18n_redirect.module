@@ -9,15 +9,12 @@
  */
 
 /**
- * Implements hook_help().
+ * Implements i18n_settings_page_help().
  */
-function i18n_redirect_help($path, $arg) {
-  switch ($path) {
-    case 'admin/config/regional/i18n':
-      if (!module_exists('i18n_node')) {
-        $output = '<p>' . t('To have <em>Translation redirect</em> working with your content you should <a href="@admin_modules">enable the <em>Multilingual content</em> module</a>.', array('@admin_modules' => url('admin/modules'))) . '</p>';
-        return $output;
-      }
+function i18n_redirect_i18n_settings_page_help() {
+  if (!module_exists('i18n_node')) {
+    $text = t('To have <em>Translation redirect</em> working with your content you should <a href="@admin_modules">enable the <em>Multilingual content</em> module</a>.', array('@admin_modules' => url('admin/modules')));
+    return $text;
   }
 }
 

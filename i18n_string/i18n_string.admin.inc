@@ -12,6 +12,19 @@ include_once BACKDROP_ROOT . '/core/includes/locale.inc';
  * Form callback. Refresh textgroups.
  */
 function i18n_string_admin_refresh_form() {
+  $output = '<p>' . t('On this page you can refresh and update values for user defined strings.') . '</p>';
+  $output .= '<ul>';
+  $output .= '<li>' . t('Use the refresh option when you are missing strings to translate for a given text group. All the strings will be re-created keeping existing translations.') . '</li>';
+  $output .= '<li>' . t('Use the update option when some of the strings had been previously translated with the localization system, but the translations are not showing up for the configurable strings.') . '</li>';
+  $output .= '</ul>';
+  $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
+  $output .= '<p>' . t('<strong>Important:</strong> To configure which text formats are safe for translation, visit the <a href="@configure-strings">configure strings</a> page before refreshing your strings.', array('@configure-strings' => url('admin/config/regional/i18n/strings'))) . '</p>';
+  $form['help'] = array(
+    '#prefix' => '<div class="i18n-page-help">',
+    '#type' => 'markup',
+    '#markup' => $output,
+    '#suffix' => '</div>',
+  );
   // Select textgroup/s. Just the ones that have a 'refresh callback'.
   $groups = array();
   foreach (i18n_string_group_info() as $name => $info) {
@@ -333,7 +346,10 @@ function i18n_string_settings_form($form, &$form_state) {
   $settings = config('i18n.settings');
 
   $form['i18n_string_intro'] = array(
+    '#prefix' => '<div class="i18n-page-help">',
+    '#type' => 'markup',
     '#markup' => $intro_text,
+    '#suffix' => '</div>',
   );
   $form['i18n_string_allowed_formats'] = array(
     '#title' => t('Translatable text formats'),

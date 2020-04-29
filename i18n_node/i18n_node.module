@@ -59,26 +59,11 @@ function i18n_node_block_view_system_help_alter(&$block) {
 }
 
 /**
- * Implements hook_help().
+ * Implements hook_i18n_settings_page_help().
  */
-function i18n_node_help($path, $arg) {
-  switch ($path) {
-    case 'admin/help#i18n_node':
-      $output = '<p>' . t('Provides some extended multilingual options for nodes.') . '</p>';
-      $output .= '<p>' . t('Additionally, if <em>String translation</em> enabled, this module will localize all content type configuration texts.') . '</p>';
-      $output .= '<ul>';
-      $output .= '<li>' . t('Content type names') . '</li>';
-      $output .= '<li>' . t('Submission guidelines') . '</li>';
-      $output .= '<li>' . t("Content type descriptions were previously localized so they won't be affected.") . '</li>';
-      $output .= '</ul>';
-      $output .= '<p>' . t('To search and translate strings, use the <a href="@translate-interface">translation interface</a> pages.', array('@translate-interface' => url('admin/config/regional/translate'))) . '</p>';
-      return $output;
-
-    case 'admin/config/regional/i18n':
-    case 'admin/config/regional/i18n/node':
-      $output = '<p>' . t('You can find some more per content type options on the <a href="@configure_content">Content types administration page</a>.', array('@configure_content' => url('admin/structure/types'))) . '</p>';
-      return $output;
-  }
+function i18n_node_i18n_settings_page_help() {
+  $text = t('You can find some more per content type options on the <a href="@configure_content">Content types administration page</a>.', array('@configure_content' => url('admin/structure/types')));
+  return $text;
 }
 
 /**
