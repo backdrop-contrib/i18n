@@ -18,8 +18,12 @@ function i18n_string_enable() {
  * Implements hook_install().
  */
 function i18n_string_install() {
-  $language = language_default();
-  config_set('i18n.settings', 'i18n_string_source_language', $language->langcode);
+  $langcode = language_default()->langcode;
+  $config = config('i18n.settings');
+  $config->set('i18n_string.source_language', $langcode);
+  $config->set('i18n_string.allowed_formats', array(filter_fallback_format()));
+  $config->save();
+
   // Add a field to track whether a translation needs updating.
   module_load_install('i18n');
   i18n_install_create_fields('locales_target', array('i18n_status'));
@@ -232,20 +236,22 @@ function i18n_string_update_last_removed() {
 }
 
 /**
- * Move book settings from variables to config.
+ * Move i18n_string settings from variables to config.
  */
 function i18n_string_update_1000() {
   // Migrate variables to config.
   $config = config('i18n.settings');
+  // @todo is this used anywhere?
   $config->set('debug', update_variable_get('i18n_string_debug', FALSE));
+  // @todo Isn't that just for testing?
   $config->set('i18n_loaded_translations', update_variable_get('i18n_loaded_translations', array()));
-  $config->set('i18n_string_allowed_formats', update_variable_get('i18n_string_allowed_formats', array(filter_fallback_format())));
-  // i18n_string_debug_' . $textgroup -- update all without knowing how many?
-
+  $config->set('i18n_string.allowed_formats', update_variable_get('i18n_string_allowed_formats', array(filter_fallback_format())));
+  $config->set('i18n_string.source_language', update_variable_get('i18n_string_source_language', language_default()->langcode));
   $config->save();
 
   // Delete variables.
   update_variable_del('i18n_string_debug');
   update_variable_del('i18n_loaded_translations');
   update_variable_del('i18n_string_allowed_formats');
+  update_variable_del('i18n_string_source_language');
 }

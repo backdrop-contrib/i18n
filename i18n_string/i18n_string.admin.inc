@@ -355,14 +355,14 @@ function i18n_string_settings_form($form, &$form_state) {
     '#title' => t('Translatable text formats'),
     '#options' => $list,
     '#type' => 'checkboxes',
-    '#default_value' => $settings->get('i18n_string_allowed_formats'),
+    '#default_value' => $settings->get('i18n_string.allowed_formats'),
     '#description' => t('The translation system only translates strings with the selected text formats. All other strings will be ignored and removed from the list of translatable strings.'),
   );
   $form['i18n_string_source_language'] = array(
     '#title' => t('Source language'),
     '#options' => language_list('name', TRUE),
     '#type' => 'radios',
-    '#default_value' => $settings->get('i18n_string_source_language'),
+    '#default_value' => $settings->get('i18n_string.source_language'),
     '#description' => t('Language that will be used as the source language for string translations. The default is the site default language.'),
   );
   $form['actions']['#type'] = 'actions';
@@ -378,8 +378,8 @@ function i18n_string_settings_form($form, &$form_state) {
  */
 function i18n_string_settings_form_submit($form, &$form_state) {
   $config = config('i18n.settings');
-  $config->set('i18n_string_allowed_formats', $form_state['values']['i18n_string_allowed_formats']);
-  $config->set('i18n_string_source_language', $form_state['values']['i18n_string_source_language']);
+  $config->set('i18n_string.allowed_formats', $form_state['values']['i18n_string_allowed_formats']);
+  $config->set('i18n_string.source_language', $form_state['values']['i18n_string_source_language']);
   $config->save();
 
   backdrop_set_message(t('The configuration options have been saved.'));

@@ -153,7 +153,7 @@ function i18n_node_language_list($node, $translate = FALSE, $select = FALSE) {
   $languages = node_invoke($node, 'language_list', $translate);
 
   if (!$languages) {
-    $mode = config_get('i18n.settings', "i18n_node_type_{$node->type}.extended");
+    $mode = config_get('i18n.settings', "i18n_node.type_{$node->type}.extended");
     $languages = i18n_language_list($mode);
 
     if ($translate && isset($node->tnid) && $node->tnid && ($translations = translation_node_get_translations($node->tnid))) {
@@ -180,7 +180,7 @@ function i18n_node_language_list($node, $translate = FALSE, $select = FALSE) {
  * Check options for node language.
  */
 function i18n_node_language_options($node, $option) {
-  $options = config_get('i18n.settings', "i18n_node_type_{$node->type}.options");
+  $options = config_get('i18n.settings', "i18n_node.type_{$node->type}.options");
   if ($options) {
     return in_array($option, $options, TRUE);
   }
@@ -192,7 +192,7 @@ function i18n_node_language_options($node, $option) {
  */
 function i18n_node_language_mode($type) {
   $type = is_object($type) ? $type->type : $type;
-  $mode = config_get('i18n.settings', "i18n_node_type_{$type}.extended");
+  $mode = config_get('i18n.settings', "i18n_node.type_{$type}.extended");
   if ($mode) {
     return $mode;
   }
@@ -204,7 +204,7 @@ function i18n_node_language_mode($type) {
  * Implements hook_node_prepare().
  */
 function i18n_node_node_prepare($node) {
-  $options = config_get('i18n.settings', "i18n_node_type_{$node->type}.options");
+  $options = config_get('i18n.settings', "i18n_node.type_{$node->type}.options");
   if (i18n_node_type_enabled($node) && empty($node->nid) && !i18n_object_langcode($node)) {
     if ($options && in_array('current', $options)) {
       // Set current language for new nodes if config exists and is enabled.
@@ -241,7 +241,7 @@ function i18n_node_permission() {
 function i18n_node_node_view_alter(&$build) {
   $node = $build['#node'];
   // Hide node translation links.
-  if (config_get('i18n.settings', 'i18n_hide_translation_links')) {
+  if (config_get('i18n.settings', 'i18n_node.hide_translation_links')) {
     if (isset($build['links']['translation'])) {
       unset($build['links']['translation']);
     }
@@ -397,7 +397,7 @@ function i18n_node_form_node_type_form_alter(&$form, &$form_state) {
     // Add variables for node type from config.
     if ($form['#node_type']->type) {
       $node_type = $form['#node_type']->type;
-      $config = config_get('i18n.settings', 'i18n_node_type_' . $node_type);
+      $config = config_get('i18n.settings', 'i18n_node.type_' . $node_type);
 
       $form['multilingual']['i18n_node']['options'] = array(
         '#type' => 'checkboxes',
@@ -430,10 +430,10 @@ function i18n_node_form_node_type_form_alter(&$form, &$form_state) {
 function i18n_node_type_settings_submit($form, $form_state) {
   $node_type = $form_state['values']['type'];
   if ($form_state['values']['language'] == FALSE) {
-    config_clear('i18n.settings', "i18n_node_type_{$node_type}");
+    config_clear('i18n.settings', "i18n_node.type_{$node_type}");
   }
   else {
-    config_set('i18n.settings', "i18n_node_type_{$node_type}", $form_state['values']['i18n_node']);
+    config_set('i18n.settings', "i18n_node.type_{$node_type}", $form_state['values']['i18n_node']);
   }
 }
 
@@ -512,7 +512,7 @@ function _i18n_node_form_node_form_alter($form, &$form_state) {
       $form['langcode']['#options'] = i18n_node_language_list($node, TRUE, TRUE);
     }
   }
-  elseif (config_get('i18n.settings', 'i18n_node_default_language_none') && !isset($form['#node']->nid)) {
+  elseif (config_get('i18n.settings', 'i18n_node.default_language_none') && !isset($form['#node']->nid)) {
     // Override locale module setting default language to nodes.
     // It is already in form_state.
     $form['langcode']['#value'] = $form_state['values']['langcode'] = LANGUAGE_NONE;
