@@ -37,7 +37,7 @@ function i18n_taxonomy_i18n_object_info() {
   $info['taxonomy_vocabulary'] = array(
     'title' => t('Vocabulary'),
     'entity' => 'taxonomy_vocabulary',
-    'key' => 'vid',
+    'key' => 'machine_name',
     'placeholders' => array(
       '%taxonomy_vocabulary_machine_name' => 'machine_name',
     ),
