@@ -45,6 +45,7 @@ function i18n_string_uninstall() {
   db_drop_field('locales_source', 'textgroup');
   // Drop custom index in locales_source table.
   db_drop_index('locales_source', 'textgroup_context');
+  config_clear('i18n.settings', 'i18n_string');
 }
 
 /**
