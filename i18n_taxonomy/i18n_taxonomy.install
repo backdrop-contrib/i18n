@@ -6,27 +6,43 @@
  */
 
 /**
- * Set language field in its own table.
+ * Set extra field on term table, set config for vocabularies.
  *
- * Do not drop node.language now, just in case.
- * TO-DO: Drop old tables, fields.
+ * @todo Column 'language' is obsolete as Backdrop ships with 'langcode'.
  */
 function i18n_taxonomy_install() {
   module_load_install('i18n');
   i18n_install_create_fields('taxonomy_term_data', array('language', 'i18n_tsid'));
   // Set module weight for it to run after core modules, but before views.
   db_query("UPDATE {system} SET weight = 5 WHERE name = 'i18n_taxonomy' AND type = 'module'");
+  // Add two lines of i18n settings to taxonomy config.
+  $names = config_get_names_with_prefix('taxonomy.vocabulary');
+  foreach ($names as $name) {
+    $config = config("taxonomy.vocabulary.{$name}");
+    $data = $config->get();
+    if (isset($data['language']) && $data['language'] == TAXONOMY_LANGUAGE_ENABLED) {
+      // But only if multilingual support is enabled.
+      $data['i18n_mode'] = I18N_MODE_NONE;
+      $data['langcode'] = LANGAGE_NONE;
+      $config->save($data);
+    }
+  }
 }
 
 /**
  * Implements hook_uninstall().
  */
 function i18n_taxonomy_uninstall() {
-  db_drop_field('taxonomy_vocabulary', 'language');
-  db_drop_field('taxonomy_vocabulary', 'i18n_mode');
   db_drop_field('taxonomy_term_data', 'language');
   db_drop_field('taxonomy_term_data', 'i18n_tsid');
-  variable_del('i18n_taxonomy_vocabulary');
+  $names = config_get_names_with_prefix('taxonomy.vocabulary');
+  foreach ($names as $name) {
+    $config = config("taxonomy.vocabulary.{$name}");
+    $data = $config->get();
+    unset($data['i18n_mode']);
+    unset($data['langcode']);
+    $config->save($data);
+  }
 }
 
 /**
@@ -64,17 +80,4 @@ function i18n_taxonomy_disable() {
  */
 function i18n_taxonomy_update_last_removed() {
   return 7004;
-}
-
-/**
- * Move book settings from variables to config.
- */
-function i18n_taxonomy_update_1000() {
-  // Migrate variables to config.
-  // $config = config('i18n_taxonomy.settings');
-  // $config->set('i18ntaxonomy_vocabulary', update_variable_get('i18ntaxonomy_vocabulary',array()));
-  // $config->save();
-  // Delete variables.
-  // update_variable_del('book_allowed_types');
-  // update_variable_del('i18ntaxonomy_vocabulary');.
 }

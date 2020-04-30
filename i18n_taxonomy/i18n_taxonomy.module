@@ -17,18 +17,6 @@
  */
 
 /**
- * Implements hook_config_info().
- */
-function i18n_taxonomy_config_info() {
-  $prefixes['i18n_taxonomy.vocabulary'] = array(
-    'name_key' => 'vocabulary',
-    'label_key' => 'name',
-    'group' => t('Internationalization'),
-  );
-  return $prefixes;
-}
-
-/**
  * Implements hook_autoload_info().
  */
 function i18n_taxonomy_autoload_info() {
@@ -667,7 +655,7 @@ function i18n_taxonomy_taxonomy_vocabulary_update($vocabulary) {
   // Update language for related terms.
   switch (i18n_taxonomy_vocabulary_mode($vocabulary)) {
     case I18N_MODE_LANGUAGE:
-      $langcode = config_get('i18n_taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
+      $langcode = config_get('taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
       $update['langcode'] = $langcode;
       break;
 
@@ -777,7 +765,7 @@ function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state)
  */
 function i18n_taxonomy_form_vocabulary_submit($form, &$form_state) {
   if (!$form_state['values']['language']) {
-    $config = config('i18n_taxonomy.vocabulary.' . $form_state['values']['machine_name']);
+    $config = config('taxonomy.vocabulary.' . $form_state['values']['machine_name']);
     if (!$config->isNew()) {
       // Multilingual support has been disabled for this vocab.
       $config->delete();
@@ -785,7 +773,7 @@ function i18n_taxonomy_form_vocabulary_submit($form, &$form_state) {
   }
   else {
     if (isset($form_state['values']['i18n_mode'])) {
-      $config = config('i18n_taxonomy.vocabulary.' . $form_state['values']['machine_name']);
+      $config = config('taxonomy.vocabulary.' . $form_state['values']['machine_name']);
       $config->set('i18n_mode', $form_state['values']['i18n_mode']);
 
       if (isset($form_state['values']['langcode'])) {
@@ -876,7 +864,7 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
 
     case I18N_MODE_LANGUAGE:
       // Set context language to vocabulary language and add value to the form.
-      $fixed_lang = config_get('i18n_taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
+      $fixed_lang = config_get('taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
       $form['langcode']['#default_value'] = $fixed_lang;
       $form['langcode']['#disabled'] = TRUE;
       $form['langcode']['#description'] = t('All terms in this vocabulary have a fixed language.');
@@ -943,7 +931,7 @@ function i18n_taxonomy_form_alter(&$form, $form_state, $form_id) {
     case 'taxonomy_overview_vocabularies':
       $vocabularies = taxonomy_get_vocabularies();
       foreach ($vocabularies as $vocabulary) {
-        $langcode = $fixed_lang = config_get('i18n_taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
+        $langcode = $fixed_lang = config_get('taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
         if (isset($langcode) && $langcode != LANGUAGE_NONE) {
           $form[$vocabulary->machine_name]['name']['#markup'] .= ' (' . i18n_language_name($langcode) . ')';
         }
@@ -962,7 +950,7 @@ function i18n_taxonomy_form_alter(&$form, $form_state, $form_id) {
         ));
       }
       elseif ($i18n_mode == I18N_MODE_LANGUAGE) {
-        $langcode = config_get('i18n_taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
+        $langcode = config_get('taxonomy.vocabulary.' . $vocabulary->machine_name, 'langcode');
         $helptext = t('%capital_name is a vocabulary with a fixed language. All the terms in this vocabulary will have %language language.', array(
           '%capital_name' => backdrop_ucfirst($vocabulary->name),
           '%name' => $vocabulary->machine_name,
@@ -1173,13 +1161,13 @@ function i18n_taxonomy_vocabulary_mode($vid, $mode = NULL) {
   $modes = &backdrop_static(__FUNCTION__);
   if (is_object($vid)) {
     $vocabulary = $vid->machine_name;
-    $vid_mode = config_get('i18n_taxonomy.vocabulary.' . $vocabulary, 'i18n_mode');
+    $vid_mode = config_get('taxonomy.vocabulary.' . $vocabulary, 'i18n_mode');
     return isset($mode) ? $mode & $vid_mode : $vid_mode;
   }
   else {
     $vocabulary = $vid;
     if (!isset($modes[$vid])) {
-      $modes[$vid] = config_get('i18n_taxonomy.vocabulary.' . $vocabulary, 'i18n_mode');
+      $modes[$vid] = config_get('taxonomy.vocabulary.' . $vocabulary, 'i18n_mode');
     }
     return isset($mode) ? $mode & $modes[$vid] : $modes[$vid];
   }
@@ -1198,7 +1186,7 @@ function i18n_taxonomy_vocabulary_langcode($vid) {
   else {
     $vocabulary = $vid;
   }
-  return config_get('i18n_taxonomy.vocabulary.' . $vocabulary, 'langcode');
+  return config_get('taxonomy.vocabulary.' . $vocabulary, 'langcode');
 }
 
 /**
