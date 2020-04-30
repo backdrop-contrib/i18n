@@ -973,20 +973,31 @@ function i18n_taxonomy_form_alter(&$form, $form_state, $form_id) {
 
       // We check for vocabulary object first, because when confirming
       // alphabetical ordering it uses the same form.
-      if (!empty($form['#vocabulary']) && $i18n_mode == I18N_MODE_TRANSLATE) {
-        foreach (element_children($form) as $key) {
-          if (isset($form[$key]['#term']) && ($lang = i18n_object_langcode($form[$key]['#term']))) {
-            $form[$key]['view']['#suffix'] = ' (' . i18n_language_name($lang) . ')';
-            if ($lang != LANGUAGE_NONE) {
+      if (!empty($form['#vocabulary'])) {
+        if ($i18n_mode == I18N_MODE_TRANSLATE || $i18n_mode == I18N_MODE_LOCALIZE) {
+          foreach (element_children($form) as $key) {
+            if (!isset($form[$key]['#term'])) {
+              continue;
+            }
+            // Add "translate" links.
+            if ($langcode = i18n_object_langcode($form[$key]['#term'], LANGUAGE_NONE)) {
               $tid = $form[$key]['#term']['tid'];
               $vocab = $form['#vocabulary']->machine_name;
-              $form[$key]['operations']['#links']['translate'] = array(
-                'title' => t('translate'),
-                'href' => "taxonomy/term/{$tid}/translate",
-                'query' => array(
-                  'destination' => "admin/structure/taxonomy/{$vocab}/list/sets",
-                ),
-              );
+              if ($i18n_mode == I18N_MODE_TRANSLATE && $langcode != LANGUAGE_NONE) {
+                $form[$key]['operations']['#links']['translate'] = array(
+                  'title' => t('translate'),
+                  'href' => "taxonomy/term/{$tid}/translate",
+                  'query' => array(
+                    'destination' => "admin/structure/taxonomy/{$vocab}/list/sets",
+                  ),
+                );
+              }
+              elseif ($i18n_mode == I18N_MODE_LOCALIZE) {
+                $form[$key]['operations']['#links']['translate'] = array(
+                  'title' => t('translate'),
+                  'href' => "taxonomy/term/{$tid}/translate",
+                );
+              }
             }
           }
         }
