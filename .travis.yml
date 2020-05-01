@@ -29,7 +29,7 @@ before_install:
 
 script:
   # Check code standards
-  - cd /home/travis/build/backdrop-contrib/headless
+  - cd /home/travis/build/backdrop-contrib/i18n
   - composer install
   - >
     vendor/bin/phpcs -n
@@ -54,7 +54,7 @@ script:
 
   # Install our Backdrop app.
   - lando drush si --db-url=mysql://backdrop:backdrop@database/backdrop
-  - lando drush en headless -y
+  - lando drush en i18n -y
   - lando drush en simpletest -y
 
   # Run non-db required tests eg linting/code standards/unit tests
