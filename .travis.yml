@@ -1,15 +1,48 @@
 language: php
-dist: xenial
+dist: bionic
 php:
-  - 7.2
+  - 7.1
 cache:
   directories:
     - $HOME/.composer/cache/files
     - $HOME/.composer/cache/repo
 services:
   - mysql
+addons:
+  apt:
+    packages:
+      - apache2
+      - libapache2-mod-fcgid
+
 before_install:
   - composer install
+before_script:
+  - |
+    echo 'Enable php-fpm'
+    sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
+    sudo a2enmod rewrite proxy fcgid proxy_fcgi
+    sudo sed -i -e "s,www-data,travis,g" /etc/apache2/envvars
+    sudo chown -R travis:travis /var/lib/apache2/fcgid/
+    ~/.phpenv/versions/$(phpenv version-name)/sbin/php-fpm
+
+  - |
+    echo 'Configure apache virtual host'
+    sudo cp -f build/travis-apache.conf /etc/apache2/sites-available/000-default.conf
+    sudo service apache2 restart
+    git clone --depth 1 https://github.com/backdrop/backdrop /home/travis/htdocs/
+    # sudo cat /var/log/apache2/travis_error.log
+
+  - |
+    echo 'Setting up database'
+    sudo mysql -u root -e 'DROP DATABASE IF EXISTS backdrop;'
+    sudo mysql -u root -e 'CREATE DATABASE backdrop;'
+
+  - |
+    echo 'Installing Backdrop'
+    cd /home/travis/htdocs
+    ./core/scripts/install.sh --db-url=mysql://root:@localhost/backdrop
+    cp -R /home/travis/build/backdrop-contrib/i18n/ /home/travis/htdocs/modules/
+    cd /home/travis/build/backdrop-contrib/i18n
 
 script:
   # Check code standards
@@ -19,5 +52,7 @@ script:
     --ignore="vendor/*,i18n_block/*,i18n_forum/*,i18n_select/*,i18n_user/*,i18n_variable/*,i18n_field/i18n_field.inc,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
     --extensions=install,module,php,inc,theme .
 
-  # Unit tests
-
+  # Simpletests
+  - |
+    cd /home/travis/htdocs/
+    ./core/scripts/run-tests.sh --force --directory=modules/i18n --concurrency=2
