@@ -1,6 +1,7 @@
 # Internationalization (i18n)
-
+<!---
 [![Build Status](https://travis-ci.org/backdrop-contrib/i18n.svg?branch=1.x)](https://travis-ci.org/backdrop-contrib/i18n)
+-->
 
 This is a collection of modules to extend Backdrop core multilingual 
 capabilities and be able to build full-featured multilingual sites. This 
