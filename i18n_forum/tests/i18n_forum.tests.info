@@ -1,0 +1,5 @@
+[I18nForumTestCase]
+name = Multilingual forum
+description = Test multilingual forum
+group = Internationalization
+file = i18n_forum.test

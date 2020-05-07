@@ -6,4 +6,3 @@ dependencies[] = i18n_node
 package = Multilingual - Internationalization
 backdrop = 1.x
 type = module
-files[] = i18n_forum.test
