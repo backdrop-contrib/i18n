@@ -2,7 +2,7 @@
 
 /**
  * @file
- * i18n forum module
+ * I18n forum module.
  *
  * Internationalization (i18n) package.
  */
@@ -16,7 +16,8 @@ function i18n_forum_help($path, $arg) {
     return t('To translate the forum, <a href="@edit">edit and make it translatable</a>, then <a href="@translate">translate the forum</a> and <a href="@list">its containers and sub-forums</a> on the taxonomy administration page.', array(
       '@edit' => url($base_path . '/edit'),
       '@translate' => url($base_path . '/translate'),
-      '@list' => url($base_path . '/list'))
+      '@list' => url($base_path . '/list'),
+    )
     );
   }
 }
@@ -44,12 +45,12 @@ function i18n_forum_menu_local_tasks_alter(&$data, $router_item, $root_path) {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter()
+ * Implements hook_form_FORM_ID_alter().
  */
 function i18n_forum_form_taxonomy_form_vocabulary_alter(&$form, &$form_state) {
   $machine_name = config_get('forum.settings', 'forum_nav_vocabulary');
   if ($machine_name && !isset($form_state['confirm_delete']) && isset($form['vid']) && $form['vid']['#value'] == $machine_name) {
-    // Only two options for this vocabulary
+    // Only two options for this vocabulary.
     $replacements = array(
       '@item_name_multiple' => t('forum containers'),
       '@item_name_multiple_capitalized' => t('Forum containers'),
@@ -68,7 +69,7 @@ function i18n_forum_node_view($node, $view_mode, $langcode) {
     if ($view_mode == 'full' && node_is_page($node)) {
       $machine_name = config_get('forum.settings', 'forum_nav_vocabulary');
       $vocabulary = taxonomy_vocabulary_load($machine_name);
-      // Breadcrumb navigation
+      // Breadcrumb navigation.
       $breadcrumb[] = l(t('Home'), NULL);
       $breadcrumb[] = l(i18n_taxonomy_vocabulary_name($vocabulary), 'forum');
       if ($parents = taxonomy_get_parents_all($node->forum_tid)) {
@@ -83,7 +84,7 @@ function i18n_forum_node_view($node, $view_mode, $langcode) {
 }
 
 /**
- * Implements hook_i18n_translate_path()
+ * Implements hook_i18n_translate_path().
  */
 function i18n_forum_i18n_translate_path($path) {
   if (strpos($path, 'forum/') === 0 && i18n_forum_mode() & I18N_MODE_TRANSLATE) {
@@ -103,7 +104,6 @@ function i18n_forum_preprocess_forum_list(&$variables) {
   }
 }
 
-
 /**
  * Translate forum page.
  */
@@ -113,7 +113,8 @@ function i18n_forum_preprocess_forums(&$variables) {
     if (isset($variables['links']['forum'])) {
       $variables['links']['forum']['title'] = i18n_string('nodetype:type:forum:post_button', 'Post new Forum topic');
     }
-    // This one is from advanced forum, http://backdrop.org/project/advanced_forum
+    // This one is from advanced forum,
+    // see http://drupal.org/project/advanced_forum
     if (!empty($variables['forum_description'])) {
       $variables['forum_description'] = i18n_string('taxonomy:term:' . $variables['tid'] . ':description', $variables['forum_description']);
     }

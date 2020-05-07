@@ -6,10 +6,14 @@
  */
 
 require_once backdrop_get_path('module', 'i18n') . '/tests/i18n.test';
-
-
+/**
+ * Test class for i18n_forum.
+ */
 class I18nForumTestCase extends Backdropi18nTestCase {
 
+  /**
+   * Set up.
+   */
   public function setUp() {
     parent::setUp('translation', 'i18n_forum');
     parent::setUpLanguages();
@@ -24,4 +28,5 @@ class I18nForumTestCase extends Backdropi18nTestCase {
     // @see http://drupal.org/node/1437932
     $this->i18nGet($this->defaultLanguage, 'forum');
   }
+
 }
