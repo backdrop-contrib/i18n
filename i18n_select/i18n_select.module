@@ -137,7 +137,7 @@ function i18n_select_page() {
 function i18n_select_query_node_access_alter(QueryAlterableInterface $query) {
   if (i18n_select_mode('nodes') && i18n_select_check_query($query, 'nid') &&
     ($table_alias = i18n_select_check_table($query, 'node', 'nid'))) {
-    $query->condition($table_alias . '.language', i18n_select_langcodes());
+    $query->condition($table_alias . '.langcode', i18n_select_langcodes());
     // Mark query as altered
     $query->addTag('i18n_select');
   }
@@ -151,7 +151,7 @@ function i18n_select_query_node_access_alter(QueryAlterableInterface $query) {
 function i18n_select_query_term_access_alter(QueryAlterableInterface $query) {
   if (module_exists('i18n_taxonomy') && i18n_select_mode('taxonomy') && i18n_select_check_query($query, 'tid') &&
     ($table_alias = i18n_select_check_table($query, 'taxonomy_term_data', 'tid'))) {
-    $query->condition($table_alias . '.language', i18n_select_langcodes());
+    $query->condition($table_alias . '.langcode', i18n_select_langcodes());
     // Mark query as altered
     $query->addTag('i18n_select');
   }
@@ -309,6 +309,6 @@ function i18n_select_language() {
  * Get language codes for content selection to use in query conditions
  */
 function i18n_select_langcodes() {
-  return array(i18n_select_language()->language, LANGUAGE_NONE);
+  return array(i18n_select_language()->langcode, LANGUAGE_NONE);
 }
 
