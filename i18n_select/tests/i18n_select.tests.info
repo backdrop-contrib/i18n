@@ -1,0 +1,5 @@
+[i18nSelectTestCase]
+name = 'Content Selection'
+description = 'Internationalization Content Selection'
+group = Internationalization
+file = i18n_select.test
