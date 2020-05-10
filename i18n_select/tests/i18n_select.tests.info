@@ -1,4 +1,4 @@
-[i18nSelectTestCase]
+[I18nSelectTestCase]
 name = 'Content Selection'
 description = 'Internationalization Content Selection'
 group = Internationalization

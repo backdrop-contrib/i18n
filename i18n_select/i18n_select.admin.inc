@@ -4,6 +4,10 @@
  * @file
  * Forms for i18n select administration.
  */
+
+/**
+ * Admin settings form.
+ */
 function i18n_select_admin_settings() {
   $config = config_get('i18n_select.settings');
   $form['#config'] = 'i18n_select.settings';
@@ -35,7 +39,8 @@ function i18n_select_admin_settings() {
   );
 
   // Enable for specific pages. This works pretty much like block visibility
-  // Note this page requires 'administer site configuration' so we don't need to check permissions
+  // Note this page requires 'administer site configuration'
+  // so we don't need to check permissions.
   $form['pages'] = array(
     '#type' => 'fieldset',
     '#title' => t('Enable for specific pages'),
@@ -67,7 +72,7 @@ function i18n_select_admin_settings() {
 }
 
 /**
- * Options for page selection mode
+ * Options for page selection mode.
  */
 function i18n_select_option_list() {
   $options = array(

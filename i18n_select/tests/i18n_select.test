@@ -1,15 +1,16 @@
 <?php
+
 /**
  * @file
- * Test language selection modes
+ * Test language selection modes.
  */
 
 require_once __DIR__ . '/../../tests/i18n.test';
 
 /**
- *
+ * Simpletest class to check i18n_select.
  */
-class i18nSelectTestCase extends Backdropi18nTestCase {
+class I18nSelectTestCase extends Backdropi18nTestCase {
 
   /**
    * Set up.
@@ -21,9 +22,9 @@ class i18nSelectTestCase extends Backdropi18nTestCase {
   }
 
   /**
-   *
+   * Test for content selection.
    */
-  function testIi18nSelect() {
+  public function testIi18nSelect() {
     backdrop_static_reset('language_list');
     $language_list = language_list();
     $language_count = count($language_list);
@@ -41,7 +42,8 @@ class i18nSelectTestCase extends Backdropi18nTestCase {
     $context = 'config:system.core:site_name';
     $lid = db_query("SELECT lid FROM {locales_source} WHERE source = :source AND context = :context", array(
       ':source' => $site_name,
-      ':context' => $context))->fetchField();
+      ':context' => $context,
+    ))->fetchField();
 
     foreach (i18n_language_list() as $langcode => $name) {
       if ($langcode == 'en') {
@@ -73,7 +75,7 @@ class i18nSelectTestCase extends Backdropi18nTestCase {
     $translations = $this->createNodeTranslationSet($source);
     $this->assertEqual(count($translations), $language_count, "Created $language_count $source->type translations.");
 
-    // Default selection mode, only language neutral and current
+    // Default selection mode, only language neutral and current.
     config_set('i18n_select.settings', 'i18n_select_nodes', TRUE);
     // Set the frontpage to old-school /node path.
     config_set('system.core', 'site_frontpage', 'node');
@@ -94,9 +96,9 @@ class i18nSelectTestCase extends Backdropi18nTestCase {
   }
 
   /**
-   * Check some nodes are displayed, some are not
+   * Check some nodes are displayed, some are not.
    */
-  function assertContent($display, $hide = array()) {
+  public function assertContent($display, $hide = array()) {
     $languages = language_list();
     foreach ($display as $node) {
       $this->assertText($node->title, 'Content displayed for ' . i18n_language_name($node->langcode));
