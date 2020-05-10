@@ -19,6 +19,7 @@ before_install:
 before_script:
   - |
     echo 'Enable php-fpm'
+    phpenv config-rm xdebug.ini || echo 'xdebug not installed'
     sudo cp ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf.default ~/.phpenv/versions/$(phpenv version-name)/etc/php-fpm.conf
     sudo a2enmod rewrite proxy fcgid proxy_fcgi
     sudo sed -i -e "s,www-data,travis,g" /etc/apache2/envvars
@@ -49,8 +50,8 @@ script:
   - >
     vendor/bin/phpcs -n
     --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
-    --ignore="vendor/*,i18n_block/*,i18n_select/*,i18n_user/*,i18n_variable/*,i18n_field/i18n_field.inc,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
-    --extensions=install,module,php,inc,theme .
+    --ignore="vendor/*,i18n_block/*,i18n_user/*,i18n_variable/*,i18n_field/i18n_field.inc,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
+    --extensions=install,module,php,inc .
 
   # Simpletests
   - |
