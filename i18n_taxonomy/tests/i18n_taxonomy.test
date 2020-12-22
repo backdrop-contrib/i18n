@@ -169,8 +169,8 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
   /**
    * Tests options_list_callback.
    *
-   * Tests the implementation of 'options_list_callback' for term reference fields.
-   * Enable and disable the callback properly. Avoid WSOD!
+   * Tests the implementation of 'options_list_callback' for term reference
+   * fields. Enable and disable the callback properly. Avoid WSOD!
    */
   public function testTaxonomyFieldCallback() {
     $field_name = 'taxonomy_term_test_field';
