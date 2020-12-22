@@ -18,19 +18,25 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     parent::setUp(array('i18n_taxonomy', 'field_test'));
     parent::setUpLanguages();
 
-    // Create users.
-    $filtered_html_format = filter_format_load('filtered_html');
-    $full_html_format = filter_format_load('full_html');
-    $this->admin_user = $this->backdropCreateUser(array(
+    // Create users with proper permissions.
+    $permissions = array(
       'access field_test content',
       'administer field_test content',
       'administer taxonomy',
       'administer languages',
       'administer site configuration',
-      filter_permission_name($filtered_html_format),
-      filter_permission_name($full_html_format),
+    );
+    $formats = filter_formats();
+    foreach ($formats as $format) {
+      if ($permission = filter_permission_name($format)) {
+        $permissions[] = $permission;
+      }
+    }
+    $this->admin_user = $this->backdropCreateUser($permissions);
+    $this->translator = $this->backdropCreateUser(array(
+      'translate interface',
+      'translate user-defined strings',
     ));
-    $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
   }
 
   /**
