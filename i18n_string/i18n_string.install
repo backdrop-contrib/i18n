@@ -256,3 +256,27 @@ function i18n_string_update_1000() {
   update_variable_del('i18n_string_allowed_formats');
   update_variable_del('i18n_string_source_language');
 }
+
+/**
+ * Add back textgroup to locales_source.
+ *
+ * textgroup was removed in core, locale_update_1000(), but adding it back
+ * so i18n can continue to use it.
+ */
+function i18n_string_update_1001() {
+  // Add a field to track whether a translation needs updating.
+  module_load_install('i18n');
+  i18n_install_create_fields('locales_source', array('textgroup'));
+
+  // Create new index in {locales_source},
+  // performance improvement in sites with i18n.
+  db_drop_index('locales_source', 'textgroup_context');
+  db_add_index('locales_source', 'textgroup_context', array('textgroup', 'context'));
+
+  if (db_table_exists('i18n_string')) {
+    // Copy over textgroup categories from i18n_string.
+    db_query("UPDATE {locales_source} ls
+    RIGHT JOIN {i18n_string} i ON ls.lid = i.lid
+    SET ls.textgroup = i.textgroup");
+  }
+}
