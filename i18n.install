@@ -60,3 +60,54 @@ function i18n_update_1000() {
   // Delete variables.
   // update_variable_del('book_allowed_types');.
 }
+
+/**
+ * Get the config translatables from variable_store.
+ */
+function i18n_update_1001() {
+  // Check _config_translatables for all config files.
+  $config_info_all = config_get_info();
+  foreach ($config_info_all as $prefix => $config_info) {
+    $config = config($prefix);
+    if ($config->get('_config_translatables') !== NULL) {
+      foreach ($config->get('_config_translatables') as $translatable) {
+        // Trigger staging for locale.
+        // At this point the result is untranslated but that's okay.
+        $t = locale($config->get($translatable), 'config:' . $prefix . ':' . $translatable);
+        $lid = db_select('locales_source', 'ls')
+          ->fields('ls', array('lid'))
+          ->condition('ls.context', 'config:' . $prefix . ':' . $translatable, '=')
+          ->execute()
+          ->fetchField();
+
+        if (empty($lid)) {
+          continue;
+        }
+        // Get translations from variable_store for each language
+        // skip the default language
+        $default_language = language_default();
+        // @todo Convert the name to include the prefix but in d7 format.
+        // user.mail.cancel_confirm_body should be user_mail_cancel_confirm_body
+        // For now we just find the fuzzy name.
+        $translations = db_select('variable_store', 'vs')
+          ->fields('vs', array('realm_key', 'value'))
+          ->condition('vs.name', '%' . db_like($translatable) . '%', 'LIKE')
+          ->condition('vs.realm_key', $default_language->langcode, '<>')
+          ->execute()
+          ->fetchAll();
+
+        // Create locales_target for each language
+        foreach ($translations as $translation) {
+          db_insert('locales_target')
+          ->fields(array(
+            'lid' => $lid,
+            'translation' => $translation->value,
+            'language' => $translation->realm_key,
+          ))
+          ->execute();
+        }
+
+      }
+    }
+  }
+}
