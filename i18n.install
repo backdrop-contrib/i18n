@@ -127,7 +127,7 @@ function i18n_update_1002() {
 function i18n_update_1003() {
   // Get the custom block config and search for block translations.
   $block_names = config_get_names_with_prefix('block.custom');
-  foreach ($blocks as $block_name) {
+  foreach ($block_names as $block_name) {
     $config = config($block_name);
     // Get all languages except for the default.
     $languages = language_list(FALSE, TRUE);
