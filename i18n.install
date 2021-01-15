@@ -87,11 +87,12 @@ function i18n_update_1002() {
         if (empty($lid)) {
           continue;
         }
-        // Get translations from variable_store for each language
-        // skip the default language
+        // Get translations from variable_store for each language.
+        // Skip the default language.
         $default_language = language_default();
         // @todo Convert the name to include the prefix but in d7 format.
-        // user.mail.cancel_confirm_body should be user_mail_cancel_confirm_body
+        // The config user.mail.cancel_confirm_body should be
+        // user_mail_cancel_confirm_body in Drupal 7.
         // For now we just find the fuzzy name.
         $translations = db_select('variable_store', 'vs')
           ->fields('vs', array('realm_key', 'value'))
@@ -100,7 +101,7 @@ function i18n_update_1002() {
           ->execute()
           ->fetchAll();
 
-        // Create locales_target for each language
+        // Create locales_target for each language.
         foreach ($translations as $translation) {
           db_insert('locales_target')
           ->fields(array(
@@ -122,15 +123,17 @@ function i18n_update_1002() {
 function i18n_update_1003() {
   // Get the custom block config and search for block translations.
   $block_names = config_get_names_with_prefix('block.custom');
-  foreach($blocks as $block_name) {
+  foreach ($blocks as $block_name) {
     $config = config($block_name);
-    // Get all languages
+    // Get all languages except for the default.
     $languages = language_list(FALSE, TRUE);
     $default_langcode = config_get('system.core', 'language_default');
     unset($languages[$default_langcode]);
     foreach ($languages as $langcode) {
       $translated_title = locale($config->get('title'), 'block:' . $config->get('delta') . ':title', $langcode);
       $translated_body = locale($config->get('body.value'), 'block:' . $config->get('delta') . ':body', $langcode);
+      // Save translations for each language.
+      // We assume some settings are the same as the default language.
       $config->set('translations.' . $langcode, array(
         'info' => $config->get('info'),
         'description' => $config->get('description'),
