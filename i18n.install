@@ -50,21 +50,25 @@ function i18n_update_last_removed() {
 }
 
 /**
- * Move book settings from variables to config.
+ * Empty update.
  */
 function i18n_update_1000() {
-  // Migrate variables to config.
-  // $config = config('i18n.settings');
-  // $config->set('book_allowed_types', update_variable_get('book_allowed_types', array('book')));
-  // $config->save();
-  // Delete variables.
-  // update_variable_del('book_allowed_types');.
+  // Empty.
 }
 
 /**
- * Get the config translatables from variable_store.
+ * Disable deprecated sub-modules: i18n_user, i18n_variable, i18n_block.
  */
 function i18n_update_1001() {
+  db_delete('system')
+    ->condition('name', array('i18n_user', 'i18n_variable', 'i18n_block'), 'IN')
+    ->execute();
+}
+
+/**
+ * Convert the config translatables from variable_store to locale.
+ */
+function i18n_update_1002() {
   // Check _config_translatables for all config files.
   $config_info_all = config_get_info();
   foreach ($config_info_all as $prefix => $config_info) {
@@ -109,5 +113,34 @@ function i18n_update_1001() {
 
       }
     }
+  }
+}
+
+/**
+ * Move block translations to custom block configuration files.
+ */
+function i18n_update_1003() {
+  // Get the custom block config and search for block translations.
+  $block_names = config_get_names_with_prefix('block.custom');
+  foreach($blocks as $block_name) {
+    $config = config($block_name);
+    // Get all languages
+    $languages = language_list(FALSE, TRUE);
+    $default_langcode = config_get('system.core', 'language_default');
+    unset($languages[$default_langcode]);
+    foreach ($languages as $langcode) {
+      $translated_title = locale($config->get('title'), 'block:' . $config->get('delta') . ':title', $langcode);
+      $translated_body = locale($config->get('body.value'), 'block:' . $config->get('delta') . ':body', $langcode);
+      $config->set('translations.' . $langcode, array(
+        'info' => $config->get('info'),
+        'description' => $config->get('description'),
+        'title' => $translated_title,
+        'body' => array(
+          'value' => $translated_body,
+          'format' => $config->get('body.format'),
+        ),
+      ));
+    }
+    $config->save();
   }
 }
