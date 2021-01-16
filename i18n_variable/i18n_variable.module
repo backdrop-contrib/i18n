@@ -13,7 +13,7 @@ define('I18N_VARIABLE_LANGUAGE_TYPE', 'i18n_language_variable');
  * Implements hook_language_init()
  */
 function i18n_variable_language_init() {
-  if (backdrop_multilingual()) {
+  if (language_multilingual()) {
     module_invoke('variable_realm', 'initialize', 'language');
   }
 }
