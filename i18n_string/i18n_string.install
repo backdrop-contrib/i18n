@@ -228,6 +228,18 @@ function i18n_string_install_update_context($oldname, $newname) {
   }
 }
 
+/**
+ * Implements hook_update_dependencies().
+ */
+function i18n_string_update_dependencies() {
+  $dependencies['locale'][1000] = array(
+    'i18n_string' => 1001,
+  );
+  $dependencies['i18n_string'][1002] = array(
+    'locale' => 1000,
+  );
+  return $dependencies;
+}
 
 /**
  * Implements hook_update_last_removed().
@@ -255,4 +267,24 @@ function i18n_string_update_1000() {
   update_variable_del('i18n_loaded_translations');
   update_variable_del('i18n_string_allowed_formats');
   update_variable_del('i18n_string_source_language');
+}
+
+/**
+ * Clone complete locales_source table.
+ */
+function i18n_string_update_1001() {
+  // Must run before locale_update_1000().
+  // @see i18n_string_update_dependencies().
+  db_query('CREATE TABLE {locales_source_temp} LIKE {locales_source}');
+  db_query('INSERT {locales_source_temp} SELECT * FROM {locales_source}');
+}
+
+/**
+ * Bring back locales_source from temporary table.
+ */
+function i18n_string_update_1002() {
+  // Must run after locale_update_1000().
+  // @see i18n_string_update_dependencies().
+  db_drop_table('locales_source');
+  db_rename_table('locales_source_temp', 'locales_source');
 }
