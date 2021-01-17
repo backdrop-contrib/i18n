@@ -273,6 +273,9 @@ function i18n_string_update_1000() {
  * Clone complete locales_source table.
  */
 function i18n_string_update_1001() {
+  if (update_already_performed('locale', 1000)) {
+    return;
+  }
   // Must run before locale_update_1000().
   // @see i18n_string_update_dependencies().
   db_query('CREATE TABLE {locales_source_temp} LIKE {locales_source}');
@@ -283,6 +286,9 @@ function i18n_string_update_1001() {
  * Bring back locales_source from temporary table.
  */
 function i18n_string_update_1002() {
+  if (!db_table_exists('locales_source_temp')) {
+    return;
+  }
   // Must run after locale_update_1000().
   // @see i18n_string_update_dependencies().
   db_drop_table('locales_source');
