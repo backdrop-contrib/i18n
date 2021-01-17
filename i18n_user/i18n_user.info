@@ -1,8 +1,6 @@
 name = User mail translation
-description = "Translate emails sent from the User module."
+description = Empty dummy module required for D7 migrations.
 backdrop = 1.x
 type = module
 hidden = TRUE
-
 package = Multilingual - Internationalization
-dependencies[] = i18n_variable
