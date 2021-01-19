@@ -1,10 +1,7 @@
 name = Internationalization
 description = Extends Backdrop support for multilingual features.
 dependencies[] = locale
-;dependencies[] = variable
 package = Multilingual - Internationalization
 backdrop = 1.x
 type = module
-files[] = i18n_object.inc
-files[] = i18n.test
 configure = admin/config/regional/i18n

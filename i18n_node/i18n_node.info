@@ -7,4 +7,3 @@ package = Multilingual - Internationalization
 backdrop = 1.x
 type = module
 configure = admin/config/regional/i18n/node
-files[]=i18n_node.test
