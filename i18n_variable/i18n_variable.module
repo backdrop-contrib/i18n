@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Internationalization (i18n) package. Multilingual variables API.
- *
- * @todo Remove placeholder for this deprecated module in major release.
- */

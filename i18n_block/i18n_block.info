@@ -1,6 +1,0 @@
-name = Block languages
-description = Empty dummy module required for D7 migrations.
-package = Multilingual - Internationalization
-backdrop = 1.x
-type = module
-hidden = TRUE

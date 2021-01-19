@@ -1,6 +1,0 @@
-name = User mail translation
-description = Empty dummy module required for D7 migrations.
-backdrop = 1.x
-type = module
-hidden = TRUE
-package = Multilingual - Internationalization
