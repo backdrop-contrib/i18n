@@ -50,6 +50,9 @@ function i18n_update_dependencies() {
   $dependencies['i18n'][1002] = array(
     'user' => 1017,
   );
+  $dependencies['i18n'][1003] = array(
+    'block' => 1004,
+  );
   return $dependencies;
 }
 
@@ -174,4 +177,46 @@ function i18n_update_1002() {
     }
   }
 
+}
+
+/**
+ * Get custom block translations and convert to config.
+ */
+function i18n_update_1003() {
+  $block_names = config_get_names_with_prefix('block.custom');
+  foreach ($block_names as $block_name) {
+    $config = config($block_name);
+
+    $languages = config_get('language.settings', 'languages');
+    // Locale always assumes English as source.
+    unset($languages['en']);
+    $config->set('default_langcode', 'en');
+    foreach (array_keys($languages) as $langcode) {
+      $translated_title = locale($config->get('title'), 'blocks:block:' . $config->get('delta') . ':title', $langcode);
+      $translated_body = locale($config->get('body.value'), 'blocks:block:' . $config->get('delta') . ':body', $langcode);
+      // Save translations for each language.
+      $config->set('translations.' . $langcode, array(
+        'info' => $config->get('info'),
+        'description' => $config->get('description'),
+        'title' => $translated_title,
+        'body' => array(
+          'value' => $translated_body,
+          'format' => $config->get('body.format'),
+        ),
+      ));
+    }
+    $config->save();
+  }
+
+  // Entries in locales_source and locales_target are no longer needed, cleanup.
+  $result = db_select('locales_source', 's')
+    ->fields('s', array('lid'))
+    ->condition('textgroup', 'blocks')
+    ->execute()
+    ->fetchAllAssoc('lid');
+
+  db_delete('locales_source')
+    ->condition('lid', array_keys($result), 'IN')->execute();
+  db_delete('locales_target')
+    ->condition('lid', array_keys($result), 'IN')->execute();
 }
