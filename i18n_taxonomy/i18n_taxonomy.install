@@ -72,14 +72,23 @@ function i18n_taxonomy_disable() {
  * Implements hook_update_dependencies().
  */
 function i18n_taxonomy_update_dependencies() {
-  // Squeeze i18n_taxonomy_update_1000 in between taxonomy_update_1006 and
-  // taxonomy_update_1007.
+  // Set the i18n_mode for vocabularies between taxonomy_update_1001 and
+  // taxonomy_update_1002
   $dependencies['i18n_taxonomy'][1000] = array(
+    'taxonomy' => 1001,
+  );
+  $dependencies['taxonomy'][1002] = array(
+    'i18n_taxonomy' => 1000,
+  );
+  // Squeeze i18n_taxonomy_update_1001 in between taxonomy_update_1006 and
+  // taxonomy_update_1007.
+  $dependencies['i18n_taxonomy'][1001] = array(
     'taxonomy' => 1006,
   );
   $dependencies['taxonomy'][1007] = array(
-    'i18n_taxonomy' => 1000,
+    'i18n_taxonomy' => 1001,
   );
+
   return $dependencies;
 }
 
@@ -91,9 +100,29 @@ function i18n_taxonomy_update_last_removed() {
 }
 
 /**
- * Finalize switch from language to langcode column.
+ * Set the i18n mode per vocabulary.
  */
 function i18n_taxonomy_update_1000() {
+  if (!db_table_exists('taxonomy_vocabulary')) {
+    return;
+  }
+  $result = db_query('SELECT machine_name, language, i18n_mode FROM {taxonomy_vocabulary}');
+  foreach ($result as $row) {
+    $config = config('taxonomy.vocabulary.'. $row->machine_name);
+    $config->set('langcode', $row->language);
+    $config->set('i18n_mode', $row->i18n_mode);
+    if ($row->i18n_mode > 0) {
+      // Core's multilingual setting.
+      $config->set('language', 1);
+    }
+    $config->save();
+  }
+}
+
+/**
+ * Finalize switch from language to langcode column.
+ */
+function i18n_taxonomy_update_1001() {
   if (!db_field_exists('taxonomy_term_data', 'language')) {
     return;
   }
