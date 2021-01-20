@@ -215,8 +215,13 @@ function i18n_update_1003() {
     ->execute()
     ->fetchAllAssoc('lid');
 
+  $lids = array_keys($result);
+  if (empty($lids)) {
+    return;
+  }
+
   db_delete('locales_source')
-    ->condition('lid', array_keys($result), 'IN')->execute();
+    ->condition('lid', $lids, 'IN')->execute();
   db_delete('locales_target')
-    ->condition('lid', array_keys($result), 'IN')->execute();
+    ->condition('lid', $lids, 'IN')->execute();
 }
