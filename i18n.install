@@ -181,12 +181,12 @@ function i18n_update_1002() {
 function i18n_update_1003() {
   $block_names = config_get_names_with_prefix('block.custom');
   $languages = config_get('language.settings', 'languages');
+  unset($languages['en']);
 
   foreach ($block_names as $block_name) {
     $config = config($block_name);
 
     // Locale always assumes English as source.
-    unset($languages['en']);
     $config->set('default_langcode', 'en');
 
     foreach (array_keys($languages) as $langcode) {
