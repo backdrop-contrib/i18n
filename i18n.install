@@ -163,12 +163,12 @@ function i18n_update_1002() {
       // Create entries in locales_target for each language.
       foreach ($translations as $translation) {
         db_insert('locales_target')
-        ->fields(array(
-          'lid' => $lid,
-          'translation' => $translation->value,
-          'language' => $translation->realm_key,
-        ))
-        ->execute();
+          ->fields(array(
+            'lid' => $lid,
+            'translation' => $translation->value,
+            'language' => $translation->realm_key,
+          ))
+          ->execute();
       }
     }
   }
@@ -180,13 +180,15 @@ function i18n_update_1002() {
  */
 function i18n_update_1003() {
   $block_names = config_get_names_with_prefix('block.custom');
+  $languages = config_get('language.settings', 'languages');
+
   foreach ($block_names as $block_name) {
     $config = config($block_name);
 
-    $languages = config_get('language.settings', 'languages');
     // Locale always assumes English as source.
     unset($languages['en']);
     $config->set('default_langcode', 'en');
+
     foreach (array_keys($languages) as $langcode) {
       $translated_title = locale($config->get('title'), 'blocks:block:' . $config->get('delta') . ':title', $langcode);
       $translated_body = locale($config->get('body.value'), 'blocks:block:' . $config->get('delta') . ':body', $langcode);
