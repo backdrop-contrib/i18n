@@ -67,15 +67,15 @@ function i18n_update_last_removed() {
  * Empty hook.
  */
 function i18n_update_1000() {
-  // Got removed.
+  // This hook formerly contained dummy code, which got removed.
 }
 
 /**
  * Disable unavailable and deprecated modules.
  */
 function i18n_update_1001() {
-  // Neither can we, nor do we need to run any code, just rip out of the system
-  // table.
+  // The following modules don't exist for Backdrop. We disable them by removing
+  // the rows from the system table.
   $obsolete = array(
     'variable',
     'variable_realm',
