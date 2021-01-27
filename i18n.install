@@ -43,6 +43,20 @@ function i18n_install_create_fields($table, $fields, $force_rebuild_schema = FAL
 }
 
 /**
+ * Implements hook_update_dependencies().
+ */
+function i18n_update_dependencies() {
+  // Ensure conversion to config has already happened.
+  $dependencies['i18n'][1002] = array(
+    'user' => 1017,
+  );
+  $dependencies['i18n'][1003] = array(
+    'block' => 1004,
+  );
+  return $dependencies;
+}
+
+/**
  * Implements hook_update_last_removed().
  */
 function i18n_update_last_removed() {
@@ -50,13 +64,162 @@ function i18n_update_last_removed() {
 }
 
 /**
- * Move book settings from variables to config.
+ * Empty hook.
  */
 function i18n_update_1000() {
-  // Migrate variables to config.
-  // $config = config('i18n.settings');
-  // $config->set('book_allowed_types', update_variable_get('book_allowed_types', array('book')));
-  // $config->save();
-  // Delete variables.
-  // update_variable_del('book_allowed_types');.
+  // This hook formerly contained dummy code, which got removed.
+}
+
+/**
+ * Disable unavailable and deprecated modules.
+ */
+function i18n_update_1001() {
+  // The following modules don't exist for Backdrop. We disable them by removing
+  // the rows from the system table.
+  $obsolete = array(
+    'variable',
+    'variable_realm',
+    'variable_store',
+    'i18n_block',
+    'i18n_user',
+    'i18n_variable',
+  );
+  db_delete('system')->condition('name', $obsolete, 'IN')->execute();
+}
+
+/**
+ * Get translatables from variable_store and convert to locale.
+ */
+function i18n_update_1002() {
+  if (!db_table_exists('variable_store')) {
+    return;
+  }
+  // Hardcoded for now.
+  // @see https://github.com/backdrop/backdrop-issues/issues/4888
+  $mail_translatables = array(
+    'cancel_confirm_body',
+    'cancel_confirm_subject',
+    'password_reset_body',
+    'password_reset_subject',
+    'register_admin_created_body',
+    'register_admin_created_subject',
+    'register_no_approval_required_body',
+    'register_no_approval_required_subject',
+    'register_pending_approval_body',
+    'register_pending_approval_subject',
+    'register_pending_approval_admin_body',
+    'register_pending_approval_admin_subject',
+    'status_activated_body',
+    'status_activated_subject',
+    'status_blocked_body',
+    'status_blocked_subject',
+    'status_canceled_body',
+    'status_canceled_subject',
+  );
+  $system_translatables = array(
+    'anonymous',
+    'site_name',
+    'site_slogan',
+    'maintenance_mode_message',
+  );
+  $configs = array(
+    'user.mail' => $mail_translatables,
+    'system.core' => $system_translatables,
+  );
+
+  foreach ($configs as $name => $translatables) {
+    // Until #4888 is addressed, we make sure that the translatables get set.
+    // @todo Remove as soon as it's fixed in core.
+    $config = config($name);
+    $config->set('_config_translatables', $translatables);
+    $config->save();
+
+    foreach ($translatables as $translatable) {
+      // Trigger locale to create an entry in locales_source and get the lid.
+      $context = 'config:' . $name . ':' . $translatable;
+      $t = locale($config->get($translatable), $context);
+
+      $lid = db_select('locales_source', 'ls')
+        ->fields('ls', array('lid'))
+        ->condition('ls.context', $context, '=')
+        ->execute()
+        ->fetchField();
+
+      if (empty($lid)) {
+        continue;
+      }
+
+      // Get translations from variable_store for all languages, skip English
+      // as locale always assumes it to be the source. Variable name and
+      // config key sometimes differ (prefix), so we need a fuzzy search.
+      $translations = db_select('variable_store', 'vs')
+        ->fields('vs', array('realm_key', 'value'))
+        ->condition('vs.name', '%' . db_like($translatable), 'LIKE')
+        ->condition('vs.realm_key', 'en', '!=')
+        ->condition('vs.serialized', '0')
+        ->execute()
+        ->fetchAll();
+
+      // Create entries in locales_target for each language.
+      foreach ($translations as $translation) {
+        db_insert('locales_target')
+          ->fields(array(
+            'lid' => $lid,
+            'translation' => $translation->value,
+            'language' => $translation->realm_key,
+          ))
+          ->execute();
+      }
+    }
+  }
+
+}
+
+/**
+ * Get custom block translations and convert to config.
+ */
+function i18n_update_1003() {
+  $block_names = config_get_names_with_prefix('block.custom');
+  $languages = config_get('language.settings', 'languages');
+  unset($languages['en']);
+
+  foreach ($block_names as $block_name) {
+    $config = config($block_name);
+
+    // Locale always assumes English as source.
+    $config->set('default_langcode', 'en');
+
+    foreach (array_keys($languages) as $langcode) {
+      $translated_title = locale($config->get('title'), 'blocks:block:' . $config->get('delta') . ':title', $langcode);
+      $translated_body = locale($config->get('body.value'), 'blocks:block:' . $config->get('delta') . ':body', $langcode);
+      // Save translations for each language.
+      $config->set('translations.' . $langcode, array(
+        'info' => $config->get('info'),
+        'description' => $config->get('description'),
+        'title' => $translated_title,
+        'body' => array(
+          'value' => $translated_body,
+          'format' => $config->get('body.format'),
+        ),
+      ));
+    }
+    $config->save();
+  }
+
+  // Entries in locales_source and locales_target are no longer needed, cleanup.
+  $result = db_select('locales_source', 's')
+    ->fields('s', array('lid'))
+    ->condition('textgroup', 'blocks')
+    ->execute()
+    ->fetchAllAssoc('lid');
+
+  $lids = array_keys($result);
+  if (empty($lids)) {
+    return;
+  }
+
+  db_delete('locales_source')
+    ->condition('lid', $lids, 'IN')->execute();
+  db_delete('locales_target')
+    ->condition('lid', $lids, 'IN')->execute();
 }

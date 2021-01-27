@@ -1,8 +1,0 @@
-name = User mail translation
-description = "Translate emails sent from the User module."
-backdrop = 1.x
-type = module
-hidden = TRUE
-
-package = Multilingual - Internationalization
-dependencies[] = i18n_variable

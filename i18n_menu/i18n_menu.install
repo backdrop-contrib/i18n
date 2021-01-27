@@ -12,8 +12,7 @@ function i18n_menu_install() {
   // Set module weight for it to run after core modules, but before views.
   db_query("UPDATE {system} SET weight = 5 WHERE name = 'i18n_menu' AND type = 'module'");
   module_load_install('i18n');
-  // @todo Column language is obsolete as Backdrop ships with 'langcode'.
-  i18n_install_create_fields('menu_links', array('language', 'i18n_tsid'));
+  i18n_install_create_fields('menu_links', array('i18n_tsid'));
   i18n_menu_update_menu_data();
 }
 
@@ -21,8 +20,9 @@ function i18n_menu_install() {
  * Implements hook_uninstall().
  */
 function i18n_menu_uninstall() {
-  db_drop_field('menu_links', 'language');
-  db_drop_field('menu_links', 'i18n_tsid');
+  if (db_field_exists('menu_links', 'i18n_tsid')) {
+    db_drop_field('menu_links', 'i18n_tsid');
+  }
   $menus = config_get_names_with_prefix('menu.menu.');
   foreach ($menus as $menu) {
     $config = config($menu);
@@ -38,12 +38,6 @@ function i18n_menu_uninstall() {
  * Implements hook_schema_alter().
  */
 function i18n_menu_schema_alter(&$schema) {
-  $schema['menu_links']['fields']['language'] = array(
-    'type' => 'varchar',
-    'length' => 12,
-    'not null' => TRUE,
-    'default' => LANGUAGE_NONE,
-  );
   $schema['menu_links']['fields']['i18n_tsid'] = array(
     'type' => 'int',
     'unsigned' => TRUE,
@@ -52,32 +46,35 @@ function i18n_menu_schema_alter(&$schema) {
   );
 }
 
+
 /**
- * Update menu items language field from Backdrop 6.
+ * Implements hook_update_dependencies().
  */
-function i18n_menu_update_7000() {
-  // @todo
+function i18n_menu_update_dependencies() {
+  $dependencies['i18n_menu'][1000] = array(
+    'system' => 1064,
+  );
+  $dependencies['system'][1065] = array(
+    'i18n_menu' => 1000,
+  );
+  return $dependencies;
 }
 
 /**
- * Set alter property for menu items with language.
+ * Implements hook_update_last_removed().
  */
-function i18n_menu_update_7001() {
-  // Compile a list of menus with i18n options.
-  $i18n_menus = array_filter(menu_get_names(), 'i18n_menu_mode');
-  if ($i18n_menus) {
-    $query = db_select('menu_links', 'm')
-      ->fields('m')
-      ->condition('menu_name', $i18n_menus);
-    foreach ($query->execute()->fetchAllAssoc('mlid', PDO::FETCH_ASSOC) as $mlid => $item) {
-      $options = unserialize($item['options']);
-      if (_i18n_menu_link_check_alter($item) && empty($options['alter'])) {
-        $options['alter'] = TRUE;
-        db_update('menu_links')
-          ->condition('mlid', $mlid)
-          ->fields(array('options' => serialize($options)))
-          ->execute();
-      }
-    }
+function i18n_menu_update_last_removed() {
+  return 7001;
+}
+
+/**
+ * Finalize switch from language column to langcode.
+ */
+function i18n_menu_update_1000() {
+  if (!db_field_exists('menu_links', 'language')) {
+    return;
   }
+  // @see i18n_menu_update_dependencies().
+  db_query('UPDATE {menu_links} SET `langcode` = `language`');
+  db_drop_field('menu_links', 'language');
 }

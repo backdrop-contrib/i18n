@@ -7,12 +7,10 @@
 
 /**
  * Set extra field on term table, set config for vocabularies.
- *
- * @todo Column 'language' is obsolete as Backdrop ships with 'langcode'.
  */
 function i18n_taxonomy_install() {
   module_load_install('i18n');
-  i18n_install_create_fields('taxonomy_term_data', array('language', 'i18n_tsid'));
+  i18n_install_create_fields('taxonomy_term_data', array('i18n_tsid'));
   // Set module weight for it to run after core modules, but before views.
   db_query("UPDATE {system} SET weight = 5 WHERE name = 'i18n_taxonomy' AND type = 'module'");
   // Add two lines of i18n settings to taxonomy config.
@@ -33,8 +31,9 @@ function i18n_taxonomy_install() {
  * Implements hook_uninstall().
  */
 function i18n_taxonomy_uninstall() {
-  db_drop_field('taxonomy_term_data', 'language');
-  db_drop_field('taxonomy_term_data', 'i18n_tsid');
+  if (db_field_exists('taxonomy_term_data', 'i18n_tsid')) {
+    db_drop_field('taxonomy_term_data', 'i18n_tsid');
+  }
   $names = config_get_names_with_prefix('taxonomy.vocabulary');
   foreach ($names as $name) {
     $config = config($name);
@@ -49,12 +48,6 @@ function i18n_taxonomy_uninstall() {
  * Implements hook_schema_alter().
  */
 function i18n_taxonomy_schema_alter(&$schema) {
-  $schema['taxonomy_term_data']['fields']['language'] = array(
-    'type' => 'varchar',
-    'length' => 12,
-    'not null' => TRUE,
-    'default' => LANGUAGE_NONE,
-  );
   $schema['taxonomy_term_data']['fields']['i18n_tsid'] = array(
     'type' => 'int',
     'unsigned' => TRUE,
@@ -76,8 +69,73 @@ function i18n_taxonomy_disable() {
 }
 
 /**
+ * Implements hook_update_dependencies().
+ */
+function i18n_taxonomy_update_dependencies() {
+  // Set the i18n_mode for vocabularies between taxonomy_update_1001 and
+  // taxonomy_update_1002
+  $dependencies['i18n_taxonomy'][1000] = array(
+    'taxonomy' => 1001,
+  );
+  $dependencies['taxonomy'][1002] = array(
+    'i18n_taxonomy' => 1000,
+  );
+  // Squeeze i18n_taxonomy_update_1001 in between taxonomy_update_1006 and
+  // taxonomy_update_1007.
+  $dependencies['i18n_taxonomy'][1001] = array(
+    'taxonomy' => 1006,
+  );
+  $dependencies['taxonomy'][1007] = array(
+    'i18n_taxonomy' => 1001,
+  );
+
+  return $dependencies;
+}
+
+/**
  * Implements hook_update_last_removed().
  */
 function i18n_taxonomy_update_last_removed() {
   return 7004;
+}
+
+/**
+ * Set the i18n mode per vocabulary.
+ */
+function i18n_taxonomy_update_1000() {
+  if (!db_table_exists('taxonomy_vocabulary')) {
+    return;
+  }
+  if (!db_field_exists('taxonomy_vocabulary', 'langcode') || !db_field_exists('taxonomy_vocabulary', 'i18n_mode')) {
+    return;
+  }
+
+  $result = db_query('SELECT machine_name, language, i18n_mode FROM {taxonomy_vocabulary}');
+  foreach ($result as $row) {
+    $config = config('taxonomy.vocabulary.' . $row->machine_name);
+    $config->set('langcode', $row->language);
+    $config->set('i18n_mode', $row->i18n_mode);
+    if ($row->i18n_mode > 0) {
+      // Core's multilingual setting.
+      $config->set('language', 1);
+    }
+    $config->save();
+  }
+}
+
+/**
+ * Finalize switch from language to langcode column.
+ */
+function i18n_taxonomy_update_1001() {
+  if (!db_field_exists('taxonomy_term_data', 'language')) {
+    return;
+  }
+  // It is essential, that this runs after taxonomy_update_1006, where the
+  // taxonomy module added and populated the langcode column.
+  // But this should never run for sites, that had the dev version installed.
+  //
+  // @see i18n_taxonomy_update_dependencies().
+  db_query('UPDATE {taxonomy_term_data} SET `langcode` = `language`');
+  // Drop the old column.
+  db_drop_field('taxonomy_term_data', 'language');
 }
