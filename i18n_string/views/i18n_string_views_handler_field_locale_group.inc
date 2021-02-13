@@ -11,7 +11,11 @@
  * @ingroup views_field_handlers
  */
 class i18n_string_views_handler_field_locale_group extends views_handler_field {
-  function render($values) {
+
+  /**
+   * Render group value.
+   */
+  public function render($values) {
     $groups = i18n_string_textgroup_options();
     // Sort the list.
     asort($groups);
