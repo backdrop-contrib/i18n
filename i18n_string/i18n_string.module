@@ -84,6 +84,10 @@ function i18n_string_autoload_info() {
     'i18n_string_textgroup_default' => 'i18n_string.inc',
     'i18n_string_object_wrapper' => 'i18n_string.inc',
     'i18n_string_textgroup_cached' => 'i18n_string.inc',
+    // Views handlers.
+    'i18n_string_views_handler_argument_locale_group' => 'views/i18n_string_views_handler_argument_locale_group.inc',
+    'i18n_string_views_handler_field_locale_group' => 'views/i18n_string_views_handler_field_locale_group.inc',
+    'i18n_string_views_handler_filter_locale_group' => 'views/i18n_string_views_handler_filter_locale_group.inc',
   );
 };
 
@@ -1063,4 +1067,14 @@ function _i18n_string_result_count($list) {
     $result[$key] = isset($result[$key]) ? $result[$key] + 1 : 1;
   }
   return $result;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function i18n_string_views_api() {
+  return array(
+    'api' => 3,
+    'path' => backdrop_get_path('module', 'i18n_string') . '/views',
+  );
 }
