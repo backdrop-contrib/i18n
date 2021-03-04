@@ -98,6 +98,8 @@ function i18n_string_schema() {
       ),
       'objectindex' => array(
         'type' => 'int',
+        'size' => 'big',
+        'length' => 20,
         'not null' => TRUE,
         'default' => 0,
         'description' => 'Integer value of Object ID.',
@@ -323,4 +325,16 @@ function i18n_string_update_1002() {
   db_rename_table('locales_source_temp', 'locales_source');
   db_drop_table('locales_target');
   db_rename_table('locales_target_temp', 'locales_target');
+}
+
+/**
+ * Change objectindex from int to bigint.
+ */
+function i18n_string_update_1003() {
+  // Get Backdrop schema in sync with Drupal version schema.
+  db_change_field('i18n_string', 'objectindex', 'objectindex', array(
+    'type' => 'int',
+    'size' => 'big',
+    'length' => 20,
+  ));
 }
