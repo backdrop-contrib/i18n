@@ -139,6 +139,8 @@ function i18n_string_schema_alter(&$schema) {
     'default' => 'default',
     'description' => 'A module defined group of translations, see hook_locale().',
   );
+
+  $schema['locales_source']['indexes']['textgroup_context'] = array('textgroup', array('context', 50));
 }
 
 /**
@@ -292,6 +294,29 @@ function i18n_string_update_1002() {
   if (!db_table_exists('locales_source_temp') || !db_table_exists('locales_target_temp')) {
     return;
   }
+
+  // As i18n_string does this shadow copy of locale's db tables, very likely
+  // locale_update_1005() can not run on it, so we repeat the changes here.
+  db_drop_index('locales_source_temp', 'source_context');
+
+  db_change_field('locales_source_temp', 'source', 'source',
+    array(
+      'type' => 'text',
+      'not null' => TRUE,
+      'description' => 'The original string in English.',
+    ),
+    array('indexes' => array(
+      'source_context' => array(array('source', 30), 'context'),
+    )
+  ));
+  db_change_field('locales_target_temp', 'translation', 'translation',
+    array(
+      'type' => 'text',
+      'not null' => TRUE,
+      'description' => 'Translation string value in this language.',
+    )
+  );
+
   // Must run after locale_update_1000().
   // @see i18n_string_update_dependencies().
   db_drop_table('locales_source');
