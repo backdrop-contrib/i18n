@@ -142,7 +142,10 @@ function i18n_string_schema_alter(&$schema) {
     'description' => 'A module defined group of translations, see hook_locale().',
   );
 
-  $schema['locales_source']['indexes']['textgroup_context'] = array('textgroup', array('context', 50));
+  $schema['locales_source']['indexes']['textgroup_context'] = array(
+    'textgroup',
+    array('context', 50),
+  );
 }
 
 /**
@@ -307,10 +310,13 @@ function i18n_string_update_1002() {
       'not null' => TRUE,
       'description' => 'The original string in English.',
     ),
-    array('indexes' => array(
-      'source_context' => array(array('source', 30), 'context'),
+    array(
+      'indexes' => array(
+        'source_context' => array(array('source', 30), 'context'),
+      ),
     )
-  ));
+  );
+
   db_change_field('locales_target_temp', 'translation', 'translation',
     array(
       'type' => 'text',
