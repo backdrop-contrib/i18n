@@ -107,6 +107,7 @@ function i18n_update_1002() {
         $lid = db_select('locales_source', 'ls')
           ->fields('ls', array('lid'))
           ->condition('ls.context', $context, '=')
+          ->orderBy('lid', 'DESC')
           ->execute()
           ->fetchField();
 
