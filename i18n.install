@@ -188,3 +188,12 @@ function i18n_update_1003() {
   db_delete('locales_target')
     ->condition('lid', $lids, 'IN')->execute();
 }
+
+/**
+ * Drop obsolete table 'i18n_block_language' if it exists.
+ */
+function i18n_update_1004() {
+  if (db_table_exists('i18n_block_language')) {
+    db_drop_table('i18n_block_language');
+  }
+}
