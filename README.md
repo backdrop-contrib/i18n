@@ -29,9 +29,20 @@ module makes possible:
 Bugs and Feature requests should be reported in the 
 [Issue Queue](https://github.com/backdrop-contrib/i18n/issues)
 
+## Upgrade from Drupal 7
+
+Backdrop core took over several tasks for translations, so this module had
+to go through a bigger rewrite. Although it now contains less submodules,
+most of the functionality should still be available.
+
+"Most" means, that some functionality had to be dropped or implemented
+differently.
+
+A migration path from Drupal 7 is available.
+
 ## Current Maintainers
 
-Port is ongoing and we need help. If you're willing to test functionality
+Work is ongoing and we need help. If you're willing to test functionality
 and/or provide pull requests, feel free to open an issue.
 Your help is highly appreciated!
 
@@ -41,8 +52,8 @@ Your help is highly appreciated!
 
 ## Credits
 
-- Port to Backdrop CMS was begun by [docwilmot](https://github.com/docwilmot) and is still in process.
-- Maintainer for the Drupal module: Jose A. Reyero.
+- Port to Backdrop CMS was begun by [docwilmot](https://github.com/docwilmot)
+- Originally written for Drupal by [Jose Reyero](https://www.drupal.org/u/jose-reyero)
 
 ## License
 
