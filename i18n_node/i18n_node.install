@@ -13,16 +13,6 @@ function i18n_node_uninstall() {
 }
 
 /**
- * Implements hook_update_dependencies().
- */
-function i18n_node_update_dependencies() {
-  $dependencies['i18n_node'][7000] = array(
-    'i18n_string' => 7001,
-  );
-  return $dependencies;
-}
-
-/**
  * Remove obsolete translation link display setting.
  */
 function i18n_node_update_1000() {
