@@ -17,7 +17,8 @@ function i18n_node_uninstall() {
  */
 function i18n_node_update_1000() {
   $config = config('i18n.settings');
-  if (isset($config->get('i18n_node.hide_translation_links')) {
+  $link_setting = $config->get('i18n_node.hide_translation_links');
+  if (isset($link_setting)) {
     $config->clear('i18n_node.hide_translation_links');
     $config->save();
   }
