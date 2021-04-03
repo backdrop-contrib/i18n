@@ -240,20 +240,16 @@ function i18n_node_permission() {
  */
 function i18n_node_node_view_alter(&$build) {
   $node = $build['#node'];
-  // Hide node translation links.
-  if (config_get('i18n.settings', 'i18n_node.hide_translation_links')) {
-    if (isset($build['links']['translation'])) {
-      unset($build['links']['translation']);
-    }
-  }
-  elseif (!empty($node->tnid) && !empty($build['links']['translation']) && i18n_node_language_mode($node) == I18N_LANGUAGE_EXTENDED) {
+  $per_node_show = config_get('node.type.' . $node->type, 'settings.translation_show_links');
+
+  if (!empty($node->tnid) && !empty($per_node_show) && !empty($build['links']['translation']) && i18n_node_language_mode($node) == I18N_LANGUAGE_EXTENDED) {
     // We only get links for translations for enabled languages
     // Set the right languages if language support is extended but not visible.
     $links = &$build['links']['translation']['#links'];
     $translations = translation_node_get_translations($node->tnid);
     foreach (i18n_node_language_list($node) as $langcode => $langname) {
       $index = 'translation_' . $langcode;
-      if ($langcode != $node->language && isset($translations[$langcode]) && $translations[$langcode]->status && !isset($links[$index])) {
+      if ($langcode != $node->langcode && isset($translations[$langcode]) && $translations[$langcode]->status && !isset($links[$index])) {
         // This a published translation to a disabled language.
         // As the node is language extended, display the links.
         // These links shouldn't switch the interface,

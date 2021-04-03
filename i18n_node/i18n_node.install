@@ -21,3 +21,14 @@ function i18n_node_update_dependencies() {
   );
   return $dependencies;
 }
+
+/**
+ * Remove obsolete translation link display setting.
+ */
+function i18n_node_update_1000() {
+  $config = config('i18n.settings');
+  if (isset($config->get('i18n_node.hide_translation_links')) {
+    $config->clear('i18n_node.hide_translation_links');
+    $config->save();
+  }
+}
