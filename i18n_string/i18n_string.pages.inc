@@ -282,7 +282,7 @@ function i18n_string_l10n_client_save_string() {
           ));
         }
         else {
-          $result = i18n_string_translation_update($name, $_POST['target'], $language->language, $_POST['source']);
+          $result = i18n_string_translation_update($name, $_POST['target'], $language->langcode, $_POST['source']);
           if ($result) {
             $message = theme('l10n_client_message', array('message' => t('Translation saved locally for user defined string.'), 'level' => WATCHDOG_INFO));
           }
