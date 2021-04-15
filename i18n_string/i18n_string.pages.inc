@@ -184,7 +184,6 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
     // We may have a source or not.
     // Load it, our string may get the format from it.
     $source = $item->get_source();
-    $format_id = $source ? $source->format : $item->format;
     $description = '';
     // Check permissions to translate this string, depends on format, etc..
     if ($message = $item->check_translate_access()) {
@@ -210,19 +209,23 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
         }
       }
     }
-
     $default_value = $item->format_translation($langcode, array(
       'langcode' => $langcode,
       'sanitize' => FALSE,
       'debug' => FALSE,
     ));
+    if ($source->format) {
+      $type = 'text_format';
+    }
+    else {
+      $type = 'textarea';
+    }
     $form[$item->get_name()] = array(
       '#title' => $item->get_title(),
-      '#type' => 'textarea',
+      '#type' => $type,
       '#default_value' => $default_value,
       '#disabled' => $disabled,
-      '#description' => $description . _i18n_string_translate_format_help($format_id),
-      // '#i18n_string_format' => $source ? $source->format : 0,
+      '#format' => $source ? $source->format : 0,
       // If disabled, provide smaller textarea (that can be expanded anyway).
       '#rows' => $disabled ? 1 : min(ceil(str_word_count($default_value) / 12), 10),
       // Change the parent for disabled strings
@@ -279,7 +282,7 @@ function i18n_string_l10n_client_save_string() {
           ));
         }
         else {
-          $result = i18n_string_translation_update($name, $_POST['target'], $language->langcode, $_POST['source']);
+          $result = i18n_string_translation_update($name, $_POST['target'], $language->language, $_POST['source']);
           if ($result) {
             $message = theme('l10n_client_message', array('message' => t('Translation saved locally for user defined string.'), 'level' => WATCHDOG_INFO));
           }
