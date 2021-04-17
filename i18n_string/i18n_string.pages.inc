@@ -216,19 +216,24 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
       'sanitize' => FALSE,
       'debug' => FALSE,
     ));
-    $form[$item->get_name()] = array(
+    $name = $item->get_name();
+    $form[$name] = array(
       '#title' => $item->get_title(),
       '#type' => 'textarea',
       '#default_value' => $default_value,
       '#disabled' => $disabled,
       '#description' => $description . _i18n_string_translate_format_help($format_id),
-      // '#i18n_string_format' => $source ? $source->format : 0,
       // If disabled, provide smaller textarea (that can be expanded anyway).
       '#rows' => $disabled ? 1 : min(ceil(str_word_count($default_value) / 12), 10),
       // Change the parent for disabled strings
       // so we don't get empty values later.
       '#parents' => array($disabled ? 'disabled_strings' : 'strings', $item->get_name()),
     );
+    // Use the proper text_format if one is set.
+    if ($item->format) {
+      $form[$name]['#type'] = 'text_format';
+      $form[$name]['#format'] = $item->format;
+    }
   }
   return $form;
 }
@@ -241,6 +246,18 @@ function i18n_string_translate_page_form_submit($form, &$form_state) {
   foreach ($form_state['values']['strings'] as $name => $value) {
     $count++;
     list($textgroup, $context) = i18n_string_context(explode(':', $name));
+    // If this value is an array, which is the case with text_format, flatten
+    // the value back to a string.
+    if (is_array($value)) {
+      if (isset($value['value'])) {
+        $value = $value['value'];
+        $form_state['values']['strings'][$name] = $value;
+      }
+      else {
+        // We can not handle this string, but we can prevent a PDOException.
+        form_set_error("strings][$name", t('Unable to get the translated string value.'));
+      }
+    }
     $result = i18n_string_textgroup($textgroup)->update_translation($context, $form_state['values']['langcode'], $value);
     $success += ($result ? 1 : 0);
   }
