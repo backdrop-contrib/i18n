@@ -222,7 +222,6 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
       '#type' => 'textarea',
       '#default_value' => $default_value,
       '#disabled' => $disabled,
-      '#description' => $description . _i18n_string_translate_format_help($format_id),
       // If disabled, provide smaller textarea (that can be expanded anyway).
       '#rows' => $disabled ? 1 : min(ceil(str_word_count($default_value) / 12), 10),
       // Change the parent for disabled strings
@@ -233,6 +232,7 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
     if ($item->format) {
       $form[$name]['#type'] = 'text_format';
       $form[$name]['#format'] = $item->format;
+      $form[$name]['#rows'] = 4;
     }
   }
   return $form;
