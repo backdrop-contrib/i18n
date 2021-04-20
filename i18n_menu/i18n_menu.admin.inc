@@ -54,7 +54,7 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
       );
     }
   }
-  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['#type'] = 'actions';
   $form['actions']['update'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
