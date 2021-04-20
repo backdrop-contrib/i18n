@@ -160,7 +160,9 @@ function i18n_node_select_translation($form, &$form_state, $node, $translations)
       );
     }
   }
-  $form['actions'] = array('#type' => 'actions');
+  $form['actions'] = array(
+    '#type' => 'actions',
+  );
   $form['actions']['update'] = array(
     '#type' => 'submit',
     '#value' => t('Update translations'),
