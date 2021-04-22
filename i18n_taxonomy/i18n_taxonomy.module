@@ -649,7 +649,10 @@ function i18n_taxonomy_taxonomy_term_delete($term) {
  * Implements hook_taxonomy_vocabulary_insert().
  */
 function i18n_taxonomy_taxonomy_vocabulary_insert($vocabulary) {
-  i18n_taxonomy_taxonomy_vocabulary_update($vocabulary);
+  // Update strings.
+  if ($vocabulary->language && !i18n_object_langcode($vocabulary)) {
+    i18n_string_object_update('taxonomy_vocabulary', $vocabulary);
+  }
 }
 
 /**
@@ -768,16 +771,17 @@ function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state)
  * Form submit callback to redirect when using the save and translate button.
  */
 function i18n_taxonomy_form_vocabulary_submit($form, &$form_state) {
+  $config = config('taxonomy.vocabulary.' . $form_state['values']['machine_name']);
   if (!$form_state['values']['language']) {
-    $config = config('taxonomy.vocabulary.' . $form_state['values']['machine_name']);
-    if (!$config->isNew()) {
+    if ($config->get('i18n_mode') != NULL) {
       // Multilingual support has been disabled for this vocab.
-      $config->delete();
+      $config->clear('i18n_mode');
+      $config->clear('langcode');
+      $config->save();
     }
   }
   else {
     if (isset($form_state['values']['i18n_mode'])) {
-      $config = config('taxonomy.vocabulary.' . $form_state['values']['machine_name']);
       $config->set('i18n_mode', $form_state['values']['i18n_mode']);
 
       if (isset($form_state['values']['langcode'])) {
