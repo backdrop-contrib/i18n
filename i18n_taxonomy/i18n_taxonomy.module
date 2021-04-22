@@ -629,13 +629,17 @@ function i18n_taxonomy_taxonomy_term_delete($term) {
   // If a translation set exists for this term, remove this term from the set.
   if (isset($term->i18n_tsid) && $term->i18n_tsid) {
     $translation_set = i18n_translation_set_load($term->i18n_tsid);
-    $translation_set->get_translations();
+    // In rare cases, for instance if the i18n_mode has formerly been switched,
+    // the translation set is empty although i18n_tsid is set for this term.
+    if (!empty($translation_set)) {
+      $translation_set->get_translations();
 
-    $translation_set->remove_language($term->langcode);
+      $translation_set->remove_language($term->langcode);
 
-    // If there are no terms left in this translation set, delete the set.
-    // Otherwise update the set.
-    $translation_set->update_delete();
+      // If there are no terms left in this translation set, delete the set.
+      // Otherwise update the set.
+      $translation_set->update_delete();
+    }
   }
   // Just in case there's any left over string we run it for all terms.
   i18n_string_object_remove('taxonomy_term', $term);
