@@ -772,7 +772,7 @@ function i18n_taxonomy_form_taxonomy_form_vocabulary_alter(&$form, &$form_state)
  */
 function i18n_taxonomy_form_vocabulary_submit($form, &$form_state) {
   $config = config('taxonomy.vocabulary.' . $form_state['values']['machine_name']);
-  if (!$form_state['values']['language']) {
+  if (!$form_state['values']['langcode']) {
     if ($config->get('i18n_mode') != NULL) {
       // Multilingual support has been disabled for this vocab.
       $config->clear('i18n_mode');
