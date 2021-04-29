@@ -48,17 +48,19 @@ function i18n_path_admin_form($form, $form_state, $translation_set = NULL) {
     );
   }
 
-  $form['controls']['update'] = array(
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['update'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
     '#name' => 'save',
   );
 
   if ($translation_set) {
-    $form['controls']['delete'] = array(
+    $form['actions']['delete'] = array(
       '#type' => 'submit',
       '#value' => t('Delete'),
       '#name' => 'delete',
+      '#attributes' => array('class' => array('button-danger')),
     );
   }
   return $form;

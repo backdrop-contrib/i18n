@@ -54,10 +54,16 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
       );
     }
   }
-  $form['actions'] = array('#type' => 'actions');
-  $form['actions']['update'] = array('#type' => 'submit', '#value' => t('Save'));
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['update'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save'),
+  );
   if (!empty($translation_set->tsid)) {
-    $form['actions']['delete'] = array('#type' => 'submit', '#value' => t('Delete'));
+    $form['actions']['delete'] = array(
+      '#type' => 'submit',
+      '#value' => t('Delete'),
+    );
   }
   return $form;
 }

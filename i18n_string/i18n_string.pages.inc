@@ -159,7 +159,8 @@ function i18n_string_translate_page_form_base($form, $langcode, $redirect = NULL
     '#type' => 'value',
     '#value' => $langcode,
   );
-  $form['submit'] = array(
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save translation'),
     '#weight' => 10,
@@ -382,8 +383,11 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
     $form['translations'][$translation->language]['#default_value'] = $translation->translation;
   }
 
-  $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save translations'));
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Save translations'),
+  );
 
   // Restrict filter permissions
   // and handle validation and submission for i18n strings.

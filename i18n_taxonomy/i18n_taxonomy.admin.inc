@@ -65,14 +65,16 @@ function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $t
     }
 
   }
-  $form['submit'] = array(
+  $form['actions']['#type'] = 'actions';
+  $form['actions']['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Save'),
   );
   if ($translation_set) {
-    $form['delete'] = array(
+    $form['actions']['delete'] = array(
       '#type' => 'submit',
       '#value' => t('Delete'),
+      '#attributes' => array('class' => array('button-danger')),
     );
   }
   return $form;
