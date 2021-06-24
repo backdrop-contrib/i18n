@@ -361,9 +361,14 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
   // This ensures that the languages are always in the same order in forms.
   $languages = language_list();
 
-  // We don't need the default language value, that value is in $source.
-  $omit = $source->textgroup == 'default' ? 'en' : i18n_string_source_language();
-  unset($languages[($omit)]);
+  // Usually we don't need the default language value, that value is in $source.
+  if (!locale_translate_english()) {
+    $omit = $source->textgroup == 'default' ? 'en' : i18n_string_source_language();
+    unset($languages[($omit)]);
+  }
+  else {
+    $omit = 'none';
+  }
   $form['translations'] = array('#tree' => TRUE);
   // Approximate the number of rows to use in the default textarea.
   $rows = min(ceil(str_word_count($source->source) / 12), 10);
