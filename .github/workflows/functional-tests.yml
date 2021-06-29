@@ -32,7 +32,7 @@ jobs:
           cat /etc/apache2/sites-enabled/*
 
       - name: Hey apache?
-        rund: |
+        run: |
           sudo chown -R www-data *
           sudo systemctl start apache.service
 
