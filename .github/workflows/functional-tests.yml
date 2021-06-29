@@ -24,7 +24,12 @@ jobs:
       - name: Checkout module
         uses: actions/checkout@v2
         with:
-          path: modules/
+          path: modules/i18n
+
+      - name: Debug
+        run: |
+          ls -la
+          ls -la modules
 
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
