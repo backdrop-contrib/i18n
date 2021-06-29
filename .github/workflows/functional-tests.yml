@@ -1,0 +1,33 @@
+name: Functional Tests
+on: [push, pull_request]
+jobs:
+  simpletest:
+    name: Run Simpletest
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Start MySQL and create database
+        run: |
+          sudo systemctl start mysql.service
+          mysql -u root -proot -e 'CREATE DATABASE backdrop;'
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.1'
+          coverage: none
+
+      - name: Checkout Backdrop core
+      - uses: actions/checkout@v2
+        with:
+          repository: backdrop/backdrop
+
+      - name: Checkout module
+        uses: actions/checkout@v2
+        with:
+          path: modules/
+
+      - name: Install Backdrop
+        run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
+
+      - name: Run functional tests
+        run: core/scripts/run-tests.sh --force --directory=modules/i18n --concurrency=2
