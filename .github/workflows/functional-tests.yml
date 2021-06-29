@@ -39,7 +39,5 @@ jobs:
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
 
-      - name: Debug
-        run: |
-          ps aux
-          grep runner /etc/php/7.1/fpm/pool.d/*
+      - name: Run functional tests
+        run: core/scripts/run-tests.sh --force --directory=modules/i18n --verbose --concurrency=2
