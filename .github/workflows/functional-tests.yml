@@ -36,8 +36,5 @@ jobs:
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
 
-      - name: Debug
-        run: |
-          ls -l /etc/alternatives/php-fpm.sock
-          wget http://localhost/
-          cat index.html
+      - name: Run functional tests
+        run: core/scripts/run-tests.sh --force --directory=modules/i18n --verbose --concurrency=2
