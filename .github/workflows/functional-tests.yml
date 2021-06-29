@@ -38,7 +38,6 @@ jobs:
 
       - name: Debug
         run: |
-          netstat -tapn
-          ls -l /run/php/
+          ls -l /etc/alternatives/php-fpm.sock
           wget http://localhost/
           cat index.html
