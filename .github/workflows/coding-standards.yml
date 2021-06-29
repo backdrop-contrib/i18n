@@ -15,12 +15,9 @@ jobs:
       - name: Composer Install
         run: composer install --ansi --prefer-dist --no-interaction --no-progress
 
-      - name: PHP version
-        run: php --version
-
       - name: Backdrop coding standards
         run: >
           vendor/bin/phpcs -n
           --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
-          --ignore="vendor/*,i18n_field/i18n_field.inc,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_string/views/i18n_string_views_handler*,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
+          --ignore="vendor/*,i18n_field/i18n_field.inc_off,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_string/views/i18n_string_views_handler*,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
           --extensions=install,module,php,inc .
