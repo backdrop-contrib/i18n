@@ -17,9 +17,21 @@ jobs:
 
       - name: Backdrop coding standards
         run: ls -l
+
+      - name: where
         run: pwd
+
+      - name: who
         run: whoami
+
+      - name: which composer
         run: which composer
+
+      - name: which php
         run: which php
-        run: php --version
+
+      - name: php default modules
+        run: php -m
+
+      - name: running procs
         run: ps aux
