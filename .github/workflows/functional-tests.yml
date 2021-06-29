@@ -31,6 +31,11 @@ jobs:
           sudo sed -i -e 's/DocumentRoot \/var\/www\/html/DocumentRoot \/home\/runner\/work\/i18n\/i18n/' /etc/apache2/sites-available/000-default.conf
           sudo systemctl start apache2.service
 
+      - name: Debug
+        run: |
+          sudo apache2ctl -t
+          sudo apache2ctl -M
+
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
 
