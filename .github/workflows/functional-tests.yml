@@ -27,12 +27,10 @@ jobs:
           path: modules/i18n
 
       - name: Debug
-        run: |
-          ls -la
-          ls -la modules
+        run: ls -la modules/i18n
 
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
 
       - name: Run functional tests
-        run: core/scripts/run-tests.sh --force --directory=modules/i18n --concurrency=2
+        run: core/scripts/run-tests.sh --force --directory=modules/i18n --verbose --concurrency=2
