@@ -36,7 +36,8 @@ jobs:
       - name: Debug
         run: |
           sudo apache2ctl -t
-          sudo apache2ctl -M
+          ps aux
+          wget http://localhost/
 
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
