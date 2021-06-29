@@ -1,0 +1,24 @@
+name: Coding Standards
+on: [push, pull_request]
+jobs:
+    name: Run phpcs
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+            php-version: '7.1'
+
+      - uses: actions/checkout@v2
+
+      - name: Composer Install
+        run: composer install --ansi --prefer-dist --no-interaction --no-progress
+
+      - name: Backdrop coding standards
+        run: ls -l
+        run: pwd
+        run: whoami
+        run: which composer
+        run: which php
+        run: php --version
+        run: ps aux
