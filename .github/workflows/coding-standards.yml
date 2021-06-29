@@ -8,11 +8,25 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-            php-version: '7.3'
+          php-version: '7.3'
+          coverage: none
 
       - uses: actions/checkout@v2
 
-      - name: Composer Install
+      - name: Get composer cache directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+      - name: Cache composer directory
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Composer install coder_sniffer
         run: composer install --ansi --prefer-dist --no-interaction --no-progress
 
       - name: Backdrop coding standards
