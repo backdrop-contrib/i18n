@@ -28,7 +28,7 @@ jobs:
 
       - name: Setup Apache
         run: |
-          sudo sed -i -e 's/DocumentRoot \/var\/www\/html/DocumentRoot \/home\/runner\/work\/i18n\/i18n/' /etc/apache2/sites-available/000-default.conf
+          sudo cp -f .github/workflows/apache/default.conf /etc/apache2/sites-available/000-default.conf
           sudo apt-get install libapache2-mod-fcgid
           sudo a2enmod rewrite proxy fcgid proxy_fcgi
           sudo systemctl start apache2.service
@@ -36,7 +36,6 @@ jobs:
       - name: Debug
         run: |
           sudo apache2ctl -t
-          ps aux
           wget http://localhost/
 
       - name: Install Backdrop
