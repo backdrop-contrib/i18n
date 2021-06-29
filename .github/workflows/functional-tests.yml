@@ -38,5 +38,7 @@ jobs:
 
       - name: Debug
         run: |
+          netstat -tapn
+          ls -l /run/php/
           wget http://localhost/
           cat index.html
