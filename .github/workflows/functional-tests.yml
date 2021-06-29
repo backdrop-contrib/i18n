@@ -17,7 +17,7 @@ jobs:
           coverage: none
 
       - name: Checkout Backdrop core
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
         with:
           repository: backdrop/backdrop
 
