@@ -33,13 +33,10 @@ jobs:
           sudo a2enmod rewrite proxy fcgid proxy_fcgi
           sudo systemctl start apache2.service
 
-      - name: Debug
-        run: |
-          sudo apache2ctl -t
-          wget http://localhost/
-
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
 
-      - name: Run functional tests
-        run: core/scripts/run-tests.sh --force --directory=modules/i18n --verbose --concurrency=2
+      - name: Debug
+        run: |
+          wget http://localhost/
+          cat index.html
