@@ -28,7 +28,6 @@ jobs:
 
       - name: Setup Apache
         run: |
-          sudo chown -R www-data *
           sudo sed -i -e 's/DocumentRoot \/var\/www\/html/DocumentRoot \/home\/runner\/work\/i18n\/i18n/' /etc/apache2/sites-available/000-default.conf
           sudo systemctl start apache2.service
 
