@@ -27,7 +27,14 @@ jobs:
           path: modules/i18n
 
       - name: Debug
-        run: ls -la modules/i18n
+        run: |
+          ls -l /etc/apache2/sites-enabled
+          cat /etc/apache2/sites-enabled/*
+
+      - name: Hey apache?
+        rund: |
+          sudo chown -R www-data *
+          sudo systemctl start apache.service
 
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
