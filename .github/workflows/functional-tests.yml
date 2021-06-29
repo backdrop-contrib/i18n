@@ -34,7 +34,7 @@ jobs:
           sudo systemctl start apache2.service
           sudo sed -i -e 's/user = www-data/user = runner/' /etc/php/7.1/fpm/pool.d/www.conf
           sudo sed -i -e 's/listen.owner = www-data/listen.owner = runner/' /etc/php/7.1/fpm/pool.d/www.conf
-          sudo service php7.1-fpm restart
+          sudo systemctl restart php7.1-fpm.service
 
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
