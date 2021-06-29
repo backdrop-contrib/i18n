@@ -31,6 +31,8 @@ jobs:
           sudo cp -f modules/i18n/.github/workflows/apache/default.conf /etc/apache2/sites-available/000-default.conf
           sudo apt-get install libapache2-mod-fcgid
           sudo a2enmod rewrite proxy fcgid proxy_fcgi
+          sudo chmod 777 files
+          sudo chmod 666 settings.php
           sudo systemctl start apache2.service
 
       - name: Install Backdrop
