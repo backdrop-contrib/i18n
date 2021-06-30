@@ -40,4 +40,11 @@ jobs:
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
 
       - name: Run functional tests
-        run: core/scripts/run-tests.sh --force --directory=modules/i18n --verbose --concurrency=2
+        run: core/scripts/run-tests.sh --force --directory=modules/i18n --verbose --concurrency=3 > /tmp/simpletest.log
+
+      - name: Get report if failures
+        if: failure()
+        run: |
+          output=$(cat /tmp/simpletest.log)
+          output="${output//$'\n'/'%0A'}"
+          echo "::warning::Simpletest Report: $output"
