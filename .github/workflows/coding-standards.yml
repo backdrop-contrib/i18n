@@ -38,7 +38,7 @@ jobs:
           --extensions=install,module,php,inc .
 
       - name: Report failures
-        if: failure() || success()
+        if: ${{ failure() }}
         run: |
           echo 'Never shows either'
           echo "::set-output name=mix-test::Never visible\n"
