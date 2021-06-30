@@ -38,8 +38,10 @@ jobs:
           --extensions=install,module,php,inc .
 
       - name: Report failures
-        if: failure()
+        if: failure() || success()
         run: |
           echo "::group::My title here"
+          echo "::set-output name=action_fruit::strawberry"
+          echo "::debug::Set the Octocat variable"
           cat /tmp/phpcs-out.log
           echo "::endgroup::"
