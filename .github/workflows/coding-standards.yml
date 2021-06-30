@@ -41,7 +41,7 @@ jobs:
         if: failure()
         run: |
           echo '::warning::whatever it never shows'
-          echo "::warning::No matter what"
+          echo "::error::No matter what"
           echo "::group::My title"
           echo "Inside group"
           echo "::endgroup::"
