@@ -42,4 +42,4 @@ jobs:
         run: |
           output=$(cat /tmp/phpcs-out.log)
           output="${output//$'\n'/'%0A'}"
-          echo "::error::phpcs error report: $output"
+          echo "::warning::phpcs error report:\n$output"
