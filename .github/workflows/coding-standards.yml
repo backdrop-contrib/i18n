@@ -46,3 +46,4 @@ jobs:
         run: |
           echo "::set-output name=test::thissucks"
           echo "::set-output name=failures::$(cat /tmp/phpcs-out.log)"
+          exit 1
