@@ -33,7 +33,6 @@ jobs:
         run: composer install --ansi --prefer-dist --no-interaction --no-progress
 
       - name: Backdrop coding standards
-        id: testrun
         run: >
           vendor/bin/phpcs -n
           --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
@@ -43,7 +42,6 @@ jobs:
 
       - name: Report failures
         id: report
-        needs: testrun
         if: success() || failure()
         run: |
           echo "::set-output name=test::thissucks"
