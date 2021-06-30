@@ -40,6 +40,7 @@ jobs:
       - name: Report failures
         if: failure() || success()
         run: |
+          echo 'Never shows either'
           echo "::set-output name=mix-test::Never visible\n"
           echo "::group::My title here"
           echo "::set-output name=action_fruit::strawberry"
