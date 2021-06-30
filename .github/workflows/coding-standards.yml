@@ -34,7 +34,7 @@ jobs:
           vendor/bin/phpcs -n
           --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
           --report-file=/tmp/phpcs-out.log
-          --ignore="vendor/*,i18n_field/i18n_field.inc_off,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_string/views/i18n_string_views_handler*,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
+          --ignore="vendor/*,i18n_field/i18n_field.inc,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_string/views/i18n_string_views_handler*,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
           --extensions=install,module,php,inc .
 
       - name: Get failures
