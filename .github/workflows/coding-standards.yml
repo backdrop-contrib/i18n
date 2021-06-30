@@ -38,8 +38,10 @@ jobs:
           --extensions=install,module,php,inc .
 
       - name: Report failures
-        uses: actions/upload-artifact@v2
         if: failure()
-        with:
-          name: Report
-          path: /tmp/phpcs-out.log
+        run: |
+          echo '::warning::whatever it never shows'
+          echo "::warning::No matter what"
+          echo "::group::My title"
+          echo "Inside group"
+          echo "::endgroup::"
