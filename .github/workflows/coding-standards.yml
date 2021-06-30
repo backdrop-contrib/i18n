@@ -5,7 +5,8 @@ jobs:
     name: Run phpcs
     runs-on: ubuntu-18.04
     outputs:
-      output: ${{ steps.report.outputs.failures }}
+      output1: ${{ steps.report.outputs.failures }}
+      output2: ${{ steps.report.outputs.test }}
     steps:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -32,6 +33,7 @@ jobs:
         run: composer install --ansi --prefer-dist --no-interaction --no-progress
 
       - name: Backdrop coding standards
+        id: testrun
         run: >
           vendor/bin/phpcs -n
           --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
@@ -41,5 +43,8 @@ jobs:
 
       - name: Report failures
         id: report
-        if: failure()
-        run: echo "::set-output name=failures::$(cat /tmp/phpcs-out.log)"
+        needs: testrun
+        if: success() || failure()
+        run: |
+          echo "::set-output name=test::thissucks"
+          echo "::set-output name=failures::$(cat /tmp/phpcs-out.log)"
