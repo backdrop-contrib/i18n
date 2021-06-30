@@ -33,17 +33,17 @@ jobs:
         run: >
           vendor/bin/phpcs -n
           --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
-          --report-file=/tmp/phpcs-out.log
+          --report-file=/tmp/phpcs-out.json
+          --report=json
           --ignore="vendor/*,i18n_field/i18n_field.inc_off,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_string/views/i18n_string_views_handler*,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
           --extensions=install,module,php,inc .
 
       - name: Report failures
-        if: ${{ failure() }}
         run: |
           echo 'Never shows either'
           echo "::set-output name=mix-test::Never visible\n"
           echo "::group::My title here"
           echo "::set-output name=action_fruit::strawberry"
           echo "::debug::Set the Octocat variable"
-          echo "::set-output name=foobar::$(cat /tmp/phpcs-out.log)"
+          echo "::set-output name=foobar::$(cat /tmp/phpcs-out.json)"
           echo "::endgroup::"
