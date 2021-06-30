@@ -38,6 +38,7 @@ jobs:
           --extensions=install,module,php,inc .
 
       - name: Get failures
+        if: failure()
         id: step1
         run: |
           output=$(cat /tmp/phpcs-out.log)
@@ -45,4 +46,5 @@ jobs:
           echo "::set-output name=report::$output"
 
       - name: Print
+        if: failure()
         run: echo "${{ steps.step1.outputs.report }}"
