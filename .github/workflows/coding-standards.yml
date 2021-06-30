@@ -4,6 +4,8 @@ jobs:
   phpcs:
     name: Run phpcs
     runs-on: ubuntu-18.04
+    outputs:
+      output: ${{ steps.report.outputs.failures }}
     steps:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -38,5 +40,6 @@ jobs:
           --extensions=install,module,php,inc .
 
       - name: Report failures
+        id: report
         if: failure()
         run: echo "::set-output name=failures::$(cat /tmp/phpcs-out.log)"
