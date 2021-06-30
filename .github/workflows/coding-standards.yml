@@ -39,8 +39,7 @@ jobs:
 
       - name: Get failures
         if: failure()
-        id: step1
         run: |
           output=$(cat /tmp/phpcs-out.log)
           output="${output//$'\n'/'%0A'}"
-          echo "::error::$output"
+          echo "::error::phpcs error report: $output"
