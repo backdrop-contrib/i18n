@@ -41,8 +41,8 @@ jobs:
       - name: Report failures
         if: failure()
         run: |
-          echo '::warning::whatever it never shows in the log'
-          echo "::set-output name=test_suite_name::$(cat /tmp/phpcs-out.json)"
+          echo '::warning::$(cat /tmp/phpcs-out.json)'
+          echo "::set-output::$(cat /tmp/phpcs-out.json)"
           echo "::group::My title"
           echo "Inside group"
           echo "::endgroup::"
