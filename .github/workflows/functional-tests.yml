@@ -24,7 +24,7 @@ jobs:
       - name: Checkout module
         uses: actions/checkout@v2
         with:
-          path: modules/i18n
+          path: modules/${{ github.repository.name }}
 
       - name: Debug1
         run: |
