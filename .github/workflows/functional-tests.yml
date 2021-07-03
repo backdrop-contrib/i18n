@@ -50,7 +50,7 @@ jobs:
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
 
       - name: Run functional tests
-        run: core/scripts/run-tests.sh --force --directory=modules/${{ github.repository.name }} --verbose --concurrency=2 > /tmp/simpletest.log
+        run: core/scripts/run-tests.sh --force --directory=modules/${{ env.REPO_NAME }} --verbose --concurrency=2 > /tmp/simpletest.log
 
       - name: Get report if failures
         if: failure()
