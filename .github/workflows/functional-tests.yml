@@ -29,7 +29,7 @@ jobs:
       - name: Setup Apache
         run: |
           sudo cp -f modules/${{ github.repository.name }}/.github/workflows/apache/default.conf /etc/apache2/sites-available/000-default.conf
-          sudo sed -i -e "s/_PWD/${{ env.GITHUB_WORKSPACE }}/g"
+          sudo sed -i -e "s?_PWD?${{ env.GITHUB_WORKSPACE }}?g"
           sudo apt-get install libapache2-mod-fcgid
           sudo a2enmod rewrite proxy fcgid proxy_fcgi
           sudo systemctl start apache2.service
