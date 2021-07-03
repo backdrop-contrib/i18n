@@ -5,6 +5,9 @@ jobs:
     name: Run Simpletest
     runs-on: ubuntu-18.04
     steps:
+      - name: Setup env
+        run: echo "REPO_NAME=${PWD##*/}" >> $GITHUB_ENV
+
       - name: Start MySQL and create database
         run: |
           sudo systemctl start mysql.service
@@ -24,7 +27,7 @@ jobs:
       - name: Checkout module
         uses: actions/checkout@v2
         with:
-          path: modules/${{ github.repository.name }}
+          path: modules/${{ env.REPO_NAME }}
 
       - name: Debug1
         run: |
