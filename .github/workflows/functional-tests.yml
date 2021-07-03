@@ -5,6 +5,9 @@ jobs:
     name: Run Simpletest
     runs-on: ubuntu-18.04
     steps:
+      - name: Setup env
+        run: echo "REPO_NAME=${PWD##*/}" >> $GITHUB_ENV
+
       - name: Start MySQL and create database
         run: |
           sudo systemctl start mysql.service
@@ -24,11 +27,12 @@ jobs:
       - name: Checkout module
         uses: actions/checkout@v2
         with:
-          path: modules/i18n
+          path: modules/${{ env.REPO_NAME }}
 
       - name: Setup Apache
         run: |
           sudo cp -f modules/i18n/.github/workflows/apache/default.conf /etc/apache2/sites-available/000-default.conf
+          sudo sed -i -e "s?_PWD?$PWD?g" /etc/apache2/sites-available/000-default.conf
           sudo apt-get install libapache2-mod-fcgid
           sudo a2enmod rewrite proxy fcgid proxy_fcgi
           sudo systemctl start apache2.service
@@ -40,7 +44,7 @@ jobs:
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
 
       - name: Run functional tests
-        run: core/scripts/run-tests.sh --force --directory=modules/i18n --verbose --concurrency=2 > /tmp/simpletest.log
+        run: core/scripts/run-tests.sh --force --directory=modules/${{ env.REPO_NAME }} --verbose --concurrency=2 > /tmp/simpletest.log
 
       - name: Get report if failures
         if: failure()
