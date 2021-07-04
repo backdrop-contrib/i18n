@@ -32,7 +32,6 @@ jobs:
           ls -la /home/runner/.cache/composer/files
 
       - name: Composer install coder_sniffer
-        if: steps.composercache.outputs.cache-hit != 'true'
         run: composer install --ansi --prefer-dist --no-interaction --no-progress
 
       - name: Debug2
