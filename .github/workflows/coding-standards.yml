@@ -29,10 +29,10 @@ jobs:
 
       - name: Debug1
         run: |
-          ls -la /home/runner/.cache/composer/files
+          ls -la /home/runner/.cache/composer/files/backdrop
 
       - name: Composer install coder_sniffer
-        run: composer install --ansi --prefer-dist --no-interaction --no-progress
+        run: composer install --ansi --prefer-dist --no-interaction --no-progress -vv
 
       - name: Debug2
         run: |
