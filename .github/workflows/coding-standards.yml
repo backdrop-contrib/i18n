@@ -27,9 +27,21 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
+      - name: Debug1
+        run: |
+          ls -la .
+          ls -la /home/runner/.cache/composer/
+          ls -la /vendor
+
       - name: Composer install coder_sniffer
         if: steps.composercache.outputs.cache-hit != 'true'
         run: composer install --ansi --prefer-dist --no-interaction --no-progress
+
+      - name: Debug2
+        run: |
+          ls -la .
+          ls -la /home/runner/.cache/composer/
+          ls -la /vendor
 
       - name: Backdrop coding standards
         run: >
