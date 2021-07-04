@@ -10,16 +10,8 @@ jobs:
 
       - name: Start MySQL and create database
         run: |
-          echo "$TERM"
-          export TERM=xterm-mono
           sudo systemctl start mysql.service
           mysql -u root -proot -e 'CREATE DATABASE backdrop;'
-          echo -n "::group::Groups dont work"
-          echo -n "::warning::Inside group mysql setup"
-          echo -n "::endgroup::"
-          echo "::debug::Disfunctional bullshit from official docs"
-          echo -n "::warning::And this warning has no newline"
-          echo -n no quotes
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
