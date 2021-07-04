@@ -29,9 +29,7 @@ jobs:
 
       - name: Debug1
         run: |
-          ls -la .
-          ls -la /home/runner/.cache/composer/
-          ls -la /vendor
+          ls -la /home/runner/.cache/composer/files
 
       - name: Composer install coder_sniffer
         if: steps.composercache.outputs.cache-hit != 'true'
@@ -40,8 +38,6 @@ jobs:
       - name: Debug2
         run: |
           ls -la .
-          ls -la /home/runner/.cache/composer/
-          ls -la /vendor
 
       - name: Backdrop coding standards
         run: >
