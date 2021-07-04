@@ -20,6 +20,7 @@ jobs:
 
       - name: Cache composer directory
         uses: actions/cache@v2
+        id: composercache
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-composer-${{ hashFiles('./composer.json') }}
@@ -27,7 +28,7 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Composer install coder_sniffer
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.composercache.outputs.cache-hit != 'true'
         run: composer install --ansi --prefer-dist --no-interaction --no-progress
 
       - name: Backdrop coding standards
