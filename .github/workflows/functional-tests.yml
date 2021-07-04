@@ -12,6 +12,13 @@ jobs:
         run: |
           sudo systemctl start mysql.service
           mysql -u root -proot -e 'CREATE DATABASE backdrop;'
+          echo "::group::My title"
+          echo "Inside group"
+          echo "::endgroup::"
+          echo -n 'No newline'
+          echo -n "No newline double quotes"
+          echo "::warning::This would be a warning"
+          echo -n "::warning::And this warning has no newline"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
