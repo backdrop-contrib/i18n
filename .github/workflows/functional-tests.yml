@@ -36,7 +36,7 @@ jobs:
         run: |
           echo 'var content is: '${{ env.USE_PHP_V }}
           sudo cp -f modules/i18n/.github/workflows/apache/default.conf /etc/apache2/sites-available/000-default.conf
-          sudo sed -i -e "s?_PWD?$PWD?g" -e "s/_PHP_V/${{ env.USE_PHP_V }}" /etc/apache2/sites-available/000-default.conf
+          sudo sed -i -e "s?_PWD?$PWD?g" -e "s/_PHP_V/${{ env.USE_PHP_V }}/g" /etc/apache2/sites-available/000-default.conf
           sudo apt-get install libapache2-mod-fcgid
           sudo a2enmod rewrite proxy fcgid proxy_fcgi
           sudo systemctl start apache2.service
