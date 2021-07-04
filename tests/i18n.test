@@ -76,7 +76,7 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     $edit['status_default'] = $settings['status'];
     $edit['promote_enabled'] = $settings['promote'];
     $this->backdropPost('admin/structure/types/manage/' . $type->type, $edit, t('Save content type'));
-    $this->assertRaw(t('FOO The content type %type has been updated.', array('%type' => $type->name)), t('%type content type has been updated.', array('%type' => $type->name)));
+    $this->assertRaw(t('The content type %type has been updated.', array('%type' => $type->name)), t('%type content type has been updated.', array('%type' => $type->name)));
     $this->backdropGet('admin/structure/types/manage/' . $type->type);
     $this->enableLanguageBlock();
   }
