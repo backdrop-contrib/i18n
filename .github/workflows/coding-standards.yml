@@ -8,7 +8,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.3'
+          php-version: '7.2'
           coverage: none
 
       - uses: actions/checkout@v2
@@ -27,16 +27,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Debug1
-        run: |
-          ls -la /home/runner/.cache/composer/files/backdrop
-
       - name: Composer install coder_sniffer
-        run: composer install --ansi --prefer-dist --no-interaction --no-progress -vv
+        run: composer install --ansi --prefer-dist --no-interaction --no-progress
 
-      - name: Debug2
+      - name: Curious
         run: |
-          ls -la .
+          lscpu
+          free -m
+          uname -a
 
       - name: Backdrop coding standards
         run: >
