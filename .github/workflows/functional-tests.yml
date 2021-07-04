@@ -16,7 +16,6 @@ jobs:
           mysql -u root -proot -e 'CREATE DATABASE backdrop;'
 
       - name: Setup PHP
-        id: setup_php
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ env.USE_PHP_V }}
