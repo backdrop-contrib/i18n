@@ -29,6 +29,11 @@ jobs:
         with:
           path: modules/${{ env.REPO_NAME }}
 
+      - name: Debug
+        run: |
+          env
+          php -v
+
       - name: Setup Apache
         run: |
           sudo cp -f modules/i18n/.github/workflows/apache/default.conf /etc/apache2/sites-available/000-default.conf
