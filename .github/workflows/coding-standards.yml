@@ -27,6 +27,7 @@ jobs:
             ${{ runner.os }}-composer-
 
       - name: Composer install coder_sniffer
+        if: steps.cache.outputs.cache-hit != 'true'
         run: composer install --ansi --prefer-dist --no-interaction --no-progress
 
       - name: Backdrop coding standards
