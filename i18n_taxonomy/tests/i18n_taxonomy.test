@@ -203,7 +203,7 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
       'machine_name' => $machine_name,
       'language' => TAXONOMY_LANGUAGE_ENABLED,
     );
-    $this->backdropPost(NULL, $edit, t('Save'));
+    $this->backdropPost(NULL, $edit, t('Save vocabulary'));
     $vocabulary = taxonomy_vocabulary_load($machine_name);
     return $vocabulary;
   }
