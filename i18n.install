@@ -53,6 +53,9 @@ function i18n_update_dependencies() {
   $dependencies['i18n'][1003] = array(
     'block' => 1004,
   );
+  $dependencies['i18n_string'][1002] = array(
+    'locale' => 1000,
+  );
   return $dependencies;
 }
 
