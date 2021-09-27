@@ -45,5 +45,9 @@ jobs:
       - name: Install Backdrop
         run: core/scripts/install.sh --db-url=mysql://root:root@localhost/backdrop
 
+      - name: Workaround for core bug
+        # See https://github.com/backdrop/backdrop-issues/issues/5202
+        run: sed -i -e "/module_invoke_all('config_create', \$config);/d" core/includes/config.inc
+
       - name: Run functional tests
         run: core/scripts/run-tests.sh --force --directory=modules/${{ env.REPO_NAME }} --verbose --concurrency=2
