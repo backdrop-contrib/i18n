@@ -818,8 +818,9 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
       // set the default value of the option list to the target language and
       // create a form element for storing the translation set
       // of the source term.
-      $langcode = isset($_GET['target']) ? filter_input(INPUT_GET, 'target', FILTER_SANITIZE_STRING) : FALSE;
-      $tid = isset($_GET['translation']) ? filter_input(INPUT_GET, 'translation', FILTER_SANITIZE_STRING) : FALSE;
+      $params = backdrop_get_query_parameters();
+      $langcode = isset($params['target']) ? check_plain($params['target']) : FALSE;
+      $tid = isset($params['translation']) ? check_plain($params['translation']) : FALSE;
       if (empty($term->tid) && $tid && $langcode && ($source_term = taxonomy_term_load($tid)) && ($target_language = i18n_language_object($langcode))) {
         // Set context language to target language.
         i18n_language_context($target_language);
