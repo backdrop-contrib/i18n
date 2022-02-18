@@ -1432,8 +1432,8 @@ function i18n_taxonomy_views_pre_render(&$view) {
     }
   }
   // If views overrides the default term listing pages, we need to set the
-  // substition.
-  // @todo Figure out why this works in D7 without that override.
+  // substition. Replaces the former 'entity label' callback, which does not
+  // work in Backdrop.
   if ($view->get_path() == 'taxonomy/term/%') {
     i18n_string_translate_langcode($language->langcode);
     $term = taxonomy_term_load(arg(2));
