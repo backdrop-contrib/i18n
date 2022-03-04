@@ -773,7 +773,7 @@ function i18n_menu_form_menu_overview_form_alter(&$form, &$form_state) {
       if ($item['langcode'] != LANGUAGE_NONE && $item['langcode'] == i18n_string_source_language()) {
         if (i18n_get_object('menu', $mlid)->get_translate_access()) {
           $form[$element]['operations']['#links']['translate'] = array(
-            'title' => t('translate'),
+            'title' => t('Translate'),
             'href' => "admin/structure/menu/item/{$mlid}/translate",
           );
         }

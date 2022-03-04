@@ -994,7 +994,7 @@ function i18n_taxonomy_form_alter(&$form, $form_state, $form_id) {
               $vocab = $form['#vocabulary']->machine_name;
               if ($i18n_mode == I18N_MODE_TRANSLATE && $langcode != LANGUAGE_NONE) {
                 $form[$key]['operations']['#links']['translate'] = array(
-                  'title' => t('translate'),
+                  'title' => t('Translate'),
                   'href' => "taxonomy/term/{$tid}/translate",
                   'query' => array(
                     'destination' => "admin/structure/taxonomy/{$vocab}/list/sets",
@@ -1003,7 +1003,7 @@ function i18n_taxonomy_form_alter(&$form, $form_state, $form_id) {
               }
               elseif ($i18n_mode == I18N_MODE_LOCALIZE) {
                 $form[$key]['operations']['#links']['translate'] = array(
-                  'title' => t('translate'),
+                  'title' => t('Translate'),
                   'href' => "taxonomy/term/{$tid}/translate",
                 );
               }
