@@ -502,16 +502,21 @@ function i18n_node_form_submit($form, &$form_state) {
  * Called by i18n_node_form_node_form_alter.
  */
 function _i18n_node_form_node_form_alter($form, &$form_state) {
+  $config = config('i18n.settings');
   $node = $form['#node'];
   if (i18n_node_type_enabled($node)) {
     if (!empty($form['langcode']['#options'])) {
       $form['langcode']['#options'] = i18n_node_language_list($node, TRUE, TRUE);
     }
-  }
-  elseif (config_get('i18n.settings', 'i18n_node.default_language_none') && !isset($form['#node']->nid)) {
-    // Override locale module setting default language to nodes.
-    // It is already in form_state.
-    $form['langcode']['#value'] = $form_state['values']['langcode'] = LANGUAGE_NONE;
+    if (!isset($node->nid)) {
+      // Override locale module setting default language to nodes.
+      // It is already in form_state.
+      $node_type_options = $config->get('i18n_node.type_' . $node->type . '.options');
+      if (!$node_type_options['current'] && $config->get('i18n_node.default_language_none')) {
+        $form['langcode']['#value'] = $form_state['values']['langcode'] = LANGUAGE_NONE;
+        debug('NEUTRAL');
+      }
+    }
   }
   // Translate field names for title and body for the node edit form.
   if (!empty($form['title']['#title'])) {
