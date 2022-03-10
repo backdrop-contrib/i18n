@@ -514,7 +514,6 @@ function _i18n_node_form_node_form_alter($form, &$form_state) {
       $node_type_options = $config->get('i18n_node.type_' . $node->type . '.options');
       if (!$node_type_options['current'] && $config->get('i18n_node.default_language_none')) {
         $form['langcode']['#value'] = $form_state['values']['langcode'] = LANGUAGE_NONE;
-        debug('NEUTRAL');
       }
     }
   }
