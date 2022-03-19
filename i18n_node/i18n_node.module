@@ -206,7 +206,7 @@ function i18n_node_language_mode($type) {
 function i18n_node_node_prepare($node) {
   $options = config_get('i18n.settings', "i18n_node.type_{$node->type}.options");
   if (i18n_node_type_enabled($node) && empty($node->nid) && !i18n_object_langcode($node)) {
-    if ($options && in_array('current', $options)) {
+    if ($options && $options['current']) {
       // Set current language for new nodes if config exists and is enabled.
       $node->langcode = i18n_language_content()->langcode;
     }
