@@ -94,15 +94,23 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->backdropPost(NULL, $edit, t('Save'));
     $this->assertText($term_translation['name'][$this->secondaryLanguage], 'Field values are displayed correctly in non-default languages.');
 
-    // Term name and term description should be localized.
+    // Term name and term description default language on regular term pages.
     $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->defaultLanguage)));
     $this->assertText($term->name, 'Term title is displayed correctly in default language.');
     $this->assertText($term->description, 'Term description is displayed correctly in default language.');
 
-    // Term name and term description should be localized.
+    // Term name and term description should be localized on regular term pages.
     $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->secondaryLanguage)));
     $this->assertText($term_translation['name'][$this->secondaryLanguage], 'Term title is displayed correctly in non-default language.');
     $this->assertText($term_translation['description[value]'][$this->secondaryLanguage], 'Term description is displayed correctly in non-default language.');
+
+    // Term name should be localized in views term pages.
+    // Enable the view override of term pages and visit again.
+    $view = views_get_view('taxonomy_term');
+    $view->disabled = FALSE;
+    $view->save();
+    $this->backdropGet('taxonomy/term/' . $term->tid, array('language' => i18n_language_object($this->secondaryLanguage)));
+    $this->assertText($term_translation['name'][$this->secondaryLanguage], 'Term title gets localized on views term pages.');
 
     // Autocomplete should respect localization.
     $autocomplete_path = 'taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
