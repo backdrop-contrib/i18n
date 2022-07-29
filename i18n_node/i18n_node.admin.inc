@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * The i18n_node module admin form.

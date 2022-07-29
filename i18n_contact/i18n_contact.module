@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) submodule: Multilingual contact forms.
@@ -111,7 +110,10 @@ function i18n_contact_mail_alter(&$message) {
     $contact = i18n_string_object_translate('contact_category', $message['params']['category'], array('langcode' => $message['language']->langcode));
     $message['subject'] = t(
       '[!category] !subject',
-      array('!category' => $contact['category'], '!subject' => $message['params']['subject']),
+      array(
+        '!category' => $contact['category'],
+        '!subject' => $message['params']['subject'],
+      ),
       array('langcode' => $message['language']->langcode)
     );
 

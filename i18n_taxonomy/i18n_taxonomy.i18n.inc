@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) hooks.
@@ -127,9 +126,9 @@ function i18n_taxonomy_i18n_string_objects($type) {
  * Callback for term translation tab.
  *
  * @param string $type
- *   Should be always 'taxonomy_term'
+ *   Should be always 'taxonomy_term'.
  * @param object $term
- *   Taxonomy term object
+ *   Taxonomy term object.
  */
 function i18n_taxonomy_term_translation_page($type, $term) {
   module_load_include('admin.inc', 'i18n_taxonomy');

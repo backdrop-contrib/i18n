@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) module - Translation set.
@@ -15,7 +14,10 @@ class i18n_path_translation_set extends i18n_translation_set {
    */
   public function add_item($path, $langcode = NULL) {
     // Path may be object or plain string.
-    $item = is_object($path) ? $path : (object) array('path' => $path, 'language' => $langcode);
+    $item = is_object($path) ? $path : (object) array(
+      'path' => $path,
+      'language' => $langcode,
+    );
     return parent::add_item($item, $langcode);
   }
 

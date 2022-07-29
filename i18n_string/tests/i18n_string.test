@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Test case for multilingual string
@@ -22,7 +21,10 @@ class I18nStringTestCase extends Backdropi18nTestCase {
     // to use it for testing.
     parent::setUp('i18n_string', 'i18n_menu', 'i18n_test');
     parent::setUpLanguages();
-    $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
+    $this->translator = $this->backdropCreateUser(array(
+      'translate interface',
+      'translate user-defined strings',
+    ));
   }
 
   /**

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Generic translation page for objects.

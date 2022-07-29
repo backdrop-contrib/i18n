@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Page callbacks for the taxonomy module, i18n remake.

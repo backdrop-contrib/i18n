@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * API documentation file for String translation module.
@@ -89,9 +88,9 @@ function hook_i18n_string_list($group) {
  *
  * @param array $strings
  *   Associative array with current string list
- *   indexed by textgroup, type, id, name
+ *   indexed by textgroup, type, id, name.
  * @param string $type
- *   Object type as defined on i18n_object_info()
+ *   Object type as defined on i18n_object_info().
  * @param array $object
  *   Object defined on i18n_object_info()
  *

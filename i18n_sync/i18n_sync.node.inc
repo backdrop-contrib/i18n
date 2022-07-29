@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) package. Synchronization of translations.
@@ -27,7 +26,7 @@
  * @param string $op
  *   Node operation (insert|update).
  */
-function i18n_sync_node_translation($node, $translations, $field_names, $op) {
+function i18n_sync_node_translation($node, array $translations, array $field_names, $op) {
   $total = count($translations);
   $count = 0;
   // Disable language selection and synchronization temporarily,
@@ -128,7 +127,7 @@ function i18n_sync_node_translation_reference_field(&$reference_node, $default_v
  * @param array $field_info
  *   Field API field information.
  */
-function i18n_sync_node_translation_default_field($node, $translation, $field, $field_info) {
+function i18n_sync_node_translation_default_field($node, $translation, $field, array $field_info) {
   switch ($field_info['field']['type']) {
     case 'file':
     case 'image':
@@ -157,11 +156,11 @@ function i18n_sync_node_translation_default_field($node, $translation, $field, $
  * - description, alt, title is kept if already existing, copied otherwise.
  *
  * @param object $node
- *   the node whose changes are to be synced.
+ *   The node whose changes are to be synced.
  * @param object $translation
- *   a node to which the changes need to be synced.
+ *   A node to which the changes need to be synced.
  * @param string $field
- *   field name.
+ *   Field name.
  */
 function i18n_sync_node_translation_file_field($node, $translation, $field) {
   if (isset($node->{$field}[$node->langcode])) {

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Forms for i18n select administration.

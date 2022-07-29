@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * API for internationalization strings.
@@ -301,11 +300,11 @@ class i18n_string_object {
    * Set properties from object or array.
    *
    * @param object|array $properties
-   *   Obejct or array of properties
+   *   Obejct or array of properties.
    * @param bool $set_null
-   *   Whether to set null properties too
+   *   Whether to set null properties too.
    * @param bool $override
-   *   Whether to set properties that are already set in this object
+   *   Whether to set properties that are already set in this object.
    */
   public function set_properties($properties, $set_null = TRUE, $override = TRUE) {
     foreach ((array) $properties as $field => $value) {
@@ -434,7 +433,7 @@ class i18n_string_textgroup_default {
    * @return int|FALSE
    *   Update status.
    */
-  protected function string_add($i18nstring, $options = array()) {
+  protected function string_add($i18nstring, array $options = array()) {
     $options += array('watchdog' => TRUE);
     // Default return status if nothing happens.
     $status = -1;
@@ -510,7 +509,7 @@ class i18n_string_textgroup_default {
    * @return array
    *   Strings from $string_list that match the filter conditions.
    */
-  protected static function string_filter($string_list, $filter) {
+  protected static function string_filter(array $string_list, array $filter) {
     // Remove 'language' and '*' conditions.
     if (isset($filter['language'])) {
       unset($filter['language']);
@@ -594,7 +593,7 @@ class i18n_string_textgroup_default {
    * @param array $options
    *   Array with aditional options.
    */
-  protected function string_translate($i18nstring, $options = array()) {
+  protected function string_translate($i18nstring, array $options = array()) {
     $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
     // Search for existing translation
     // (result will be cached in this function call).
@@ -606,7 +605,7 @@ class i18n_string_textgroup_default {
    * Update / create / remove string.
    *
    * @param object $i18nstring
-   *   i18n_string_object.
+   *   A i18n_string_object.
    * @param array $options
    *   Additional options.
    *
@@ -614,7 +613,7 @@ class i18n_string_textgroup_default {
    *   SAVED_UPDATED | SAVED_NEW | SAVED_DELETED | FALSE (If the string is
    *     to be removed but has no source)
    */
-  public function string_update($i18nstring, $options = array()) {
+  public function string_update($i18nstring, array $options = array()) {
     $options += array(
       'watchdog' => TRUE,
       'messages' => $this->debug,
@@ -763,6 +762,8 @@ class i18n_string_textgroup_default {
    *
    * @param object $string
    *   Full string object to be saved.
+   * @param bool $update
+   *   Apparently unused param.
    */
   protected function save_string($string, $update = FALSE) {
     if (!$string->get_source()) {
@@ -795,6 +796,8 @@ class i18n_string_textgroup_default {
    *
    * @param object $string
    *   Full string object with translation data (language, translation).
+   * @param string $langcode
+   *   Language code.
    */
   protected function save_translation($string, $langcode) {
     db_merge('locales_target')
@@ -828,8 +831,10 @@ class i18n_string_textgroup_default {
    *   Textgroup and location glued with ':'.
    * @param string $string
    *   Optional source string (string in default language).
+   * @param array $options
+   *   Options to pass to method string_remove, if any.
    */
-  public function context_remove($context, $string = NULL, $options = array()) {
+  public function context_remove($context, $string = NULL, array $options = array()) {
     $options += array('messages' => $this->debug);
     $i18nstring = $this->build_string($context, $string);
     $status = $this->string_remove($i18nstring, $options);
@@ -848,8 +853,8 @@ class i18n_string_textgroup_default {
   /**
    * Update / create translation source for user defined strings.
    *
-   * @param string $name
-   *   Textgroup and location glued with ':'.
+   * @param mixed $context
+   *   Translation context, array or string.
    * @param string $string
    *   Source string in default language.
    *   Default language may or may not be English.
@@ -1000,11 +1005,13 @@ class i18n_string_textgroup_default {
    *
    * @param array $context
    *   Array with String context conditions.
+   * @param string $langcode
+   *   Language code.
    *
    * @return array
    *   Array of translation objects indexed by context.
    */
-  public function multiple_translation_search($context, $langcode) {
+  public function multiple_translation_search(array $context, $langcode) {
     // First, build conditions and identify the variable field.
     $keys = array('type', 'objectid', 'property');
     $conditions = array_combine($keys, $context) + array('language' => $langcode);
@@ -1102,6 +1109,8 @@ class i18n_string_textgroup_default {
    *   Context array with placeholders (*)
    * @param array $strings
    *   Optional array of source strings indexed by the placeholder property.
+   * @param array $options
+   *   Keyed array with options.
    *
    * @return array
    *   Array of string objects (with translation)
@@ -1349,7 +1358,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    */
   protected function localize_access() {
     // We could check also whether the object has strings to translate:
-    //   && $this->get_strings(array('empty' => TRUE))
+    // && $this->get_strings(array('empty' => TRUE))
     // However it may be better to display the 'No available strings' message
     // for the user to have a clue of what's going on.
     // @see i18n_string_translate_page_object()
@@ -1441,7 +1450,10 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    */
   public function load_strings() {
     list($type, $id) = $this->get_string_context();
-    return $this->textgroup()->load_strings(array('type' => $type, 'objectid' => $id));
+    return $this->textgroup()->load_strings(array(
+      'type' => $type,
+      'objectid' => $id,
+    ));
   }
 
 }

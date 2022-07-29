@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Implementation of i18n hooks.
@@ -58,7 +57,7 @@ function i18n_string_group_object_types($group) {
  * Get object string list that are in this text group.
  *
  * @param string $type
- *   Object type
+ *   Object type.
  */
 function i18n_string_object_type_string_list($type) {
   $strings = array();

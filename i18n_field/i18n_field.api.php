@@ -1,11 +1,10 @@
 <?php
-
 /**
  * @file
  * API documentation file for Field translation module.
  *
  * This module takes care of translating common field elements like title and
- * description for all fields, plus some field specific values 
+ * description for all fields, plus some field specific values
  * (default, options) for field types defined by Backdrop core.
  *
  * Before implementing any of these hooks, consider whether you would be better

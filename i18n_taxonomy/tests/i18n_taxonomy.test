@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Test case for multilingual taxonomy.
@@ -139,8 +138,14 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->field_autocomplete = $this->createTermField($vocab->machine_name, 'taxonomy_autocomplete');
 
     // Create a term to be translated.
-    $en_term = $this->createTerm(array('vocabulary' => $vocab->machine_name, 'langcode' => $this->defaultLanguage));
-    $es_term = $this->createTerm(array('vocabulary' => $vocab->machine_name, 'langcode' => $this->secondaryLanguage));
+    $en_term = $this->createTerm(array(
+      'vocabulary' => $vocab->machine_name,
+      'langcode' => $this->defaultLanguage,
+    ));
+    $es_term = $this->createTerm(array(
+      'vocabulary' => $vocab->machine_name,
+      'langcode' => $this->secondaryLanguage,
+    ));
 
     $this->backdropLogin($this->admin_user);
 

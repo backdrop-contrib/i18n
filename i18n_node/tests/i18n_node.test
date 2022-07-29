@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Contains test cases for the i18n_node module.
@@ -16,7 +15,10 @@ class I18nNodeTestCase extends Backdropi18nTestCase {
    */
   public function setUp() {
     parent::setUp('translation', 'i18n_node');
-    parent::setUpLanguages(array('administer content translations', 'translate content'));
+    parent::setUpLanguages(array(
+      'administer content translations',
+      'translate content',
+    ));
     parent::setUpContentTranslation();
 
     $this->addLanguage('pt-br');

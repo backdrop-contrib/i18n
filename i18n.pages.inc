@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Generic translation pages.
