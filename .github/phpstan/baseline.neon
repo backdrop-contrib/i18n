@@ -1,0 +1,46 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Function entity_translation_enabled not found\\.$#"
+			count: 1
+			path: ../../i18n.module
+
+		-
+			message: "#^Undefined variable\\: \\$tree$#"
+			count: 1
+			path: ../../i18n_menu/i18n_menu.module
+
+		-
+			message: "#^Function backdrop_help_arg not found\\.$#"
+			count: 1
+			path: ../../i18n_node/i18n_node.module
+
+		-
+			message: "#^Function php_eval not found\\.$#"
+			count: 1
+			path: ../../i18n_select/i18n_select.module
+
+		-
+			message: "#^Access to an undefined property i18n_string_textgroup_default\\:\\:\\$string_format\\.$#"
+			count: 1
+			path: ../../i18n_string/i18n_string.inc
+
+		-
+			message: "#^Function i18n_taxonomy_translation_overview not found\\.$#"
+			count: 1
+			path: ../../i18n_taxonomy/i18n_taxonomy.admin.inc
+
+		-
+			message: "#^Function i18n_taxonomy_translate_path\\(\\) should return array but return statement is missing\\.$#"
+			count: 1
+			path: ../../i18n_taxonomy/i18n_taxonomy.module
+
+		-
+			message: "#^Function taxonomy_field_uuid_load not found\\.$#"
+			count: 1
+			path: ../../i18n_taxonomy/i18n_taxonomy.module
+
+		-
+			message: "#^Function taxonomy_field_uuid_presave not found\\.$#"
+			count: 1
+			path: ../../i18n_taxonomy/i18n_taxonomy.module

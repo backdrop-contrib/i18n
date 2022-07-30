@@ -1,0 +1,16 @@
+includes:
+  - baseline.neon
+# @see https://phpstan.org/config-reference
+parameters:
+  level: 0
+  scanDirectories:
+    - ../../../../core
+    - ../../
+  fileExtensions:
+    - module
+    - inc
+    - install
+    - profile
+  excludePaths:
+    - *.tpl.php
+    - *.api.php
