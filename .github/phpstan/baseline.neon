@@ -16,11 +16,6 @@ parameters:
 			path: ../../i18n_node/i18n_node.module
 
 		-
-			message: "#^Function php_eval not found\\.$#"
-			count: 1
-			path: ../../i18n_select/i18n_select.module
-
-		-
 			message: "#^Access to an undefined property i18n_string_textgroup_default\\:\\:\\$string_format\\.$#"
 			count: 1
 			path: ../../i18n_string/i18n_string.inc
