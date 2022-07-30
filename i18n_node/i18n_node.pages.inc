@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * User page callbacks for the translation module.
@@ -19,7 +18,7 @@ function i18n_node_add_page() {
   foreach ($content as &$item) {
     // Type machine name will be the first page argument.
     $page_arguments = unserialize($item['page_arguments']);
-    // Check whether this has a node type, other items may be here too
+    // Check whether this has a node type, other items may be here too.
     // @see #1264662
     $type = isset($page_arguments[0]) ? $page_arguments[0] : NULL;
     if ($type) {
@@ -85,7 +84,10 @@ function i18n_node_translation_overview($node) {
       if (node_access('create', $node->type)) {
         $text = t('add translation');
         $path = 'node/add/' . str_replace('_', '-', $node->type);
-        $query = array('query' => array('translation' => $node->nid, 'target' => $langcode));
+        $query = array('query' => array(
+          'translation' => $node->nid,
+          'target' => $langcode,
+        ));
         $options[] = i18n_node_translation_link($text, $path, $langcode, $query);
       }
       $status = t('Not translated');
@@ -116,7 +118,7 @@ function i18n_node_translation_link($text, $path, $langcode, $options = array())
   $type = config_get('translation.settings', 'language_type');
   $links = language_negotiation_get_switch_links($type, $path);
   // When node not published, links don't have href so we use path instead
-  // Note: this is a bug in Core translation module,
+  // Note: this is a bug in Core translation module.
   // @see http://drupal.org/node/1137074
   if (!empty($links->links[$langcode]) && !empty($links->links[$langcode]['href'])) {
     $options += array('attributes' => array(), 'html' => FALSE);
@@ -289,7 +291,10 @@ function i18n_node_autocomplete2nid($name, $type, $language, $field = NULL) {
     }
     else {
       // No explicit nid.
-      $reference = _i18n_node_references($name, 'equals', array('type' => $type, 'langcode' => $language), 1);
+      $reference = _i18n_node_references($name, 'equals', array(
+        'type' => $type,
+        'langcode' => $language,
+      ), 1);
       if (!empty($reference)) {
         $nid = key($reference);
       }
@@ -305,11 +310,11 @@ function i18n_node_autocomplete2nid($name, $type, $language, $field = NULL) {
  * Find node title matches.
  *
  * @param string $string
- *   String to match against node title
+ *   String to match against node title.
  * @param string $match
- *   Match mode: 'contains', 'equals', 'starts_with'
+ *   Match mode: 'contains', 'equals', 'starts_with'.
  * @param array $params
- *   Other query arguments: type, language or numeric ones
+ *   Other query arguments: type, language or numeric ones.
  */
 function _i18n_node_references($string, $match = 'contains', $params = array(), $limit = 10) {
   $query = db_select('node', 'n')

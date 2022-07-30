@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * I18n Object Class.
@@ -90,7 +89,8 @@ class i18n_object_wrapper {
   /**
    * Load real object or array.
    *
-   * @param $object
+   * @param object|array $object
+   *   Not sure when this can ever be an array, though.
    */
   public function load_object($object) {
     if ($callback = $this->get_info('load callback', NULL)) {
@@ -216,12 +216,12 @@ class i18n_object_wrapper {
   /**
    * Replace path with placeholders.
    *
-   * @param $path
-   *   Path to replace
-   * @param $replacements
-   *   Replacement variables to override or add to placeholders
+   * @param string $path
+   *   Path to replace.
+   * @param array $replacements
+   *   Replacement variables to override or add to placeholders.
    */
-  protected function path_replace($path, $replacements = array()) {
+  protected function path_replace($path, array $replacements = array()) {
     if ($path) {
       $path = strtr($path, $replacements + $this->get_placeholders());
       // Clean up duplicated and final '/' (empty placeholders).

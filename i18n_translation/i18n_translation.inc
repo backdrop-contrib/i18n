@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) module - Translation set.
@@ -13,7 +12,7 @@ class I18nTranslationSetController extends DefaultEntityController {
   /**
    * Builds objects of specific classes upon loading.
    *
-   * @param array $queried_entities
+   * @param mixed $queried_entities
    *   Associative array of query results, keyed on the entity ID.
    * @param string|FALSE $revision_id
    *   ID of the revision that was loaded, or FALSE if teh most current revision
@@ -256,7 +255,7 @@ class i18n_translation_set extends Entity {
    * @param array $translations
    *   Array of langcode => item.
    */
-  public function reset_translations($translations = array()) {
+  public function reset_translations(array $translations = array()) {
     $this->translations = array();
     $this->add_translations($translations);
     return $this;
@@ -456,7 +455,7 @@ class i18n_translation_set extends Entity {
    * @param array $translations
    *   Translation items indexed by language code.
    */
-  public function add_translations($translations) {
+  public function add_translations(array $translations) {
     foreach ($translations as $langcode => $item) {
       $this->add_item($item, $langcode);
     }
@@ -489,7 +488,7 @@ class i18n_translation_set extends Entity {
   /**
    * Remove item / language from translation set.
    *
-   * @param $item
+   * @param object $item
    *   Item to remove from this translation set,
    *   it must have a language property.
    */
@@ -517,7 +516,7 @@ class i18n_translation_set extends Entity {
   /**
    * Remove language from translation set.
    *
-   * @param $langcode
+   * @param string $langcode
    *   Language to remove from this translation set.
    */
   public function remove_language($langcode) {

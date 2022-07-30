@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * I18n taxonomy module.
@@ -344,7 +343,7 @@ function i18n_taxonomy_field_prepare_translation($entity_type, $entity, $field, 
  * @return array
  *   The array of valid terms for this field, keyed by term id.
  */
-function i18n_taxonomy_allowed_values($field) {
+function i18n_taxonomy_allowed_values(array $field) {
   $language = i18n_language_context();
   $options = array();
   foreach ($field['settings']['allowed_values'] as $tree) {
@@ -839,7 +838,10 @@ function i18n_taxonomy_form_taxonomy_form_term_alter(&$form, &$form_state) {
         $form['langcode']['#default_value'] = $target_language->langcode;
         $form['langcode']['#disabled'] = TRUE;
 
-        backdrop_set_title(t('%language translation of term %title', array('%language' => i18n_language_name($langcode), '%title' => $source_term->name)), PASS_THROUGH);
+        backdrop_set_title(t('%language translation of term %title', array(
+          '%language' => i18n_language_name($langcode),
+          '%title' => $source_term->name,
+        )), PASS_THROUGH);
       }
       elseif (!empty($term->tid) && i18n_object_langcode($term)) {
         // Set context language to term language.
@@ -1075,15 +1077,15 @@ function i18n_taxonomy_form_all_localize(&$item) {
  * Filter out terms with a different language.
  *
  * @param array $taxonomy
- *   Array of term objects or tids or multiple arrays or terms indexed by vid
+ *   Array of term objects or tids or multiple arrays or terms indexed by vid.
  * @param string $langcode
- *   Language code of target language
+ *   Language code of target language.
  * @param bool $fullterms
- *   Whether to return full $term objects, returns tids otherwise
+ *   Whether to return full $term objects, returns tids otherwise.
  *
  * @return array
  *   Array with translated terms: tid -> $term
- *   Array with vid and term array
+ *   Array with vid and term array.
  */
 function i18n_taxonomy_translate_terms($taxonomy, $langcode, $fullterms = TRUE) {
   $translation = array();
@@ -1213,11 +1215,11 @@ function i18n_taxonomy_vocabulary_langcode($vid) {
  * Get taxonomy tree for a given language.
  *
  * @param string $vid
- *   Vocabulary machine name
+ *   Vocabulary machine name.
  * @param string $langcode
- *   Language code
+ *   Language code.
  * @param int $parent
- *   Parent term id for the tree
+ *   Parent term id for the tree.
  */
 function i18n_taxonomy_get_tree($vid, $langcode, $parent = 0, $max_depth = NULL, $load_entities = FALSE) {
   $children = &backdrop_static(__FUNCTION__, array());
@@ -1370,7 +1372,7 @@ function i18n_taxonomy_entity_info_alter(&$entity_info) {
     // we can use it to return the correct localized term name.
     // @todo In Backdrop entities 'label callback' does not exist. Removed.
     // @see https://github.com/backdrop-contrib/i18n/issues/65
-
+    //
     // Also let core know terms have languages, now.
     // @todo Does this actually do anything? Core might handle this.
     $entity_info['taxonomy_term']['entity keys']['language'] = 'language';

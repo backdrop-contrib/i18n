@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Translation page for fields.

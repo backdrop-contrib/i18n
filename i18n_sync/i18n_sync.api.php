@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Synchronization API documentation.
@@ -64,6 +63,6 @@ function hook_i18n_sync_options_alter(&$fields, $entity_type, $bundle_name) {
  * @param array $field_names
  *   Array of field names to synchronize.
  */
-function hook_i18n_sync_translation($entity_type, $translation, $translation_language, $source, $source_language, $field_names) {
+function hook_i18n_sync_translation($entity_type, $translation, $translation_language, $source, $source_language, array $field_names) {
 
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Test case for multilingual menus.
@@ -23,14 +22,20 @@ class i18nPathTestCase extends Backdropi18nTestCase {
    * Check translation link.
    */
   public function checkTranslationLink($path, $language, $method = 'assertRaw') {
-    $this->{$method}($path, t('Found translation link. :language - :path', array(':language' => $language, ':path' => $path)));
+    $this->{$method}($path, t('Found translation link. :language - :path', array(
+      ':language' => $language,
+      ':path' => $path,
+    )));
   }
 
   /**
    * Check path translation.
    */
   public function testPathTranslation() {
-    $this->setUpContentType(array('type' => 'page', 'mode' => TRANSLATION_ENABLED));
+    $this->setUpContentType(array(
+      'type' => 'page',
+      'mode' => TRANSLATION_ENABLED,
+    ));
 
     // Create 2 nodes in different languages.
     $first_title = $this->randomName(10);

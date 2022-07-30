@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Test case for multilingual menus.
@@ -17,7 +16,10 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
   public function setUp() {
     parent::setUp(array('i18n_menu', 'translation'));
     parent::setUpLanguages(array('administer menu'));
-    $this->translator = $this->backdropCreateUser(array('translate interface', 'translate user-defined strings'));
+    $this->translator = $this->backdropCreateUser(array(
+      'translate interface',
+      'translate user-defined strings',
+    ));
   }
 
   /**
@@ -183,8 +185,14 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
     $menu = $this->createMenu(array('i18n_mode' => I18N_MODE_MULTIPLE));
 
     $neutral_item = $this->createMenuLink(array('menu_name' => $menu['menu_name']));
-    $default_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'langcode' => $this->defaultLanguage));
-    $secondary_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'langcode' => $this->secondaryLanguage));
+    $default_item = $this->createMenuLink(array(
+      'menu_name' => $menu['menu_name'],
+      'langcode' => $this->defaultLanguage,
+    ));
+    $secondary_item = $this->createMenuLink(array(
+      'menu_name' => $menu['menu_name'],
+      'langcode' => $this->secondaryLanguage,
+    ));
 
     $translationset_edit = array(
       'translations[' . $this->defaultLanguage . ']' => $default_item['menu_name'] . ':' . $default_item['mlid'],
@@ -227,8 +235,14 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
 
     // Setup menu links for testing.
     $neutral_item = $this->createMenuLink(array('menu_name' => $menu['menu_name']));
-    $default_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'langcode' => $this->defaultLanguage));
-    $secondary_item = $this->createMenuLink(array('menu_name' => $menu['menu_name'], 'langcode' => $this->secondaryLanguage));
+    $default_item = $this->createMenuLink(array(
+      'menu_name' => $menu['menu_name'],
+      'langcode' => $this->defaultLanguage,
+    ));
+    $secondary_item = $this->createMenuLink(array(
+      'menu_name' => $menu['menu_name'],
+      'langcode' => $this->secondaryLanguage,
+    ));
 
     $translationset_edit = array(
       'translations[' . $this->defaultLanguage . ']' => $default_item['menu_name'] . ':' . $default_item['mlid'],

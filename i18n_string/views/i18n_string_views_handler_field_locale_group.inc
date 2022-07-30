@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Definition of i18n_string_views_handler_field_locale_group.

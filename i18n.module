@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) module.
@@ -84,7 +83,7 @@ function i18n_hook_info() {
  * Get global language object, make sure it is initialized.
  *
  * @param mixed $language
- *   Language code or language object to convert to valid language object
+ *   Language code or language object to convert to valid language object.
  */
 function i18n_language($language = NULL) {
   if ($language && ($language_object = i18n_language_object($language))) {
@@ -300,10 +299,10 @@ function i18n_menu() {
  *   i18n_select($previous);
  *
  * @param bool $value
- *   Optional, enable/disable selection: TRUE/FALSE
+ *   Optional, enable/disable selection: TRUE/FALSE.
  *
  * @return bool
- *   Previous selection mode (TRUE/FALSE)
+ *   Previous selection mode (TRUE/FALSE).
  */
 function i18n_select($value = NULL) {
   static $mode = FALSE;
@@ -358,10 +357,10 @@ function i18n_preprocess_html(&$variables) {
  *   - 'callback' Callback to apply to the result (both to translated
  *     or untranslated string.
  *   - 'update' (defaults to FALSE) Whether to update source table
- *   - 'translate' (defaults to TRUE) Whether to return a translation
+ *   - 'translate' (defaults to TRUE) Whether to return a translation.
  *
  * @return string
- *   Translated string, $string if not found
+ *   Translated string, $string if not found.
  */
 function i18n_string($name, $string, $options = array()) {
   $options += array('translate' => TRUE, 'update' => FALSE);
@@ -426,9 +425,9 @@ function i18n_get_object($type, $key, $object = NULL) {
  * Get object language code.
  *
  * @param object $object
- *   Object or array having language field or plain language field
+ *   Object or array having language field or plain language field.
  * @param bool $default
- *   What value to return if the object doesn't have a valid language
+ *   What value to return if the object doesn't have a valid language.
  */
 function i18n_object_langcode($object, $default = FALSE, $field = 'langcode') {
   $value = i18n_object_field($object, $field, $default);
@@ -515,7 +514,7 @@ function i18n_object_translate_access($type, $object) {
  * @param string $path
  *   Path to get translations for or '<front>' for front page.
  * @param bool $check_access
- *   Whether to check access to paths, defaults to TRUE
+ *   Whether to check access to paths, defaults to TRUE.
  */
 function i18n_get_path_translations($path, $check_access = TRUE) {
   $translations = &backdrop_static(__FUNCTION__);
@@ -625,7 +624,10 @@ function i18n_form_block_admin_display_form_submit($form, &$form_state) {
 function i18n_prepare_normal_path($link_path, $language) {
   $normal_path = backdrop_get_normal_path($link_path, $language);
   if ($link_path != $normal_path) {
-    backdrop_set_message(t('The menu system stores system paths only, but will use the URL alias for display. %link_path has been stored as %normal_path', array('%link_path' => $link_path, '%normal_path' => $normal_path)));
+    backdrop_set_message(t('The menu system stores system paths only, but will use the URL alias for display. %link_path has been stored as %normal_path', array(
+      '%link_path' => $link_path,
+      '%normal_path' => $normal_path,
+    )));
   }
   return $normal_path;
 }

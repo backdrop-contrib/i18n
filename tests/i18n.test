@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Base class for Internationalization tests.
@@ -146,9 +145,9 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
    * Create translation set from a node.
    *
    * @param object $source
-   *   Source node
+   *   Source node.
    */
-  public function createNodeTranslationSet(&$source, $languages = NULL) {
+  public function createNodeTranslationSet(&$source) {
     if (empty($source->tnid)) {
       $source->tnid = $source->nid;
     }
@@ -172,15 +171,20 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
    *   Body of node in specified language.
    * @param string $langcode
    *   Language code.
+   * @param array $edit
+   *   Default parameters.
    */
-  public function createNode($type, $title, $body, $langcode, $edit = array()) {
+  public function createNode($type, $title, $body, $langcode, array $edit = array()) {
     $lang = LANGUAGE_NONE;
     $edit["title"] = $title;
     $edit["body[$lang][0][value]"] = $body;
     $edit['langcode'] = $langcode;
     $this->backdropPost('node/add/' . $type, $edit, t('Save'));
     $info = node_type_load($type);
-    $message = t('@name %title has been created.', array('@name' => $info->name, '%title' => $title));
+    $message = t('@name %title has been created.', array(
+      '@name' => $info->name,
+      '%title' => $title,
+    ));
     $this->assertRaw($message);
 
     // Check to make sure the node was created.
@@ -205,7 +209,8 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   public function createNodeTranslation($node, $language, $title = NULL, $body = NULL) {
     $body = $body ? $body : $this->randomName();
     $title = $title ? $title : $this->randomName();
-    $this->backdropGet('node/add/' . $node->type, array('query' => array('translation' => $node->nid, 'target' => $language)));
+    $query = array('translation' => $node->nid, 'target' => $language);
+    $this->backdropGet('node/add/' . $node->type, array('query' => $query));
 
     $this->assertFieldByXPath('//input[@id="edit-title"]', $node->title, "Original title value correctly populated.");
     $field_lang = field_language('node', $node, 'body');
@@ -217,7 +222,10 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
     $edit[$body_key] = $body;
     $this->backdropPost(NULL, $edit, t('Save'));
     $info = node_type_load($node->type);
-    $message = t('@name %title has been created.', array('@name' => $info->name, '%title' => $title));
+    $message = t('@name %title has been created.', array(
+      '@name' => $info->name,
+      '%title' => $title,
+    ));
     $this->assertRaw($message);
     // Check to make sure that translation was successful.
     $translation = $this->backdropGetNodeByTitle($title);
@@ -231,7 +239,13 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
    * Retrieves a Backdrop path or an absolute path with language.
    *
    * @param string|object $language
-   *   Language code or language object
+   *   Language code or language object.
+   * @param string $path
+   *   Path to provide for backdropGet.
+   * @param array $options
+   *   Options for backdropGet.
+   * @param array $headers
+   *   Headers for backdropGet.
    */
   protected function i18nGet($language, $path = '', array $options = array(), array $headers = array()) {
     $options['language'] = $this->getLanguage($language);
@@ -325,7 +339,11 @@ class Backdropi18nTestCase extends BackdropWebTestCase {
   /**
    * Create translation for string in textgroup.
    *
-   * @param array $translations
+   * @param string $textgroup
+   *   The textgroup (apparently unused here).
+   * @param string $name
+   *   Untranslated string.
+   * @param array|null $translations
    *   Optional array of langcode => translation.
    *   If not present, it will be generated.
    */

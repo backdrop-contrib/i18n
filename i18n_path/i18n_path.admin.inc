@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Administration pages for path translation.
@@ -17,7 +16,10 @@ function i18n_path_admin_overview($type = NULL) {
  * Path add/edit form.
  */
 function i18n_path_admin_form($form, $form_state, $translation_set = NULL) {
-  $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
+  $form['translation_set'] = array(
+    '#type' => 'value',
+    '#value' => $translation_set,
+  );
   if ($translation_set) {
     $paths = $translation_set->get_translations();
   }
@@ -129,7 +131,10 @@ function i18n_path_admin_form_submit($form, &$form_state) {
         $destination = backdrop_get_destination();
         unset($_GET['destination']);
       }
-      $form_state['redirect'] = array($translation_set->get_delete_path(), array('query' => $destination));
+      $form_state['redirect'] = array(
+        $translation_set->get_delete_path(),
+        array('query' => $destination),
+      );
       return;
   }
   $form_state['redirect'] = 'admin/config/regional/i18n_translation/path';

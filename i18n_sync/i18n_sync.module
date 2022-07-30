@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) package. Synchronization of translations.
@@ -209,7 +208,7 @@ function i18n_sync_node_prepare($node) {
  * @param string $type
  *   Node type.
  * @param string $field
- *   Optional field name to check whether it is in the list
+ *   Optional field name to check whether it is in the list.
  */
 function i18n_sync_node_fields($type, $field = NULL) {
   $fields = config_get('i18n.settings', 'i18n_sync.node_type_' . $type);

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) module. Translation sets admin.
@@ -9,9 +8,9 @@
  * Overview page for translation sets.
  *
  * @param string $type
- *   Translation set type to get a listing for this type only
+ *   Translation set type to get a listing for this type only.
  * @param object $query
- *   Base database query to build upon
+ *   Base database query to build upon.
  */
 function i18n_translation_admin_overview($type = NULL, $query = NULL) {
   // Build the sortable table header.

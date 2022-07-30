@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Test case for multilingual taxonomy.
@@ -118,6 +117,7 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->assertTrue(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in default language.');
     $this->assertFalse(isset($autocomplete_values[$term_translation['name'][$this->secondaryLanguage]]), 'No incorrect autocomplete suggestions in non-default languages');
 
+    // @codingStandardsIgnoreStart
     /*
     // Autocomplete should respect localization, but doesn't.
     $autocomplete_path = $this->secondaryLanguage . '/taxonomy/autocomplete/' . $this->field_name . '/' . $prefix;
@@ -125,6 +125,7 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->assertFalse(isset($autocomplete_values[$term->name]), 'Correct autocomplete suggestions in non-default languages.');
     $this->assertTrue(isset($autocomplete_values[$term_translation[$this->secondaryLanguage]]), 'No incorrect autocomplete suggestions in non-default languages.');.
     */
+    // @codingStandardsIgnoreEnd
   }
 
   /**
@@ -139,8 +140,14 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
     $this->field_autocomplete = $this->createTermField($vocab->machine_name, 'taxonomy_autocomplete');
 
     // Create a term to be translated.
-    $en_term = $this->createTerm(array('vocabulary' => $vocab->machine_name, 'langcode' => $this->defaultLanguage));
-    $es_term = $this->createTerm(array('vocabulary' => $vocab->machine_name, 'langcode' => $this->secondaryLanguage));
+    $en_term = $this->createTerm(array(
+      'vocabulary' => $vocab->machine_name,
+      'langcode' => $this->defaultLanguage,
+    ));
+    $es_term = $this->createTerm(array(
+      'vocabulary' => $vocab->machine_name,
+      'langcode' => $this->secondaryLanguage,
+    ));
 
     $this->backdropLogin($this->admin_user);
 

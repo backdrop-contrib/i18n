@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Helper functions for string administration.
@@ -66,9 +65,9 @@ function i18n_string_admin_refresh_form_submit($form, &$form_state) {
  * Refresh all user defined strings for a given text group.
  *
  * @param string $group
- *   Text group to refresh
+ *   Text group to refresh.
  * @param bool $delete
- *   Optional, delete existing (but not refresed, strings and translations)
+ *   Optional, delete existing (but not refresed, strings and translations).
  *
  * @return bool
  *   True if the strings have been refreshed successfully. False otherwise.
@@ -103,7 +102,10 @@ function i18n_string_refresh_cleanup($group) {
     ->execute()
     ->fetchCol();
   if ($lids) {
-    backdrop_set_message(t('Performing cleanup for text group %textgroup, deleting @count left over strings.', array('%textgroup' => $group, '@count' => count($lids))));
+    backdrop_set_message(t('Performing cleanup for text group %textgroup, deleting @count left over strings.', array(
+      '%textgroup' => $group,
+      '@count' => count($lids),
+    )));
     db_delete('locales_target')->condition('lid', $lids)->execute();
     db_delete('locales_source')->condition('lid', $lids)->execute();
     db_delete('i18n_string')->condition('lid', $lids)->execute();
@@ -155,7 +157,7 @@ function i18n_string_refresh_string_list($strings) {
  * Create batch for refreshing strings.
  *
  * @param array $groups
- *   Array of text groups to refresh
+ *   Array of text groups to refresh.
  * @param bool $delete
  *   Optional, delete existing (but not refresed, strings and translations)
  */

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) package. Synchronization of translations.
@@ -61,7 +60,10 @@ function node_i18n_sync_options($entity_type, $bundle_name) {
       'status' => array('title' => t('Status')),
       'promote' => array('title' => t('Promote')),
       'sticky' => array('title' => t('Sticky')),
-      'revision' => array('title' => t('Revision'), 'description' => t('Create also new revision for translations')),
+      'revision' => array(
+        'title' => t('Revision'),
+        'description' => t('Create also new revision for translations'),
+      ),
     );
   }
 }

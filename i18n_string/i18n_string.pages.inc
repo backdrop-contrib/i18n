@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) package - translatable strings reusable admin UI.
@@ -106,7 +105,10 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
   }
   // Build a form so it can be altered later, with all this information.
   $form['object'] = array('#type' => 'value', '#value' => $object);
-  $form['source_language'] = array('#type' => 'value', '#value' => $source_language);
+  $form['source_language'] = array(
+    '#type' => 'value',
+    '#value' => $source_language,
+  );
   $form['languages'] = array(
     '#header' => $header,
     '#rows' => $rows,
@@ -123,11 +125,11 @@ function i18n_string_translate_page_overview_form($form, &$form_state, $object, 
  *   (may be indexed by group key too if $groups is present).
  * @param string $langcode
  *   Language code to translate to.
- * @param array $groups
+ * @param mixed $groups
  *   Optional groups to provide some string grouping.
  *   Array with group key and title pairs.
  */
-function i18n_string_translate_page_form($form, &$form_state, $strings, $langcode, $groups = NULL) {
+function i18n_string_translate_page_form($form, &$form_state, array $strings, $langcode, $groups = NULL) {
   $form = i18n_string_translate_page_form_base($form, $langcode);
   if ($groups) {
     // I we've got groups, string list is grouped by group key.
@@ -145,7 +147,10 @@ function i18n_string_translate_page_form($form, &$form_state, $strings, $langcod
   }
   else {
     // We add a single group with key 'all', but no tabs.
-    $form['string_groups'] = array('#type' => 'value', '#value' => array('all' => $strings));
+    $form['string_groups'] = array(
+      '#type' => 'value',
+      '#value' => array('all' => $strings),
+    );
     $form['strings']['all'] = i18n_string_translate_page_form_strings($strings, $langcode);
   }
   return $form;
@@ -227,7 +232,10 @@ function i18n_string_translate_page_form_strings($strings, $langcode) {
       '#rows' => $disabled ? 1 : min(ceil(str_word_count($default_value) / 12), 10),
       // Change the parent for disabled strings
       // so we don't get empty values later.
-      '#parents' => array($disabled ? 'disabled_strings' : 'strings', $item->get_name()),
+      '#parents' => array(
+        $disabled ? 'disabled_strings' : 'strings',
+        $item->get_name(),
+      ),
     );
     // Use the proper text_format if one is set.
     if ($item->format) {
@@ -299,13 +307,20 @@ function i18n_string_l10n_client_save_string() {
         else {
           $result = i18n_string_translation_update($name, $_POST['target'], $language->langcode, $_POST['source']);
           if ($result) {
-            $message = theme('l10n_client_message', array('message' => t('Translation saved locally for user defined string.'), 'level' => WATCHDOG_INFO));
+            $message = theme('l10n_client_message', array(
+              'message' => t('Translation saved locally for user defined string.'),
+              'level' => WATCHDOG_INFO,
+            ));
           }
           elseif ($result === FALSE) {
-            $message = theme('l10n_client_message', array('message' => t('Not saved due to insufficient permissions.')));
+            $message = theme('l10n_client_message', array(
+              'message' => t('Not saved due to insufficient permissions.'),
+            ));
           }
           else {
-            $message = theme('l10n_client_message', array('message' => t('Not saved due to unknown reason.')));
+            $message = theme('l10n_client_message', array(
+              'message' => t('Not saved due to unknown reason.'),
+            ));
           }
         }
       }
@@ -383,7 +398,10 @@ function i18n_string_locale_translate_edit_form($form, &$form_state, $lid) {
   }
 
   // Fetch translations and fill in default values in the form.
-  $result = db_query("SELECT DISTINCT translation, language FROM {locales_target} WHERE lid = :lid AND language <> :omit", array(':lid' => $lid, ':omit' => $omit));
+  $result = db_query("SELECT DISTINCT translation, language FROM {locales_target} WHERE lid = :lid AND language <> :omit", array(
+    ':lid' => $lid,
+    ':omit' => $omit,
+  ));
   foreach ($result as $translation) {
     $form['translations'][$translation->language]['#default_value'] = $translation->translation;
   }

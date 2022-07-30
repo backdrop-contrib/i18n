@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Helper functions for menu administration.
@@ -10,11 +9,17 @@
  */
 function i18n_menu_translation_form($form, $form_state, $translation_set = NULL, $item = NULL) {
   $translation_set = $translation_set ? $translation_set : i18n_translation_set_build('menu_link');
-  $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
+  $form['translation_set'] = array(
+    '#type' => 'value',
+    '#value' => $translation_set,
+  );
   $translations = $translation_set->get_translations();
   // What to do with title? Let's make it a hidden field for now,
   // some tests rely on it.
-  $form['title'] = array('#type' => 'hidden', '#default_value' => $translation_set->title);
+  $form['title'] = array(
+    '#type' => 'hidden',
+    '#default_value' => $translation_set->title,
+  );
   if ($item && ($lang = i18n_object_langcode($item, LANGUAGE_NONE, 'langcode'))) {
     $translations[$lang] = $item;
   }
@@ -29,7 +34,10 @@ function i18n_menu_translation_form($form, $form_state, $translation_set = NULL,
   foreach (i18n_language_list() as $langcode => $language_name) {
     if ($langcode == $item_lang) {
       // We've got a predefined item for this language.
-      $form['translations'][$langcode] = array('#type' => 'value', '#value' => $item['menu_name'] . ':' . $item['mlid']);
+      $form['translations'][$langcode] = array(
+        '#type' => 'value',
+        '#value' => $item['menu_name'] . ':' . $item['mlid'],
+      );
       $form['translations']['display'] = array(
         '#type' => 'item',
         '#title' => $language_name,
@@ -279,7 +287,11 @@ function i18n_menu_translation_item_overview($item, $translation_set = NULL) {
     else {
       // No such translation in the set yet: help user to create it.
       $title = t('n/a');
-      $options[] = l(t('add translation'), 'admin/structure/menu/manage/' . $item['menu_name'] . '/add', array('query' => array('translation' => $item['mlid'], 'target' => $langcode) + backdrop_get_destination()));
+      $options[] = l(t('add translation'), 'admin/structure/menu/manage/' . $item['menu_name'] . '/add', array(
+        'query' => array(
+          'translation' => $item['mlid'],
+          'target' => $langcode) + backdrop_get_destination(),
+      ));
     }
     $rows[$langcode] = array(
       'language' => $language_name,

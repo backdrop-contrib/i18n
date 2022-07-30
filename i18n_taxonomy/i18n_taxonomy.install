@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Installation file for i18n_taxonomy module.
@@ -73,7 +72,7 @@ function i18n_taxonomy_disable() {
  */
 function i18n_taxonomy_update_dependencies() {
   // Set the i18n_mode for vocabularies between taxonomy_update_1001 and
-  // taxonomy_update_1002
+  // taxonomy_update_1002.
   $dependencies['i18n_taxonomy'][1000] = array(
     'taxonomy' => 1001,
   );

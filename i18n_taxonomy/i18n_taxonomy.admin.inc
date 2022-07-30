@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Helper functions for taxonomy administration.
@@ -31,7 +30,10 @@ function i18n_taxonomy_page_vocabulary($vocabulary, $op = NULL, $tid = NULL) {
  * Produces a vocabulary translation form.
  */
 function i18n_taxonomy_translation_term_form($form, $form_state, $vocabulary, $translation_set = NULL, $source = NULL) {
-  $form['translation_set'] = array('#type' => 'value', '#value' => $translation_set);
+  $form['translation_set'] = array(
+    '#type' => 'value',
+    '#value' => $translation_set,
+  );
   $translations = $translation_set ? $translation_set->get_translations() : array();
   $form['vocabulary'] = array('#type' => 'value', '#value' => $vocabulary);
   $form['translations'] = array(
