@@ -26,6 +26,7 @@ class I18nNodeTestCase extends Backdropi18nTestCase {
     $this->addLanguage('it');
     $edit = array('languages[it][enabled]' => FALSE);
     $this->backdropPost('admin/config/regional/language', $edit, t('Save configuration'));
+    return TRUE;
   }
 
   /**

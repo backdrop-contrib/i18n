@@ -9,6 +9,11 @@ require_once __DIR__ . '/../../tests/i18n.test';
  * Simpletest class for i18n_taxonomy.
  */
 class I18nTaxonomyTestCase extends Backdropi18nTestCase {
+  protected $field_name;
+  protected $field_select;
+  protected $field_autocomplete;
+  protected $field;
+  protected $instance;
 
   /**
    * Set up test case.
@@ -36,6 +41,7 @@ class I18nTaxonomyTestCase extends Backdropi18nTestCase {
       'translate interface',
       'translate user-defined strings',
     ));
+    return TRUE;
   }
 
   /**

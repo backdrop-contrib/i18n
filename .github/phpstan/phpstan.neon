@@ -1,3 +1,6 @@
+# The baseline file is generated with phpstan.
+# If a problem got fixed, the file sould be re-generated.
+# @see https://phpstan.org/user-guide/baseline
 includes:
   - baseline.neon
 # @see https://phpstan.org/config-reference
@@ -10,7 +13,7 @@ parameters:
     - module
     - inc
     - install
-    - profile
+    - test
   excludePaths:
     - *.tpl.php
     - *.api.php

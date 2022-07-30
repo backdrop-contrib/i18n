@@ -17,6 +17,7 @@ class I18nSyncTestCase extends Backdropi18nTestCase {
     parent::setUp('translation', 'i18n_string', 'i18n_sync', 'i18n_node', 'i18n_taxonomy');
     parent::setUpLanguages(array('administer fields'));
     parent::setUpContentTranslation();
+    return TRUE;
   }
 
   /**

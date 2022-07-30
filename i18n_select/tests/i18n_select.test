@@ -18,6 +18,7 @@ class I18nSelectTestCase extends Backdropi18nTestCase {
     parent::setUp('translation', 'i18n_select', 'i18n_string', 'i18n_translation');
     parent::setUpLanguages(array('administer fields'));
     parent::setUpContentTranslation();
+    return TRUE;
   }
 
   /**
