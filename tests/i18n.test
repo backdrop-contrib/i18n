@@ -10,6 +10,10 @@
 class Backdropi18nTestCase extends BackdropWebTestCase {
   protected $defaultLanguage;
   protected $secondaryLanguage;
+  protected $admin_user;
+  protected $content_editor;
+  protected $translator;
+  protected $install_locale;
 
   /**
    * Set up.
@@ -487,6 +491,7 @@ class Backdropi18nConfigTestCase extends Backdropi18nTestCase {
   public function setUp() {
     parent::setUp('translation', 'i18n_node');
     parent::setUpLanguages();
+    return TRUE;
   }
 
   /**

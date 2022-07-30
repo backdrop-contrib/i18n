@@ -16,6 +16,7 @@ class i18nPathTestCase extends Backdropi18nTestCase {
   public function setUp() {
     parent::setUp('translation', 'i18n_path');
     parent::setUpLanguages(array('administer site configuration'));
+    return TRUE;
   }
 
   /**

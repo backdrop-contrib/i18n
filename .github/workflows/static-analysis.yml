@@ -1,0 +1,27 @@
+name: PHPStan
+on: [pull_request]
+jobs:
+  phpstan:
+    name: Run PHPStan
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          tools: phpstan:1.8
+
+      - name: Checkout Backdrop core
+        uses: actions/checkout@v2
+        with:
+          repository: backdrop/backdrop
+
+      - name: Checkout module
+        uses: actions/checkout@v2
+        with:
+          path: modules/i18n
+
+      - name: Run PHPStan
+        run: |
+          cd modules/i18n
+          phpstan analyze -c .github/phpstan/phpstan.neon --error-format=github --no-progress .

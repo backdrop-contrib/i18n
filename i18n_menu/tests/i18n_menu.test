@@ -20,6 +20,7 @@ class i18nMenuTestCase extends Backdropi18nTestCase {
       'translate interface',
       'translate user-defined strings',
     ));
+    return TRUE;
   }
 
   /**
