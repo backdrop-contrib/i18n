@@ -12,13 +12,13 @@ class I18nTranslationSetController extends DefaultEntityController {
   /**
    * Builds objects of specific classes upon loading.
    *
-   * @param array $queried_entities
+   * @param mixed $queried_entities
    *   Associative array of query results, keyed on the entity ID.
    * @param string|FALSE $revision_id
    *   ID of the revision that was loaded, or FALSE if teh most current revision
    *   was loaded.
    */
-  protected function attachLoad(array &$queried_entities, $revision_id = FALSE) {
+  protected function attachLoad(&$queried_entities, $revision_id = FALSE) {
     foreach ($queried_entities as $id => $entity) {
       $queried_entities[$id] = i18n_translation_set_build($entity->type, $entity);
     }

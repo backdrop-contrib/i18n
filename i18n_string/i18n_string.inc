@@ -1403,8 +1403,13 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    *
    * Not often, this is a direct field set,
    * but sometimes fields may have different formats.
+   *
+   * @param object|array $object
+   * @param i18n_string_object $i18nstring
+   * @param string $langcode
+   * @param array $options
    */
-  protected function translate_field(&$object, $i18nstring, $langcode, $options) {
+  protected function translate_field(&$object, $i18nstring, $langcode, array $options) {
     $field_name = $i18nstring->property;
     $translation = $i18nstring->format_translation($langcode, $options);
     if (is_object($object)) {
