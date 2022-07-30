@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Field and field instance object handlers.
@@ -48,7 +47,10 @@ class i18n_field extends i18n_field_base {
     // This instance data will be used to get the paths
     // to get the edit/translate path.
     if (isset($this->object['bundle']) && isset($this->object['entity_type'])) {
-      $this->object = field_info_field($this->object['field_name']) + array('bundle' => $this->object['bundle'], 'entity_type' => $object['entity_type']);
+      $this->object = field_info_field($this->object['field_name']) + array(
+        'bundle' => $this->object['bundle'],
+        'entity_type' => $object['entity_type'],
+      );
     }
   }
 
@@ -109,10 +111,16 @@ class i18n_field extends i18n_field_base {
    * Not often, this is a direct field set,
    * but sometimes fields may have different formats.
    *
-   * @param $object
+   * @param object|array $object
    *   A clone of the object or array. Field instance.
+   * @param i18n_string_object $i18nstring
+   *   An instance of class i18n_string_object.
+   * @param string $langcode
+   *   The language code.
+   * @param array $options
+   *   Array of additional options.
    */
-  protected function translate_field(&$object, $i18nstring, $langcode, $options) {
+  protected function translate_field(&$object, $i18nstring, $langcode, array $options) {
     if ($i18nstring->objectid == '#allowed_values') {
       $object['settings']['#allowed_values'][$i18nstring->key] = $i18nstring->format_translation($langcode, $options);
     }
@@ -171,10 +179,16 @@ class i18n_field_instance extends i18n_field_base {
    * Not often, this is a direct field set,
    * but sometimes fields may have different formats.
    *
-   * @param $object
+   * @param object|array $object
    *   A clone of the object or array. Field instance.
+   * @param i18n_string_object $i18nstring
+   *   An instance of i18n_string_object.
+   * @param string $langcode
+   *   The language code.
+   * @param array $options
+   *   Additional options.
    */
-  protected function translate_field(&$object, $i18nstring, $langcode, $options) {
+  protected function translate_field(&$object, $i18nstring, $langcode, array $options) {
     if ($i18nstring->property == 'default_value') {
       // Render string without applying format.
       $object['default_value'][0]['value'] = $i18nstring->format_translation($langcode, array('sanitize' => FALSE) + $options);

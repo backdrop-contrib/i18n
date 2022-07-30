@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Internationalization (i18n) module - Node type handling.
@@ -146,7 +145,7 @@ function i18n_node_get_lang($nid, $default = '') {
  * @param bool $translate
  *   Only languages available for translation.
  * @param bool $select
- *   Only languages that can be selected for this node
+ *   Only languages that can be selected for this node.
  */
 function i18n_node_language_list($node, $translate = FALSE, $select = FALSE) {
   // Check if the node module manages its own language list.
@@ -340,8 +339,14 @@ function i18n_node_textfield_process($element) {
           // that occurs when a language has no prefix and hence gets a path
           // with a trailing forward slash.
           $interface = rtrim(url('', array('absolute' => TRUE)), '/');
-          $content = rtrim(url('', array('absolute' => TRUE, 'language' => $languages[$node_language])), '/');
-          $data = array('interface_path' => $interface, 'content_path' => $content);
+          $content = rtrim(url('', array(
+            'absolute' => TRUE,
+            'language' => $languages[$node_language],
+          )), '/');
+          $data = array(
+            'interface_path' => $interface,
+            'content_path' => $content,
+          );
           backdrop_add_js(array('i18n' => $data), 'setting');
         }
       }
@@ -525,7 +530,10 @@ function _i18n_node_form_node_form_alter($form, &$form_state) {
     backdrop_set_title(t('Create @name', array('@name' => i18n_node_type_name($node->type))), PASS_THROUGH);
   }
   elseif (!empty($node->nid) && $_GET['q'] == 'node/' . $node->nid . '/edit') {
-    backdrop_set_title(t('<em>Edit @type</em> @title', array('@type' => i18n_node_type_name($node->type), '@title' => $node->title)), PASS_THROUGH);
+    backdrop_set_title(t('<em>Edit @type</em> @title', array(
+      '@type' => i18n_node_type_name($node->type),
+      '@title' => $node->title,
+    )), PASS_THROUGH);
   }
   return $form;
 }
@@ -546,7 +554,7 @@ function i18n_node_theme() {
  * Shorthand for translating node type strings.
  *
  * @param string|object $type
- *   Node type name or full object
+ *   Node type name or full object.
  */
 function i18n_node_translate_type($type, $property = 'name', $source = NULL, $options = array()) {
   if (is_object($type)) {
@@ -573,7 +581,7 @@ function i18n_node_type_name($type, $name = NULL) {
  * Check whether this is a language enabled node type.
  *
  * @param object|string $type
- *   Node, node type object, or node type name
+ *   Node, node type object, or node type name.
  */
 function i18n_node_type_enabled($type) {
   $type = is_object($type) ? $type->type : $type;

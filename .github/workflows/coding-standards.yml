@@ -3,35 +3,26 @@ on: [pull_request]
 jobs:
   phpcs:
     name: Run phpcs
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
-      - name: Setup PHP
+      - name: Setup PHP with CodeSniffer tool
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '7.2'
-          coverage: none
+          php-version: '8.1'
+          tools: phpcs:3.7
+
+      # The checkout action refuses to put it outside, so we have to do it in
+      # two steps.
+      - name: Checkout coding standard
+        uses: actions/checkout@v2
+        with:
+          repository: backdrop-ops/phpcs
+          ref: 1.0.0-beta1
+          path: phpcs
+      - name: Move standard outside current dir
+        run: mv phpcs ..
 
       - uses: actions/checkout@v2
 
-      - name: Get composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-
-      - name: Cache composer directory
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('./composer.json') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Composer install coder_sniffer
-        run: composer install --ansi --prefer-dist --no-interaction --no-progress
-
       - name: Backdrop coding standards
-        run: >
-          vendor/bin/phpcs -n
-          --standard=vendor/backdrop/coder/coder_sniffer/Backdrop
-          --ignore="vendor/*,i18n_field/i18n_field.inc,i18n_menu/i18n_menu.inc,i18n_object.inc,i18n_path/i18n_path.inc,i18n_string/i18n_string.inc,i18n_string/views/i18n_string_views_handler*,i18n_taxonomy/i18n_taxonomy.inc,i18n_translation/i18n_translation.inc"
-          --extensions=install,module,php,inc .
+        run: phpcs --standard=../phpcs/Backdrop -n *
