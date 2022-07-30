@@ -26,6 +26,11 @@ parameters:
 			path: ../../i18n_string/i18n_string.inc
 
 		-
+			message: "#^Function l10n_client_save_string not found\\.$#"
+			count: 1
+			path: ../../i18n_string/i18n_string.pages.inc
+
+		-
 			message: "#^Function i18n_taxonomy_translation_overview not found\\.$#"
 			count: 1
 			path: ../../i18n_taxonomy/i18n_taxonomy.admin.inc
