@@ -24,4 +24,4 @@ jobs:
       - name: Run PHPStan
         run: |
           cd modules/i18n
-          phpstan analyze -c .github/phpstan/phpstan.neon --error-format=github --no-progress
+          phpstan analyze -c .github/phpstan/phpstan.neon --error-format=github --no-progress .
