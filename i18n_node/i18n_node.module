@@ -34,9 +34,12 @@ function i18n_node_menu() {
  * Implements hook_block_view_MODULE_DELTA_alter().
  *
  * Set translated help text for node/add pages, replace node_help() text.
+ *
+ * @todo This is dead code that never runs, as this block delta doesn't exist
+ * in Backdrop.
  */
 function i18n_node_block_view_system_help_alter(&$block) {
-  $arg = backdrop_help_arg(arg(NULL));
+  $arg = arg();
   if ($arg[0] == 'node' && $arg[1] == 'add' && $arg[2]) {
     if (($type = node_type_get_type(str_replace('-', '_', $arg[2]))) && !empty($type->help)) {
       $help = i18n_node_translate_type($type, 'help', NULL, array('sanitize' => FALSE));

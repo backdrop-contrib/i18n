@@ -11,11 +11,6 @@ parameters:
 			path: ../../i18n_menu/i18n_menu.module
 
 		-
-			message: "#^Function backdrop_help_arg not found\\.$#"
-			count: 1
-			path: ../../i18n_node/i18n_node.module
-
-		-
 			message: "#^Access to an undefined property i18n_string_textgroup_default\\:\\:\\$string_format\\.$#"
 			count: 1
 			path: ../../i18n_string/i18n_string.inc
