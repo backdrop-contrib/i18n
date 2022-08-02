@@ -40,4 +40,7 @@ jobs:
           phpstan analyze -c .github/phpstan/phpstan.neon --error-format=github --no-progress .
 
       - name: Run CodeSniffer
-        run: phpcs --standard=../../../phpcs/Backdrop -n *
+        run: |
+          echo $PWD
+          cd modules/i18n
+          phpcs --standard=../../../phpcs/Backdrop -n *
