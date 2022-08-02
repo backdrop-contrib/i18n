@@ -45,7 +45,9 @@ jobs:
       - name: Run CodeSniffer
         if: ${{ always() }}
         id: phpcs
-        run:  phpcs --standard=../phpcs/Backdrop --report-json=/tmp/output.json -n modules/i18n/*
+        run: |
+          cd modules/i18n
+          phpcs --standard=../../../phpcs/Backdrop --report-json=/tmp/output.json -n --base-path=. *
 
       # This step only runs if phpcs failed
       - name: Convert error output
