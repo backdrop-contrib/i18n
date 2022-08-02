@@ -4,6 +4,7 @@ jobs:
   codechecks:
     name: PHPStan and phpcs
     runs-on: ubuntu-20.04
+    timeout-minutes: 15
     steps:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -34,7 +35,9 @@ jobs:
         with:
           path: modules/i18n
 
+      # We run phpcs even if phpstan fails.
       - name: Run PHPStan
+        continue-on-error: true
         run: |
           cd modules/i18n
           phpstan analyze -c .github/phpstan/phpstan.neon --error-format=github --no-progress .
