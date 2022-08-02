@@ -1,0 +1,43 @@
+name: Code Checks
+on: [pull_request]
+jobs:
+  codechecks:
+    name: PHPStan and phpcs
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.1
+          # No composer, but we need our commandline tools.
+          tools: none, phpstan:1.8, phpcs:3.7
+
+      # The checkout action refuses to put it outside, so we have to do it in
+      # two steps.
+      - name: Checkout coding standard
+        uses: actions/checkout@v2
+        with:
+          repository: backdrop-ops/phpcs
+          ref: 1.0.0-beta1
+          path: phpcs
+      - name: Move standard outside current dir
+        run: mv phpcs ..
+
+      # Core code is necessary for phpstan.
+      - name: Checkout Backdrop core
+        uses: actions/checkout@v2
+        with:
+          repository: backdrop/backdrop
+
+      - name: Checkout module
+        uses: actions/checkout@v2
+        with:
+          path: modules/i18n
+
+      - name: Run PHPStan
+        run: |
+          cd modules/i18n
+          phpstan analyze -c .github/phpstan/phpstan.neon --error-format=github --no-progress .
+
+      - name: Run CodeSniffer
+        run: phpcs --standard=../../../phpcs/Backdrop -n *
