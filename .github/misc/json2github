@@ -4,6 +4,14 @@
  * @file
  * Helper script to parse json input provided by phpcs into a format GitHub
  * Actions can handle properly for annotations.
+ *
+ * To get the output you need, two phpcs parameters are important:
+ * --report-json=
+ * Let phpcs write the output to the file, use that path as only parameter for
+ * this script.
+ * --basepath=
+ * This tells phpcs to strip off everything outside your repo, otherwise it adds
+ * /home/runner/work/... to file paths - and then annotations won't work.
  */
 if (!isset($argv[1])) {
   print 'This script requires one argument' . "\n";
