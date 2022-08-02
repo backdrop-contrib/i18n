@@ -6,6 +6,10 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 15
     steps:
+      - name: Setup env
+        run: |
+          echo "REPO_NAME=${PWD##*/}" >> $GITHUB_ENV
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -33,12 +37,12 @@ jobs:
       - name: Checkout module
         uses: actions/checkout@v2
         with:
-          path: modules/i18n
+          path: modules/${{ env.REPO_NAME }}
 
       # We run phpcs even if phpstan fails.
       - name: Run PHPStan
         run: |
-          cd modules/i18n
+          cd modules/${{ env.REPO_NAME }}
           phpstan analyze -c .github/phpstan/phpstan.neon --error-format=github --no-progress .
 
       # Every step starts again in the main directory.
@@ -46,13 +50,13 @@ jobs:
         if: ${{ always() }}
         id: phpcs
         run: |
-          cd modules/i18n
+          cd modules/${{ env.REPO_NAME }}
           phpcs --standard=../../../phpcs/Backdrop --report-json=/tmp/output.json -n --basepath=. *
 
       # This step only runs if phpcs failed
       - name: Convert error output
         if: ${{ failure() && steps.phpcs.conclusion == 'failure' }}
         run: |
-          cd modules/i18n
+          cd modules/${{ env.REPO_NAME }}
           chmod 755 .github/misc/json2github
           .github/misc/json2github /tmp/output.json
