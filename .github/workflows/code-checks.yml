@@ -44,4 +44,4 @@ jobs:
 
       # Every step starts again in the main directory.
       - name: Run CodeSniffer
-        run: phpcs --standard=../phpcs/Backdrop -n modules/i18n/*
+        run: phpcs --standard=../phpcs/Backdrop --report=checkstyle -n modules/i18n/*
