@@ -39,8 +39,6 @@ jobs:
           cd modules/i18n
           phpstan analyze -c .github/phpstan/phpstan.neon --error-format=github --no-progress .
 
+      # Every step starts again in the main directory.
       - name: Run CodeSniffer
-        run: |
-          echo $PWD
-          cd modules/i18n
-          phpcs --standard=../../../phpcs/Backdrop -n *
+        run: phpcs --standard=../phpcs/Backdrop -n modules/i18n/*

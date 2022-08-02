@@ -1,13 +1,15 @@
 <?php
+
 /**
  * @file
+ *
  * Internationalization (i18n) module.
  *
  * This module extends multilingual support being the base module
  * for the i18n package.
  * - Multilingual variables
  * - Extended languages for nodes
- * - Extended language API.
+ * - Extended language API
  *
  * @author Jose A. Reyero, 2004
  */
