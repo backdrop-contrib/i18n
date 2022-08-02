@@ -47,7 +47,7 @@ jobs:
         id: phpcs
         run: |
           cd modules/i18n
-          phpcs --standard=../../../phpcs/Backdrop --report-json=/tmp/output.json -n --base-path=. *
+          phpcs --standard=../../../phpcs/Backdrop --report-json=/tmp/output.json -n --basepath=. *
 
       # This step only runs if phpcs failed
       - name: Convert error output
