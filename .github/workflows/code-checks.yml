@@ -37,11 +37,20 @@ jobs:
 
       # We run phpcs even if phpstan fails.
       - name: Run PHPStan
-        continue-on-error: true
         run: |
           cd modules/i18n
           phpstan analyze -c .github/phpstan/phpstan.neon --error-format=github --no-progress .
 
       # Every step starts again in the main directory.
       - name: Run CodeSniffer
-        run: phpcs --standard=../phpcs/Backdrop --report=checkstyle -n modules/i18n/*
+        if: ${{ always() }}
+        id: phpcs
+        run:  phpcs --standard=../phpcs/Backdrop --report-json=/tmp/output.json -n modules/i18n/*
+
+      # This step only runs if phpcs failed
+      - name: Convert error output
+          if: ${{ failure() && steps.phpcs.conclusion == 'failure' }}
+        run: |
+          cd modules/i18n
+          chmod 755 .github/misc/json2github
+          .github/misc/json2github /tmp/output.json

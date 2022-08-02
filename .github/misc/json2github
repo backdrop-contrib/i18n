@@ -1,0 +1,52 @@
+#!/usr/bin/env php
+<?php
+/**
+ * @file
+ * Helper script to parse json input provided by phpcs into a format GitHub
+ * Actions can handle properly for annotations.
+ */
+if (!isset($argv[1])) {
+  print 'This script requires one argument' . "\n";
+  exit(1);
+}
+else {
+  $file = $argv[1];
+}
+$input = NULL;
+
+if (is_readable($file)) {
+  $input = file_get_contents($file);
+  if (!empty($input)) {
+    process_input($input);
+  }
+  else {
+    print 'No input' . "\n";
+  }
+}
+else {
+  print "File $file does not exist or is not readable\n";
+  exit(1);
+}
+
+/**
+ * Process json input and print.
+ */
+function process_input($input) {
+  try {
+    $output = json_decode($input, TRUE);
+    if (!empty($output) && !empty($output['files'])) {
+      foreach ($output['files'] as $filepath => $data) {
+        foreach ($data['messages'] as $message) {
+          $line = '::' . strtolower($message['type']) . ' file=' . $filepath;
+          $line .= ',line=' . $message['line'] . ',col=' . $message['column'];
+          $line .= '::' . $message['message'];
+          print $line . "\n";
+        }
+      }
+    }
+  }
+  catch(Exception $e) {
+    print 'Unparsable input' . "\n";
+    exit(1);
+  }
+}

@@ -2,8 +2,7 @@
 
 /**
  * @file
- *
- * Internationalization (i18n) module.
+ * the Internationalization (i18n) module.
  *
  * This module extends multilingual support being the base module
  * for the i18n package.
