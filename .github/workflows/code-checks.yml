@@ -49,4 +49,4 @@ jobs:
         if: ${{ always() }}
         run: |
           cd modules/${{ env.REPO_NAME }}
-          phpcs --standard=../../../phpcs/Backdrop --report=.github/misc/Github.php --basepath=. *
+          phpcs --standard=../../../phpcs/Backdrop --report=.github/misc/Github.php -n --basepath=. *
