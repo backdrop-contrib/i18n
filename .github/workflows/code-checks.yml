@@ -20,7 +20,7 @@ jobs:
       # The checkout action refuses to put it outside, so we have to do it in
       # two steps.
       - name: Checkout coding standard
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: backdrop-ops/phpcs
           ref: 1.0.0-beta1
@@ -30,12 +30,12 @@ jobs:
 
       # Core code is necessary for phpstan.
       - name: Checkout Backdrop core
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: backdrop/backdrop
 
       - name: Checkout module
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           path: modules/${{ env.REPO_NAME }}
 
