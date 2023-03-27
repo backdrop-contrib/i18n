@@ -85,11 +85,23 @@ function i18n_taxonomy_tokens($type, $tokens, array $data = array(), array $opti
           break;
 
         case 'i18n-parent':
-          if ($parents = taxonomy_get_parents($term->tid)) {
+          if ($parents = taxonomy_term_load_parents($term->tid)) {
             $parent = array_pop($parents);
             $replacements[$original] = check_plain(i18n_taxonomy_term_name($parent, $langcode));
           }
           break;
+      }
+
+      // [term:i18n-vocabulary:*] chained tokens.
+      if ($vocabulary_tokens = token_find_with_prefix($tokens, 'i18n-vocabulary')) {
+        $vocabulary = taxonomy_vocabulary_load($term->vocabulary);
+        $replacements += token_generate('vocabulary', $vocabulary_tokens, array('vocabulary' => $vocabulary), $options);
+      }
+
+      // [term:i18n-parent:*] chained tokens.
+      if (($vocabulary_tokens = token_find_with_prefix($tokens, 'i18n-parent')) && $parents = taxonomy_term_load_parents($term->tid)) {
+        $parent = array_pop($parents);
+        $replacements += token_generate('term', $vocabulary_tokens, array('term' => $parent), $options);
       }
     }
   }
