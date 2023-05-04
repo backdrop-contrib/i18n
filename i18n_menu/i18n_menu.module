@@ -75,7 +75,7 @@ function i18n_menu_menu_alter(&$items) {
  *
  * @see theme_menu_admin_overview()
  */
-function i18n_menu_preprocess_menu_admin_overview(&$variables) {
+function i18n_menu_preprocess_menu_admin_overview(array &$variables) {
   $base_context = "menu:menu:{$variables['name']}:";
   $variables['title'] = i18n_string($base_context . 'title', $variables['title']);
   $variables['description'] = i18n_string($base_context . 'description', $variables['description']);
@@ -575,7 +575,7 @@ function _i18n_menu_link_check_alter($link) {
  * @return bool
  *   Returns TRUE if link is localizable.
  */
-function _i18n_menu_link_is_localizable($link, $check_strings = FALSE) {
+function _i18n_menu_link_is_localizable(array $link, $check_strings = FALSE) {
   return !empty($link['customized']) && !i18n_object_langcode($link, FALSE, 'langcode') && i18n_menu_mode($link['menu_name'], I18N_MODE_LOCALIZE) &&
   (!$check_strings || _i18n_menu_link_localizable_properties($link));
 }
@@ -770,6 +770,23 @@ function i18n_menu_form_menu_overview_form_alter(&$form, &$form_state) {
       }
     }
   }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * FORM_ID = i18n_string_translate_page_overview_form.
+ * Add help text to menu translation overview pages, e.g.
+ * "admin/structure/menu/manage/main-menu/translate".
+ */
+function i18n_menu_form_i18n_string_translate_page_overview_form_alter(&$form, &$form_state) {
+  $form['help'] = array(
+    '#type' => 'help',
+    '#markup' => t('Provides a translation for the menu title to be used in administrative contexts. If a menu title is being displayed for a block in a layout, translate it on the <a href="!url">User interface translation</a> page.', array(
+      '!url' => url('admin/config/regional/translate'),
+    )),
+    '#weight' => -1,
+  );
 }
 
 /**
