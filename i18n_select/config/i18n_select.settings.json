@@ -1,7 +1,7 @@
 {
     "_config_name": "i18n_select.settings",
     "i18n_select_nodes": 1,
-    "i18n_select_taxonomy": 1,
+    "i18n_select_taxonomy": 0,
     "i18n_select_skip_tags": "views",
     "i18n_select_page_mode": "0",
     "i18n_select_page_list": "admin/*",
