@@ -292,6 +292,10 @@ function i18n_node_node_type_update($info) {
  * Implements hook_node_type_delete().
  */
 function i18n_node_node_type_delete($info) {
+  if ($info->settings['language']) {
+    $node_type = $info->type;
+    config_clear('i18n.settings', "i18n_node.type_{$node_type}");
+  }
   i18n_string_object_remove('node_type', $info);
 }
 
@@ -379,53 +383,54 @@ function i18n_node_form_search_form_alter(&$form, &$form_state) {
  * Implements hook_form_FORM_ID_alter().
  */
 function i18n_node_form_node_type_form_alter(&$form, &$form_state) {
-  if (isset($form['type'])) {
-    $form['multilingual']['i18n_node'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Multilingual settings'),
-      '#collapsible' => TRUE,
-      '#attributes' => array(
-        'class' => array('i18n-node-type-settings-form'),
+  $form['multilingual']['i18n_node'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Multilingual settings'),
+    '#collapsible' => TRUE,
+    '#attributes' => array(
+      'class' => array('i18n-node-type-settings-form'),
+    ),
+    '#description' => t('Extended multilingual options provided by Internationalization module.'),
+    '#tree' => TRUE,
+    '#states' => array(
+      'invisible' => array(
+        ':input[name="language"]' => array('value' => '0'),
       ),
-      '#description' => t('Extended multilingual options provided by Internationalization module.'),
-      '#tree' => TRUE,
-      '#states' => array(
-        'invisible' => array(
-          ':input[name="language"]' => array('value' => '0'),
-        ),
-      ),
-    );
-    $form['#submit'][] = 'i18n_node_type_settings_submit';
+    ),
+  );
+  $form['#submit'][] = 'i18n_node_type_settings_submit';
 
-    // Some settings about node languages.
-    // Add variables for node type from config.
-    if ($form['#node_type']->type) {
-      $node_type = $form['#node_type']->type;
-      $config = config_get('i18n.settings', 'i18n_node.type_' . $node_type);
-
-      $form['multilingual']['i18n_node']['options'] = array(
-        '#type' => 'checkboxes',
-        '#title' => t('Extended language options'),
-        '#options' => array(
-          'current' => t('Set current language as default for new content.'),
-          'required' => t('Require language (Do not allow Language Neutral).'),
-          'lock' => t('Lock language (Cannot be changed).'),
-        ),
-        '#default_value' => isset($config['options']) ? $config['options'] : array(),
-      );
-      $form['multilingual']['i18n_node']['extended'] = array(
-        '#type' => 'radios',
-        '#title' => t('Extended language support'),
-        '#options' => array(
-          I18N_LANGUAGE_ENABLED => t('Normal - All enabled languages will be allowed.'),
-          I18N_LANGUAGE_EXTENDED => t('Extended - All defined languages will be allowed.'),
-          I18N_LANGUAGE_EXTENDED | I18N_LANGUAGE_HIDDEN => t('Extended, but not displayed - All defined languages will be allowed for input, but not displayed in links.'),
-        ),
-        '#default_value' => isset($config['extended']) ? $config['extended'] : I18N_LANGUAGE_ENABLED,
-        '#description' => t('If enabled, all defined languages will be allowed for this content type in addition to only enabled ones. This is useful to have more languages for content than for the interface.'),
-      );
-    }
+  // Some settings about node languages.
+  $node_type = $form['#node_type']->type;
+  // When creating a new node type, the machine name doesn't even exist.
+  if (!empty($node_type)) {
+    $config = config_get('i18n.settings', 'i18n_node.type_' . $node_type);
   }
+  else {
+    $config = array();
+  }
+
+  $form['multilingual']['i18n_node']['options'] = array(
+    '#type' => 'checkboxes',
+    '#title' => t('Extended language options'),
+    '#options' => array(
+      'current' => t('Set current language as default for new content.'),
+      'required' => t('Require language (Do not allow Language Neutral).'),
+      'lock' => t('Lock language (Cannot be changed).'),
+    ),
+    '#default_value' => isset($config['options']) ? $config['options'] : array(),
+  );
+  $form['multilingual']['i18n_node']['extended'] = array(
+    '#type' => 'radios',
+    '#title' => t('Extended language support'),
+    '#options' => array(
+      I18N_LANGUAGE_ENABLED => t('Normal - All enabled languages will be allowed.'),
+      I18N_LANGUAGE_EXTENDED => t('Extended - All defined languages will be allowed.'),
+      I18N_LANGUAGE_EXTENDED | I18N_LANGUAGE_HIDDEN => t('Extended, but not displayed - All defined languages will be allowed for input, but not displayed in links.'),
+    ),
+    '#default_value' => isset($config['extended']) ? $config['extended'] : I18N_LANGUAGE_ENABLED,
+    '#description' => t('If enabled, all defined languages will be allowed for this content type in addition to only enabled ones. This is useful to have more languages for content than for the interface.'),
+  );
 }
 
 /**
