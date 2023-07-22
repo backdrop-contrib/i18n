@@ -39,8 +39,7 @@ function i18n_select_init() {
 /**
  * Implements hook_block_list_alter().
  *
- * Dirty trick to enable selection for blocks though it may be disabled
- * for the current page.
+ * Note that this is dead code, no such hook in Backdrop.
  */
 function i18n_select_block_list_alter(&$blocks) {
   // Still, skip for form submission. There are pages like the ones produced

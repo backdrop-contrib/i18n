@@ -21,7 +21,7 @@ function i18n_select_admin_settings() {
   );
   $form['types']['i18n_select_taxonomy'] = array(
     '#title' => t('Select taxonomy terms by language'),
-    '#type' => 'boolean',
+    '#type' => 'checkbox',
     '#default_value' => isset($config['i18n_select_taxonomy']) ? $config['i18n_select_taxonomy'] : TRUE,
     '#disabled' => !module_exists('i18n_taxonomy'),
   );
