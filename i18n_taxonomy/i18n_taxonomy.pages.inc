@@ -69,7 +69,7 @@ function i18n_taxonomy_autocomplete_field($field_name, $tags_typed = '') {
   // Part of the criteria for the query come from the field's own settings.
   $field = field_info_field($field_name);
   $vids = array();
-  $vocabularies = taxonomy_vocabulary_get_names();
+  $vocabularies = taxonomy_vocabulary_load_multiple(FALSE);
   foreach ($field['settings']['allowed_values'] as $tree) {
     $vids[] = $vocabularies[$tree['vocabulary']]->machine_name;
   }
