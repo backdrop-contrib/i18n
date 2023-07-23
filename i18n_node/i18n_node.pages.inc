@@ -276,7 +276,7 @@ function i18n_node_nid2autocomplete($nid) {
  * @param string $field
  *   Form field name attribute.
  */
-function i18n_node_autocomplete2nid($name, $type, $language, $field = NULL) {
+function i18n_node_autocomplete2nid($name, $type, array $language, $field = NULL) {
   if (!empty($name)) {
     preg_match('/^(?:\s*|(.*) )?\[\s*nid\s*:\s*(\d+)\s*\]$/', $name, $matches);
     if (!empty($matches)) {
@@ -316,7 +316,7 @@ function i18n_node_autocomplete2nid($name, $type, $language, $field = NULL) {
  * @param array $params
  *   Other query arguments: type, language or numeric ones.
  */
-function _i18n_node_references($string, $match = 'contains', $params = array(), $limit = 10) {
+function _i18n_node_references($string, $match = 'contains', array $params = array(), $limit = 10) {
   $query = db_select('node', 'n')
     ->fields('n', array('nid', 'title', 'type'))
     ->orderBy('n.title')

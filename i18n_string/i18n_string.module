@@ -1016,8 +1016,8 @@ function i18n_string_translation_search($name, $langcode = NULL) {
  * @param array|string $name
  *   Array or string concatenated with ':' that contains
  *   textgroup and string context.
- * @param string $translation
- *   Translation string for this language code.
+ * @param array|string $translation
+ *   Translation string for this language code. Might be an array with multiple.
  * @param string $langcode
  *   The language code to translate to a language other than
  *   what is used to display the page.

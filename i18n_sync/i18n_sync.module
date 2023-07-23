@@ -136,6 +136,8 @@ function i18n_sync_node_check($node) {
 /**
  * Get node translations if any, excluding the node itself.
  *
+ * @param Node $node
+ *   The node object.
  * @param bool $reset
  *   Whether to reset the translation_node_get_translations cache.
  */

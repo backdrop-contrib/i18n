@@ -161,7 +161,7 @@ function i18n_string_refresh_string_list($strings) {
  * @param bool $delete
  *   Optional, delete existing (but not refresed, strings and translations)
  */
-function i18n_string_refresh_batch($groups, $delete = FALSE) {
+function i18n_string_refresh_batch(array $groups, $delete = FALSE) {
   $operations = array();
   foreach ($groups as $group) {
     $operations[] = array('_i18n_string_batch_refresh_prepare', array($group));

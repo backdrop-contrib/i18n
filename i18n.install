@@ -24,7 +24,7 @@ function i18n_install() {
  *   necessary when additional implementations of hook_schema_alter() have
  *   become available since the schema was originally built.
  */
-function i18n_install_create_fields($table, $fields, $force_rebuild_schema = FALSE) {
+function i18n_install_create_fields($table, array $fields, $force_rebuild_schema = FALSE) {
   static $schema;
   $rebuild_schema = !isset($schema) || $force_rebuild_schema;
   $schema = backdrop_get_schema($table, $rebuild_schema);

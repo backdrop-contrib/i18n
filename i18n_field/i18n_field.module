@@ -419,7 +419,7 @@ function i18n_field_instance_update_strings($instance) {
  *   The array of allowed values. Keys of the array are the raw stored values
  *   (number or text), values of the array are the display labels.
  */
-function i18n_field_translate_allowed_values($field, $langcode = NULL) {
+function i18n_field_translate_allowed_values(array $field, $langcode = NULL) {
   if (!empty($field['settings']['allowed_values'])) {
     $context = array(
       'field',

@@ -14,7 +14,7 @@ class i18n_string_views_handler_argument_locale_group extends views_handler_argu
    * Set up.
    */
   public function construct() {
-    parent::construct('group');
+    parent::construct();
   }
 
   /**
