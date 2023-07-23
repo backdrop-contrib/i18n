@@ -865,7 +865,7 @@ class i18n_string_textgroup_default {
    *   - 'check', whether to check string format and then update/delete
    *       if not allowed.
    */
-  public function context_update($context, $string, $options = array()) {
+  public function context_update($context, $string, array $options = array()) {
     $options += array(
       'format' => FALSE,
       'messages' => $this->debug,
@@ -916,7 +916,7 @@ class i18n_string_textgroup_default {
    * @return array
    *   Array of i18n string objects.
    */
-  protected function multiple_translation_build($translations, $langcode) {
+  protected function multiple_translation_build(array $translations, $langcode) {
     $strings = array();
     foreach ($translations as $translation) {
       // The string object may be already in list.
@@ -954,7 +954,7 @@ class i18n_string_textgroup_default {
    * @return array
    *   Array of string objects with translation set.
    */
-  protected function multiple_translation_load($conditions, $langcode) {
+  protected function multiple_translation_load(array $conditions, $langcode) {
     $conditions += array(
       'language' => $langcode,
       'textgroup' => $this->textgroup,
@@ -1061,7 +1061,7 @@ class i18n_string_textgroup_default {
    * @param array $strings
    *   Array of strings (may be empty) to cache.
    */
-  protected function multiple_cache_set($context, $strings) {
+  protected function multiple_cache_set(array $context, array $strings) {
     $cache_key = implode(':', $context);
     $this->cache_multiple[$cache_key] = $strings;
   }
@@ -1076,7 +1076,7 @@ class i18n_string_textgroup_default {
    *   Array of strings (may be empty) if we've got a cache hit.
    *   Null otherwise.
    */
-  protected function multiple_cache_get($context) {
+  protected function multiple_cache_get(array $context) {
     $cache_key = implode(':', $context);
     if (isset($this->cache_multiple[$cache_key])) {
       return $this->cache_multiple[$cache_key];
@@ -1116,7 +1116,7 @@ class i18n_string_textgroup_default {
    *   Array of string objects (with translation)
    *   indexed by the placeholder field.
    */
-  public function multiple_translate($context, $strings = array(), $options = array()) {
+  public function multiple_translate(array $context, array $strings = array(), array $options = array()) {
     // First, build conditions and identify the variable field.
     $search = $context = array_combine(array('type', 'objectid', 'property'), $context);
     $langcode = isset($options['langcode']) ? $options['langcode'] : i18n_langcode();
@@ -1169,7 +1169,7 @@ class i18n_string_textgroup_default {
    * @param object $translation
    *   String translation for this language.
    */
-  public function update_translation($context, $langcode, $translation) {
+  public function update_translation(array $context, $langcode, $translation) {
     $i18nstring = $this->build_string($context);
     if ($source = $i18nstring->get_source()) {
       $source->set_translation($translation, $langcode);
@@ -1219,7 +1219,7 @@ class i18n_string_object_wrapper extends i18n_object_wrapper {
    *   Array with processing options.
    *   - 'empty', whether to return empty strings, defaults to FALSE.
    */
-  public function get_strings($options = array()) {
+  public function get_strings(array $options = array()) {
     $options += array('empty' => FALSE);
     $strings = array();
     foreach ($this->get_properties() as $textgroup => $textgroup_list) {
@@ -1585,7 +1585,7 @@ class i18n_string_textgroup_cached extends i18n_string_textgroup_default {
    *   Array of strings (may be empty) if we've got a cache hit.
    *   Null otherwise.
    */
-  protected function multiple_cache_get($context) {
+  protected function multiple_cache_get(array $context) {
     // Ensure the values from the persistent cache are properly re-build.
     $cache_key = implode(':', $context);
     if (isset($this->cache_multiple[$cache_key])) {

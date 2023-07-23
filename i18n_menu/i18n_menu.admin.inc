@@ -139,6 +139,8 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
  * @param array $item
  *   The menu item or the node type for which to generate a list of parents.
  *   If $item['mlid'] == 0 then the complete tree is returned.
+ * @param string $langcode
+ *   Language code.
  *
  * @return array
  *   An array of menu link titles keyed on the a string containing the menu name
@@ -147,7 +149,7 @@ function i18n_menu_translation_form_submit($form, &$form_state) {
  * @todo This has to be turned into a #process form element callback. The
  *   'menu_override_parent_selector' variable is entirely superfluous.
  */
-function i18n_menu_parent_options($menus, $item, $langcode) {
+function i18n_menu_parent_options(array $menus, array $item, $langcode) {
   // The menu_links table can be practically any size and we need a way to
   // allow contrib modules to provide more scalable pattern choosers.
   // hook_form_alter is too late in itself because all the possible parents are

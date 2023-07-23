@@ -20,7 +20,6 @@ function i18n_field_page_translate($instance, $language = NULL) {
     // language object loader is not working.
     $language = i18n_language_object($language);
     backdrop_set_title(t('Translate to !language', array('!language' => i18n_language_name($language->langcode))));
-    // Return backdrop_get_form('i18n_field_page_translate_form', $instance, $language->language);
     // Create form with two tabs, one for instance, once for field.
     $groups = array(
       'instance' => t('Field instance'),
