@@ -80,9 +80,6 @@ function i18n_string_object_type_string_list($type) {
  * @see backdrop_array_merge_deep()
  * @see array_merge_recursive()
  *
- * @param ...
- *   Arrays to merge.
- *
  * @return array
  *   The merged array.
  */

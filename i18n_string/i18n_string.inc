@@ -267,7 +267,7 @@ class i18n_string_object {
   /**
    * Get source string provided a string object.
    *
-   * @return object
+   * @return object|null
    *   String object if source exists.
    */
   public function get_source() {
@@ -609,7 +609,7 @@ class i18n_string_textgroup_default {
    * @param array $options
    *   Additional options.
    *
-   * @return status
+   * @return int|false
    *   SAVED_UPDATED | SAVED_NEW | SAVED_DELETED | FALSE (If the string is
    *     to be removed but has no source)
    */

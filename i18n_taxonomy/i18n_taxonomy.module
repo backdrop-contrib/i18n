@@ -475,12 +475,12 @@ function i18n_taxonomy_term_description($term, $langcode = NULL) {
 /**
  * Find term translation from translation set.
  *
- * @param object $term
+ * @param TaxonomyTerm $term
  *   Term object to find translation.
  * @param string $langcode
  *   Language code to find translation for.
  *
- * @return object
+ * @return TaxonomyTerm|null
  *   Taxonomy Term, translated if exists.
  */
 function i18n_taxonomy_term_get_translation($term, $langcode) {
@@ -623,6 +623,9 @@ function i18n_taxonomy_taxonomy_term_update($term) {
 
 /**
  * Implements hook_taxonomy_term_delete().
+ *
+ * @param TaxonomyTerm $term
+ *   The term object.
  */
 function i18n_taxonomy_taxonomy_term_delete($term) {
   // If a translation set exists for this term, remove this term from the set.

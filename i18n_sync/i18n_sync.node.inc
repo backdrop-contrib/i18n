@@ -103,6 +103,11 @@ function i18n_sync_node_translation_nodereference_field(&$node, &$translation, $
  *   English A and B are translated to German A and B, but English C is not.
  *   The syncronization from English A to German A
  *   would it German B and English C.
+ *
+ * @param Node $reference_node
+ *   The node object.
+ * @param string $langcode
+ *   The language code.
  */
 function i18n_sync_node_translation_reference_field(&$reference_node, $default_value, $langcode) {
   if (isset($reference_node->tnid) && translation_supported_type($reference_node->type)) {

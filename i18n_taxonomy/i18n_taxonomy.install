@@ -20,8 +20,8 @@ function i18n_taxonomy_install() {
     if (isset($data['language']) && $data['language'] == TAXONOMY_LANGUAGE_ENABLED) {
       // But only if multilingual support is enabled.
       $data['i18n_mode'] = I18N_MODE_NONE;
-      $data['langcode'] = LANGAGE_NONE;
-      $config->save($data);
+      $data['langcode'] = LANGUAGE_NONE;
+      $config->save();
     }
   }
 }
@@ -39,7 +39,7 @@ function i18n_taxonomy_uninstall() {
     $data = $config->get();
     unset($data['i18n_mode']);
     unset($data['langcode']);
-    $config->save($data);
+    $config->save();
   }
 }
 
