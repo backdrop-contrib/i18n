@@ -262,33 +262,37 @@ function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
   }
 
   // Translate field description if set and it is the default one.
-  if (!empty($instance_current['description']) && $instance_current['description'] != $instance['description']) {
-    if (!empty($alter_element['#description'])) {
-      // Allow single-value file fields and image fields to have their
-      // descriptions translated. file_field_widget_form() passes the
-      // description through theme('file_upload_help'), so i18n_field
-      // must do the same.
-      $filefield = in_array($field['type'], array('file', 'image'));
-      $single_value = ($field['cardinality'] == 1);
-      $no_default = empty($alter_element['#default_value']['fid']);
-      if ($filefield && $single_value && $no_default) {
-        $help_variables = array(
-          'description' => field_filter_xss($instance['description']),
-          'upload_validators' => isset($alter_element['#upload_validators']) ? $alter_element['#upload_validators'] : array(),
-        );
-        $original_description = theme('file_upload_help', $help_variables);
-        if ($alter_element['#description'] == $original_description) {
+  if (!empty($instance_current['description'])) {
+    if ($instance_current['description'] != $instance['description']) {
+      if (!empty($alter_element['#description'])) {
+        // Allow single-value file fields and image fields to have their
+        // descriptions translated. file_field_widget_form() passes the
+        // description through theme('file_upload_help'), so i18n_field
+        // must do the same.
+        $filefield = in_array($field['type'], array('file', 'image'));
+        $single_value = ($field['cardinality'] == 1);
+        $no_default = empty($alter_element['#default_value']['fid']);
+        if ($filefield && $single_value && $no_default) {
           $help_variables = array(
-            'description' => field_filter_xss($instance_current['description']),
+            'description' => field_filter_xss($instance['description']),
             'upload_validators' => isset($alter_element['#upload_validators']) ? $alter_element['#upload_validators'] : array(),
           );
-          $alter_element['#description'] = theme('file_upload_help', $help_variables);
+          $original_description = theme('file_upload_help', $help_variables);
+          if ($alter_element['#description'] == $original_description) {
+            $help_variables = array(
+              'description' => field_filter_xss($instance_current['description']),
+              'upload_validators' => isset($alter_element['#upload_validators']) ? $alter_element['#upload_validators'] : array(),
+            );
+            $alter_element['#description'] = theme('file_upload_help', $help_variables);
+          }
+        }
+        elseif ($alter_element['#description'] == field_filter_xss($instance['description'])) {
+          $alter_element['#description'] = field_filter_xss($instance_current['description']);
         }
       }
-      elseif ($alter_element['#description'] == field_filter_xss($instance['description'])) {
-        $alter_element['#description'] = field_filter_xss($instance_current['description']);
-      }
     }
+    // No matter if translated or not, we have to replace tokens.
+    $alter_element['#description'] = token_replace($alter_element['#description']);
   }
 
   // Translate list options.
