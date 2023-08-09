@@ -32,6 +32,7 @@ class i18n_string_object {
    */
   public $type;
   public $objectid;
+  public $objectindex;
   public $property;
   public $objectkey;
   public $format;
