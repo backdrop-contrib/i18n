@@ -107,13 +107,21 @@ function i18n_taxonomy_i18n_string_info() {
 
 /**
  * Implements hook_i18n_string_objects().
+ *
+ * @param string $type
+ *   The type to load, taxonomy_term.
+ * @return array
+ *   Array of taxonomy terms or empty array.
  */
 function i18n_taxonomy_i18n_string_objects($type) {
   if ($type == 'taxonomy_term') {
     $terms = array();
-    foreach (taxonomy_get_vocabularies() as $vid => $vocabulary) {
-      if (isset($vocabulary->i18n_mode) && $vocabulary->i18n_mode & I18N_MODE_LOCALIZE) {
-        foreach (taxonomy_get_tree($vid, 0) as $term) {
+    $config_names = config_get_names_with_prefix('taxonomy.vocabulary.');
+    foreach ($config_names as $config_name) {
+      $config = config($config_name);
+      if ($config->get('i18n_mode') == I18N_MODE_LOCALIZE) {
+        $vocab_name = $config->get('machine_name');
+        foreach (taxonomy_get_tree($vocab_name) as $term) {
           $terms[] = $term;
         }
       }
