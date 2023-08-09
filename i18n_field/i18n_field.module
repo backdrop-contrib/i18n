@@ -264,6 +264,9 @@ function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
   // Translate field description if set and it is the default one.
   if (!empty($instance_current['description']) && $instance_current['description'] != $instance['description']) {
     if (!empty($alter_element['#description'])) {
+      // @todo this is a temporary workaround for a core bug.
+      // @see https://github.com/backdrop/backdrop-issues/issues/6196
+      $alter_element['#description'] = token_replace($alter_element['#description']);
       // Allow single-value file fields and image fields to have their
       // descriptions translated. file_field_widget_form() passes the
       // description through theme('file_upload_help'), so i18n_field
