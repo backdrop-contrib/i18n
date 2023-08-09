@@ -32,6 +32,7 @@ class i18n_string_object {
    */
   public $type;
   public $objectid;
+  public $objectindex;
   public $property;
   public $objectkey;
   public $format;
@@ -371,6 +372,10 @@ class i18n_string_textgroup_default {
    * Cached or preloaded string objects.
    */
   public $strings = array();
+  /**
+   * String format.
+   */
+  public $string_format;
   /**
    * Multiple translations search map.
    */
