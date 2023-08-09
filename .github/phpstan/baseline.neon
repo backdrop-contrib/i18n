@@ -11,11 +11,6 @@ parameters:
 			path: ../../i18n_menu/i18n_menu.module
 
 		-
-			message: "#^Access to an undefined property i18n_string_textgroup_default\\:\\:\\$string_format\\.$#"
-			count: 1
-			path: ../../i18n_string/i18n_string.inc
-
-		-
 			message: "#^Function l10n_client_save_string not found\\.$#"
 			count: 1
 			path: ../../i18n_string/i18n_string.pages.inc
