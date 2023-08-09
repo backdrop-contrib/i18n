@@ -36,6 +36,7 @@ class i18n_string_object {
   public $property;
   public $objectkey;
   public $format;
+  public $string_format;
   /**
    * Properties from metadata.
    */
