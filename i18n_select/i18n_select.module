@@ -297,3 +297,14 @@ function i18n_select_language() {
 function i18n_select_langcodes() {
   return array(i18n_select_language()->langcode, LANGUAGE_NONE);
 }
+
+/**
+ * Implements hook_config_info().
+ */
+function i18n_select_config_info() {
+  $prefixes['i18n_select.settings'] = array(
+    'label' => t('Multilingual select settings'),
+    'group' => t('Configuration'),
+  );
+  return $prefixes;
+}
