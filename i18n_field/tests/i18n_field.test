@@ -132,4 +132,60 @@ class i18nFieldTestCase extends Backdropi18nTestCase {
     $this->assertRaw($default_value_translation[$this->secondaryLanguage], 'Default value translated');
   }
 
+  /**
+   * Test the translation of field description with token replacement.
+   */
+  public function testTextFieldTranslationTokens() {
+    $field_name = backdrop_strtolower($this->randomName());
+    $description = 'Foobar description for [site:name]';
+
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'text',
+      'cardinality' => 1,
+    );
+    field_create_field($field);
+
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'test_entity',
+      'bundle' => 'test_bundle',
+      'label' => $this->randomName(),
+      'description' => $description,
+      'widget' => array(
+        'type' => 'text_textfield',
+      ),
+    );
+    field_create_instance($instance);
+
+    // Refresh i18n_strings.
+    $edit = array('groups[field]' => TRUE);
+    $this->backdropPost('admin/config/regional/translate/i18n_string', $edit, t('Refresh strings'));
+
+    // Save description translation.
+    // We can't use createStringTranslation because of the white spaces in our
+    // string.
+    $description_es = 'Foobar descripción para [site:name]';
+    $description_es_tok = 'Foobar descripción para ' . config_get('system.core', 'site_name');
+
+    $this->backdropLogin($this->translator);
+    $search = array(
+      'string' => $description,
+      'language' => 'all',
+      'translation' => 'untranslated',
+    );
+    $this->backdropPost('admin/config/regional/translate/translate', $search, t('Filter'));
+    $this->clickLink(t('Edit'));
+    $edit = array(
+      'translations[' . $this->secondaryLanguage . ']' => $description_es,
+    );
+    $this->backdropPost(NULL, $edit, t('Save translations'));
+    $this->assertText(t('The string has been saved.'));
+
+    // Verify that token got replaced in translated field display.
+    $this->backdropLogin($this->admin_user);
+    $this->backdropGet($this->secondaryLanguage . '/test-entity/add/test-bundle');
+    $this->assertText($description_es_tok);
+  }
+
 }

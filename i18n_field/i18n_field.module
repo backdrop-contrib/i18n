@@ -285,8 +285,8 @@ function i18n_field_field_widget_form_alter(&$element, &$form_state, $context) {
           $alter_element['#description'] = theme('file_upload_help', $help_variables);
         }
       }
-      elseif ($alter_element['#description'] == field_filter_xss($instance['description'])) {
-        $alter_element['#description'] = field_filter_xss($instance_current['description']);
+      elseif ($alter_element['#description'] == field_filter_xss(token_replace($instance['description']))) {
+        $alter_element['#description'] = field_filter_xss(token_replace($instance_current['description']));
       }
     }
   }
