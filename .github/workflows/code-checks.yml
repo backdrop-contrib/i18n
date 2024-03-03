@@ -14,13 +14,14 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: 8.1
-          # No composer, but we need our commandline tools.
-          tools: none, phpstan:1.9, phpcs:3.7
+          # No composer nor xdebug, but we need our commandline tools.
+          tools: none, phpstan, phpcs
+          coverage: none
 
       # The checkout action refuses to put it outside, so we have to do it in
       # two steps.
       - name: Checkout coding standard
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: backdrop-ops/phpcs
           ref: 1.0.0-beta2
@@ -30,12 +31,12 @@ jobs:
 
       # Core code is necessary for phpstan.
       - name: Checkout Backdrop core
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: backdrop/backdrop
 
       - name: Checkout module
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: modules/${{ env.REPO_NAME }}
 
