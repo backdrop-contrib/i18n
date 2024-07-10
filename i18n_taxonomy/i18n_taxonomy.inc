@@ -22,7 +22,7 @@ class i18n_taxonomy_translation_set extends i18n_translation_set {
   public function get_path_placeholders($op = 'list') {
     $values = parent::get_path_placeholders($op);
     if (!empty($this->bundle)) {
-      $values['%taxonomy_vocabulary_machine_name'] = $this->bundle;
+      $values['%taxonomy_vocabulary'] = $this->bundle;
     }
     return $values;
   }

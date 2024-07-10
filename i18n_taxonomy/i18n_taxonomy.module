@@ -39,12 +39,12 @@ function i18n_taxonomy_i18n_settings_page_help() {
  * Implements hook_menu().
  */
 function i18n_taxonomy_menu() {
-  $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/list'] = array(
+  $items['admin/structure/taxonomy/%taxonomy_vocabulary/list/list'] = array(
     'title' => 'Terms',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'weight' => -20,
   );
-  $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets'] = array(
+  $items['admin/structure/taxonomy/%taxonomy_vocabulary/list/sets'] = array(
     'title' => 'Translation sets',
     'page callback' => 'i18n_taxonomy_translation_sets_overview',
     'page arguments' => array(3),
@@ -53,7 +53,7 @@ function i18n_taxonomy_menu() {
     'type' => MENU_LOCAL_TASK,
     'file' => 'i18n_taxonomy.admin.inc',
   );
-  $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/add'] = array(
+  $items['admin/structure/taxonomy/%taxonomy_vocabulary/list/sets/add'] = array(
     'title' => 'Create new translation',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_taxonomy_translation_term_form', 3),
@@ -63,7 +63,7 @@ function i18n_taxonomy_menu() {
     'parent' => 'admin/content/taxonomy/%taxonomy_vocabulary',
     'file' => 'i18n_taxonomy.admin.inc',
   );
-  $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/edit/%i18n_taxonomy_translation_set'] = array(
+  $items['admin/structure/taxonomy/%taxonomy_vocabulary/list/sets/edit/%i18n_taxonomy_translation_set'] = array(
     'title' => 'Edit translation',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_taxonomy_translation_term_form', 3, 7),
@@ -73,7 +73,7 @@ function i18n_taxonomy_menu() {
     'parent' => 'admin/content/taxonomy/%taxonomy_vocabulary',
     'file' => 'i18n_taxonomy.admin.inc',
   );
-  $items['admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/delete/%i18n_taxonomy_translation_set'] = array(
+  $items['admin/structure/taxonomy/%taxonomy_vocabulary/list/sets/delete/%i18n_taxonomy_translation_set'] = array(
     'title' => 'Delete translation',
     'page callback' => 'backdrop_get_form',
     'page arguments' => array('i18n_translation_set_delete_confirm', 7),
@@ -81,7 +81,7 @@ function i18n_taxonomy_menu() {
     'access arguments' => array(3),
     'type' => MENU_CALLBACK,
   );
-  $items['i18n/taxonomy/autocomplete/vocabulary/%taxonomy_vocabulary_machine_name/%'] = array(
+  $items['i18n/taxonomy/autocomplete/vocabulary/%taxonomy_vocabulary/%'] = array(
     'title' => 'Autocomplete taxonomy',
     'page callback' => 'i18n_taxonomy_autocomplete_language',
     'page arguments' => array(5, 4),
