@@ -118,14 +118,12 @@ function i18n_taxonomy_admin_paths() {
  * Take over the taxonomy pages.
  */
 function i18n_taxonomy_menu_alter(&$items) {
-  // When views overrides this path, the item for this path is NULL at this
-  // point. But only since core version 1.28.0.
+  // When views overrides this path, the item for this path at this point is
+  // NULL since core 1.28.0 because of changed hook order.
+  // The isset check does no harm with prior Backdrop versions, but not checking
+  // it would break all term pages as of core 1.28.
   // @see https://github.com/backdrop-contrib/i18n/issues/134
-  $views_override = FALSE;
-  if (version_compare(BACKDROP_VERSION, '1.28.0', '>=') && !isset($items['taxonomy/term/%taxonomy_term'])) {
-    $views_override = TRUE;
-  }
-  if (!module_exists('taxonomy_display') && !$views_override) {
+  if (!module_exists('taxonomy_display') && isset($items['taxonomy/term/%taxonomy_term'])) {
     // Taxonomy term page. Localize terms.
     $items['taxonomy/term/%taxonomy_term']['page callback'] = 'i18n_taxonomy_term_page';
     $items['taxonomy/term/%taxonomy_term']['title callback'] = 'i18n_taxonomy_term_name';
