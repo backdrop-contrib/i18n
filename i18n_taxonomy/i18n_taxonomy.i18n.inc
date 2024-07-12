@@ -38,12 +38,12 @@ function i18n_taxonomy_i18n_object_info() {
     'entity' => 'taxonomy_vocabulary',
     'key' => 'machine_name',
     'placeholders' => array(
-      '%taxonomy_vocabulary_machine_name' => 'machine_name',
+      '%taxonomy_vocabulary' => 'machine_name',
     ),
     // Auto generate edit path.
-    'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/edit',
+    'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary/edit',
     // Auto-generate translate tab.
-    'translate tab' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/translate',
+    'translate tab' => 'admin/structure/taxonomy/%taxonomy_vocabulary/translate',
     // We can easily list all these objects.
     'list callback' => 'taxonomy_get_vocabularies',
     // Metadata for string translation.
@@ -81,9 +81,9 @@ function i18n_taxonomy_i18n_translation_set_info() {
     'field' => 'i18n_tsid',
     'parent' => 'taxonomy_vocabulary',
     'placeholder' => '%i18n_taxonomy_translation_set',
-    'list path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets',
-    'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/edit/%i18n_taxonomy_translation_set',
-    'delete path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/delete/%i18n_taxonomy_translation_set',
+    'list path' => 'admin/structure/taxonomy/%taxonomy_vocabulary/list/sets',
+    'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary/list/sets/edit/%i18n_taxonomy_translation_set',
+    'delete path' => 'admin/structure/taxonomy/%taxonomy_vocabulary/list/sets/delete/%i18n_taxonomy_translation_set',
     'page callback' => 'i18n_taxonomy_term_translation_page',
   );
   return $info;

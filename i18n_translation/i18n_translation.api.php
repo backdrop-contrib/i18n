@@ -29,9 +29,9 @@ function hook_i18n_translation_set_info() {
     // Placeholders and path information
     // for generating translation set pages for administration.
     'placeholder' => '%i18n_taxonomy_translation_set',
-    'list path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets',
-    'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/edit/%i18n_taxonomy_translation_set',
-    'delete path' => 'admin/structure/taxonomy/%taxonomy_vocabulary_machine_name/list/sets/delete/%i18n_taxonomy_translation_set',
+    'list path' => 'admin/structure/taxonomy/%taxonomy_vocabulary/list/sets',
+    'edit path' => 'admin/structure/taxonomy/%taxonomy_vocabulary/list/sets/edit/%i18n_taxonomy_translation_set',
+    'delete path' => 'admin/structure/taxonomy/%taxonomy_vocabulary/list/sets/delete/%i18n_taxonomy_translation_set',
     'page callback' => 'i18n_taxonomy_term_translation_page',
   );
   return $info;
