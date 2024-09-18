@@ -1,9 +1,6 @@
 # Internationalization (i18n)
-<!---
-[![Build Status](https://travis-ci.org/backdrop-contrib/i18n.svg?branch=1.x)](https://travis-ci.org/backdrop-contrib/i18n)
--->
 
-This is a collection of modules to extend Backdrop core multilingual 
+I18n is a collection of modules to extend Backdrop core multilingual 
 capabilities and be able to build full-featured multilingual sites. This 
 module makes possible:
 
@@ -21,7 +18,7 @@ module makes possible:
 ## Installation
 
 - Install this module using the official 
-  [Backdrop CMS instructions](https://backdropcms.org/guide/modules)
+  [Backdrop CMS instructions](https://docs.backdropcms.org/documentation/extend-with-modules)
 
 
 ## Issues
@@ -32,7 +29,7 @@ Bugs and Feature requests should be reported in the
 ## Upgrade from Drupal 7
 
 Backdrop core took over several tasks for translations, so this module had
-to go through a bigger rewrite. Although it now contains less submodules,
+to go through a bigger rewrite. Although i18n now contains less submodules,
 most of the functionality should still be available.
 
 "Most" means, that some functionality had to be dropped or implemented
