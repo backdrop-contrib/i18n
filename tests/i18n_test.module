@@ -94,7 +94,6 @@ require_once __DIR__ . '/../i18n_string/i18n_string.inc';
  *
  * @todo Change this class to camelcase as soon as the base class is camelcase.
  */
-// @codingStandardsIgnoreStart
 class i18n_string_textgroup_cached_logged extends i18n_string_textgroup_cached {
 
   /**
@@ -108,4 +107,3 @@ class i18n_string_textgroup_cached_logged extends i18n_string_textgroup_cached {
   }
 
 }
-// @codingStandardsIgnoreEnd
