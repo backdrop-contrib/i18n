@@ -5,12 +5,10 @@
  */
 
 // @todo these constants aren't used anywhere. Obsolete?
-// @codingStandardsIgnoreStart
 // Language list with only enabled languages.
 define('I18N_ENTITY_LANGUAGES_ENABLED', 0);
 // Language list with all languages.
 define('I18N_ENTITY_LANGUAGES_EXTENDED', 1);
-// @codingStandardsIgnoreEnd
 
 /**
  * Implements hook_autoload_info().
