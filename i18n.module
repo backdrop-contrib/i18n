@@ -72,6 +72,7 @@ function i18n_config_info() {
  * Implements hook_hook_info().
  */
 function i18n_hook_info() {
+  // another comment
   $hooks['i18n_object_info'] = array(
     'group' => 'i18n',
   );
