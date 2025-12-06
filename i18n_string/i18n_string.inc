@@ -1619,7 +1619,7 @@ class i18n_string_textgroup_cached extends i18n_string_textgroup_default {
   /**
    * Function string_update.
    */
-  public function string_update($i18nstring, $options = array()) {
+  public function string_update($i18nstring, array $options = array()) {
     // Flush persistent cache.
     cache_clear_all($i18nstring->get_cid(), 'cache', TRUE);
     return parent::string_update($i18nstring, $options);
