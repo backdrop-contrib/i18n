@@ -782,6 +782,9 @@ function i18n_menu_form_menu_overview_form_alter(&$form, &$form_state) {
  * "admin/structure/menu/manage/main-menu/translate".
  */
 function i18n_menu_form_i18n_string_translate_page_overview_form_alter(&$form, &$form_state) {
+  if (strpos(current_path(), 'admin/structure/menu/') !== 0) {
+    return;
+  }
   $form['help'] = array(
     '#type' => 'help',
     '#markup' => t('Provides a translation for the menu title to be used in administrative contexts. If a menu title is being displayed for a block in a layout, translate it on the <a href="!url">User interface translation</a> page.', array(
