@@ -306,6 +306,18 @@ function i18n_string_update_1002() {
   // locale_update_1005() can not run on it, so we repeat the changes here.
   db_drop_index('locales_source_temp', 'source_context');
 
+  // Prevent fatal error, if there are special characters in these columns.
+  $connection = Database::getConnection();
+  if ($connection->utf8mb4IsSupported()) {
+    // Just in case:
+    $connection->query("ALTER TABLE `locales_source_temp` ROW_FORMAT=DYNAMIC ENGINE=INNODB");
+    $connection->query("ALTER TABLE `locales_target_temp` ROW_FORMAT=DYNAMIC ENGINE=INNODB");
+    // Change default for this table before converting blob to text. This does
+    // no conversion, only sets a default, that will apply to conversion below.
+    $connection->query("ALTER TABLE `locales_source_temp` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+    $connection->query("ALTER TABLE `locales_target_temp` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
+  }
+
   db_change_field('locales_source_temp', 'source', 'source',
     array(
       'type' => 'text',
